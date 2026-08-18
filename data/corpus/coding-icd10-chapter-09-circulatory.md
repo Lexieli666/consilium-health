@@ -11,9 +11,9 @@ last_reviewed: 2026-08-17
 
 ## The range and what it holds
 
-Chapter 9 of ICD-10-CM covers I00 through I99. Every code begins with the letter I, so a code can be
-placed on sight. It takes in the heart, the arteries and veins, the lymphatic vessels and lymph
-nodes, and the blood supply to the brain. Its blocks run in anatomical and mechanistic order rather
+Chapter 9 of ICD-10-CM covers I00 through I99. Every code begins with the letter I. It takes in the
+heart, the arteries and veins, the lymphatic vessels and lymph nodes, and the blood supply to the
+brain. Its blocks run in anatomical and mechanistic order rather
 than alphabetical, so codes sitting near each other describe related processes and knowing where a
 block begins narrows a lookup.
 
@@ -25,8 +25,8 @@ at I05 to I09 — the valve damage, mostly mitral and aortic, left behind by ear
 Hypertensive disease occupies I10 to I16, a short block carrying combination codes that fold
 hypertension together with heart or kidney disease attributed to it.
 
-Ischemic heart disease runs from I20 to I25, moving from angina through acute myocardial infarction
-to the chronic atherosclerotic disease that follows. Pulmonary heart disease and disorders of the
+Ischemic heart disease — coronary artery disease — runs from I20 to I25, moving from angina through
+acute myocardial infarction to the chronic atherosclerotic disease that follows. Pulmonary heart disease and disorders of the
 pulmonary circulation sit at I26 to I28: pulmonary embolism, pulmonary hypertension, and the
 right-sided heart disease that follows lung disease.
 
