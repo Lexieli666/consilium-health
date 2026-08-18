@@ -1,0 +1,402 @@
+# Emergency-symptom rule table.
+#
+# Consumed by the `assess_risk` skill and by `OutputRepair` in the safety layer.  `policy.yaml`
+# references this file by path rather than restating it, so there is exactly one copy of the list.
+#
+# This file is DATA, not policy.  It says which inputs look like emergencies and what the user must
+# be told; policy.yaml says who is allowed to do what with that fact.
+#
+# Matching contract, stated here because the file is useless without it:
+#
+#   * `patterns` are literal lowercase phrases, matched case-insensitively against the user's input
+#     on word boundaries.  Not regular expressions, and no stemming, suffix stripping or other
+#     morphological cleverness in the matcher -- what matches is exactly what is written below, so
+#     the list is reviewable by a non-programmer and an audit of it is an audit of the behaviour.
+#   * INFLECTED FORMS ARE ENUMERATED, NOT DERIVED.  Every pattern was audited against its plural,
+#     past-tense, third-person and gerund forms, and the variants that a person would plausibly
+#     type were added explicitly: "chest pains", "vomited blood", "threw up blood", "face drooped",
+#     "slurring speech", "lips turned blue", "killing myself".  An earlier version matched an
+#     optional trailing "s" in the regex instead; that covers pain/pains and silently fails on
+#     every irregular verb, which is the same defect one level up.  See docs/DESIGN.md for the
+#     audit and its counts.
+#   * Matching is on the INPUT, not the answer.  On the SSE path the banner is streamed before any
+#     model token; on /v1/ask and the CLI the repair happens before delivery.
+#   * NEGATION IS GUARDED, NARROWLY.  An explicit cue -- no, not, never, without, denies, denied,
+#     deny, negative, none -- within three tokens before a matched phrase suppresses that match, and
+#     a sentence boundary ends the window.  So "no chest pain" and "denies chest pain" do not
+#     escalate, while "not sure if this is chest pain" and "I have chest pain. No fever." still do.
+#     No parser, no scope analysis: see consilium/safety/red_flags.py.
+#
+#     Contracted negation is covered by normalizing any `n't` token to `not` before matching, so
+#     "I don't have chest pain", "haven't had chest pain" and "it isn't chest pain" all reach the
+#     `not` cue without the list growing a row per verb.  Apostrophe-free forms (dont, doesnt,
+#     havent, ...) are included, EXCEPT "cant" and "wont", which are real English words.
+#
+#     Note the cue list mixes registers: "denies"/"denied"/"deny" are how a clinician writes about
+#     a patient, not how a patient writes.  They are kept for clinician-authored input, but "no",
+#     "not" and the contractions are what make the guard work on what users actually type.
+#
+#     Patterns may themselves contain a negation word ("rash that does not fade", "no wet diapers").
+#     That is safe: the guard only inspects tokens BEFORE the start of a match, never inside it.
+#
+#     The naive alternative is to ignore negation on the grounds that a false negative on an
+#     emergency symptom is the worst error the system can make.  That is right in direction and
+#     wrong in magnitude -- a banner on "no chest pain" does not cost one banner, it costs the
+#     credibility of every later banner, and alarm fatigue is the standard failure mode of clinical
+#     alerting.  Hedges ("maybe", "possibly") are deliberately NOT cues: uncertainty about an
+#     emergency symptom is a reason to escalate, not to suppress.
+#
+#     Both policies are measured, not asserted.  Every match records whether a cue suppressed it,
+#     and the `turn` trace event carries `red_flag_matched_raw`, `red_flag_matched` and
+#     `red_flag_negation_suppressed`, so docs/EVALUATION.md reports recall and false-positive rate
+#     under each policy from one run.  If the guard costs ANY recall on the labelled set, the
+#     default reverts to raw matching and docs/DESIGN.md says so with the two numbers.
+#     `RedFlagTable(..., negation_guard=False)` is the switch; it is not a code edit.
+#   * `doc_id` links each rule to the corpus note that explains it, so an escalation can cite a
+#     source rather than appearing from nowhere.
+#
+# `source` names the KIND of authority the entry reflects, never a specific document -- the same
+# rule the corpus follows, for the same reason.  See docs/CORPUS.md.
+#
+# The golden set must NOT reuse these strings verbatim.  Labelled red-flag items are phrased the way
+# users actually write, or red-flag recall measures only whether the matcher matches itself.
+
+schema_version: 1
+
+entries:
+  - id: chest_pain_cardiac
+    doc_id: red-flag-chest-pain
+    body_system: cardiovascular
+    urgency: emergency
+    patterns:
+      - "chest pain"
+      - "chest pains"
+      - "chest pressure"
+      - "chest tightness"
+      - "chest heaviness"
+      - "crushing chest"
+      - "pain in my chest"
+      - "pains in my chest"
+      - "pain spreading to my arm"
+      - "pain spreads to my arm"
+      - "pain spread to my arm"
+      - "pain in my jaw and chest"
+      - "heart attack"
+      - "heart attacks"
+      - "angina at rest"
+    action: >-
+      Call emergency services now. Chest discomfort can indicate a heart attack, and treatment works
+      best in the first minutes. Do not drive yourself.
+    source: "Emergency medicine and cardiology society guidance"
+
+  - id: stroke_symptoms
+    doc_id: red-flag-stroke-symptoms
+    body_system: neurological
+    urgency: emergency
+    patterns:
+      - "face drooping"
+      - "face is drooping"
+      - "face was drooping"
+      - "face drooped"
+      - "face droops"
+      - "one side of my face"
+      - "sudden weakness"
+      - "weakness on one side"
+      - "numbness on one side"
+      - "slurred speech"
+      - "slurring speech"
+      - "slurred words"
+      - "slurring my words"
+      - "cannot speak"
+      - "can't speak"
+      - "couldn't speak"
+      - "can't find words"
+      - "cannot find words"
+      - "couldn't find words"
+      - "sudden confusion"
+      - "sudden vision loss"
+      - "sudden loss of balance"
+      - "stroke"
+      - "mini stroke"
+      - "mini strokes"
+      - "ministroke"
+    action: >-
+      Call emergency services now. These can be signs of a stroke, and treatment is time-critical.
+      Note the time symptoms started, or when the person was last known to be well.
+    source: "Stroke association and emergency medicine guidance"
+
+  - id: anaphylaxis
+    doc_id: red-flag-anaphylaxis
+    body_system: respiratory
+    urgency: emergency
+    patterns:
+      - "throat closing"
+      - "throat closing up"
+      - "throat is closing"
+      - "throat was closing"
+      - "throat closed"
+      - "tongue swelling"
+      - "tongue swollen"
+      - "tongue is swollen"
+      - "lips swelling"
+      - "lips swollen"
+      - "lips are swollen"
+      - "difficulty swallowing and breathing"
+      - "allergic reaction and cannot breathe"
+      - "allergic reaction and can't breathe"
+      - "anaphylaxis"
+      - "anaphylactic"
+      - "hives and difficulty breathing"
+      - "stung and swelling"
+      - "stung and swollen"
+    action: >-
+      Call emergency services now. If an adrenaline auto-injector is available, use it immediately
+      into the outer thigh, per the device's own instructions, before or while calling.
+    source: "Allergy and emergency medicine society guidance"
+
+  - id: severe_breathing_difficulty
+    doc_id: red-flag-severe-breathing-difficulty
+    body_system: respiratory
+    urgency: emergency
+    patterns:
+      - "cannot breathe"
+      - "can't breathe"
+      - "could not breathe"
+      - "couldn't breathe"
+      - "struggling to breathe"
+      - "struggled to breathe"
+      - "gasping for air"
+      - "gasped for air"
+      - "breathless at rest"
+      - "cannot speak in full sentences"
+      - "can't speak in full sentences"
+      - "lips turning blue"
+      - "lips turned blue"
+      - "lips are blue"
+      - "turning blue"
+      - "turned blue"
+      - "asthma attack not improving"
+      - "inhaler is not working"
+      - "inhaler not working"
+      - "inhaler isn't working"
+    action: >-
+      Call emergency services now. Severe difficulty breathing is an emergency. Sit upright and use
+      prescribed emergency medication per your own action plan while help is on the way.
+    source: "Emergency medicine and respiratory society guidance"
+
+  - id: thunderclap_headache
+    doc_id: red-flag-sudden-severe-headache
+    body_system: neurological
+    urgency: emergency
+    patterns:
+      - "worst headache of my life"
+      - "worst headache ever"
+      - "sudden severe headache"
+      - "sudden severe headaches"
+      - "thunderclap headache"
+      - "headache came on instantly"
+      - "headache and stiff neck"
+      - "headaches and stiff neck"
+      - "headache after hitting my head"
+      - "headache and confusion"
+      - "headaches and confusion"
+    action: >-
+      Call emergency services now. A headache that reaches full intensity within about a minute
+      needs emergency assessment even if it has since settled.
+    source: "Emergency medicine and neurology society guidance"
+
+  - id: meningitis_signs
+    doc_id: red-flag-meningitis-signs
+    body_system: neurological
+    urgency: emergency
+    patterns:
+      - "rash that does not fade"
+      - "rash that doesn't fade"
+      - "rash that did not fade"
+      - "rash that didn't fade"
+      - "non-blanching rash"
+      - "non blanching rash"
+      - "fever and stiff neck"
+      - "stiff neck and light hurts"
+      - "meningitis"
+      - "bulging soft spot"
+    action: >-
+      Call emergency services now. These can be signs of meningitis or meningococcal infection,
+      which can progress within hours.
+    source: "Infectious diseases and emergency medicine society guidance"
+
+  - id: gastrointestinal_bleeding
+    doc_id: red-flag-gastrointestinal-bleeding
+    body_system: gastrointestinal
+    urgency: emergency
+    patterns:
+      - "vomiting blood"
+      - "vomited blood"
+      - "vomit blood"
+      - "throwing up blood"
+      - "threw up blood"
+      - "throw up blood"
+      - "coffee ground vomit"
+      - "coffee ground vomiting"
+      - "black tarry stool"
+      - "black tarry stools"
+      - "black stool"
+      - "black stools"
+      - "blood in my stool"
+      - "blood in my stools"
+      - "rectal bleeding and dizzy"
+    action: >-
+      Call emergency services now. Vomiting blood or passing black tarry stool indicates
+      gastrointestinal bleeding. Do not eat or drink while waiting.
+    source: "Gastroenterology and emergency medicine society guidance"
+
+  - id: sepsis_signs
+    doc_id: red-flag-sepsis
+    body_system: constitutional
+    urgency: emergency
+    patterns:
+      - "sepsis"
+      - "septic"
+      - "fever and confusion"
+      - "mottled skin"
+      - "not passed urine all day"
+      - "not passing urine all day"
+      - "feel like i am going to die"
+      - "feel like i'm going to die"
+      - "feel like im going to die"
+      - "felt like i was going to die"
+      - "shivering uncontrollably"
+    action: >-
+      Call emergency services now and say you are worried about sepsis. Sepsis progresses over
+      hours and treatment is time-critical.
+    source: "Critical care and emergency medicine society guidance"
+
+  - id: diabetic_emergency
+    doc_id: red-flag-diabetic-emergency
+    body_system: endocrine
+    urgency: emergency
+    patterns:
+      - "diabetic ketoacidosis"
+      - "ketoacidosis"
+      - "high ketones"
+      - "ketones are high"
+      - "fruity breath"
+      - "blood sugar very high and vomiting"
+      - "unconscious and diabetic"
+      - "severe hypo"
+      - "severe hypoglycemia"
+      - "blood sugar very low and confused"
+      - "cannot swallow and low blood sugar"
+    action: >-
+      Call emergency services now. Do not give anything by mouth to someone who is drowsy or
+      unconscious. If emergency glucagon is available and someone present knows how to use it, it
+      is given while help is on the way.
+    source: "Diabetes association and emergency medicine guidance"
+
+  - id: acute_abdominal_pain
+    doc_id: red-flag-acute-abdominal-pain
+    body_system: gastrointestinal
+    urgency: emergency
+    patterns:
+      - "sudden severe abdominal pain"
+      - "sudden severe abdominal pains"
+      - "severe stomach pain"
+      - "severe stomach pains"
+      - "rigid abdomen"
+      - "abdomen is hard"
+      - "severe abdominal pain and fever"
+      - "pulsating feeling in my abdomen"
+      - "severe testicular pain"
+      - "testicle pain sudden"
+      - "sudden testicle pain"
+    action: >-
+      Call emergency services now. Sudden severe abdominal pain can indicate a condition needing
+      urgent surgery. Do not eat, drink, or take painkillers while waiting.
+    source: "Surgical and emergency medicine society guidance"
+
+  - id: pregnancy_emergency
+    doc_id: red-flag-acute-abdominal-pain
+    body_system: genitourinary
+    urgency: emergency
+    patterns:
+      - "pregnant and bleeding"
+      - "pregnant and severe pain"
+      - "shoulder tip pain and pregnant"
+      - "ectopic"
+    action: >-
+      Call emergency services now. Abdominal or pelvic pain with bleeding or faintness in pregnancy,
+      or in anyone who could be pregnant, needs immediate assessment.
+    source: "Obstetric and emergency medicine society guidance"
+
+  - id: suicidal_ideation
+    doc_id: red-flag-suicidal-ideation
+    body_system: psychiatric
+    urgency: emergency
+    patterns:
+      - "kill myself"
+      - "killing myself"
+      - "want to die"
+      - "wanted to die"
+      - "wanting to die"
+      - "end my life"
+      - "ending my life"
+      - "suicidal"
+      - "suicide"
+      - "harm myself"
+      - "harming myself"
+      - "hurt myself"
+      - "hurting myself"
+      - "self harm"
+      - "self-harm"
+      - "self harming"
+      - "no reason to live"
+      - "better off without me"
+    action: >-
+      Please reach out for help now. If you are in immediate danger, call emergency services. In the
+      United States you can call or text 988 for the Suicide and Crisis Lifeline; other countries
+      operate equivalent services. You do not have to manage this alone.
+    source: "Psychiatric association and crisis service guidance"
+
+  - id: anaphylaxis_child_alert
+    doc_id: red-flag-severe-breathing-difficulty
+    body_system: respiratory
+    urgency: emergency
+    patterns:
+      - "baby is struggling to breathe"
+      - "baby struggling to breathe"
+      - "child cannot breathe"
+      - "child can't breathe"
+      - "child is grunting"
+      - "child grunting"
+      - "baby is grunting"
+      - "ribs sucking in"
+      - "child is floppy"
+      - "child floppy"
+      - "baby is floppy"
+      - "will not wake up"
+      - "would not wake up"
+      - "won't wake up"
+      - "wouldn't wake up"
+    action: >-
+      Call emergency services now. These are signs of serious illness in a child and need immediate
+      assessment.
+    source: "Pediatric emergency medicine guidance"
+
+  - id: severe_dehydration
+    doc_id: red-flag-sepsis
+    body_system: constitutional
+    urgency: urgent
+    patterns:
+      - "cannot keep fluids down"
+      - "can't keep fluids down"
+      - "couldn't keep fluids down"
+      - "can't keep anything down"
+      - "cannot keep anything down"
+      - "no wet diapers"
+      - "no wet nappies"
+      - "no tears when crying"
+      - "very dizzy when standing"
+    action: >-
+      Seek medical assessment today. Being unable to keep fluids down, or signs of dehydration in a
+      child, needs prompt review rather than a routine appointment.
+    source: "Emergency medicine and pediatric guidance"
