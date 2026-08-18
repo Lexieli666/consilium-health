@@ -55,5 +55,5 @@ complication.
 Long-term use of insulin, of injectable non-insulin agents, and of oral glucose-lowering drugs each
 have distinct status codes, and body mass index has its own set. Screening for diabetes in someone
 without symptoms is an encounter code rather than a diagnosis. Prediabetes and abnormal glucose
-findings that fall short of a diabetes diagnosis are not coded to E11 at all; they belong with the
-other abnormal glucose findings in the same chapter.
+findings that fall short of a diabetes diagnosis are not coded to E11 at all; they sit with the
+abnormal laboratory findings in the symptoms and abnormal findings chapter.

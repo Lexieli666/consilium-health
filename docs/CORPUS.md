@@ -4,6 +4,34 @@
 > provide clinical guidance, and it must not be used for real medical decisions. No patient data of
 > any kind may be used with it.
 
+## What is in it
+
+**78 notes**, inside the 60-80 band the brief specifies. Every one of the five `category` values has
+real documents; an empty category leaves its skill with nothing to retrieve and makes the matching
+block of the golden set unanswerable by construction, which is what the `coding` category being
+empty would have done to `lookup_disease_code`.
+
+| category | notes | shape |
+|---|---|---|
+| `condition` | 16 | one per condition: what it is, how it is recognized, why it is treated |
+| `guideline` | 19 | thresholds, first-line management and follow-up intervals, with "Where guidance differs" where authorities diverge |
+| `coding` | 19 | 10 chapter maps, 7 per-condition code-selection notes, 2 on the classification itself |
+| `lifestyle` | 13 | diet 4, activity 5, sleep 2, adherence 2 |
+| `red_flag` | 11 | emergency presentations, consistent with `data/red_flags.yaml` |
+
+Body lengths run from 2,725 to 3,493 characters, inside the 2,700-3,500 band.
+
+The `coding` notes are written from **ICD-10-CM**, the US clinical modification maintained by NCHS
+and CMS, not from WHO ICD-10 — a distinction that has its own note, because a code taken from an
+international reference may not exist in the US modification. No note reproduces a tabular code
+list. Codes appear inside sentences, which is both what the length and chunking bands require and
+what the tokenizer is built for: a dumped table would chunk badly and adds nothing a real lookup
+does better.
+
+`tests/test_corpus.py` enforces everything in this document that can be enforced mechanically,
+including these counts, the length band, and the requirement that every `condition` note is named in
+at least one `coding` note.
+
 ## Provenance
 
 Every note in `data/corpus/` was written for this repository as an original educational summary.

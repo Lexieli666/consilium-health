@@ -272,6 +272,16 @@ def _parse(path: Path) -> Note:
 CORPUS_FILES: Final = sorted(CORPUS_DIR.glob("*.md"))
 
 
+def _normalize(text: str) -> str:
+    """Lowercase, and collapse hyphens and line breaks to single spaces.
+
+    Corpus notes wrap at 100 characters, so a two-word phrase can straddle a newline; and the same
+    term is written hyphenated in one note and open in another.  Comparing raw substrings would
+    make both an accidental failure.
+    """
+    return re.sub(r"[\s-]+", " ", text.lower())
+
+
 def _is_british(word: str) -> bool:
     """Three independent rules; a lowercase word matching any one of them is a British form."""
     has_british_substring = any(fragment in word for fragment in _BRITISH_SUBSTRINGS)
@@ -379,6 +389,34 @@ def test_every_category_has_documents(category: str) -> None:
     """
     notes = [note for note in map(_parse, CORPUS_FILES) if note.values["category"] == category]
     assert notes, f"category {category!r} has no corpus documents"
+
+
+def test_corpus_size_is_within_the_specified_band() -> None:
+    assert 60 <= len(CORPUS_FILES) <= 80, (
+        f"corpus has {len(CORPUS_FILES)} notes; the brief specifies 60-80"
+    )
+
+
+@pytest.mark.parametrize(
+    "path", [p for p in CORPUS_FILES if p.stem.startswith("condition-")], ids=lambda path: path.stem
+)
+def test_every_condition_is_named_in_a_coding_note(path: Path) -> None:
+    """Coding and condition notes must be mutually retrievable, and BM25 is lexical.
+
+    A coding note that says "ischemic heart disease" does not retrieve for "coronary artery
+    disease", so naming the condition is not a stylistic nicety -- it is the difference between a
+    condition-and-coding question being answerable and not. Hyphens and line breaks are normalized
+    to spaces on both sides so that "iron-deficiency\nanemia" still matches the topic phrase.
+    """
+    topic = _normalize(path.stem.removeprefix("condition-").replace("-", " "))
+    coding = _normalize(
+        "\n".join(
+            other.read_text(encoding="utf-8")
+            for other in CORPUS_FILES
+            if other.stem.startswith("coding-")
+        )
+    )
+    assert topic in coding, f"{path.stem}: no coding note names {topic!r}"
 
 
 # --------------------------------------------------------------------------------------------

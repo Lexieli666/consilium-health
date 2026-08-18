@@ -277,7 +277,8 @@ These were decided by the owner after the Phase-0 critique and **override the br
   would never exercise RRF's per-`doc_id` dedup.
 - **"Guidance describes" is rationed.** It belongs where a claim is contested or varies by body, not
   as a default sentence opener: it reads as evasive, and a stock phrase repeated across 80 documents
-  adds a shared component to every embedding. Current density is 21 occurrences across 20 notes.
+  adds a shared component to every embedding. Current density is 29 occurrences across 22 notes of
+  78.
 - **Every note carries the same one-line disclaimer blockquote** immediately after the front matter.
   The loader **requires** it (a missing disclaimer is an ingest error, which makes the requirement a
   test rather than a convention) and **excludes it from chunk text**: a constant string in every
@@ -299,7 +300,7 @@ These were decided by the owner after the Phase-0 critique and **override the br
 | phase | state | commit |
 |---|---|---|
 | 1. Scaffold, trace schema, offline seams, CI | done | `92a47e3` |
-| 2. Corpus, red flags, chunking, BM25, RRF, ingest | in progress — Checkpoint A cleared | |
+| 2. Corpus, red flags, chunking, BM25, RRF, ingest | in progress — corpus complete at 78 notes; chunking/BM25/RRF/ingest outstanding | |
 | 3. Skills + registry | not started | |
 | 4. ReAct loop + agents + `trace` CLI | not started | |
 | 5. Planner, router, blackboard, synthesizer | not started | |
