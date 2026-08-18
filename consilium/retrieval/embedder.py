@@ -3,8 +3,7 @@
 Two implementations of one protocol, which is what makes the offline rule real rather than mocked:
 
 ``BgeEmbedder``   BAAI/bge-small-en-v1.5 via sentence-transformers.  Installed only with the
-                  ``[embeddings]`` extra, used for every measured retrieval number.  Arrives in
-                  Phase 2.
+                  ``[embeddings]`` extra, used for every measured retrieval number.
 ``HashEmbedder``  Deterministic seeded hashing into the same 384 dimensions.  No download, no
                   network, identical output on every machine and every run.  Used by every test
                   that is not marked ``network``.
@@ -21,7 +20,7 @@ import hashlib
 import math
 from collections import Counter
 from collections.abc import Sequence
-from typing import Protocol
+from typing import Any, Protocol
 
 import numpy as np
 import numpy.typing as npt
@@ -93,3 +92,73 @@ class HashEmbedder:
 
     def embed_query(self, text: str) -> Vector:
         return self._embed_one(text)
+
+
+#: The model the brief names.  384 dimensions, which is why ``EMBEDDING_DIM`` is 384.
+BGE_MODEL = "BAAI/bge-small-en-v1.5"
+
+#: bge asks for an instruction prefix on *queries* and none on documents.  The prefix is declared in
+#: the model's own configuration, so ``prompt_name="query"`` applies the string the model publishes
+#: rather than one hard-coded here.  Writing the prefix out by hand is the common way to get this
+#: subtly wrong: the string has changed between model revisions, and a stale copy silently degrades
+#: retrieval instead of failing, which is the worst available failure mode for a measured system.
+QUERY_PROMPT_NAME = "query"
+
+
+class BgeEmbedder:
+    """BAAI/bge-small-en-v1.5 through sentence-transformers.
+
+    Imported lazily, inside ``__init__``, because ``sentence-transformers`` drags in multi-GB torch
+    wheels and lives behind the ``[embeddings]`` extra that CI never installs.  A module-level
+    import would make ``consilium.retrieval`` unimportable in the environment the test suite
+    actually runs in, which would defeat the protocol seam rather than use it.
+
+    Constructing one downloads the model on first use, so every test touching this class is marked
+    ``network``.  The offline suite exercises the same protocol through :class:`HashEmbedder`.
+    """
+
+    def __init__(
+        self,
+        *,
+        model_name: str = BGE_MODEL,
+        device: str | None = None,
+        batch_size: int = 32,
+        model: Any | None = None,
+    ) -> None:
+        if model is None:
+            from sentence_transformers import SentenceTransformer
+
+            model = SentenceTransformer(model_name, device=device)
+
+        self._model = model
+        self._batch_size = batch_size
+        self.name = model_name
+        self.dim = int(model.get_sentence_embedding_dimension())
+        if self.dim != EMBEDDING_DIM:
+            raise ValueError(
+                f"{model_name} is {self.dim}-dimensional; this project's stores and "
+                f"HashEmbedder are built for {EMBEDDING_DIM}"
+            )
+
+    def embed_documents(self, texts: Sequence[str]) -> Matrix:
+        """Embed corpus chunks.  No prompt: bge prefixes queries only."""
+        if not texts:
+            return np.zeros((0, self.dim), dtype=np.float32)
+        return self._encode(list(texts))
+
+    def embed_query(self, text: str) -> Vector:
+        """Embed a query, applying the model's own declared ``query`` prompt."""
+        matrix = self._encode([text], prompt_name=QUERY_PROMPT_NAME)
+        vector: Vector = matrix[0]
+        return vector
+
+    def _encode(self, texts: list[str], **kwargs: Any) -> Matrix:
+        encoded = self._model.encode(
+            texts,
+            batch_size=self._batch_size,
+            normalize_embeddings=True,
+            convert_to_numpy=True,
+            show_progress_bar=False,
+            **kwargs,
+        )
+        return np.asarray(encoded, dtype=np.float32)
