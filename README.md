@@ -45,7 +45,18 @@ generating commit, date, model and judge model stated alongside.
 
 ## Quickstart
 
-Not yet available — the CLI arrives in Phase 4 and the HTTP API in Phase 9.
+Answering questions is not yet wired up — `ask` and `chat` arrive in Phase 4 and the HTTP API in
+Phase 9. What runs today is the retrieval pipeline:
+
+```bash
+uv sync --extra embeddings   # sentence-transformers + chromadb; not installed in CI
+uv run consilium ingest      # load, chunk, embed and index data/corpus/ into data/chroma/
+```
+
+`uv run consilium ingest --embedder hash --store numpy` runs the same pipeline end to end with no
+model download and no persistence. That is the path the test suite uses, and it exists because the
+offline rule is satisfied by second implementations of the `Embedder` and `VectorStore` protocols
+rather than by mocking either library.
 
 Development setup:
 
@@ -63,6 +74,11 @@ are needed for real retrieval quality numbers and are deliberately absent from C
 
 - The corpus is educational summary content written for this project. It is not a clinical
   reference and carries no authority.
+- **ICD-10 coverage is deliberately narrow.** Seven of the sixteen conditions in the corpus have a
+  note that decides a code; the rest are covered only by their chapter map. Coding questions are
+  therefore evaluated across coding *conventions* rather than across conditions, and the system
+  should not be expected to select a code for a condition it has no selection note for.
+  `docs/CORPUS.md` lists exactly which seven.
 - No claim is made about clinical validity, accuracy on real patients, or regulatory readiness.
   This is not a medical device and it performs no diagnosis.
 - Coverage, latency, cost and quality numbers will be stated with their measurement conditions or

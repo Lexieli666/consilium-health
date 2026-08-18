@@ -207,10 +207,16 @@ loader **requires** it, which turns the labeling convention into a test, and **e
 chunk text**: a string identical in every document carries no retrievable information, is zero-IDF
 noise to BM25, and shifts every dense vector by the same non-trivial amount.
 
-**Note length is 2,700–3,500 characters of body**, which yields 3–4 chunks per note at the 800–1,000
-character chunk size. This is deliberate rather than incidental: a one-chunk corpus would never
-exercise the per-`doc_id` deduplication step in RRF fusion, and that step is what stops a document
-with two strong chunks from consuming two of the five slots the model sees.
+**Note length is 2,700–3,500 characters of body.** Measured against the chunker as built, that
+yields **exactly 4 chunks per note and 312 chunks in total**, mean 846 characters, shortest 461,
+none above the 1,000-character ceiling, and 74% inside the 800–1,000 band. The chunks below the band
+are the last chunk of a note: a 2,725-character body cannot be divided into four pieces that are all
+above 800, and `tests/test_chunking.py` asserts what the corpus actually produces rather than what
+the band hoped for.
+
+The length band is deliberate rather than incidental. A one-chunk corpus would never exercise the
+per-`doc_id` deduplication step in RRF fusion, and that step is what stops a document with two strong
+chunks from consuming two of the five slots the model sees.
 
 ## What the corpus deliberately contains
 

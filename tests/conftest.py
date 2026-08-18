@@ -8,14 +8,30 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 
 from consilium.llm import MockProvider, ScriptedResponse
-from consilium.retrieval import Chunk, HashEmbedder, NumpyStore
+from consilium.retrieval import (
+    Bm25Index,
+    Chunk,
+    Document,
+    HashEmbedder,
+    HybridRetriever,
+    NumpyStore,
+    chunk_corpus,
+    load_corpus,
+)
 from consilium.trace import MemorySink, Tracer
 
 FIXED_TIME = datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)
+
+#: The real corpus.  Retrieval is tested against it rather than against a handful of invented
+#: notes: the properties that matter -- that `I10` survives tokenization, that per-`doc_id` dedup
+#: has something to deduplicate, that a category filter narrows a real pool -- are properties of
+#: this corpus, and a fixture corpus could satisfy all three while the real one did not.
+CORPUS_DIR = Path(__file__).resolve().parents[1] / "data" / "corpus"
 
 
 @pytest.fixture
@@ -93,3 +109,29 @@ def mock_provider() -> MockProvider:
             ScriptedResponse(content="A second scripted answer."),
         ]
     )
+
+
+@pytest.fixture(scope="session")
+def corpus_documents() -> list[Document]:
+    """Every note in `data/corpus/`, loaded once for the whole session."""
+    return load_corpus(CORPUS_DIR)
+
+
+@pytest.fixture(scope="session")
+def corpus_chunks(corpus_documents: list[Document]) -> list[Chunk]:
+    return chunk_corpus(corpus_documents)
+
+
+@pytest.fixture(scope="session")
+def corpus_retriever(corpus_chunks: list[Chunk]) -> HybridRetriever:
+    """The real pipeline over the real corpus, on the offline seams.
+
+    `HashEmbedder` measures weighted token overlap rather than meaning, so nothing built on this
+    fixture is a retrieval *quality* measurement -- those come from `BgeEmbedder` and are reported
+    by the eval harness.  What it does establish is that the pipeline is wired correctly end to
+    end: filters narrow, fusion combines, dedup collapses, and the trace records what it should.
+    """
+    embedder = HashEmbedder()
+    store = NumpyStore()
+    store.add(corpus_chunks, embedder.embed_documents([chunk.text for chunk in corpus_chunks]))
+    return HybridRetriever(embedder=embedder, store=store, lexical=Bm25Index(corpus_chunks))

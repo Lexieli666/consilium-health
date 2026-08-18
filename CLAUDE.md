@@ -299,8 +299,10 @@ These were decided by the owner after the Phase-0 critique and **override the br
   English is closed and short, whereas a list of British forms would miss the one nobody thought of.
   The `oe`-digraph rules match only at a word start, because `gastro`+`esophageal` and
   `angio`+`edema` reproduce the digraph by accident and are the US spellings.
-- **Note length 2,700–3,500 characters of body**, giving 3–4 chunks per note. A one-chunk corpus
-  would never exercise RRF's per-`doc_id` dedup.
+- **Note length 2,700–3,500 characters of body.** Measured against the chunker: **exactly 4 chunks
+  per note, 312 chunks total**, mean 846 characters, none above the 1,000 ceiling. (The 3–4 written
+  here before Phase 2's chunker existed was a prediction; 4 is the measurement, asserted in
+  `tests/test_chunking.py`.) A one-chunk corpus would never exercise RRF's per-`doc_id` dedup.
 - **"Guidance describes" is rationed.** It belongs where a claim is contested or varies by body, not
   as a default sentence opener: it reads as evasive, and a stock phrase repeated across 80 documents
   adds a shared component to every embedding. Current density is 29 occurrences across 22 notes of
@@ -321,12 +323,70 @@ These were decided by the owner after the Phase-0 critique and **override the br
 - No epidemiological or prevalence statistics. They would be unmeasured numbers of a different
   kind, and the corpus does not need them.
 
-## 8. Phase status
+## 8. Frozen: the retrieval pipeline (Phase 2)
+
+Interfaces and constants that later phases consume and that the eval harness computes numbers from.
+Rationale for each, with the rejected alternative, is in `docs/DESIGN.md`.
+
+- **`consilium/retrieval/` module layout.** `corpus` (load) → `chunking` (split) → `embedder` +
+  `store` (dense) and `bm25` (lexical) → `fusion` (RRF) → `hybrid` (sequence it, emit the trace
+  event) → `index` (wire it up for the CLI). Nothing in the package imports from a layer above it.
+- **`Document`** (`doc_id`, `category`, `title`, `source`, `last_reviewed`, `body`) is what the
+  loader returns. `extra="forbid"`, frozen. `DISCLAIMER` and `FRONT_MATTER_KEYS` live in
+  `consilium/retrieval/corpus.py` and are **imported** by `tests/test_corpus.py`, not restated
+  there: two copies of a constant that rejects notes will drift, and the lint would then pass while
+  ingest failed.
+- **The loader enforces four conventions, it does not merely assume them**: the five front-matter
+  keys in order with no extras, `doc_id` == filename stem, the `Category` literal, and the
+  byte-identical disclaimer. A violation is a `CorpusError` at ingest. The disclaimer is required
+  and then **stripped from the body**, so it never reaches a chunk.
+- **Chunking is even division, not greedy filling.** `MAX_CHARS = 1000`, `MIN_CHARS = 800`,
+  `OVERLAP_CHARS = 100`. The chunk count is `ceil(len / (max - overlap - 2))`, and each break is
+  placed at the point dividing the remaining text evenly among the remaining chunks, snapped to the
+  best boundary — paragraph, then sentence, then word — **within the size band**, never within the
+  wider feasible window. No break may fall inside a heading line or immediately after one.
+  `chunk_index` is assigned in `chunk_document` and is half of the trace's `FusedHit`.
+- **`Bm25Index`** wraps `rank-bm25` and uses `consilium.retrieval.tokenize.tokenize` — the *same*
+  function the hash embedder uses, never a second tokenizer. `k1 = 1.5`, `b = 0.75`, the library
+  defaults, untuned. A chunk is a hit iff it **shares a token** with the query, not iff its score is
+  positive: Okapi gives a negative IDF to a term carried by more than half the corpus. Category
+  filtering happens **after scoring**, so IDF stays a corpus-level statistic.
+- **Fusion constants.** `RRF_K = 60`, untuned. `dedupe_by_doc_id` keeps the first chunk per `doc_id`
+  **in ranking order** and runs after fusion, before any truncation or scoring.
+- **`HybridRetriever` depths are constructor state, not call arguments**: `CANDIDATE_DEPTH = 20` per
+  retriever, `TRACE_DEPTH = 10` recorded in the `retrieval` event, `RETURNED_K = 5` returned to the
+  model. `search()` takes no `k`. The category filter is passed to **both** retrievers before
+  fusion, never applied to the fused result.
+  - **Open discrepancy, flagged rather than silently resolved.** §4 refinement 5 of this file freezes
+    the candidate depth at **20**; the brief's §3.6 says "dense top-10 + lexical top-10". This file
+    wins, so `CANDIDATE_DEPTH = 20` is the default — but it is a named constructor argument, so
+    reverting to 10 is one call site and no measured number depends on it yet.
+- **`VectorStore` conformance for `ChromaStore` is checked statically.** `make_store` and
+  `make_embedder` in `index.py` are annotated as returning the protocol types, so mypy verifies the
+  structural match in CI **without `chromadb` or `sentence-transformers` installed**. The runtime
+  contract is `tests/test_vector_store_contract.py`, one set of assertions parameterized over both
+  implementations, with the Chroma parameterization `importorskip`-ed where the extra is absent.
+  Neither library is ever mocked.
+- **`ChromaStore` passes `embedding_function=None`** so Chroma cannot attach its default ONNX model,
+  and converts Chroma's cosine *distance* to a similarity so a `ScoredChunk.score` means the same
+  thing in both store implementations.
+- **`BgeEmbedder` applies `prompt_name="query"`**, never a hand-written instruction prefix: the
+  prefix string has changed between bge revisions and a stale copy degrades retrieval without
+  raising. Its dimension is checked against `EMBEDDING_DIM = 384` at construction.
+- **The CLI is `consilium/cli.py`, a Typer app with an explicit `@app.callback()`.** Typer collapses
+  a single-command app into a bare top-level command, which would silently rename every invocation
+  when the second command lands. `consilium ingest` is Phase 2's only command;
+  `[project.scripts]` now exists because a module it can point at now exists.
+- **Ingestion resets the store by default.** A persistent store outlives the process, and leaving
+  the previous chunking of an edited note in the index produces stale hits that read as a
+  retrieval-quality problem rather than an ingestion one.
+
+## 9. Phase status
 
 | phase | state | commit |
 |---|---|---|
 | 1. Scaffold, trace schema, offline seams, CI | done | `92a47e3` |
-| 2. Corpus, red flags, chunking, BM25, RRF, ingest | in progress — corpus complete at 78 notes; chunking/BM25/RRF/ingest outstanding | |
+| 2. Corpus, red flags, chunking, BM25, RRF, ingest | done | |
 | 3. Skills + registry | not started | |
 | 4. ReAct loop + agents + `trace` CLI | not started | |
 | 5. Planner, router, blackboard, synthesizer | not started | |
