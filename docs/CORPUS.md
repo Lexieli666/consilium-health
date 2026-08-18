@@ -88,6 +88,40 @@ Two details that will otherwise trip someone up:
 - **Per-condition `coding` notes carry the code root without the decimal** (`e11`, not `e11.9`),
   because a dot in a filename stem reads as an extension. Specific codes with decimals appear in the
   body text, where the tokenizer is built to preserve them intact.
+- **Where a condition spans a block of roots rather than one, the `doc_id` carries the lowest root
+  in the block.** Osteoarthritis occupies M15–M19 and its note is `coding-osteoarthritis-m15`;
+  influenza occupies J09–J11 and would be `coding-influenza-j09`. The choice of the lowest root is
+  arbitrary but deterministic, which is the only property a filename needs; the body states the full
+  block, and that is where a reader learns it.
+- **A third `coding` form, `coding-icd10-<aspect>`, covers notes about the classification itself**
+  rather than about a chapter or a condition — `coding-icd10-cm-code-structure-and-conventions`,
+  `coding-icd10-cm-versus-who-icd10`. The chapter form requires a two-digit number, so a malformed
+  `coding-icd10-chapter-9-circulatory` fails the lint instead of quietly passing as an
+  aspect note.
+
+## Chapter notes map; condition notes select
+
+A `coding` chapter note and a `coding` condition note answer different questions, and the division
+between them is frozen. It was frozen the hard way: the first chapter-note draft reproduced
+`coding-hypertension-i10` almost claim for claim — the same I11/I12/I13 ladder, the same
+heart-versus-kidney causal-presumption paragraph — and that is a measurement defect rather than a
+matter of taste. Two documents answering one question make `relevant_doc_ids` ambiguous when the
+golden set is labelled, inflate the recall@5 denominator whenever both are listed, and consume two
+of the five top-k slots after per-`doc_id` dedup has already run.
+
+| note kind | owns |
+|---|---|
+| chapter | the **map**: the chapter's letter and range, its blocks in order and what each is for, what is deliberately *not* in the chapter and which chapter holds it instead, and the cross-chapter codes questions in that area commonly need |
+| condition | **code selection**: which code applies, which combination rules govern it, which second codes are required, which conventions decide the choice |
+
+Where a chapter note has to gesture at a rule a condition note owns, **one clause naming the rule is
+the budget** — not a section, and not a worked explanation. The general form: if the same rule is
+explained in two notes, one of the two notes is wrong.
+
+**Every condition note in the corpus is named, with its code root, in at least one coding note** —
+per-condition where the code selection is nuanced enough to need its own document, chapter-level
+where it is not. This is the property that makes the coding and condition notes mutually
+retrievable, and it is precisely what an empty `coding` category destroys.
 
 ## Format contract
 
