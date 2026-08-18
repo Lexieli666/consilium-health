@@ -28,7 +28,7 @@ from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from types import TracebackType
-from typing import Annotated, Any, Literal, Protocol, TypeAlias, TypeVar
+from typing import Annotated, Any, Literal, Protocol, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
 
@@ -202,7 +202,7 @@ class TurnEvent(_BaseEvent):
     repair_applied: bool
 
 
-AnyEvent: TypeAlias = Annotated[
+type AnyEvent = Annotated[
     RouteEvent
     | LLMCallEvent
     | ToolCallEvent
