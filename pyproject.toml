@@ -7,12 +7,12 @@ name = "consilium-health"
 version = "0.1.0"
 description = "Multi-agent clinical-information assistant with hybrid retrieval, enforced safety policy, and a trace-derived evaluation harness."
 readme = "README.md"
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.12,<3.14"
 license = "MIT"
 keywords = ["llm", "agents", "rag", "multi-agent", "evaluation"]
 classifiers = [
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 
@@ -86,7 +86,7 @@ exclude_lines = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 src = ["consilium", "tests"]
 
 [tool.ruff.lint]
@@ -118,11 +118,11 @@ ignore = [
 known-first-party = ["consilium"]
 
 [tool.mypy]
-# Targets 3.12 rather than the 3.11 floor because numpy's bundled stubs use PEP 695 `type`
-# statements, which mypy refuses to parse under a 3.11 target.  3.11 compatibility is enforced
-# elsewhere and not left to trust: `requires-python` caps the floor, ruff's target-version is
-# py311 so no 3.12-only syntax is suggested or accepted in our own code, and CI runs the full
-# test suite on a real 3.11 interpreter.
+# Type-check at the floor, not above it.  3.12 is `requires-python`'s lower bound and the lowest
+# interpreter CI runs, so a run that passes here is a statement about the oldest Python this
+# package claims to support; checking under a newer version would type-check code against a
+# standard library the floor does not have.  Compatibility upward is enforced by the interpreter
+# matrix rather than by the type checker.
 python_version = "3.12"
 strict = true
 warn_unreachable = true

@@ -14,7 +14,7 @@ accumulation for no user-visible benefit.
 from __future__ import annotations
 
 from collections.abc import AsyncIterator, Sequence
-from typing import Any, Literal, Protocol, TypeAlias
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -27,7 +27,7 @@ StopReason = Literal["stop", "tool_calls", "length", "content_filter", "error", 
 #: An OpenAI-format tool definition.  Produced by ``SkillRegistry.to_tool_schemas()`` from the
 #: skills' Pydantic argument models; kept as a plain mapping here so the LLM layer does not depend
 #: on the Skills layer above it.
-ToolSchema: TypeAlias = dict[str, Any]
+type ToolSchema = dict[str, Any]
 
 
 class ToolCall(BaseModel):
