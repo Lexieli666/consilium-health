@@ -1,0 +1,263 @@
+# Symptom -> body-system mapping.
+#
+# Consumed by the `analyze_symptoms` skill, which groups a described symptom set by system and
+# reports whether the pattern is confined to one system or spans several.  That single/multi-system
+# distinction is the skill's actual output; the mapping below is what makes it computable.
+#
+# Matching contract:
+#
+#   * `terms` are literal lowercase phrases matched case-insensitively on word boundaries, the same
+#     mechanism as data/red_flags.yaml.  A phrase may appear under more than one system on purpose
+#     -- "chest tightness" is both cardiovascular and respiratory, and forcing a single owner would
+#     encode a diagnosis the skill is not entitled to make.  The skill reports every system a term
+#     maps to.
+#   * This file describes WHERE a symptom is felt, not what causes it.  It contains no diagnostic
+#     logic, no likelihood, and no urgency: urgency lives in data/red_flags.yaml, and this file must
+#     never be used as a substitute for it.
+#   * Systems are the ten named in the build brief.  A term that fits none of them belongs under
+#     `constitutional`, which is the whole-body bucket, not a fallback for unclassified input.
+
+schema_version: 1
+
+systems:
+  cardiovascular:
+    label: "Cardiovascular"
+    terms:
+      - "chest pain"
+      - "chest pressure"
+      - "chest tightness"
+      - "palpitations"
+      - "heart racing"
+      - "irregular heartbeat"
+      - "skipped beats"
+      - "breathless on exertion"
+      - "breathless lying flat"
+      - "waking up breathless"
+      - "ankle swelling"
+      - "leg swelling"
+      - "swollen ankles"
+      - "fainting"
+      - "light-headed on standing"
+      - "dizzy on standing"
+      - "calf pain on walking"
+      - "cold hands and feet"
+      - "blue fingers"
+      - "high blood pressure"
+      - "low blood pressure"
+      - "pain in arm with exertion"
+
+  respiratory:
+    label: "Respiratory"
+    terms:
+      - "shortness of breath"
+      - "breathlessness"
+      - "wheeze"
+      - "wheezing"
+      - "cough"
+      - "dry cough"
+      - "productive cough"
+      - "coughing up phlegm"
+      - "coughing up blood"
+      - "chest tightness"
+      - "noisy breathing"
+      - "fast breathing"
+      - "cannot speak in full sentences"
+      - "nasal congestion"
+      - "runny nose"
+      - "sore throat"
+      - "hoarseness"
+      - "sneezing"
+      - "snoring"
+      - "pauses in breathing during sleep"
+      - "night-time cough"
+      - "chest infection"
+
+  gastrointestinal:
+    label: "Gastrointestinal"
+    terms:
+      - "abdominal pain"
+      - "stomach pain"
+      - "heartburn"
+      - "acid reflux"
+      - "regurgitation"
+      - "indigestion"
+      - "nausea"
+      - "vomiting"
+      - "vomiting blood"
+      - "diarrhea"
+      - "constipation"
+      - "bloating"
+      - "difficulty swallowing"
+      - "painful swallowing"
+      - "loss of appetite"
+      - "black stools"
+      - "blood in stool"
+      - "jaundice"
+      - "yellow skin"
+      - "belching"
+      - "early fullness after eating"
+      - "change in bowel habit"
+
+  neurological:
+    label: "Neurological"
+    terms:
+      - "headache"
+      - "migraine"
+      - "aura"
+      - "dizziness"
+      - "vertigo"
+      - "loss of balance"
+      - "numbness"
+      - "tingling"
+      - "pins and needles"
+      - "weakness on one side"
+      - "facial droop"
+      - "slurred speech"
+      - "difficulty finding words"
+      - "confusion"
+      - "memory problems"
+      - "seizure"
+      - "fit"
+      - "tremor"
+      - "double vision"
+      - "sudden vision loss"
+      - "sensitivity to light"
+      - "fainting"
+      - "difficulty walking"
+
+  musculoskeletal:
+    label: "Musculoskeletal"
+    terms:
+      - "joint pain"
+      - "knee pain"
+      - "hip pain"
+      - "back pain"
+      - "neck pain"
+      - "shoulder pain"
+      - "muscle pain"
+      - "muscle aches"
+      - "joint stiffness"
+      - "morning stiffness"
+      - "joint swelling"
+      - "reduced range of movement"
+      - "grating in the joint"
+      - "muscle weakness"
+      - "muscle cramps"
+      - "limping"
+      - "joint locking"
+      - "joint giving way"
+      - "bony swelling"
+      - "hot swollen joint"
+
+  genitourinary:
+    label: "Genitourinary"
+    terms:
+      - "burning on urination"
+      - "pain passing urine"
+      - "urinary frequency"
+      - "urinary urgency"
+      - "getting up at night to urinate"
+      - "blood in urine"
+      - "cloudy urine"
+      - "strong-smelling urine"
+      - "flank pain"
+      - "difficulty starting urination"
+      - "weak urinary stream"
+      - "incontinence"
+      - "not passing urine"
+      - "pelvic pain"
+      - "testicular pain"
+      - "vaginal discharge"
+      - "irregular periods"
+      - "heavy periods"
+      - "erectile difficulty"
+
+  dermatological:
+    label: "Dermatological"
+    terms:
+      - "rash"
+      - "hives"
+      - "itching"
+      - "dry skin"
+      - "skin redness"
+      - "blistering"
+      - "bruising"
+      - "rash that does not fade"
+      - "mottled skin"
+      - "pale skin"
+      - "yellow skin"
+      - "hair thinning"
+      - "brittle nails"
+      - "skin ulcer"
+      - "slow-healing wound"
+      - "swelling of the lips"
+      - "swelling of the face"
+      - "excessive sweating"
+      - "skin lump"
+
+  endocrine:
+    label: "Endocrine"
+    terms:
+      - "increased thirst"
+      - "frequent urination"
+      - "unexplained weight loss"
+      - "unexplained weight gain"
+      - "cold intolerance"
+      - "heat intolerance"
+      - "fatigue"
+      - "low blood sugar"
+      - "high blood sugar"
+      - "shakiness"
+      - "sweating episodes"
+      - "hair loss"
+      - "neck swelling"
+      - "goiter"
+      - "blurred vision"
+      - "slow-healing wounds"
+      - "menstrual irregularity"
+      - "reduced libido"
+
+  psychiatric:
+    label: "Psychiatric"
+    terms:
+      - "low mood"
+      - "depression"
+      - "anxiety"
+      - "excessive worry"
+      - "panic attacks"
+      - "irritability"
+      - "restlessness"
+      - "difficulty concentrating"
+      - "loss of interest"
+      - "hopelessness"
+      - "thoughts of self-harm"
+      - "suicidal thoughts"
+      - "insomnia"
+      - "difficulty falling asleep"
+      - "waking too early"
+      - "nightmares"
+      - "social withdrawal"
+      - "appetite change"
+      - "feeling on edge"
+
+  constitutional:
+    label: "Constitutional (whole-body)"
+    terms:
+      - "fever"
+      - "chills"
+      - "night sweats"
+      - "fatigue"
+      - "tiredness"
+      - "malaise"
+      - "feeling generally unwell"
+      - "unintentional weight loss"
+      - "loss of appetite"
+      - "weakness"
+      - "reduced exercise tolerance"
+      - "swollen glands"
+      - "dehydration"
+      - "shivering"
+      - "feeling cold"
+      - "body aches"
+      - "poor sleep"
+      - "dizziness"
