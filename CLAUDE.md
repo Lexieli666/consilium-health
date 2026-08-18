@@ -238,13 +238,41 @@ These were decided by the owner after the Phase-0 critique and **override the br
   adherence), `coding-icd10-chapter-<nn>-<system>` and `coding-<topic>-<code-root>`,
   `red-flag-<presentation>`. The `red_flag` **category** keeps its underscore (it is a Python
   `Literal`); the `red-flag-` **doc_id prefix** uses a hyphen (it is a filename stem). Per-condition
-  coding notes carry the code root without the decimal (`e11`, not `e11.9`).
+  coding notes carry the code root without the decimal (`e11`, not `e11.9`); where a condition spans
+  a block of roots rather than one, the `doc_id` carries the **lowest** root in the block
+  (`coding-osteoarthritis-m15` for M15–M19) and the body states the block. A third `coding` form,
+  `coding-icd10-<aspect>`, covers notes about the classification itself rather than a chapter or a
+  condition; the chapter form requires two digits, so `chapter-9-...` is a lint failure rather than
+  falling through to the classification form.
+- **A chapter note is a map; a condition note owns code selection.** Frozen 2026-08-17 after the
+  first chapter-note draft duplicated `coding-hypertension-i10` almost claim for claim. Two
+  documents answering the same question make `relevant_doc_ids` ambiguous in the golden set, inflate
+  the recall@5 denominator when both are labelled, and consume two of five top-k slots after RRF
+  per-`doc_id` dedup — so the overlap is a measurement defect, not a style problem.
+  - A **chapter note** states the letter and range, walks the block structure in order and says what
+    each block is for, names what is deliberately *not* in the chapter and which chapter holds it
+    instead, and lists the cross-chapter codes a question in that area commonly needs.
+  - A **condition note** owns code selection for its condition: which code, which combination rules,
+    which second codes are required, which conventions govern the choice.
+  - Where a chapter note must gesture at a rule a condition note owns, **one clause naming the rule
+    is the budget** — not a section, not a worked explanation.
+  The general form of the rule: if the same rule is explained twice, one of the two notes is wrong.
+- **Every condition note in the corpus is named, with its code root, in at least one `coding` note**
+  — per-condition where the code selection is nuanced, chapter-level where it is not. This is what
+  makes the coding and condition notes mutually retrievable, and it is the property that the empty
+  `coding` category destroyed.
 - **US spelling throughout**, with a fixed allowlist of British alternate-spelling anchors appearing
   once in parentheses at first use (`oesophageal`, `haemoglobin`, `anaemia`, `apnoea`,
   `generalised`, `GORD`, extended as needed). This is a retrieval decision: BM25 is lexical, so
   "esophageal" cannot match a document that only says "oesophageal", and the golden set would
-  inherit any mismatch as a measured retrieval failure with a purely orthographic cause. A corpus
-  lint test asserts no British form outside the allowlist appears.
+  inherit any mismatch as a measured retrieval failure with a purely orthographic cause.
+  `tests/test_corpus.py` asserts no British form outside the allowlist appears, along with every
+  other convention in this section: front-matter keys and order, `doc_id` == stem, the category
+  `Literal`, the byte-identical disclaimer, the length band, and the per-category `doc_id` patterns.
+  The spelling rule is **inverted** for the `-ise` family — the set of words spelled `-ise` in US
+  English is closed and short, whereas a list of British forms would miss the one nobody thought of.
+  The `oe`-digraph rules match only at a word start, because `gastro`+`esophageal` and
+  `angio`+`edema` reproduce the digraph by accident and are the US spellings.
 - **Note length 2,700–3,500 characters of body**, giving 3–4 chunks per note. A one-chunk corpus
   would never exercise RRF's per-`doc_id` dedup.
 - **"Guidance describes" is rationed.** It belongs where a claim is contested or varies by body, not
