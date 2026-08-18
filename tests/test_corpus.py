@@ -19,21 +19,15 @@ from typing import Final, NamedTuple
 
 import pytest
 
+from consilium.retrieval.corpus import DISCLAIMER, FRONT_MATTER_KEYS, load_corpus
 from consilium.retrieval.types import CATEGORIES
 
 CORPUS_DIR: Final = Path(__file__).resolve().parents[1] / "data" / "corpus"
 
-#: The five front-matter keys, in the frozen order.  The loader forbids extras.
-FRONT_MATTER_KEYS: Final = ("doc_id", "category", "title", "source", "last_reviewed")
-
-#: Byte-identical in every note.  The loader requires it and excludes it from chunk text: a string
-#: identical in every document is zero-IDF noise to BM25 and a constant offset on every dense
-#: vector, so it carries nothing retrievable while perturbing everything.
-DISCLAIMER: Final = (
-    "> **Educational summary — not medical advice.** This note is reference material for a "
-    "software\n"
-    "> project. It does not diagnose or treat, and it must not be used for real medical decisions."
-)
+# FRONT_MATTER_KEYS and DISCLAIMER are imported from the loader rather than restated here.  Both
+# are enforced at ingest time -- a malformed note is a CorpusError, not a lint failure -- and a
+# second copy in the test file would be free to drift from the copy that actually rejects notes,
+# which would leave the lint passing while ingestion failed.
 
 #: 2,700-3,500 characters of body yields 3-4 chunks at the 800-1,000 character chunk size.  A
 #: one-chunk corpus would never exercise the per-doc_id dedup step in RRF fusion.
@@ -496,3 +490,17 @@ def test_no_british_spelling_outside_the_allowlist(path: Path) -> None:
     """BM25 is lexical: a note that says only "oesophageal" is unreachable from "esophageal"."""
     offenders = _british_words(path.read_text(encoding="utf-8"))
     assert offenders == [], f"{path.stem}: British spelling outside the allowlist: {offenders}"
+
+
+def test_the_loader_accepts_every_note_in_the_corpus() -> None:
+    """The conventions above are asserted by this file and *enforced* by the loader.
+
+    Both matter and they are not the same check.  This test is what ties them together: if a
+    convention is tightened here but not in `consilium/retrieval/corpus.py`, the corpus keeps
+    passing the lint and starts failing at ingest, which is the failure this project can least
+    afford to discover in Phase 8.
+    """
+    documents = load_corpus(CORPUS_DIR)
+    assert len(documents) == len(CORPUS_FILES)
+    assert [document.doc_id for document in documents] == [path.stem for path in CORPUS_FILES]
+    assert all(DISCLAIMER not in document.body for document in documents)

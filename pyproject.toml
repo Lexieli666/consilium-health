@@ -55,9 +55,11 @@ dev = [
     "types-PyYAML>=6,<7",
 ]
 
-# [project.scripts] and [project.urls] are added in Phase 4 and Phase 10 respectively: a console
-# script pointing at a module that does not exist yet is worse than no console script, and the
-# repository URL depends on a GitHub account that has not been confirmed.
+# The console script lands in Phase 2, with the first command it can actually run.  The rule it was
+# deferred under -- no script pointing at a module that does not exist -- is now satisfied:
+# `consilium ingest` builds the retrieval index.  [project.urls] still waits for Phase 10.
+[project.scripts]
+consilium = "consilium.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["consilium"]
