@@ -95,6 +95,8 @@ def emit_one_of_each(tracer: Tracer) -> None:
         risk_level="emergency",
         wall_ms=1500.0,
         red_flag_matched=True,
+        red_flag_matched_raw=True,
+        red_flag_negation_suppressed=False,
         escalation_present_pre_repair=False,
         escalation_present_post_repair=True,
         repair_applied=True,
@@ -134,6 +136,8 @@ def test_turn_event_carries_the_three_escalation_fields(
         risk_level="emergency",
         wall_ms=10.0,
         red_flag_matched=True,
+        red_flag_matched_raw=True,
+        red_flag_negation_suppressed=False,
         escalation_present_pre_repair=True,
         escalation_present_post_repair=True,
         repair_applied=False,
@@ -143,6 +147,32 @@ def test_turn_event_carries_the_three_escalation_fields(
     assert payload["escalation_present_pre_repair"] is True
     assert payload["escalation_present_post_repair"] is True
     assert payload["repair_applied"] is False
+
+
+def test_turn_event_records_both_negation_policies(tracer: Tracer, memory_sink: MemorySink) -> None:
+    """A suppressed match must stay visible, or the two policies cannot be compared.
+
+    "I have no chest pain" matches the ``chest pain`` pattern and is then suppressed by the
+    negation guard.  The turn escalates under the raw policy and does not under the guarded one,
+    and both facts have to survive into the trace for the ablation to be computable from one run.
+    """
+    event = tracer.turn(
+        question="I have no chest pain, just a cough",
+        answer="A cough lasting under three weeks after a cold is common.",
+        risk_level="routine",
+        wall_ms=10.0,
+        red_flag_matched=False,
+        red_flag_matched_raw=True,
+        red_flag_negation_suppressed=True,
+        escalation_present_pre_repair=False,
+        escalation_present_post_repair=False,
+        repair_applied=False,
+    )
+    payload = json.loads(event.model_dump_json())
+
+    assert payload["red_flag_matched"] is False
+    assert payload["red_flag_matched_raw"] is True
+    assert payload["red_flag_negation_suppressed"] is True
     assert memory_sink.of_type(TurnEvent) == [event]
 
 
