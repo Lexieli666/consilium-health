@@ -34,7 +34,12 @@ from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
 
 #: Bumped whenever an event's required fields change.  Stamped on every record so that a trace
 #: written by an older commit can be identified rather than silently misread by newer eval code.
-SCHEMA_VERSION = 1
+#:
+#: 2 -- ``turn`` gained ``red_flag_matched_raw`` and ``red_flag_negation_suppressed`` when the
+#:      red-flag matcher acquired a negation guard.  Version 1 traces have a ``red_flag_matched``
+#:      that means "matched ignoring negation", which is version 2's ``red_flag_matched_raw``; the
+#:      two cannot be pooled without that translation, which is the whole reason this number exists.
+SCHEMA_VERSION = 2
 
 EventType = Literal["route", "llm_call", "tool_call", "retrieval", "safety", "blackboard", "turn"]
 
@@ -189,6 +194,17 @@ class TurnEvent(_BaseEvent):
     ``escalation_present_pre_repair``   the model handled it unaided
     ``escalation_present_post_repair``  the delivered answer escalates -- this is red-flag recall
     ``repair_applied``                  the guard, not the model, is what saved it
+
+    The three ``red_flag_*`` fields record the input-side match under *both* negation policies, so
+    that the ablation in docs/EVALUATION.md can report recall and false-positive rate under each
+    from a single run rather than from two:
+
+    ``red_flag_matched_raw``            a pattern matched, ignoring negation entirely
+    ``red_flag_matched``                a pattern matched and survived the negation guard -- the
+                                        policy actually in force, and what drove the banner
+    ``red_flag_negation_suppressed``    ``raw and not matched``: the guard changed *this turn's*
+                                        outcome.  Exactly the discordant set, so the two policies
+                                        can be compared without re-running anything.
     """
 
     type: Literal["turn"] = "turn"
@@ -197,6 +213,8 @@ class TurnEvent(_BaseEvent):
     risk_level: RiskLevel | None = None
     wall_ms: float = Field(ge=0)
     red_flag_matched: bool
+    red_flag_matched_raw: bool
+    red_flag_negation_suppressed: bool
     escalation_present_pre_repair: bool
     escalation_present_post_repair: bool
     repair_applied: bool
@@ -475,6 +493,8 @@ class Tracer:
         risk_level: RiskLevel | None,
         wall_ms: float,
         red_flag_matched: bool,
+        red_flag_matched_raw: bool,
+        red_flag_negation_suppressed: bool,
         escalation_present_pre_repair: bool,
         escalation_present_post_repair: bool,
         repair_applied: bool,
@@ -486,6 +506,8 @@ class Tracer:
             risk_level=risk_level,
             wall_ms=wall_ms,
             red_flag_matched=red_flag_matched,
+            red_flag_matched_raw=red_flag_matched_raw,
+            red_flag_negation_suppressed=red_flag_negation_suppressed,
             escalation_present_pre_repair=escalation_present_pre_repair,
             escalation_present_post_repair=escalation_present_post_repair,
             repair_applied=repair_applied,

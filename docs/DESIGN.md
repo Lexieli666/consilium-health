@@ -164,3 +164,116 @@ Not a substitution: the offline rule in the brief specifies "an in-memory numpy 
 the `VectorStore` protocol, so `numpy` is required to build the component the specification names.
 It would arrive transitively with `chromadb` and `sentence-transformers` in any case, but those are
 optional and CI does not install them.
+
+## Phase 2 — data and retrieval
+
+### The red-flag matcher guards negation, narrowly
+
+**Chosen.** An explicit negation cue — *no, not, never, without, denies, denied, deny, negative,
+none* — within three tokens before a matched phrase suppresses that match, with a sentence boundary
+ending the window. "No chest pain" and "denies chest pain" do not escalate. "Not sure if this is
+chest pain" and "I have chest pain. No fever." still do. Hedges are deliberately not cues.
+
+**Rejected — ignore negation entirely.** The argument for it is a genuine asymmetry: a false
+negative on an emergency symptom is the worst error this system can make, and a false positive
+appears to cost only one unnecessary banner. That reasoning is right in direction and wrong in
+magnitude. A banner on "no chest pain" does not cost one banner; it costs the credibility of every
+subsequent banner. Alarm fatigue is the standard failure mode of clinical alerting systems, and a
+guard rail that fires on inputs a reader can see are negated trains people to skip it — including on
+the occasions it is right. "I ignored negation for safety" describes a decision not to think about
+the failure mode rather than a considered trade.
+
+**Rejected — a real negation parser.** Dependency parsing or a negation-scope model (NegEx and its
+descendants) would handle "chest pain is not something I have ever experienced". It also introduces
+a model whose failures are opaque, a dependency the brief does not list, and a component that cannot
+be reviewed by reading it. The narrow rule fits on a screen, and its boundaries are pinned by tests.
+
+**Contractions are normalized, not enumerated.** The first version of the cue list held only
+uncontracted forms, which meant it missed its own main case: "I don't have chest pain" is probably
+the most common negated phrasing in real user input, and it escalated. The fix is in the tokenizer
+rather than the cue list — any token matching `n't` folds to `not` before matching, so one rule
+covers *don't, doesn't, didn't, haven't, hasn't, hadn't, isn't, aren't, wasn't, weren't, can't,
+couldn't, wouldn't, shouldn't, won't, mustn't, needn't* and anything else formed the same way. Both
+apostrophe characters are accepted, since text from a phone keyboard carries U+2019 rather than
+U+0027. A cue list would have been wrong the first time someone wrote a form nobody had thought of;
+the existing `not` cue and the existing three-token window then apply unchanged.
+
+Apostrophe-free forms (*dont, doesnt, havent, isnt*, …) are included too, with two deliberate
+exclusions: **`cant` and `wont` are real English words**, and suppressing an emergency match on a
+legitimate word is a worse error than missing an informally typed negation.
+
+**The cue list mixes two vocabularies, and should say so.** *denies, denied, deny* are clinician
+register — they appear in notes written *about* a patient ("patient denies chest pain"), not in what
+a patient types. They are kept because the system may be handed clinician-authored text and they
+cost nothing, but they are not what makes the guard work on real user input. *no*, *not* and the
+contracted forms are. A cue list that silently mixes registers invites the reader to assume it was
+assembled from one source and validated against it, and it was not.
+
+### Inflected forms are enumerated, not derived
+
+Writing the contraction tests exposed a second recall gap: the matcher missed "chest pains", because
+the word boundary after `pain` fails against the plural.
+
+**Rejected — an optional trailing `s` in the compiled regex.** This was the first fix, and it was
+wrong in a way worth recording. It covers `pain`/`pains` and silently fails on every other kind of
+inflection: *vomiting / vomited / vomit*, *throwing up / threw up*, *face drooping / drooped /
+droops*, *slurred / slurring*, *turning blue / turned blue*. Patching the one instance that a test
+happened to surface leaves the general defect in place and creates the impression it was handled.
+
+**Rejected — a stemmer.** Porter or Snowball stemming would generalize correctly across regular
+morphology. It also puts the matching behaviour inside a library, so "which inputs escalate?" stops
+being answerable by reading the data file, and the safety-critical behaviour of the system becomes
+dependent on a component nobody on the project reviewed. It would also over-match: stemming
+`stroke` and `stroking` to a common root is not wanted here.
+
+**Chosen — an exhaustive manual audit.** The table is small enough to check completely: all **116
+patterns across 14 rules** were audited against their plural, past-tense, third-person and gerund
+forms, and the variants a person would plausibly type were added as explicit patterns. The matcher
+applies no morphology of its own, so what matches is exactly what a reviewer reads in
+`data/red_flags.yaml`.
+
+| | before | after | added |
+|---|---|---|---|
+| patterns | 116 | 195 | +79 |
+| rules changed | | | 13 of 14 |
+
+Only `pregnancy_emergency` was unchanged; its four patterns have no plausible inflection. The
+largest additions were `stroke_symptoms` (+12), `severe_breathing_difficulty` (+10) and
+`anaphylaxis` (+9), all of which are phrased around verbs. A test asserts the negative case too —
+`mottled skins` does not match, because it was not audited in — which is what makes "the matcher
+applies no morphology" a checked claim rather than a comment.
+
+This is defensible in a way the regex was not: "I audited all 116 patterns against inflected forms
+and added 79" is verifiable by reading the file. "I added an optional `s`" is a patch that fails on
+the next irregular verb.
+
+**How the choice is settled.** Not by the argument above. Every match records whether a cue
+suppressed it, and the `turn` trace event carries `red_flag_matched_raw`, `red_flag_matched` and
+`red_flag_negation_suppressed`, so one evaluation run yields red-flag recall and false-positive rate
+under *both* policies. `RedFlagTable(..., negation_guard=False)` is a constructor switch, not a code
+edit, so the ablation is reproducible.
+
+| policy | red-flag recall | false-negative count | false-positive rate |
+|---|---|---|---|
+| raw (no negation guard) | not measured | not measured | not measured |
+| guarded (default) | not measured | not measured | not measured |
+
+**The rule that decides it, fixed in advance so the result cannot be rationalised after the fact:
+if the guard costs any recall at all on the labelled set, the default reverts to raw matching**, and
+this section reports both numbers and says so. A guard that trades a single missed emergency for a
+tidier false-positive rate is not a trade this project is willing to make; the point of measuring
+both is that the decision rests on the data rather than on which way the prose leans.
+
+### The red-flag matcher is built in Phase 2, not Phase 7
+
+The build order puts the safety layer in Phase 7, and `consilium/safety/red_flags.py` arrives in
+Phase 2 with the data file it loads. A rule table with no loader is an unverified rule table: the
+`doc_id` cross-references, the urgency tiers and the pattern list are all assertions until something
+reads them. Building the loader alongside the data means the corpus notes and the rules are checked
+against each other in the same commit that introduces both. Phase 7 adds `policy.yaml`, the
+validator and `OutputRepair` on top of this, unchanged.
+
+Both the `assess_risk` skill and `OutputRepair` share this one implementation. Two matchers would
+let a symptom escalate through one path and not the other, which surfaces as an unexplained gap
+between the safety trigger rate and red-flag recall — a bug that is very hard to find from the
+metrics alone.
