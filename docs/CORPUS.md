@@ -151,6 +151,41 @@ per-condition where the code selection is nuanced enough to need its own documen
 where it is not. This is the property that makes the coding and condition notes mutually
 retrievable, and it is precisely what an empty `coding` category destroys.
 
+### Coding coverage is narrow, deliberately, and that is a labelling constraint
+
+Accepted as-is on 2026-08-17 rather than reopened. Stating it plainly, because it shapes what the
+condition-and-coding block of the golden set can honestly measure:
+
+| condition | coding coverage |
+|---|---|
+| hypertension | `coding-hypertension-i10` — selection note |
+| type 2 diabetes | `coding-type-2-diabetes-e11` — selection note |
+| asthma | `coding-asthma-j45` — selection note |
+| COPD | `coding-copd-j44` — selection note |
+| GERD | `coding-gerd-k21` — selection note |
+| heart failure | `coding-heart-failure-i50` — selection note |
+| insomnia | `coding-insomnia-g47` — selection note |
+| coronary artery disease, generalized anxiety disorder, hypothyroidism, influenza, iron-deficiency anemia, migraine, osteoarthritis, upper respiratory infection, urinary tract infection | chapter map only |
+
+Seven of sixteen conditions own a note that decides a code; the remaining nine are named inside
+their chapter map, in the block that holds them, and nowhere else. Three of the seven — COPD, GERD
+and type 2 diabetes — are named only in their own selection note and not in their chapter map, so a
+chapter-level question about them retrieves the note that owns selection anyway.
+
+The brief's §4 asks for "ICD-10 chapter notes plus per-condition code notes" and fixes no count, so
+this satisfies it; but nine more selection notes would be a second deviation from its coverage list
+in service of something that is not actually a corpus defect. **The consequence is carried in the
+golden set instead.** The thirty condition-and-coding questions vary along the *convention* axis —
+the "with" presumption, combination codes, required second codes and their sequencing,
+three-character codes that are already complete, undecimalized roots, chapter boundaries and what
+lives elsewhere — and not along the *condition* axis, because thirty questions differing only in
+which condition they name would be near-duplicates drawn from seven documents, and near-duplicate
+golden items inflate apparent performance the same way duplicate documents inflate retrieval
+scores. This is frozen in CLAUDE.md §1 under Checkpoint B.
+
+`docs/EVALUATION.md` carries this as a threat to validity and the README as a limitation, when
+those files exist.
+
 ## Format contract
 
 Every file in `data/corpus/` is an ingestable note — no READMEs, no index files, no

@@ -48,6 +48,22 @@ was replaced by the following, on the owner's instruction:
       because that is the realistic failure mode and the one a pattern table is worst at.
     Expect this to produce misses. The misses are the finding, not a bug to be papered over by
     editing the questions toward the patterns.
+
+    **The 30 condition-and-coding items vary along the CONVENTION axis, not the CONDITION axis.**
+    Owner's constraint, 2026-08-17, recorded here for the same reason as the red-flag one: it
+    governs how the draft is written and would otherwise be lost to compaction. The `coding`
+    category carries seven conditions' worth of code-selection detail and chapter-level coverage
+    for the other nine (see §7), so thirty questions differing only in which condition they name
+    would be thirty near-duplicates drawn from seven documents. **Near-duplicate golden items
+    inflate apparent performance the same way duplicate documents inflate retrieval scores.** The
+    items therefore vary along the convention under test:
+    - the "with" presumption — where a code assumes a causal link between two conditions, and
+      where it does not;
+    - combination codes, which fold two diagnoses into one code;
+    - required second codes, and the order they are sequenced in;
+    - three-character codes that are already complete and take no further character;
+    - undecimalized roots versus the full code;
+    - chapter boundaries — what a chapter deliberately excludes and which chapter holds it instead.
 - **Stop and ask** — do not work around — if any of these happen:
   1. A phase's tests cannot be made to pass.
   2. A dependency is needed that is not in §2 of the brief (see §5 below).
@@ -261,6 +277,16 @@ These were decided by the owner after the Phase-0 critique and **override the br
   — per-condition where the code selection is nuanced, chapter-level where it is not. This is what
   makes the coding and condition notes mutually retrievable, and it is the property that the empty
   `coding` category destroyed.
+- **Coding coverage is deliberately narrow, and is accepted as-is.** Owner's decision, 2026-08-17.
+  Seven of the sixteen conditions have a per-condition code-selection note — hypertension (`i10`),
+  type 2 diabetes (`e11`), asthma (`j45`), COPD (`j44`), GERD (`k21`), heart failure (`i50`),
+  insomnia (`g47`). The other nine are covered at chapter level only, and three of the seven
+  (COPD, GERD, type 2 diabetes) are named in their own note rather than in their chapter map. The
+  corpus is not reopened to level this up: the brief's §4 fixes no per-condition count, and writing
+  nine more selection notes would be a second deviation from its coverage list to fix something
+  that is a labelling constraint rather than a defect. The consequence is carried in Phase 8
+  instead — see §1, Checkpoint B — and stated as a limitation in `docs/CORPUS.md`,
+  `docs/EVALUATION.md` and the README.
 - **US spelling throughout**, with a fixed allowlist of British alternate-spelling anchors appearing
   once in parentheses at first use (`oesophageal`, `haemoglobin`, `anaemia`, `apnoea`,
   `generalised`, `GORD`, extended as needed). This is a retrieval decision: BM25 is lexical, so
