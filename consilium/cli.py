@@ -13,6 +13,7 @@ through the logger would put it behind a level filter and wrap it in JSON.
 from __future__ import annotations
 
 import asyncio
+import shutil
 import uuid
 from pathlib import Path
 from typing import Annotated
@@ -194,6 +195,7 @@ def ask(
     typer.echo(f"route      : {outcome.mode} [{agents}]{_routing_notes(outcome)}")
     typer.echo(f"risk level : {outcome.risk_level}")
     typer.echo(f"sources    : {', '.join(outcome.sources) or 'none'}")
+    typer.echo(f"safety     : {_safety_notes(outcome)}")
     typer.echo(f"trace      : {trace_path(settings.runs_dir, session_id, turn_index)}")
 
 
@@ -264,6 +266,64 @@ def _render(event: object) -> str:
     return f"blackboard  {getattr(event, 'event', '?')} {getattr(event, 'subtask_id', '')}"
 
 
+runs_app = typer.Typer(help="Manage trace files under runs/.", no_args_is_help=True)
+app.add_typer(runs_app, name="runs")
+
+
+@runs_app.command(name="purge")
+def purge_runs(
+    session: Annotated[
+        str | None,
+        typer.Option("--session", help="Purge one session. Omit to purge every trace."),
+    ] = None,
+    runs_dir: Annotated[
+        Path | None, typer.Option("--runs-dir", help="Where traces live. Defaults to the setting.")
+    ] = None,
+    yes: Annotated[bool, typer.Option("--yes", help="Do not prompt.")] = False,
+) -> None:
+    """Delete trace files.
+
+    Traces hold verbatim user questions and full prompts, so they are the most sensitive artifact
+    this project writes even though it forbids real patient data. This command is the retention
+    mechanism docs/SAFETY.md documents; without it the retention rule would be a sentence with
+    nothing behind it.
+
+    It refuses to delete anything outside the configured runs directory, and it prompts unless
+    `--yes` is passed: deleting traces destroys the evidence behind every number computed from them.
+    """
+    settings = Settings.from_env()
+    configure_logging(settings.log_level, settings.log_format)
+    root = (runs_dir or settings.runs_dir).resolve()
+
+    if not root.exists():
+        typer.echo(f"nothing to purge: {root} does not exist")
+        return
+
+    targets = [root / session] if session else sorted(p for p in root.iterdir() if p.is_dir())
+    for target in targets:
+        # A session id could otherwise walk out of the runs directory.  `Tracer` and the memory
+        # store both validate the same pattern; this is the third place the same input is used, so
+        # it gets the same check rather than trusting the two upstream ones.
+        if not target.resolve().is_relative_to(root):
+            raise typer.BadParameter(f"{target} is outside {root}")
+
+    existing = [target for target in targets if target.exists()]
+    if not existing:
+        typer.echo(f"nothing to purge under {root}")
+        return
+
+    files = sum(len(list(target.glob("*.jsonl"))) for target in existing)
+    if not yes:
+        typer.confirm(
+            f"delete {files} trace file(s) in {len(existing)} session(s) under {root}?", abort=True
+        )
+
+    for target in existing:
+        shutil.rmtree(target)
+    log.info("runs.purged", sessions=len(existing), files=files, runs_dir=str(root))
+    typer.echo(f"purged {files} trace file(s) from {len(existing)} session(s)")
+
+
 def _routing_notes(outcome: TurnOutcome) -> str:
     """Flag a planner fallback or a missing perspective in the CLI output.
 
@@ -276,6 +336,24 @@ def _routing_notes(outcome: TurnOutcome) -> str:
     if outcome.missing:
         notes.append(f"missing: {', '.join(outcome.missing)}")
     return f"  ({'; '.join(notes)})" if notes else ""
+
+
+def _safety_notes(outcome: TurnOutcome) -> str:
+    """What the guard found and what it did, as two counts rather than one.
+
+    Violations and repairs are reported separately here for the same reason they are two rates in
+    docs/EVALUATION.md: one says the model produced non-compliant output, the other says the guard
+    had to act, and merging them hides a model getting worse behind a guard that kept working.
+    """
+    from consilium.safety import violation_rules
+
+    found = violation_rules(outcome.safety.violations)
+    if not found and not outcome.safety.repairs:
+        return "no violations"
+    return (
+        f"violations: {', '.join(found) or 'none'}; "
+        f"repairs: {', '.join(outcome.safety.repairs) or 'none'}"
+    )
 
 
 def _pipeline_names(store: str, embedder: str) -> tuple[StoreName, EmbedderName]:

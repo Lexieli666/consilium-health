@@ -6,11 +6,19 @@
 #
 # ORDERING NOTE.  The build brief introduces this file with the safety layer (its section 3.7) but
 # also requires `BaseAgent` to load from it at construction (section 3.2), which lands three phases
-# earlier.  That is an ordering contradiction in the brief, not a design disagreement, and it is
-# resolved by creating the file here in Phase 4 with the per-agent permitted-skill lists only, and
-# expanding it in Phase 7 with the full output policy -- required elements, forbidden behaviours,
-# and the path reference to data/red_flags.yaml.  The `schema_version` below is bumped when that
-# expansion lands.  See CLAUDE.md section 10.
+# earlier.  That is an ordering contradiction in the brief, not a design disagreement, and it was
+# resolved by creating the file in Phase 4 with the per-agent permitted-skill lists only.  Phase 7
+# added the `output` block below and bumped `schema_version` from 1 to 2.  See CLAUDE.md section 10.
+#
+# THE RED-FLAG LIST IS REFERENCED BY PATH, NEVER RESTATED.  `red_flags` below names the file; this
+# file contains no emergency phrases of its own.  Two copies of that list would eventually disagree,
+# and the copy that lost would be the one deciding whether a user is told to seek care.
+#
+# FORBIDDEN PATTERNS ARE REGULAR EXPRESSIONS, unlike data/red_flags.yaml, whose patterns are literal
+# phrases.  The difference is deliberate and is forced by what is being matched: a dose is a number
+# followed by a unit, which no list of literal phrases can express.  The cost is that this list is
+# less readable by a non-programmer, so it is kept short and each entry is commented.  Every pattern
+# is matched case-insensitively against one sentence at a time.
 #
 # WHAT THIS FILE IS FOR, precisely: all three agents are registered with all seven skills.  The
 # specialization lives in the system prompt and in this file, never in hard-coded tool wiring.  A
@@ -22,7 +30,10 @@
 # outside its own category filters -- which would turn a routing mistake into a failed turn rather
 # than a slightly worse answer.
 
-schema_version: 1
+schema_version: 2
+
+# The emergency-symptom table, by path.  See the note above.
+red_flags: red_flags.yaml
 
 agents:
   consultation:
@@ -51,3 +62,88 @@ agents:
       - find_guideline
       - deep_research
       - search_knowledge
+
+# ----------------------------------------------------------------------------------------------
+# Output policy.
+#
+# `PolicyValidator` detects; `OutputRepair` fixes.  They are separate because violations and repairs
+# are separate counts and are reported as two rates: the violation rate says how often the model
+# produced non-compliant output, and the repair rate says how often the guard had to act.  Merging
+# them would hide a model that got worse behind a guard that kept working.
+#
+# REPAIR ORDER is fixed and is not negotiable: redact forbidden sentences, then prepend the
+# escalation banner, then append the disclaimer.  The banner has to be the first thing read, and the
+# disclaimer is boilerplate that belongs at the end.
+# ----------------------------------------------------------------------------------------------
+
+output:
+  # Escalation.  Prepended only when the user's input matched a red-flag pattern AND the answer does
+  # not already contain a seek-care instruction, which is why a correctly-handled red flag emits no
+  # repair event at all -- see the `turn` event's three escalation fields in consilium/trace.py.
+  escalation:
+    id: escalation_required
+    description: >-
+      An input that matches the red-flag table must produce an answer that tells the user to seek
+      care. Measured as red-flag recall on the delivered answer.
+    banner: >-
+      **Seek emergency care now.** What you have described can be a medical emergency. Call
+      emergency services or go to an emergency department immediately. Do not wait to see whether it
+      improves, and do not drive yourself.
+
+  # Required elements.  Matched as a normalized-whitespace substring, so a wrapped answer still
+  # counts as carrying the disclaimer.
+  required:
+    - id: disclaimer
+      description: Every generated answer carries the standard disclaimer.
+      repair: append
+      text: >-
+        Not medical advice. This is an educational software project. It does not diagnose or treat,
+        and it must not be used for real medical decisions.
+
+  # Forbidden behaviours.  A matching sentence is replaced by its `replacement`; the rest of the
+  # answer is delivered unchanged.  Rewriting a clinical sentence into a different clinical sentence
+  # would produce text nobody wrote and nobody checked, so the repair removes rather than rephrases.
+  forbidden:
+    - id: dosing_instruction
+      description: No doses, amounts, or frequencies. The corpus contains none, so an answer that
+        states one is not grounded in anything.
+      replacement: "[removed: this system does not give doses or amounts.]"
+      patterns:
+        - '\b\d+(?:\.\d+)?\s*(?:mg|mcg|g|ml|iu|units?)\b'   # 500 mg, 2.5 ml, 10 units
+        - '\btake\s+\d+'                                    # take 2
+        - '\b\d+\s*tablets?\b'
+        - '\b\d+\s*times a day\b'
+        - '\btwice daily\b'
+        - '\bthree times daily\b'
+
+    - id: definitive_diagnosis
+      description: No statement that the user has a condition. The system explains; it does not
+        diagnose.
+      replacement: "[removed: this system does not diagnose.]"
+      patterns:
+        - '\byou (?:definitely|certainly|clearly|most likely) have\b'
+        - '\byou are suffering from\b'
+        - '\byour diagnosis is\b'
+        - '\bthe diagnosis is\b'
+        - '\bi can confirm (?:that )?you have\b'
+        - '\bit is certain that you have\b'
+
+    - id: prescription_advice
+      description: No instruction to start, stop, switch or change a medication.
+      replacement: "[removed: this system does not advise on starting or stopping medication.]"
+      patterns:
+        - '\byou should (?:start|stop|switch to|come off)\b'
+        - '\bstop taking your\b'
+        - '\b(?:increase|decrease|double|halve) your dose\b'
+        - '\bi recommend (?:taking|starting|stopping)\b'
+
+    - id: false_reassurance
+      description: No blanket reassurance and no advice against seeking care. The most dangerous
+        thing this system can say is that a symptom is nothing to worry about.
+      replacement: "[removed: this system cannot tell you that a symptom is not serious.]"
+      patterns:
+        - '\bnothing to worry about\b'
+        - '\bdefinitely not serious\b'
+        - '\bno need to see a (?:doctor|clinician|physician)\b'
+        - '\byou do not need to see a (?:doctor|clinician|physician)\b'
+        - '\bthere is no need for concern\b'

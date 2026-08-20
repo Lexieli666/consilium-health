@@ -160,3 +160,67 @@ def test_trace_reports_the_line_number_of_a_corrupt_record(env: Path, tmp_path: 
 
     assert result.exit_code == 1
     assert "0.jsonl:1" in result.output
+
+
+def test_ask_reports_violations_and_repairs_as_two_counts(env: Path, script: Path) -> None:
+    """Merging them would hide a model getting worse behind a guard that kept working."""
+    result = _ask("what is hypertension", "--script", str(script), "--session", "cli-safety")
+
+    assert result.exit_code == 0
+    assert "safety     : violations: disclaimer; repairs: disclaimer" in result.stdout
+
+
+def test_ask_delivers_the_repaired_answer(env: Path, tmp_path: Path) -> None:
+    path = tmp_path / "unsafe.yaml"
+    path.write_text(
+        "responses:\n"
+        '  - content: \'{"subtasks": [{"agent": "diagnostic", "objective": "x", "why": "y"}]}\'\n'
+        '  - content: "Chest discomfort is usually nothing to worry about."\n',
+        encoding="utf-8",
+    )
+
+    result = _ask("I have crushing chest pain", "--script", str(path), "--session", "cli-repaired")
+
+    assert result.exit_code == 0
+    assert result.stdout.startswith("**Seek emergency care now.**")
+    assert "nothing to worry about" not in result.stdout
+    assert "Not medical advice." in result.stdout
+
+
+def test_runs_purge_deletes_one_session_and_leaves_the_others(env: Path, script: Path) -> None:
+    for session in ("keep", "drop"):
+        _ask("what is hypertension", "--script", str(script), "--session", session)
+    assert (env / "keep" / "0.jsonl").exists()
+
+    result = runner.invoke(
+        app, ["runs", "purge", "--session", "drop", "--yes"], catch_exceptions=False
+    )
+
+    assert result.exit_code == 0
+    assert not (env / "drop").exists()
+    assert (env / "keep" / "0.jsonl").exists()
+
+
+def test_runs_purge_prompts_unless_told_not_to(env: Path, script: Path) -> None:
+    """Purging destroys the evidence behind every number computed from those traces."""
+    _ask("what is hypertension", "--script", str(script), "--session", "prompted")
+
+    result = runner.invoke(app, ["runs", "purge"], input="n\n", catch_exceptions=False)
+
+    assert result.exit_code != 0
+    assert (env / "prompted" / "0.jsonl").exists()
+
+
+def test_runs_purge_reports_an_empty_directory_rather_than_failing(env: Path) -> None:
+    result = runner.invoke(app, ["runs", "purge", "--yes"], catch_exceptions=False)
+    assert result.exit_code == 0
+    assert "nothing to purge" in result.stdout
+
+
+def test_runs_purge_refuses_to_walk_out_of_the_runs_directory(env: Path, script: Path) -> None:
+    _ask("what is hypertension", "--script", str(script), "--session", "inside")
+
+    result = runner.invoke(app, ["runs", "purge", "--session", "../..", "--yes"])
+
+    assert result.exit_code != 0
+    assert (env / "inside").exists()
