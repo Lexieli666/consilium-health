@@ -9,12 +9,13 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import Sequence
 
 import pytest
 
 from consilium.agents.base import AgentResult
 from consilium.config import RunConfig
-from consilium.llm import MockProvider, ScriptedResponse
+from consilium.llm import Message, MockProvider, ScriptedResponse
 from consilium.router import Router, RouteResult, Synthesizer
 from consilium.router.planner import Planner
 from consilium.safety import Policy
@@ -35,11 +36,18 @@ class _StubAgent:
         self._delay = delay
         self._error = error
         self.calls: list[str] = []
+        self.histories: list[list[Message]] = []
 
     async def answer(
-        self, question: str, *, ctx: SkillContext, objective: str | None = None
+        self,
+        question: str,
+        *,
+        ctx: SkillContext,
+        history: Sequence[Message] = (),
+        objective: str | None = None,
     ) -> AgentResult:
         self.calls.append(objective or question)
+        self.histories.append(list(history))
         if self._delay:
             await asyncio.sleep(self._delay)
         if self._error:

@@ -175,3 +175,113 @@ async def test_the_trace_file_round_trips_through_its_own_schema(tmp_path: Path)
     ]
     assert all(event.session_id == "round-trip" for event in events)
     assert all(event.turn_index == 2 for event in events)
+
+
+# --- memory (Phase 6) ----------------------------------------------------------------------------
+
+
+async def test_a_second_turn_sees_the_first_one_s_history(memory_sink: MemorySink) -> None:
+    """The multi-turn case the golden set exercises: "what about diet?" after a condition."""
+    runtime = _runtime(
+        [
+            _plan("consultation"),
+            ScriptedResponse(content="Hypertension is persistently raised blood pressure."),
+            _plan("consultation"),
+            ScriptedResponse(content="For that condition, sodium reduction is described."),
+        ]
+    )
+
+    for turn_index, question in enumerate(["what is hypertension", "what about diet?"]):
+        tracer = Tracer(session_id="multi", turn_index=turn_index, sink=memory_sink)
+        await run_turn(runtime, question, tracer=tracer)
+
+    working = runtime.memory.get("multi")
+    assert len(working) == 2
+    assert working.exchanges[0].question == "what is hypertension"
+    assert working.exchanges[1].answer.startswith("For that condition")
+
+
+async def test_two_sessions_in_one_runtime_do_not_share_a_history(
+    memory_sink: MemorySink,
+) -> None:
+    runtime = _runtime(
+        [
+            _plan("consultation"),
+            ScriptedResponse(content="Answer for alice."),
+            _plan("consultation"),
+            ScriptedResponse(content="Answer for bob."),
+        ]
+    )
+
+    for session in ("alice", "bob"):
+        tracer = Tracer(session_id=session, turn_index=0, sink=memory_sink)
+        await run_turn(runtime, f"question from {session}", tracer=tracer)
+
+    assert runtime.memory.get("alice").exchanges[0].question == "question from alice"
+    assert runtime.memory.get("bob").exchanges[0].question == "question from bob"
+    assert len(runtime.memory.get("alice")) == 1
+    assert runtime.memory.get("alice") is not runtime.memory.get("bob")
+    assert "bob" not in str(runtime.memory.get("alice").history())
+
+
+async def test_memory_off_records_nothing_and_sends_no_history(memory_sink: MemorySink) -> None:
+    """`full_no_memory` is an ablation row, so it has to be a flag rather than a code path."""
+    runtime = _runtime(
+        [_plan("consultation"), ScriptedResponse(content="An answer.")],
+        config=RunConfig(name="full_no_memory", memory=False),
+    )
+    tracer = Tracer(session_id="nomem", turn_index=0, sink=memory_sink)
+
+    await run_turn(runtime, "a question", tracer=tracer)
+
+    assert len(runtime.memory.get("nomem")) == 0
+
+
+async def test_the_history_reaches_the_specialist_that_answers(memory_sink: MemorySink) -> None:
+    from consilium.memory import SOURCES_PREFIX
+
+    runtime = _runtime(
+        [
+            _plan("consultation"),
+            ScriptedResponse(content="First answer."),
+            _plan("consultation"),
+            ScriptedResponse(content="Second answer."),
+        ]
+    )
+    for turn_index, question in enumerate(["first question", "second question"]):
+        tracer = Tracer(session_id="hist", turn_index=turn_index, sink=memory_sink)
+        await run_turn(runtime, question, tracer=tracer)
+
+    history = runtime.memory.get("hist").history()
+    assert [message.role for message in history] == ["user", "assistant", "user", "assistant"]
+    assert history[0].content == "first question"
+    assert SOURCES_PREFIX not in (history[1].content or "")  # no tools ran, so no citations
+
+
+async def test_episodic_memory_records_one_row_per_session_and_recalls_nothing_by_default(
+    tmp_path: Path, memory_sink: MemorySink
+) -> None:
+    settings = Settings(
+        root_dir=ROOT,
+        data_dir=ROOT / "data",
+        corpus_dir=ROOT / "data" / "corpus",
+        episodic_db_path=tmp_path / "episodic.db",
+    )
+    runtime = build_runtime(
+        settings,
+        provider=MockProvider(
+            [_plan("consultation"), ScriptedResponse(content="Remembered answer.")]
+        ),
+        embedder="hash",
+        store="numpy",
+        episodic=True,
+    )
+    tracer = Tracer(session_id="episodes", turn_index=0, sink=memory_sink)
+
+    await run_turn(runtime, "a question worth remembering", tracer=tracer)
+
+    assert runtime.episodic is not None
+    assert runtime.episodic.store.count() == 1
+    assert runtime.episodic.recall_enabled is False
+    assert runtime.episodic.recall("a question worth remembering") == []
+    runtime.episodic.close()
