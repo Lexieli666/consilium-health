@@ -26,7 +26,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
-from consilium.agents import AGENT_TYPES, DEFAULT_AGENT, BaseAgent
+from consilium.agents import AGENT_TYPES, BaseAgent
 from consilium.agents.loop import ReActLoop
 from consilium.config import RunConfig, Settings
 from consilium.llm.base import LLMProvider
@@ -40,6 +40,9 @@ from consilium.retrieval.index import (
     make_store,
     open_retriever,
 )
+from consilium.router.planner import Planner
+from consilium.router.router import DEFAULT_DEADLINE_SECONDS, Router
+from consilium.router.synthesizer import Synthesizer
 from consilium.safety.escalation import escalation_present
 from consilium.safety.policy import Policy
 from consilium.safety.red_flags import RedFlagTable
@@ -93,6 +96,27 @@ class Runtime:
             provider=self.provider, registry=self.registry, policy=self.policy, loop=loop
         )
 
+    def router(
+        self,
+        *,
+        tracer: Tracer | None = None,
+        deadline_seconds: float = DEFAULT_DEADLINE_SECONDS,
+    ) -> Router:
+        """Build the router for one turn.
+
+        Per turn rather than per process, because the context factory closes over the turn's tracer.
+        Everything expensive -- the corpus, the index, the tables -- is already built and is shared
+        by reference; what is constructed here is three small objects and two closures.
+        """
+        return Router(
+            planner=Planner(provider=self.provider, policy=self.policy),
+            synthesizer=Synthesizer(provider=self.provider),
+            agent_factory=self.agent,
+            context_factory=lambda name: self.context(agent=name, tracer=tracer),
+            config=self.config,
+            deadline_seconds=deadline_seconds,
+        )
+
 
 def build_runtime(
     settings: Settings,
@@ -143,6 +167,10 @@ class TurnOutcome:
     risk_level: RiskLevel
     mode: RouteMode
     agents: tuple[str, ...]
+    #: True when the planner could not produce a usable plan and the single-agent default fired.
+    fallback: bool
+    #: Specialists whose subtask failed or timed out; named in the delivered answer.
+    missing: tuple[str, ...]
     trace_id: str
     wall_ms: float
     tool_results: tuple[SkillResult, ...]
@@ -154,32 +182,36 @@ async def run_turn(
     question: str,
     *,
     tracer: Tracer,
-    agent: str = DEFAULT_AGENT,
+    agent: str | None = None,
+    deadline_seconds: float = DEFAULT_DEADLINE_SECONDS,
 ) -> TurnOutcome:
-    """Run one turn through one specialist and write the ``turn`` event.
+    """Route one question, deliver an answer, and write the ``turn`` event.
 
-    Phase 4 has no router, so the specialist is named by the caller and the recorded mode is always
-    ``single``.  Phase 5 replaces the dispatch in the middle of this function with the planner and
-    the blackboard; the tracer, the red-flag assessment and the ``turn`` event stay here, because
-    they are properties of the turn rather than of how it was routed.
+    The routing decision belongs to ``consilium/router/``.  What stays here is the boundary: the
+    red-flag assessment of the *input*, the wall clock, and the single ``turn`` event written last.
 
-    The three escalation fields describe **this** phase honestly.  There is no ``OutputRepair`` yet,
-    so the delivered answer is the model's own answer: pre and post are the same value and
-    ``repair_applied`` is False.  When the repair lands in Phase 7 the post-repair field starts
-    describing a different string, which is precisely the distinction those fields exist to draw.
+    ``agent`` pins one specialist and skips routing.  It is the CLI's ``--agent`` flag, a debugging
+    affordance; no measured run uses it.
+
+    **The risk level comes from the red-flag table applied to the question, never from the answer.**
+    That is what makes it immovable by anything the model or the synthesizer does.
+
+    The three escalation fields describe this phase honestly.  There is no ``OutputRepair`` yet, so
+    the delivered answer is the model's own: pre and post are the same value and ``repair_applied``
+    is False.  When the repair lands in Phase 7 the post-repair field starts describing a different
+    string, which is exactly the distinction those fields exist to draw.
     """
     assessment = runtime.red_flags.assess(question)
-    specialist = runtime.agent(agent)
-    ctx = runtime.context(agent=specialist.name, tracer=tracer)
+    router = runtime.router(tracer=tracer, deadline_seconds=deadline_seconds)
 
     with stopwatch() as elapsed_ms:
-        result = await specialist.answer(question, ctx=ctx)
+        routed = await router.handle(question, tracer=tracer, pinned_agent=agent)
     wall_ms = elapsed_ms()
 
-    escalated = escalation_present(result.answer)
+    escalated = escalation_present(routed.answer)
     event = tracer.turn(
         question=question,
-        answer=result.answer,
+        answer=routed.answer,
         risk_level=assessment.urgency,
         wall_ms=wall_ms,
         red_flag_matched=assessment.matched,
@@ -190,13 +222,17 @@ async def run_turn(
         repair_applied=False,
     )
     return TurnOutcome(
-        answer=result.answer,
-        sources=result.sources,
+        answer=routed.answer,
+        sources=routed.sources,
         risk_level=assessment.urgency,
-        mode="single",
-        agents=(specialist.name,),
+        mode=routed.mode,
+        agents=routed.agents,
+        fallback=routed.fallback,
+        missing=routed.missing,
         trace_id=tracer.trace_id,
         wall_ms=wall_ms,
-        tool_results=result.tool_results,
+        tool_results=tuple(
+            result for agent_result in routed.results for result in agent_result.tool_results
+        ),
         turn_event=event,
     )

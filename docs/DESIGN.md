@@ -800,3 +800,157 @@ pays the whole ingestion cost per query. The freshness check is deliberately sha
 notes added, removed or rechunked, and does not try to detect an edit that leaves the count
 unchanged. `consilium ingest` is the supported way to reload after editing a note, and it is the
 command that resets.
+
+---
+
+## Phase 5 — planner, blackboard, parallel execution, synthesizer
+
+### Planner-based routing, not a trained classifier and not keyword rules
+
+**Chosen.** One LLM call with the three capability descriptions, an instruction to assign the fewest
+specialists that can answer, three few-shot examples, and a JSON output schema validated by Pydantic.
+
+**Rejected.** (a) A trained intent classifier. (b) Keyword rules over the question text.
+
+**Why.** A trained classifier needs labelled routing data, and the only labelled routing data this
+project has is the golden set — which is also what the routing metric is computed against. Training
+on it and then reporting accuracy against it would be measuring the classifier's memory. Keyword
+rules fail on the case the multi-dimensional block of the golden set exists to test: "my blood
+pressure is 150/95, is that bad, and what do the guidelines say the target should be" contains
+guideline keywords and symptom keywords, and the correct answer is *both agents*, which a rule table
+can only reach by enumerating combinations.
+
+The planner's cost is real and is measured rather than hidden: its call is traced as
+`caller="planner"`, and tokens per turn is summed over **all** `llm_call` events. The overhead the
+architecture adds is exactly what the ablation is supposed to expose.
+
+The capability descriptions come from `policy.yaml`, not from the prompt file. One description means
+the planner cannot be told an agent does something the policy does not permit it to do.
+
+### Every unusable plan produces the same fallback, and the fallback is counted
+
+**Chosen.** No content, no JSON in the content, JSON that does not parse, JSON that fails the
+schema, a plan naming an unknown agent, an empty plan, or a provider error — all assign a single
+`ConsultationAgent` subtask and set `fallback=True` on the `route` event.
+
+**Rejected.** (a) Retrying the planner. (b) Dropping the unknown agent and keeping the rest of the
+plan. (c) Raising.
+
+**Why the flag matters.** Routing accuracy is reported unconditionally *and* excluding fallback
+turns. Reporting only the second number would let a planner that fails half the time look perfect,
+which is why the flag has to be set on every path that produces the default — a silent recovery
+would be recorded as a routing success.
+
+**Why an unknown agent invalidates the whole plan.** Dropping it would produce a smaller plan than
+the planner intended and record it as a successful route to a narrower set of agents. That is a
+wrong routing decision written down as a right one, which is worse than a counted fallback.
+
+A repeated agent is collapsed to its first subtask instead: two subtasks for one specialist buy one
+perspective at twice the cost, and `route.agents` is compared against a labelled agent list that a
+repeated name could never match.
+
+### `extract_json_object` counts braces instead of matching a regex
+
+**Chosen.** A brace counter that knows about string literals and escapes, returning the first
+balanced `{...}`.
+
+**Rejected.** A regex, or `json.loads` on the whole reply.
+
+**Why.** Models wrap JSON in prose and in code fences, so the whole reply often is not JSON. A
+non-greedy regex stops at the first `}`, which is inside the nested subtask object; a greedy one
+runs past the end of the plan into the trailing prose. Both failures land in the fallback bucket and
+would be read as a planner that cannot produce JSON, when the planner produced perfectly good JSON
+and the parser could not find it. Twenty lines of counter removes an entire class of misattributed
+metric.
+
+### A `route` event is emitted only when a routing decision was made
+
+**Chosen.** `router="planner"` emits it. `router="single"` (the `single_agent_rag` control),
+`router="none"` (the `baseline_llm` control) and a pinned `--agent` do not.
+
+**Rejected.** Emitting a `route` event with `fallback=False` for every turn.
+
+**Why.** Planner fallback rate is "share of turns where the planner's JSON failed to parse". For a
+configuration with no planner, that is not 0% — it is n/a. Emitting the event would make the metric
+compute a confident zero for a component that does not exist, and the ablation table would show a
+control row outperforming the system on a metric the control cannot have. The absence of the event
+makes n/a fall out of the data instead of out of a special case in the metric code.
+
+### Workers cannot reach each other, because the API has no method for it
+
+**Chosen.** A worker never sees the `Blackboard`. It gets a `SubtaskHandle` bound to one
+`subtask_id`, whose whole surface is `subtask`, `agent`, `started()`, `completed()`, `failed()` and
+`timed_out()`.
+
+**Rejected.** Passing the board to each worker with a convention that they only touch their own row.
+
+**Why.** Conventions are not enforced by anything, and the failure they permit is subtle: if workers
+could read each other, outputs would depend on completion order, and two runs of the same question
+could synthesize differently because one worker happened to finish first. The evaluation compares
+parallel turns against single ones; a nondeterministic merge would be measured as architecture. A
+test asserts the handle's public surface, so the guarantee is checked rather than described.
+
+### A shared deadline, and partial failure is tolerated
+
+**Chosen.** One `deadline_at` computed once for the turn; each worker runs inside
+`asyncio.timeout_at(deadline_at)`. A worker that fails or times out is recorded on the board, and
+the answer is synthesized from whoever finished, with the missing perspective named in the text.
+
+**Rejected.** (a) A per-worker timeout. (b) `asyncio.timeout` around the whole `gather`. (c) Failing
+the turn when any worker fails.
+
+**Why.** Three workers each allowed 90 seconds is a 90-second budget only if they all start at once
+and none of them queues — the thing the user waits on is the turn, so the deadline belongs to the
+turn. Wrapping the `gather` would cancel the workers that had already succeeded and throw away their
+answers at the moment they became most useful. And failing the turn on any worker failure would make
+the parallel path strictly less reliable than the single one, which would be a strange thing to then
+measure as an improvement.
+
+`return_exceptions=True` is still passed to `gather` even though each worker catches its own
+failures: a bug in the worker *wrapper* must not cancel siblings that already succeeded.
+
+### Conflict precedence is deterministic, and four parts of it are code
+
+**Chosen.** Urgency and red-flag claims defer to `DiagnosticAgent`, factual and background claims to
+`ConsultationAgent`, evidence-strength claims to `ResearchAgent`.
+
+**Rejected.** Asking the model which worker's answer is better.
+
+**Why.** LLM arbitration fails exactly where it matters most: the diagnostic agent says *seek care
+now*, and another agent's calmer, better-written paragraph reads more authoritative. A false
+negative on a red flag is the worst error this system can make and over-escalation is the cheaper
+failure, so that contest is not one the model gets to hold.
+
+Four things are code rather than prompt text, and they are what makes "deterministic" a claim:
+
+1. **Sections are presented in precedence order, never completion order.** Completion order is a
+   race; a merge that depended on it would not reproduce.
+2. **Each section is labelled with what its agent owns**, so the instruction in the system prompt and
+   the evidence in the user message cannot drift apart.
+3. **Missing perspectives are named by code**, appended after the merge. The model was never shown
+   the failed output, so asking it to describe what is missing is asking it to describe something it
+   cannot see.
+4. **One completed worker means no synthesizer call at all.** There is nothing to merge, and
+   paraphrase is the step at which a grounded answer loses its grounding.
+
+Two further guarantees sit outside the synthesizer: the turn's `risk_level` comes from the red-flag
+table applied to the *input*, in `run_turn`, so no amount of merging can move it; and a failed or
+empty merge falls back to concatenating the workers' own answers in precedence order rather than
+losing them.
+
+### The router depends on a `Worker` protocol, not on `BaseAgent`
+
+**Chosen.** `Router` takes an `AgentFactory` returning anything that satisfies `Worker`: a name, a
+`for_turn`, and an `answer`.
+
+**Rejected.** Importing `BaseAgent` and depending on the class.
+
+**Why.** The protocol states the contract in one place — a worker is handed an objective and returns
+a result — and there is no method on it through which one worker could reach another, which is the
+same guarantee the blackboard handle makes, expressed in the other direction. `BaseAgent` satisfies
+it structurally, so nothing changes on the production path. It also means a test can substitute a
+worker that times out or raises without dragging a provider, a registry and a policy into a test
+about dispatch.
+
+The factory is *injected* rather than imported for a separate reason: `consilium/runtime.py`
+constructs both the agents and the router, so importing it here would be a cycle.

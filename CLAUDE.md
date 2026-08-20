@@ -495,15 +495,57 @@ Rationale for each decision, with the rejected alternative, is in `docs/DESIGN.m
   policy and streaming accumulation — code in this repository — through the provider's own `client`
   argument, and claim nothing about a live endpoint.
 
-## 11. Phase status
+## 11. Frozen: the router layer (Phase 5)
+
+Planner-worker orchestration with a blackboard. **Never a "swarm"** — §6 already freezes the
+naming; this section freezes the mechanism. Rationale in `docs/DESIGN.md` under "Phase 5".
+
+- **`consilium/router/` module layout.** `plan` (the plan model and subtask numbering) → `planner`
+  (one LLM call, validation, fallback) → `blackboard` (assignments, statuses, results, event log)
+  → `router` (dispatch, deadline, partial failure) → `synthesizer` (fixed-precedence merge).
+- **`Subtask` is the router's model; `trace.PlannedSubtask` is substrate's.** `Subtask.to_trace()`
+  is the one mapping. Substrate may not depend on a layer above it, so the direction is fixed.
+- **Subtask ids are deterministic: `<index>-<agent>`.** A uuid would make two traces of the same
+  plan textually different, and comparing traces across ablation presets is something this project
+  does.
+- **Every unusable planner reply produces the same fallback and sets `route.fallback=True`** —
+  empty content, no JSON, unparseable JSON, schema failure, unknown agent, empty plan, provider
+  error. An **unknown agent invalidates the whole plan** rather than being dropped; a **repeated
+  agent is collapsed** to its first subtask.
+- **`extract_json_object` is a brace counter that understands string literals and escapes**, not a
+  regex. A regex mis-parse would land in the fallback bucket and be read as a planner that cannot
+  produce JSON.
+- **A `route` event is emitted only by `router="planner"`.** `router="single"`, `router="none"` and
+  a pinned `--agent` emit none, so planner-fallback rate and routing accuracy are n/a for those
+  configurations by absence of data rather than by a special case in the metric code.
+- **Workers get a `SubtaskHandle`, never the `Blackboard`.** Its entire public surface is
+  `subtask`, `agent`, `started`, `completed`, `failed`, `timed_out`. There is no accessor for
+  another subtask's assignment or result, so "workers read only their own assignment and write only
+  their own result" is a property of the API. Every transition emits a `blackboard` trace event.
+- **One shared deadline for the turn** (`DEFAULT_DEADLINE_SECONDS = 90`), applied per worker via
+  `asyncio.timeout_at`. A worker that fails or times out is recorded and the turn continues;
+  `gather(..., return_exceptions=True)` guards the wrapper itself.
+- **Fixed precedence, four parts of it in code**: sections ordered by `AGENT_ORDER`
+  (diagnostic → consultation → research), ownership labels on each section, the
+  missing-perspective note appended by code, and **no synthesizer call at all when only one worker
+  completed**. A failed or empty merge falls back to concatenating the workers' answers in
+  precedence order rather than losing them.
+- **`TurnOutcome.risk_level` comes from the red-flag table applied to the question**, never from
+  the answer or the merge. Nothing downstream can move it.
+- **`Router` depends on a `Worker` protocol**, not on `BaseAgent`, and the agent factory is
+  injected (importing `consilium/runtime.py` from the router would be a cycle).
+- **`tests/__init__.py` exists** so `tests.stubs` has exactly one module name; mypy refuses to
+  check a file reachable under two.
+
+## 12. Phase status
 
 | phase | state | commit |
 |---|---|---|
 | 1. Scaffold, trace schema, offline seams, CI | done | `92a47e3` |
 | 2. Corpus, red flags, chunking, BM25, RRF, ingest | done | `1278c8e` |
 | 3. Skills + registry | done | `48dcfbc` |
-| 4. ReAct loop + agents + `trace` CLI | done | |
-| 5. Planner, router, blackboard, synthesizer | not started | |
+| 4. ReAct loop + agents + `trace` CLI | done | `b8caed0` |
+| 5. Planner, router, blackboard, synthesizer | done | |
 | 6. Memory | not started | |
 | 7. Safety | not started | |
 | 8. Eval harness + golden-set drafts | not started — **Checkpoint B** | |
