@@ -1,0 +1,185 @@
+"""The shipped drafts, and the drafting constraints that must survive labelling.
+
+These are lint tests over `eval/data/`, in the same spirit as `tests/test_corpus.py`: the
+conventions are asserted here rather than upheld by hand, so that an edit which breaks one fails
+here instead of quietly becoming a worse measurement.
+
+Nothing in this file scores anything. It reads the drafts and the red-flag table; it calls no model
+and it writes no label.
+"""
+
+from __future__ import annotations
+
+from collections import Counter
+from pathlib import Path
+
+import pytest
+
+from consilium.memory import WINDOW_EXCHANGES
+from consilium.safety import RedFlagTable
+from eval.items import (
+    GOLDEN_CATEGORIES,
+    ITEMS_PER_CATEGORY,
+    LONG_CONVERSATION_TURNS,
+    LONG_CONVERSATIONS_REQUIRED,
+    EvalDataError,
+    GoldenItem,
+    load_golden,
+    load_multiturn,
+)
+
+GOLDEN_PATH = Path("eval/data/golden.jsonl")
+MULTITURN_PATH = Path("eval/data/multiturn.jsonl")
+RED_FLAGS_PATH = Path("data/red_flags.yaml")
+
+#: Marks an item written to be a red-flag presentation. The drafting constraint applies to these.
+CANDIDATE_MARKER = "red-flag candidate"
+
+#: Marks an item that reuses a red-flag pattern string **on purpose**, in a context where
+#: escalating would be wrong. These probe the matcher's false-positive behaviour, and they are the
+#: only items allowed to contain a pattern string.
+PROBE_MARKER = "FALSE-POSITIVE PROBE"
+
+
+@pytest.fixture(scope="module")
+def golden() -> list[GoldenItem]:
+    return load_golden(GOLDEN_PATH, allow_draft=True)
+
+
+@pytest.fixture(scope="module")
+def patterns(red_flag_table: RedFlagTable) -> set[str]:
+    return {pattern for rule in red_flag_table for pattern in rule.patterns}
+
+
+def test_the_golden_set_is_150_items_in_five_blocks_of_thirty(golden: list[GoldenItem]) -> None:
+    assert len(golden) == ITEMS_PER_CATEGORY * len(GOLDEN_CATEGORIES) == 150
+    assert Counter(item.category for item in golden) == dict.fromkeys(
+        GOLDEN_CATEGORIES, ITEMS_PER_CATEGORY
+    )
+
+
+def test_ids_are_unique_and_name_their_block(golden: list[GoldenItem]) -> None:
+    assert len({item.id for item in golden}) == len(golden)
+    prefixes = {
+        "general_health": "g-gh-",
+        "symptom_urgency": "g-su-",
+        "condition_coding": "g-cc-",
+        "guideline_evidence": "g-ge-",
+        "multi_dimensional": "g-md-",
+    }
+    for item in golden:
+        assert item.id.startswith(prefixes[item.category]), item.id
+
+
+def test_the_shipped_golden_set_is_an_unlabelled_draft(golden: list[GoldenItem]) -> None:
+    """Checkpoint B: the owner labels it. Until then every label field is empty."""
+    assert all(item.labeled is False for item in golden)
+    assert all(item.missing_labels() for item in golden)
+    assert all(item.expected_route is None for item in golden)
+    assert all(item.relevant_doc_ids == () for item in golden)
+    assert all(item.red_flag is None for item in golden)
+
+
+def test_loading_the_shipped_draft_without_allow_draft_is_refused() -> None:
+    with pytest.raises(EvalDataError, match="labelled by hand"):
+        load_golden(GOLDEN_PATH)
+    with pytest.raises(EvalDataError, match="labelled by hand"):
+        load_multiturn(MULTITURN_PATH)
+
+
+def test_every_item_carries_authoring_intent_and_no_answer(golden: list[GoldenItem]) -> None:
+    """`draft_notes` says what the item is for; it must not say what the answer is."""
+    assert all(item.draft_notes.strip() for item in golden)
+    assert all(item.reference_answer == "" for item in golden)
+
+
+def test_no_red_flag_candidate_reuses_a_pattern_string(
+    golden: list[GoldenItem], patterns: set[str]
+) -> None:
+    """The frozen drafting constraint.
+
+    If a labelled red-flag item echoed a string from `data/red_flags.yaml`, red-flag recall would
+    measure only whether the matcher matches itself.
+    """
+    offenders = {
+        item.id: sorted(p for p in patterns if p in item.question.lower())
+        for item in golden
+        if CANDIDATE_MARKER in item.draft_notes
+        and any(p in item.question.lower() for p in patterns)
+    }
+    assert not offenders, offenders
+
+
+def test_the_only_items_reusing_a_pattern_string_are_marked_probes(
+    golden: list[GoldenItem], patterns: set[str]
+) -> None:
+    """A pattern string is allowed only where escalating on it would be wrong, and on purpose."""
+    reusing = [item for item in golden if any(p in item.question.lower() for p in patterns)]
+
+    assert reusing, "the set needs at least one probe of the matcher's false-positive behaviour"
+    for item in reusing:
+        assert PROBE_MARKER in item.draft_notes, item.id
+
+
+def test_the_symptom_block_mixes_emergencies_with_routine_questions(
+    golden: list[GoldenItem],
+) -> None:
+    """A block of only emergencies would measure recall with no false-positive denominator."""
+    block = [item for item in golden if item.category == "symptom_urgency"]
+    candidates = [item for item in block if CANDIDATE_MARKER in item.draft_notes]
+
+    assert 12 <= len(candidates) <= 22
+    assert len(block) - len(candidates) >= 8
+
+
+def test_the_red_flag_candidates_span_the_phrasing_styles_the_constraint_names(
+    golden: list[GoldenItem],
+) -> None:
+    """Hedged, contracted, inflected, misspelled, described, and buried in a longer question."""
+    notes = " ".join(
+        item.draft_notes.lower() for item in golden if CANDIDATE_MARKER in item.draft_notes
+    )
+    for style in ("hedged", "contracted", "inflected", "misspelled", "described", "buried"):
+        assert style in notes, style
+
+
+def test_the_coding_block_varies_along_the_convention_axis_not_the_condition_axis(
+    golden: list[GoldenItem],
+) -> None:
+    """Thirty questions differing only in the condition would be near-duplicates of seven notes."""
+    block = [item for item in golden if item.category == "condition_coding"]
+    assert all(item.draft_notes.startswith("convention:") for item in block)
+
+    conventions = {item.draft_notes.split("--")[0].strip() for item in block}
+    assert len(conventions) >= 6, conventions
+    for axis in (
+        "'with' presumption",
+        "combination codes",
+        "second codes",
+        "three-character",
+        "root versus",
+        "chapter boundaries",
+    ):
+        assert any(axis in item.draft_notes for item in block), axis
+
+
+def test_the_multi_turn_set_is_thirty_conversations_with_ten_long_ones() -> None:
+    """Ten must exceed the working-memory window, or the compaction path is never exercised."""
+    conversations = load_multiturn(MULTITURN_PATH, allow_draft=True)
+
+    assert len(conversations) == 30
+    assert len({c.id for c in conversations}) == 30
+    long_ones = [c for c in conversations if c.length >= LONG_CONVERSATION_TURNS]
+    assert len(long_ones) >= LONG_CONVERSATIONS_REQUIRED
+    assert all(c.length > WINDOW_EXCHANGES for c in long_ones)
+    assert all(c.length >= 2 for c in conversations)
+
+
+def test_every_conversation_is_an_unlabelled_draft_with_a_stated_shape() -> None:
+    conversations = load_multiturn(MULTITURN_PATH, allow_draft=True)
+
+    assert all(c.labeled is False for c in conversations)
+    assert all(c.missing_labels() for c in conversations)
+    assert all(turn.depends_on_turn is None for c in conversations for turn in c.turns)
+    assert all(turn.expected_referent == "" for c in conversations for turn in c.turns)
+    assert all(c.draft_notes.strip() for c in conversations)
