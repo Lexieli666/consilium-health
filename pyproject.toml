@@ -66,7 +66,11 @@ packages = ["consilium"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-m 'not network' --cov=consilium --cov-report=term-missing"
+# `--cov=eval` was added in Phase 8.  The evaluation harness computes every number this project
+# publishes, so leaving it as the one module whose coverage nobody measures would be the wrong
+# place to save a flag.  It is a top-level package rather than part of `consilium/` because the
+# brief specifies `eval/run.py` and because it is not shipped in the wheel.
+addopts = "-m 'not network' --cov=consilium --cov=eval --cov-report=term-missing"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 markers = [
@@ -76,7 +80,7 @@ filterwarnings = ["error"]
 
 [tool.coverage.run]
 branch = true
-source = ["consilium"]
+source = ["consilium", "eval"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -89,7 +93,7 @@ exclude_lines = [
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-src = ["consilium", "tests"]
+src = ["consilium", "eval", "tests"]
 
 [tool.ruff.lint]
 select = [
@@ -115,9 +119,10 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "ARG001", "ARG002"]  # assert is the point; fixtures are injected unused
+"eval/run.py" = ["T20"]  # a report generator writes to stdout; that is its output, not a log
 
 [tool.ruff.lint.isort]
-known-first-party = ["consilium"]
+known-first-party = ["consilium", "eval"]
 
 [tool.mypy]
 # Type-check at the floor, not above it.  3.12 is `requires-python`'s lower bound and the lowest
@@ -129,7 +134,7 @@ python_version = "3.12"
 strict = true
 warn_unreachable = true
 plugins = ["pydantic.mypy"]
-files = ["consilium", "tests"]
+files = ["consilium", "eval", "tests"]
 
 [[tool.mypy.overrides]]
 # `redis` is deliberately not a dependency: it is supported as an optional backend and is
