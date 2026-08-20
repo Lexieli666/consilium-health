@@ -633,3 +633,170 @@ symmetry alone would put a table in the foundation that nothing in the foundatio
 The symptom table also has no negation guard, deliberately: it records where a symptom is felt, and
 "no chest pain" still tells you the person is describing a cardiovascular concern. Negation changes
 the answer only where urgency is decided, which is the other table.
+
+---
+
+## Phase 4 — the ReAct loop, the agents, and the turn boundary
+
+### `policy.yaml` is created in Phase 4, not Phase 7
+
+**Chosen.** `data/policy.yaml` lands in Phase 4 carrying only the per-agent permitted-skill lists,
+and is expanded in Phase 7 with the output policy — required elements, forbidden behaviours, and the
+path reference to `data/red_flags.yaml`. `schema_version` is bumped when the expansion lands.
+
+**Rejected.** (a) Hard-coding each agent's tool list in Phase 4 and switching it to the file in
+Phase 7. (b) Moving the whole safety layer forward to Phase 4.
+
+**Why.** The brief introduces the file with the safety layer in its §3.7 but also requires
+`BaseAgent` to load from it at construction in §3.2, which is three phases earlier. That is an
+ordering contradiction in the brief, not a design disagreement, so it is resolved rather than
+escalated (owner's decision, pre-authorized). The hard-coded interim would be the worse fix: it
+makes the policy file advisory for three phases, and "the agent's tools are derived from the policy"
+is the property that makes the policy mean anything at all. Writing the lists once, in the file they
+belong in, costs nothing and leaves no migration.
+
+### The specialization is a prompt and a policy entry, and the class bodies prove it
+
+**Chosen.** `ConsultationAgent`, `DiagnosticAgent` and `ResearchAgent` each declare exactly two
+class attributes: `name` and `system_prompt`. Everything else — the tool list, the loop, the
+context — comes from `BaseAgent` and from `policy.yaml`.
+
+**Rejected.** Per-agent constructors wiring each specialist to its own tools.
+
+**Why.** Per-agent wiring puts the specialization in two places that then disagree, and it makes the
+safety policy decorative: a file saying `diagnostic` may not call `deep_research` means nothing if
+the agent's tool list was never derived from it. `test_no_agent_class_hard_codes_a_tool_list`
+asserts the class bodies stay at two attributes, so the claim is checked rather than asserted.
+
+The permitted lists partition cleanly: each specialist owns its own three skills and all three share
+`search_knowledge`. Sharing the unfiltered search is deliberate — an agent that cannot reach it has
+no way to answer a question outside its own category filters, which would turn a routing mistake
+into a failed turn instead of a slightly worse answer.
+
+### Two budgets, and only one of them binds
+
+**Chosen.** `max_tool_calls = 2` and `max_iterations = 3`, both overridable per call.
+
+**Why they are not redundant.** `max_tool_calls` is the constraint that decides how much retrieval
+grounds an answer and most of what a turn costs. `max_iterations` catches a failure it cannot: a
+model that produces prose turn after turn without ever calling a tool never increments the tool
+counter, so without the second guard the loop would not terminate. Defending both as if both bind
+would be dishonest; they exist for different failures, and in practice the tool budget is the one
+that fires.
+
+The per-call override exists because `full_budget_6` differs from `full` in exactly this number.
+Expressing an ablation preset as a second loop instance would mean the two presets ran through
+different objects, which is one more difference than the ablation is supposed to isolate.
+
+### The budget is enforced by the loop, and refused calls are not counted
+
+**Chosen.** Once the tool budget is spent the loop stops passing tool schemas to the provider. If a
+single response requests more calls than remain, the extras get a `tool` message saying the budget
+is spent — and **no `tool_call` trace event**.
+
+**Rejected.** (a) Asking for the limit in the system prompt. (b) Emitting a failed `tool_call` event
+for each refused call.
+
+**Why.** A prompt that says "use at most two tools" is a request; a loop that stops offering schemas
+is a constraint, and the difference is visible in the tool-call distribution, which is reported.
+Emitting events for refused calls would inflate that same distribution with calls that never ran —
+and the distribution is exactly what `full_budget_6` exists to measure honestly, since a
+distribution truncated at the cap cannot justify the cap. The model still gets a `tool` message for
+every request, because a tool result with no matching request is rejected by every provider that
+accepts tool calls at all.
+
+### `forced_answer` is reserved for a call caused by exhaustion
+
+**Chosen.** The trace caller is `agent:<name>` for an ordinary turn and `forced_answer` only when a
+call is made with tools disabled *because* a budget ran out. A run configured with
+`max_tool_calls=0` — the `baseline_llm` row — never offered tools in the first place, so its calls
+stay attributed to the agent.
+
+**Why.** Tokens per turn is reported split by caller. Labelling every `baseline_llm` call
+`forced_answer` would put the entire control condition into a bucket named after a failure mode, and
+the ablation table would then compare a row of forced answers against a row of ordinary ones.
+
+### The turn boundary lives in `consilium/runtime.py`, not in the CLI
+
+**Chosen.** `run_turn()` owns the invariant that one user turn is one `Tracer`, one trace file, and
+one `turn` event written last. The CLI, the API and the eval harness all go through it.
+
+**Rejected.** Assembling the tracer and the turn event in each entry point.
+
+**Why.** Three entry points that each assemble a turn are three chances to configure it differently,
+and the symptom appears late and indirectly: an evaluation number that cannot be reproduced through
+the API. The same module is the composition root, because the two jobs are the same job — knowing
+how the pieces fit. It imports from every layer, which is precisely why it is not one.
+
+From Phase 5 the routing decision inside a turn moves to `consilium/router/`; the boundary around it
+stays here, because the tracer and the `turn` event are properties of the turn rather than of how it
+was routed.
+
+### The escalation detector is built in Phase 4 and is deliberately strict
+
+**Chosen.** `consilium/safety/escalation.py` requires an explicit instruction to seek care — a verb
+plus a service or a place. It lands with the loop, three phases before `OutputRepair`.
+
+**Rejected.** (a) Defining it inside `OutputRepair` in Phase 7. (b) Counting any occurrence of
+"emergency" or "urgent".
+
+**Why the timing.** Three fields of the `turn` event *are* this function applied to two different
+strings, so nothing end-to-end is measurable without it. `OutputRepair` is also defined in terms of
+it — the banner is prepended only when the detector returns False — so defining the detector inside
+the repair would make the repair's own test unable to distinguish a detection bug from a repair bug.
+The precedent is `red_flags.py`, built in Phase 2 for the same reason.
+
+**Why strict.** `escalation_present_post_repair` *is* red-flag recall. A loose detector inflates the
+one number in this project that must not be flattered: "asthma is a common cause of emergency
+department visits" is a sentence about epidemiology, not an instruction. The opposite error — missing
+a genuine escalation phrased unusually — understates recall and overstates the repair rate, both in
+the conservative direction. The phrase list is therefore part of the measurement and is versioned
+with it; adding a phrase changes what red-flag recall means.
+
+In Phase 4 there is no repair, so `run_turn` writes the same value into the pre- and post-repair
+fields and `repair_applied=False`. That is not a placeholder: the delivered answer really is the
+model's own answer, which is exactly what those two fields claim.
+
+### A second real provider, and stub clients for the glue that only it has
+
+**Chosen.** `OpenAIProvider` and `AnthropicProvider` both implement `LLMProvider`. The parts that
+differ between the two APIs are pure functions — system prompt as a parameter versus a message, tool
+results as user-turn content blocks versus a `tool` role, Anthropic's tool schema as the OpenAI one
+*unwrapped* rather than a second derivation — and are tested directly. The request assembly, the
+retry policy and the streaming accumulation are tested with a small stub client injected through the
+provider's own `client` argument.
+
+**Rejected.** (a) One provider plus a config flag. (b) Leaving `chat()` and `stream_chat()`
+untested until a live key exists.
+
+**Why the second provider.** It is what makes `LLMProvider` a seam rather than a wrapper. Each of
+the three differences above is the kind of thing a single-provider design encodes as universal
+without noticing, and the cost of finding that out later is a rewrite of the agent layer.
+
+**Why the stubs are not the thing the brief rejects.** The rejected practice is mocking
+`sentence_transformers` or `chromadb` to satisfy the offline rule *instead of* using the `Embedder`
+and `VectorStore` seams — faking a dependency where a real second implementation is the specified
+design. For the LLM layer the specified second implementation is `MockProvider`, and it is what the
+rest of the suite runs against. It cannot exercise the two real providers at all, and those contain
+real behaviour with real bugs available to it: which keys reach the request, which exceptions are
+retried, how stream pieces become one recorded `llm_call`. The stubs test code in this repository
+through a constructor argument that exists anyway, and they claim nothing about whether a live
+endpoint would answer.
+
+`backoff_multiplier` is a constructor argument rather than a constant so that a 600-item evaluation
+sweep against a rate-limited endpoint can use a different curve from an interactive CLI — and so
+that a retry test does not spend a second per attempt proving that `tenacity` waits.
+
+### `open_retriever` reuses a populated store instead of re-embedding
+
+**Chosen.** `consilium ask` loads and chunks the corpus (BM25 needs the chunks in memory either
+way), then re-embeds only if the vector store's chunk count does not match. `consilium ingest`
+still resets unconditionally.
+
+**Rejected.** Re-ingesting on every invocation.
+
+**Why.** A persistent store outlives the process; re-embedding 312 chunks to answer one question
+pays the whole ingestion cost per query. The freshness check is deliberately shallow — it catches
+notes added, removed or rechunked, and does not try to detect an edit that leaves the count
+unchanged. `consilium ingest` is the supported way to reload after editing a note, and it is the
+command that resets.

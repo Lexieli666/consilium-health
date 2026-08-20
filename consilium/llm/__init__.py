@@ -5,6 +5,7 @@ never imports a vendor SDK, which is what makes the same agent code runnable aga
 provider, a second real provider, or a scripted mock.
 """
 
+from consilium.llm.anthropic_provider import AnthropicProvider
 from consilium.llm.base import (
     Delta,
     LLMProvider,
@@ -16,19 +17,25 @@ from consilium.llm.base import (
     Usage,
     record_llm_call,
 )
+from consilium.llm.factory import ProviderError, make_provider
 from consilium.llm.mock import MockProvider, ScriptedResponse, ScriptExhaustedError
+from consilium.llm.openai_provider import OpenAIProvider
 
 __all__ = [
+    "AnthropicProvider",
     "Delta",
     "LLMProvider",
     "LLMResponse",
     "Message",
     "MockProvider",
+    "OpenAIProvider",
+    "ProviderError",
     "ScriptExhaustedError",
     "ScriptedResponse",
     "StopReason",
     "ToolCall",
     "ToolSchema",
     "Usage",
+    "make_provider",
     "record_llm_call",
 ]

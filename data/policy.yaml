@@ -1,0 +1,53 @@
+# Agent policy.
+#
+# One source of truth for what each agent is allowed to do.  `BaseAgent` reads its permitted-skill
+# list from here at construction rather than holding a hard-coded list, so an agent's tools cannot
+# drift from the policy that is supposed to govern them.
+#
+# ORDERING NOTE.  The build brief introduces this file with the safety layer (its section 3.7) but
+# also requires `BaseAgent` to load from it at construction (section 3.2), which lands three phases
+# earlier.  That is an ordering contradiction in the brief, not a design disagreement, and it is
+# resolved by creating the file here in Phase 4 with the per-agent permitted-skill lists only, and
+# expanding it in Phase 7 with the full output policy -- required elements, forbidden behaviours,
+# and the path reference to data/red_flags.yaml.  The `schema_version` below is bumped when that
+# expansion lands.  See CLAUDE.md section 10.
+#
+# WHAT THIS FILE IS FOR, precisely: all three agents are registered with all seven skills.  The
+# specialization lives in the system prompt and in this file, never in hard-coded tool wiring.  A
+# skill named here that the registry does not know is an error at agent construction, not a silently
+# missing tool.
+#
+# `search_knowledge` is permitted to every agent on purpose.  It is the only unfiltered retrieval
+# in the system, and an agent that cannot reach it has no way to answer a question that falls
+# outside its own category filters -- which would turn a routing mistake into a failed turn rather
+# than a slightly worse answer.
+
+schema_version: 1
+
+agents:
+  consultation:
+    description: >-
+      General health questions, condition explanation, lifestyle guidance, and how a condition is
+      classified. The default agent, and the fallback when the planner cannot produce a plan.
+    permitted_skills:
+      - search_knowledge
+      - recommend_lifestyle
+      - lookup_disease_code
+
+  diagnostic:
+    description: >-
+      Symptom interpretation, urgency assessment and differential framing. Owns every urgency and
+      red-flag claim: the synthesizer's conflict precedence defers to this agent on them.
+    permitted_skills:
+      - assess_risk
+      - analyze_symptoms
+      - search_knowledge
+
+  research:
+    description: >-
+      Guideline lookup, evidence synthesis, and "what does the literature say" questions, including
+      where authorities disagree. Owns evidence-strength claims.
+    permitted_skills:
+      - find_guideline
+      - deep_research
+      - search_knowledge

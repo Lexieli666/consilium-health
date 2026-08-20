@@ -26,6 +26,7 @@ RouterMode = Literal["planner", "single", "none"]
 LogFormat = Literal["json", "console"]
 
 DEFAULT_RUNS_DIR = "runs"
+DEFAULT_DATA_DIR = "data"
 DEFAULT_CORPUS_DIR = "data/corpus"
 DEFAULT_CHROMA_DIR = "data/chroma"
 DEFAULT_EPISODIC_DB = "data/episodic.db"
@@ -47,12 +48,29 @@ class Settings(BaseModel):
 
     root_dir: Path = Path()
     runs_dir: Path = Path(DEFAULT_RUNS_DIR)
+    #: Where the three runtime data files live: policy.yaml, red_flags.yaml, symptom_systems.yaml.
+    #: One setting rather than three, because they are always edited and deployed together and a
+    #: deployment that could point at two of the three from different directories would be a
+    #: configuration nobody intends.
+    data_dir: Path = Path(DEFAULT_DATA_DIR)
     corpus_dir: Path = Path(DEFAULT_CORPUS_DIR)
     chroma_dir: Path = Path(DEFAULT_CHROMA_DIR)
     episodic_db_path: Path = Path(DEFAULT_EPISODIC_DB)
 
     log_level: str = "INFO"
     log_format: LogFormat = "json"
+
+    @property
+    def policy_path(self) -> Path:
+        return self.data_dir / "policy.yaml"
+
+    @property
+    def red_flags_path(self) -> Path:
+        return self.data_dir / "red_flags.yaml"
+
+    @property
+    def symptom_systems_path(self) -> Path:
+        return self.data_dir / "symptom_systems.yaml"
 
     @classmethod
     def from_env(cls, *, root_dir: Path | None = None, load_env_file: bool = True) -> Settings:
@@ -91,6 +109,7 @@ class Settings(BaseModel):
             anthropic_api_key=_secret("ANTHROPIC_API_KEY"),
             root_dir=root,
             runs_dir=_path("CONSILIUM_RUNS_DIR", DEFAULT_RUNS_DIR),
+            data_dir=_path("CONSILIUM_DATA_DIR", DEFAULT_DATA_DIR),
             corpus_dir=_path("CONSILIUM_CORPUS_DIR", DEFAULT_CORPUS_DIR),
             chroma_dir=_path("CONSILIUM_CHROMA_DIR", DEFAULT_CHROMA_DIR),
             episodic_db_path=_path("CONSILIUM_EPISODIC_DB", DEFAULT_EPISODIC_DB),
