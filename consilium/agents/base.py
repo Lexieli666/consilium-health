@@ -25,6 +25,7 @@ from typing import ClassVar
 from consilium.agents.loop import ReActLoop
 from consilium.llm.base import LLMProvider, Message
 from consilium.safety.policy import Policy
+from consilium.safety.validator import PolicyValidator
 from consilium.skills.base import SkillContext, SkillResult
 from consilium.skills.registry import SkillRegistry
 
@@ -59,6 +60,7 @@ class BaseAgent:
         registry: SkillRegistry,
         policy: Policy,
         loop: ReActLoop | None = None,
+        validator: PolicyValidator | None = None,
     ) -> None:
         # Narrowing here rather than at call time means an agent whose policy names a skill the
         # registry does not have cannot be constructed at all.  `subset` raises on an unknown name;
@@ -67,7 +69,9 @@ class BaseAgent:
         self.permitted: tuple[str, ...] = policy.permitted_skills(self.name)
         self.registry = registry.subset(list(self.permitted))
         self.description = policy.description(self.name)
-        self.loop = loop or ReActLoop(provider=provider, registry=self.registry)
+        self.loop = loop or ReActLoop(
+            provider=provider, registry=self.registry, validator=validator
+        )
 
     async def answer(
         self,

@@ -579,7 +579,41 @@ Rationale in `docs/DESIGN.md` under "Phase 6 — memory".
 - **`Settings.data_dir` / `Runtime.memory` / `Runtime.episodic`.** `build_runtime(episodic=True)`
   opts in; the default is `None`.
 
-## 13. Phase status
+## 13. Frozen: the safety layer (Phase 7)
+
+Rationale in `docs/DESIGN.md` under "Phase 7 — safety".
+
+- **`data/policy.yaml` is `schema_version: 2`.** It gained an `output` block (escalation banner,
+  required elements, forbidden behaviours) and a `red_flags:` **path reference**. It restates no
+  emergency phrase; `tests/test_policy.py` loads both files and asserts the intersection is empty.
+  `build_runtime` loads the red-flag table from the path the policy names, which is what makes the
+  reference load-bearing rather than documentation.
+- **`Policy.output` raises when the block is absent.** A permissive default would leave a failed
+  load running with no output constraints and every metric still reporting a clean run.
+- **Forbidden patterns are regexes; red-flag patterns stay literal phrases.** A dose is a number
+  plus a unit, which literals cannot express; the red-flag table's auditability by a non-programmer
+  is worth more than uniformity. Forbidden matching is per sentence.
+- **Detection and repair are two classes: `PolicyValidator` and `OutputRepair`.** Violations and
+  repairs are two counts, reported as two rates, never merged.
+- **A forbidden sentence is removed and replaced by a marker naming the rule**, never rewritten. A
+  rewrite would be text nobody wrote and nobody checked.
+- **Repair order is fixed: redact → prepend the escalation banner → append the disclaimer.**
+- **Escalation is decided on the *input*** (the red-flag assessment of the question) **and the
+  banner is prepended only when the answer lacks a seek-care instruction**, so a correctly-handled
+  red flag emits no repair event. This is why the `turn` event has three escalation fields.
+- **The escalation banner must satisfy `escalation_present()`**, and a test asserts it. Otherwise
+  the guard would fire and `escalation_present_post_repair` would still be False.
+- **The ReAct loop refuses an unpermitted skill *and* `PolicyValidator.check_tool_call` counts it.**
+  The loop's refusal is the enforcement; the validator's event is the measurement.
+- **Memory records the delivered (post-repair) answer**, so a later turn's context matches what the
+  user saw and a redacted sentence cannot return through memory.
+- **`safety.post_stream` is set only by a caller that says so**, which will be the SSE path in
+  Phase 9. `docs/SAFETY.md` must state plainly that a post-stream repair is one the user already
+  saw the unrepaired version of.
+- **`consilium runs purge [--session ID] [--yes]`** is the retention mechanism `docs/SAFETY.md`
+  documents. It refuses paths outside the configured runs directory and prompts unless `--yes`.
+
+## 14. Phase status
 
 | phase | state | commit |
 |---|---|---|
@@ -588,8 +622,8 @@ Rationale in `docs/DESIGN.md` under "Phase 6 — memory".
 | 3. Skills + registry | done | `48dcfbc` |
 | 4. ReAct loop + agents + `trace` CLI | done | `b8caed0` |
 | 5. Planner, router, blackboard, synthesizer | done | `1d6660e` |
-| 6. Memory | done | |
-| 7. Safety | not started | |
+| 6. Memory | done | `a36b160` |
+| 7. Safety | done | |
 | 8. Eval harness + golden-set drafts | not started — **Checkpoint B** | |
 | 9. API + SSE + CLI polish | not started | |
 | 10. Docs, published eval run, README numbers | not started | |

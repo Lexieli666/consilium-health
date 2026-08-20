@@ -1096,3 +1096,138 @@ disabling it in a more expensive way.
 
 So the component is built, tested, and honestly labelled as unmeasured. That is the same rule the
 rest of the project follows: a number the harness did not produce does not get written down.
+
+---
+
+## Phase 7 — safety
+
+### Detection and repair are two classes, because they are two counts
+
+**Chosen.** `PolicyValidator` finds violations and emits `safety` events with `event="violation"`.
+`OutputRepair` consumes those violations, fixes what it can, and emits `event="repair"`. Neither
+does the other's job.
+
+**Rejected.** One `SafetyGuard` that detects and fixes in a single pass, emitting one event.
+
+**Why.** The violation rate says how often the model produced non-compliant output; the repair rate
+says how often the guard had to act on it. They move independently, and the interesting case is when
+they diverge — a model getting worse while a guard keeps working looks like a stable system if the
+two numbers are merged. `docs/EVALUATION.md` reports them as two rates and never sums them, and
+keeping the code in two classes is what makes that a structural property rather than a reporting
+convention.
+
+### Forbidden patterns are regular expressions; red-flag patterns are literal phrases
+
+**Chosen.** `data/red_flags.yaml` keeps literal, auditable phrases. `data/policy.yaml`'s forbidden
+behaviours are regexes, matched case-insensitively, one sentence at a time.
+
+**Rejected.** Making both literal, or making both regex.
+
+**Why.** A dose is a number followed by a unit — `500 mg`, `2.5 ml`, `10 units` — and no list of
+literal phrases can express that. Going the other way, making the red-flag table regex would destroy
+the property that matters most about it: that a non-programmer can read the file and know exactly
+what escalates. So the two files use the tool their content requires, and the difference is stated
+in both.
+
+The regex list is kept short and each entry is commented, because the cost of a regex is that it is
+harder to audit and its false positives delete real sentences. The patterns are tight for that
+reason: `\byou (?:definitely|certainly|clearly|most likely) have\b`, not `\byou have\b`.
+
+### A forbidden sentence is removed, not rewritten
+
+**Chosen.** The offending sentence is replaced by a marker naming the rule —
+`[removed: this system does not diagnose.]` — and the rest of the answer is delivered unchanged.
+
+**Rejected.** (a) Rewriting the sentence into a compliant one. (b) Flagging the violation and
+delivering the answer anyway. (c) Discarding the whole answer.
+
+**Why.** Rewriting a clinical sentence into a different clinical sentence produces text nobody wrote
+and nobody checked, and the rewrite would itself need checking — the guard would become a second
+generator. Delivering it anyway makes the policy advisory, which is the failure mode where every
+metric still reports a clean run. Discarding the whole answer throws away the grounded parts because
+of one sentence. Removal is the only option that is deterministic, checkable, and leaves the reader
+able to see that something was taken out rather than silently receiving a gap.
+
+### The repair order is fixed: redact, prepend the banner, append the disclaimer
+
+**Why each position.** The banner has to be the first thing read, so it is prepended after redaction
+(redacting afterwards could reach into the banner) and before the disclaimer. The disclaimer is
+boilerplate and goes last, where boilerplate belongs. Redaction runs first so that a forbidden
+sentence cannot survive by being pushed past whatever the other repairs add.
+
+### Escalation is decided on the input, and the banner is only prepended when it is missing
+
+**Chosen.** `PolicyValidator` raises the `escalation_required` violation when the **user's input**
+matched a red-flag pattern *and* the answer contains no seek-care instruction.
+
+**Rejected.** (a) Deciding from the answer's content. (b) Always prepending the banner on a red-flag
+input.
+
+**Why.** Deciding from the answer lets an answer that never mentions the symptom pass by saying
+nothing, which is the exact failure that matters. Always prepending would mean a correctly-handled
+red flag also emits a repair — and then red-flag recall computed from repair events would score the
+system's best behaviour as a false negative. This is why the `turn` event carries three separate
+fields: `escalation_present_pre_repair` (the model handled it unaided),
+`escalation_present_post_repair` (**this is red-flag recall**), and `repair_applied` (the guard, not
+the model, is what saved it).
+
+`tests/test_safety_policy_enforcement.py` pins the case that motivates the split: an answer that
+already says "call emergency services now" produces no escalation repair at all.
+
+### The escalation banner must be recognisable to the escalation detector
+
+The banner is written so that `escalation_present()` returns True for it, and a test asserts exactly
+that. Without it the repair would prepend a banner and the turn would still record
+`escalation_present_post_repair=False` — the guard would fire and the metric would say it had not.
+That is the kind of defect that survives review because both halves look correct in isolation.
+
+### The loop refuses an unpermitted skill, and the validator counts it
+
+**Chosen.** Both. `ReActLoop` refuses a skill outside the agent's permitted list whether or not a
+validator was injected; `PolicyValidator.check_tool_call` is what emits the `safety` violation.
+
+**Rejected.** Only one of the two.
+
+**Why.** The loop's refusal is what guarantees an unpermitted skill cannot execute — a guarantee
+that should not depend on an optional injected object. The validator's event is what makes the
+refusal countable, and a blocked call with no measured trigger rate is decoration. Neither half is
+redundant: one is the enforcement, the other is the measurement.
+
+### `policy.yaml` names `red_flags.yaml` by path, and the runtime resolves it
+
+**Chosen.** `policy.yaml` carries `red_flags: red_flags.yaml`, resolved relative to the policy file.
+`build_runtime` loads the red-flag table from the path the policy names.
+
+**Rejected.** (a) Restating the emergency phrases in `policy.yaml`. (b) Naming the file in the
+policy but loading it from a separate setting.
+
+**Why.** Two copies of the emergency list would eventually disagree, and the copy that lost would be
+the one deciding whether a user is told to seek care. A test loads both files and asserts that no
+red-flag phrase appears anywhere in `policy.yaml`. Resolving the reference in `build_runtime` — not
+just documenting it — is what makes the reference load-bearing: if it were ignored in favour of a
+second setting, the path in the policy would be a comment.
+
+### Memory records the delivered answer, not the model's raw one
+
+**Chosen.** `run_turn` records the post-repair text in `WorkingMemory` and in the episodic store.
+
+**Why.** A later turn's context has to match what the user actually saw. Recording the raw answer
+would mean the conversation the model believes it had is not the one that happened, and a redacted
+sentence would come back through memory into a later turn's prompt — reintroducing exactly the
+content the guard removed.
+
+### `consilium runs purge`, and why it lands with the safety layer
+
+**Chosen.** `consilium runs purge [--session ID] [--yes]`, refusing to touch anything outside the
+configured runs directory and prompting unless told not to.
+
+**Why here.** `runs/` holds verbatim user questions and full prompts, which makes it the most
+sensitive artifact this project writes even though it forbids real patient data. `docs/SAFETY.md`
+has to state a retention rule; a retention rule with no mechanism behind it is a sentence. The
+path check is the third place the same `session_id` is validated — `Tracer` makes it a directory
+name and `MemoryStore` makes it a cache key — and it gets its own check rather than trusting the
+other two, because this is the one that deletes.
+
+The confirmation prompt is not politeness: purging destroys the evidence behind every number
+computed from those traces, and `eval/results/published/` is committed precisely so that published
+numbers survive it.

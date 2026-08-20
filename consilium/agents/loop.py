@@ -31,6 +31,7 @@ from dataclasses import dataclass, field
 
 from consilium.llm.base import LLMProvider, LLMResponse, Message, ToolCall
 from consilium.log import get_logger
+from consilium.safety.validator import PolicyValidator
 from consilium.skills.base import SkillContext, SkillResult
 from consilium.skills.registry import SkillRegistry
 
@@ -50,9 +51,10 @@ BUDGET_EXHAUSTED_OBSERVATION = (
     "ERROR: tool-call budget exhausted for this turn; answer from what has already been gathered"
 )
 
-#: The observation handed back when an agent calls a skill its policy does not permit.  Phase 7
-#: attaches a ``safety`` violation event to this same branch; the refusal itself lives here so that
-#: the loop is never able to execute an unpermitted skill even if the validator is absent.
+#: The observation handed back when an agent calls a skill its policy does not permit.  The refusal
+#: lives in the loop so that an unpermitted skill cannot execute even when no validator is injected;
+#: the injected ``PolicyValidator`` is what makes the refusal *countable*, by emitting the
+#: ``safety`` violation event.  A blocked call with no event is a guard with no trigger rate.
 NOT_PERMITTED_OBSERVATION = "is not permitted for this agent"
 
 
@@ -91,6 +93,7 @@ class ReActLoop:
         registry: SkillRegistry,
         max_iterations: int = DEFAULT_MAX_ITERATIONS,
         max_tool_calls: int = DEFAULT_MAX_TOOL_CALLS,
+        validator: PolicyValidator | None = None,
     ) -> None:
         if max_iterations < 1:
             raise ValueError(f"max_iterations must be >= 1; got {max_iterations}")
@@ -100,6 +103,7 @@ class ReActLoop:
         self.registry = registry
         self.max_iterations = max_iterations
         self.max_tool_calls = max_tool_calls
+        self.validator = validator
 
     async def run(
         self,
@@ -191,7 +195,7 @@ class ReActLoop:
                 continue
 
             executed += 1
-            if call.name not in permitted:
+            if not self._permitted(call.name, permitted, ctx):
                 skill_result = SkillResult.failure(
                     call.name, f"{call.name} {NOT_PERMITTED_OBSERVATION}"
                 )
@@ -208,6 +212,14 @@ class ReActLoop:
                     content=skill_result.to_observation(),
                 )
             )
+
+    def _permitted(self, skill: str, permitted: Sequence[str], ctx: SkillContext) -> bool:
+        """Whether this skill may run, recording a ``safety`` violation when it may not."""
+        if self.validator is not None:
+            return self.validator.check_tool_call(
+                agent=ctx.agent, skill=skill, tracer=ctx.tracer
+            ).allowed
+        return skill in permitted
 
     async def _force_answer(
         self, messages: list[Message], ctx: SkillContext, result: LoopResult
