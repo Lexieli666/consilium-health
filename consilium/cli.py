@@ -19,13 +19,13 @@ from typing import Annotated
 
 import typer
 
-from consilium.agents import AGENT_TYPES, DEFAULT_AGENT
+from consilium.agents import AGENT_TYPES
 from consilium.config import Settings, get_preset
 from consilium.llm.factory import ProviderError
 from consilium.log import bind_turn, configure_logging, get_logger
 from consilium.retrieval.corpus import CorpusError
 from consilium.retrieval.index import EmbedderName, StoreName, ingest, make_embedder, make_store
-from consilium.runtime import build_runtime, run_turn
+from consilium.runtime import TurnOutcome, build_runtime, run_turn
 from consilium.trace import (
     LLMCallEvent,
     RetrievalEvent,
@@ -128,8 +128,12 @@ def ingest_corpus(
 def ask(
     question: Annotated[str, typer.Argument(help="The question to answer.")],
     agent: Annotated[
-        str, typer.Option("--agent", help=f"Which specialist answers. One of: {AGENT_NAMES}.")
-    ] = DEFAULT_AGENT,
+        str | None,
+        typer.Option(
+            "--agent",
+            help=f"Pin one specialist and skip routing. One of: {AGENT_NAMES}.",
+        ),
+    ] = None,
     config_name: Annotated[
         str, typer.Option("--config", help="Run configuration preset, e.g. full or baseline_llm.")
     ] = "full",
@@ -148,15 +152,15 @@ def ask(
         str, typer.Option("--embedder", help="Embedder: bge (real) or hash (offline, no download).")
     ] = "bge",
 ) -> None:
-    """Answer one question with a single specialist, and write the turn's trace.
+    """Answer one question and write the turn's trace.
 
-    Phase 4 has no router, so the specialist is named rather than planned; `--agent` is how you
-    exercise each one before the planner exists to choose between them.
+    The planner decides which specialists answer. `--agent` pins one and skips routing, which is a
+    debugging affordance rather than a mode: no measured run uses it.
     """
     settings = Settings.from_env()
     configure_logging(settings.log_level, settings.log_format)
 
-    if agent not in AGENT_TYPES:
+    if agent is not None and agent not in AGENT_TYPES:
         raise typer.BadParameter(f"--agent must be one of {AGENT_NAMES}; got {agent!r}")
     store_name, embedder_name = _pipeline_names(store, embedder)
 
@@ -186,6 +190,8 @@ def ask(
 
     typer.echo(outcome.answer)
     typer.echo("")
+    agents = ", ".join(outcome.agents)
+    typer.echo(f"route      : {outcome.mode} [{agents}]{_routing_notes(outcome)}")
     typer.echo(f"risk level : {outcome.risk_level}")
     typer.echo(f"sources    : {', '.join(outcome.sources) or 'none'}")
     typer.echo(f"trace      : {trace_path(settings.runs_dir, session_id, turn_index)}")
@@ -256,6 +262,20 @@ def _render(event: object) -> str:
             f"repaired={event.repair_applied}"
         )
     return f"blackboard  {getattr(event, 'event', '?')} {getattr(event, 'subtask_id', '')}"
+
+
+def _routing_notes(outcome: TurnOutcome) -> str:
+    """Flag a planner fallback or a missing perspective in the CLI output.
+
+    Printed because both are things a reader should not have to open the trace to discover: a
+    fallback means the plan was unusable, and a missing perspective means the answer is partial.
+    """
+    notes = []
+    if outcome.fallback:
+        notes.append("planner fallback")
+    if outcome.missing:
+        notes.append(f"missing: {', '.join(outcome.missing)}")
+    return f"  ({'; '.join(notes)})" if notes else ""
 
 
 def _pipeline_names(store: str, embedder: str) -> tuple[StoreName, EmbedderName]:
