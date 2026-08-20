@@ -1,0 +1,279 @@
+"""The LLM judge, its prompts, and the two-command loop that validates it.
+
+**A judge whose agreement with a human was never measured is an unvalidated instrument**, and
+reporting faithfulness from it without saying so is the same error as writing an unmeasured number
+into the README.  This module therefore produces two things: the judge's scores, and the machinery
+for measuring how far those scores can be trusted.
+
+The loop is two commands, both in ``eval/run.py``:
+
+1. ``--human-sample N`` writes ``judge_sample.csv`` with the judge's label and rationale and an
+   empty ``human_label`` column.
+2. ``--score-judge <csv>`` reads the completed file and reports raw agreement and Cohen's kappa.
+
+Until step 2 has been run, ``docs/EVALUATION.md`` says the judge is unvalidated **in those words**,
+and every faithfulness number carries that caveat.
+
+Prompts are files in ``eval/judges/``, versioned by filename, and the version is recorded in
+``summary.json`` beside every number it produced.  A prompt change is a change to the measurement,
+and it belongs in a diff.
+"""
+
+from __future__ import annotations
+
+import csv
+import json
+from collections.abc import Sequence
+from dataclasses import dataclass
+from pathlib import Path
+
+from consilium.llm.base import LLMProvider, Message
+from consilium.log import get_logger
+from consilium.router.planner import extract_json_object
+
+log = get_logger(__name__)
+
+JUDGE_DIR = Path(__file__).parent / "judges"
+
+FAITHFULNESS_PROMPT = "faithfulness_v1"
+MULTITURN_PROMPT = "multiturn_v1"
+
+#: Columns of ``judge_sample.csv``.  ``human_label`` is left empty for a person to fill in.
+SAMPLE_COLUMNS = (
+    "item_id",
+    "question",
+    "answer",
+    "retrieved_doc_ids",
+    "judge_label",
+    "judge_rationale",
+    "human_label",
+)
+
+
+class JudgeError(RuntimeError):
+    """Raised when a judge prompt is missing or a completed sample cannot be scored."""
+
+
+@dataclass(frozen=True)
+class FaithfulnessVerdict:
+    """One answer's claim-level grading."""
+
+    supported: int
+    total: int
+    rationale: str
+
+    @property
+    def score(self) -> float | None:
+        """``None``, not zero, when the answer made no factual claims.
+
+        An answer that is entirely an escalation banner and a disclaimer has nothing to ground.
+        Scoring it zero would punish the safest possible output on the metric that measures
+        grounding, and the item is excluded from the mean instead.
+        """
+        return self.supported / self.total if self.total else None
+
+
+@dataclass(frozen=True)
+class MultiturnVerdict:
+    """One later turn's reference resolution."""
+
+    verdict: str
+    why: str
+
+
+def load_prompt(name: str) -> str:
+    """Read a versioned judge prompt from ``eval/judges/``."""
+    path = JUDGE_DIR / f"{name}.md"
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise JudgeError(f"cannot read the judge prompt at {path}: {exc}") from exc
+
+
+def _system_block(prompt: str) -> str:
+    """The prompt body below its explanatory header.
+
+    The files are written for a human first -- they explain why the judge exists and how it is
+    validated -- and the model only needs what follows the ``---`` separator.
+    """
+    _, _, body = prompt.partition("\n---\n")
+    return (body or prompt).strip()
+
+
+class Judge:
+    """Grades answers with an LLM, recording which model and which prompt version did it."""
+
+    def __init__(self, provider: LLMProvider, *, model_label: str | None = None) -> None:
+        self.provider = provider
+        self.model = model_label or provider.model
+
+    async def faithfulness(
+        self, *, question: str, answer: str, sources: Sequence[tuple[str, str]]
+    ) -> FaithfulnessVerdict | None:
+        """Grade one answer against numbered source excerpts.
+
+        ``sources`` is ``(doc_id, text)`` in rank order.  Returns ``None`` when the judge could not
+        be parsed -- a judge failure is not a faithfulness failure, and scoring it zero would let a
+        flaky judge look like an ungrounded system.
+        """
+        numbered = "\n\n".join(
+            f"[{index}] ({doc_id})\n{text}" for index, (doc_id, text) in enumerate(sources, start=1)
+        )
+        payload = await self._ask(
+            FAITHFULNESS_PROMPT,
+            f"QUESTION:\n{question}\n\nSOURCES:\n{numbered or '(none)'}\n\nANSWER:\n{answer}",
+        )
+        if payload is None:
+            return None
+        try:
+            supported = int(str(payload["supported"]))
+            total = int(str(payload["total"]))
+        except (KeyError, TypeError, ValueError):
+            log.warning("judge.faithfulness_unparsed")
+            return None
+        claims = payload.get("claims", [])
+        return FaithfulnessVerdict(
+            supported=supported,
+            total=total,
+            rationale=json.dumps(claims)[:2000] if isinstance(claims, list) else "",
+        )
+
+    async def multiturn(
+        self, *, conversation: Sequence[str], question: str, referent: str, answer: str
+    ) -> MultiturnVerdict | None:
+        """Grade whether a later turn resolved its annotated referent."""
+        history = "\n".join(f"- {turn}" for turn in conversation)
+        payload = await self._ask(
+            MULTITURN_PROMPT,
+            f"CONVERSATION:\n{history}\n\nQUESTION:\n{question}\n\n"
+            f"REFERENT:\n{referent}\n\nANSWER:\n{answer}",
+        )
+        if payload is None:
+            return None
+        verdict = str(payload.get("verdict", ""))
+        if verdict not in ("resolved", "unresolved", "misresolved"):
+            log.warning("judge.multiturn_unknown_verdict", verdict=verdict)
+            return None
+        return MultiturnVerdict(verdict=verdict, why=str(payload.get("why", "")))
+
+    async def _ask(self, prompt_name: str, user: str) -> dict[str, object] | None:
+        """One judge call.  Never raises: a judge outage must not end a paid sweep."""
+        try:
+            response = await self.provider.chat(
+                [
+                    Message(role="system", content=_system_block(load_prompt(prompt_name))),
+                    Message(role="user", content=user),
+                ],
+                tools=None,
+            )
+        except Exception:
+            log.exception("judge.provider_failed", prompt=prompt_name)
+            return None
+
+        raw = extract_json_object(response.content or "")
+        if raw is None:
+            log.warning("judge.no_json", prompt=prompt_name)
+            return None
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            log.warning("judge.invalid_json", prompt=prompt_name)
+            return None
+        return parsed if isinstance(parsed, dict) else None
+
+
+# --------------------------------------------------------------------------------------------
+# Judge validation
+# --------------------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class SampleRow:
+    """One row of ``judge_sample.csv``."""
+
+    item_id: str
+    question: str
+    answer: str
+    retrieved_doc_ids: str
+    judge_label: str
+    judge_rationale: str
+    human_label: str = ""
+
+
+def write_sample(path: Path, rows: Sequence[SampleRow]) -> None:
+    """Write the CSV a person fills in.  ``human_label`` is the last column, and empty."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(SAMPLE_COLUMNS))
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(
+                {
+                    "item_id": row.item_id,
+                    "question": row.question,
+                    "answer": row.answer,
+                    "retrieved_doc_ids": row.retrieved_doc_ids,
+                    "judge_label": row.judge_label,
+                    "judge_rationale": row.judge_rationale,
+                    "human_label": row.human_label,
+                }
+            )
+
+
+@dataclass(frozen=True)
+class Agreement:
+    """Raw agreement and Cohen's kappa between the judge and a human."""
+
+    n: int
+    raw_agreement: float | None
+    cohens_kappa: float | None
+    labels: tuple[str, ...] = ()
+
+
+def score_sample(path: Path) -> Agreement:
+    """Read a completed sample and compute agreement.
+
+    Rows with an empty ``human_label`` are skipped, not counted as disagreements: a partially
+    labelled file is a partially labelled file, and treating the blanks as data would make the
+    agreement number depend on how far the labeller got.
+    """
+    try:
+        with Path(path).open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+    except OSError as exc:
+        raise JudgeError(f"cannot read the judge sample at {path}: {exc}") from exc
+
+    pairs = [
+        (str(row.get("judge_label", "")).strip(), str(row.get("human_label", "")).strip())
+        for row in rows
+        if str(row.get("human_label", "")).strip()
+    ]
+    if not pairs:
+        raise JudgeError(
+            f"{path}: no rows have a human_label. Fill in the last column before scoring."
+        )
+    return agreement(pairs)
+
+
+def agreement(pairs: Sequence[tuple[str, str]]) -> Agreement:
+    """Cohen's kappa for two raters over the labels that actually appear.
+
+    Kappa and not raw agreement alone: with a skewed label distribution -- most answers faithful --
+    two raters who both mostly say "faithful" agree 90% of the time by chance, and a raw number
+    would read as a validated judge.
+    """
+    if not pairs:
+        return Agreement(n=0, raw_agreement=None, cohens_kappa=None)
+
+    total = len(pairs)
+    observed = sum(1 for judge, human in pairs if judge == human) / total
+    labels = tuple(sorted({label for pair in pairs for label in pair}))
+
+    expected = 0.0
+    for label in labels:
+        judge_share = sum(1 for judge, _ in pairs if judge == label) / total
+        human_share = sum(1 for _, human in pairs if human == label) / total
+        expected += judge_share * human_share
+
+    kappa = None if expected >= 1.0 else (observed - expected) / (1.0 - expected)
+    return Agreement(n=total, raw_agreement=observed, cohens_kappa=kappa, labels=labels)

@@ -266,6 +266,34 @@ def _render(event: object) -> str:
     return f"blackboard  {getattr(event, 'event', '?')} {getattr(event, 'subtask_id', '')}"
 
 
+@app.command(
+    name="eval",
+    context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
+    add_help_option=False,
+)
+def run_eval(ctx: typer.Context) -> None:
+    """Run the evaluation sweep. Forwards every argument to `eval/run.py`.
+
+    The harness is imported lazily and only here. It lives at the top level rather than inside the
+    package because it depends on the golden set and on a live provider, neither of which belongs in
+    an installed wheel -- so an installed copy of `consilium` has this command and not the module
+    behind it, and the error says so rather than raising ImportError at startup.
+
+    It requires a live API key and costs money. `--limit` first.
+    """
+    try:
+        from eval.run import cli as eval_cli
+    except ImportError as exc:  # pragma: no cover - depends on how the package was installed
+        typer.echo(
+            "the evaluation harness ships with the repository, not with the wheel. "
+            "Run it from a checkout: `python -m eval.run --help`.",
+            err=True,
+        )
+        raise typer.Exit(code=2) from exc
+
+    raise typer.Exit(code=eval_cli(list(ctx.args)))
+
+
 runs_app = typer.Typer(help="Manage trace files under runs/.", no_args_is_help=True)
 app.add_typer(runs_app, name="runs")
 

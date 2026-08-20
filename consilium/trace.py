@@ -220,6 +220,12 @@ class TurnEvent(_BaseEvent):
     repair_applied: bool
 
 
+#: The common base of every event.  Exported so that a caller implementing :class:`TraceSink`, or
+#: computing metrics over a mixed list, can name the type it receives without reaching for a private
+#: name.  It is an alias, not a new model: nothing about the schema changes and ``SCHEMA_VERSION``
+#: is unaffected.
+TraceEvent = _BaseEvent
+
 type AnyEvent = Annotated[
     RouteEvent
     | LLMCallEvent
