@@ -440,3 +440,196 @@ The frozen values are 20 candidates per retriever, fused and deduplicated to a t
 trace, and a top-5 returned to the model. The trace carries ranks 6–10 that the model never sees,
 because MRR@10 is uncomputable without them and truncating the artifact to what the model saw is the
 standard way retrieval metrics quietly stop being measurable.
+
+---
+
+## Phase 3 — skills and the registry
+
+### Tool schemas are derived from the argument models, never hand-written
+
+**Chosen.** `SkillRegistry.to_tool_schemas()` calls `model_json_schema()` on each skill's Pydantic
+argument model, strips the class-name `title`, and wraps the result in the OpenAI function envelope.
+
+**Rejected.** A JSON tool definition per skill, written by hand next to the implementation — which
+is what most tutorials show, and what the reference implementation does.
+
+**Why.** Two copies of a schema drift, and this pair drifts in the direction that is hardest to
+diagnose. The model reads the hand-written copy and the validator enforces the generated one, so a
+field that gained a default in the model but not in the JSON shows up as the model passing arguments
+the system rejects — a failure that reads as a model problem and is not one. Deriving the schema
+makes that class of bug unrepresentable, and `test_tool_schema_carries_no_hand_written_json` pins it
+by comparing the emitted parameters to what Pydantic generates.
+
+The one transformation applied is dropping the top-level `title`. It is the argument model's class
+name (`AssessRiskArgs`), it means nothing to the model, and it is paid for in prompt tokens on every
+turn that offers the tool. Field-level titles are left alone: they carry the field names.
+
+### Skills are synchronous functions and the registry bridges to async
+
+**Chosen.** Every skill is `def`, not `async def`. `SkillRegistry.run()` is synchronous;
+`SkillRegistry.execute()` awaits it via `asyncio.to_thread`.
+
+**Rejected.** (a) Declaring the skills `async def` for uniformity with the loop that calls them.
+(b) Calling them directly from the coroutine, without a thread hop.
+
+**Why.** Every skill is local CPU work: BM25 scoring over a few hundred chunks, one numpy matmul, a
+regex pass over a rule table. `async def` over a body that never awaits is decoration — it makes the
+function look concurrent while it still holds the event loop for its whole duration, and it does not
+make `sentence-transformers` yield either.
+
+Calling straight from the coroutine is the version that actually breaks something. It is invisible
+on the single-agent path, where nothing else wants the loop, and it destroys the parallel one: three
+workers dispatched by `asyncio.gather` would take turns instead of overlapping, so the
+parallel-versus-single latency comparison in `docs/EVALUATION.md` would be measuring the harness
+rather than the architecture. `test_execute_does_not_block_the_event_loop` asserts the overlap
+directly rather than trusting the argument.
+
+### A skill never raises into the loop
+
+**Chosen.** Four failure modes — unknown skill name, arguments that fail validation, a
+retrieval-backed skill invoked with retrieval switched off, and an exception inside the skill — all
+return `SkillResult(ok=False, error=...)` and all emit a `tool_call` event with `ok=False`. The
+handling is in the registry, once, not in seven implementations.
+
+**Rejected.** Letting exceptions propagate to the agent and handling them there.
+
+**Why.** A tool call that failed is data; a tool call that killed the turn is an outage. The metrics
+in `docs/EVALUATION.md` count tool calls, their success rate and their latency, and an agent that
+dies on a malformed tool call has a failure mode that none of those numbers can see. The propagating
+version also fails in the worst place — mid-turn, after the tokens for the tool call have already
+been paid for and before the user has anything.
+
+`ValidationError` is flattened to one line naming the field and what was wrong with it, because the
+observation goes back to the model, which then gets one more attempt inside its tool budget.
+Pydantic's default multi-line rendering repeats the class name on every error and buries the field.
+
+### `assess_risk` reads the rule table first and retrieval second
+
+**Chosen.** The urgency tier and the action text come from `data/red_flags.yaml` through the same
+`RedFlagTable` that `OutputRepair` uses. Retrieval only adds the corpus note that explains the
+presentation, and it is filtered to `red_flag` only when a rule actually fired.
+
+**Rejected.** (a) Retrieving `red_flag` notes and letting the model infer the tier from them.
+(b) A second matcher inside the skill.
+
+**Why.** A model that has to summarize retrieved prose into a tier can summarize it wrongly, and
+would do so nondeterministically. A table lookup returns the same tier for the same input every
+time, which is what makes red-flag recall a property of the system rather than of the sampling
+temperature. Sharing the matcher with `OutputRepair` matters for the same reason in the other
+direction: two implementations would show up as an unexplained gap between the safety trigger rate
+and red-flag recall, and attributing that gap afterwards would be very hard.
+
+The filter is conditional because filtering in the no-match case would search eleven emergency notes
+for a description matching none of them and return the closest of the eleven — which reads, in the
+answer, as evidence for an escalation that did not happen.
+
+A non-match sets `action` to a fixed sentence saying the table covers a fixed list and that this is
+not a clearance. Leaving `action` empty and letting the model phrase it would put the most
+consequential sentence in the output under sampling.
+
+### `analyze_symptoms` returns documents, and unmapped input says so
+
+**Chosen.** The skill groups matched terms by body system, reports `single-system`, `multi-system`
+or `unrecognized`, and returns `condition` notes as things to read. A term belonging to two systems
+is reported under both.
+
+**Rejected.** (a) A ranked differential diagnosis. (b) Filing unrecognized terms under
+`constitutional`. (c) Forcing each term to a single owning system.
+
+**Why.** A ranked differential is a diagnosis; `policy.yaml` forbids one and the project makes no
+claim to be able to produce one. Filing unrecognized input under the whole-body bucket would invent
+a finding out of a parse failure, so `unrecognized` with an empty grouping is the honest output and
+is distinguishable from "no systems involved". And forcing "chest tightness" to be cardiovascular
+*or* respiratory would encode a diagnostic judgement in a lookup table — reporting both keeps the
+skill descriptive, which is the only register it is entitled to.
+
+### `lookup_disease_code` extracts codes with a regex over retrieved text
+
+**Chosen.** Retrieve from the `coding` category, then run an ICD-10 pattern over what came back and
+report the codes separately from the prose, each with the `doc_id` it came from and its surrounding
+context.
+
+**Rejected.** A condition → code lookup table inside the skill.
+
+**Why.** A lookup table would be a second copy of the corpus that could drift from it, and the
+corpus is the thing under measurement — a code the table knew and the corpus did not would inflate
+the apparent answer quality without any retrieval having succeeded. Extraction from retrieved text
+has the property a reviewer can check: the codes reported are exactly the codes in the notes that
+were retrieved, and if retrieval failed, the code list is empty rather than confidently wrong.
+
+Deduplication is on `(code, doc_id)` rather than on `code`, because the same code in the chapter map
+and in the per-condition note is two pieces of evidence with different weight, and collapsing them
+hides which note to cite.
+
+### `deep_research` is corpus-only, and that is a scoping decision
+
+**Chosen.** No web search. The skill decomposes the question into sub-queries, retrieves for each
+over the corpus, and reports the evidence with its sources.
+
+**Rejected.** Adding a web-search tool to the research skill.
+
+**Why.** Three separate costs, none of which this project can defend. It adds a network dependency
+to a repository whose test rule is that `pytest -m "not network"` passes with no network and no key.
+It forces a search-provider choice nobody asked for. And it creates a source-quality problem: a page
+that ranks well is not a clinical authority, and there is no defensible filter this project could
+apply. The seam for pointing the system at a larger *real* corpus is `scripts/ingest_medquad.py`,
+which loads a public-domain dataset offline. Stated here as a scope boundary, so it is a decision
+rather than a missing feature.
+
+### The sub-queries come from the model, not from a second LLM call
+
+**Chosen.** `deep_research` takes `sub_queries` as a tool argument. The agent writes them in the
+call it was already making. When it supplies none, a fixed three-aspect decomposition is appended to
+the question.
+
+**Rejected.** Having the skill issue its own LLM call to decompose the question.
+
+**Why.** The trace schema settles it. `llm_call.caller` is pattern-validated against `planner`,
+`synthesizer`, `forced_answer` and `agent:<name>`; there is no slot for a skill. A skill-issued call
+would either be untraced — making tokens-per-turn understate the architecture's cost, which is the
+one thing the evaluation exists to measure — or force a change to a frozen schema, to buy a
+capability the agent calling the skill already has for free.
+
+### Sub-queries are retrieved sequentially, in the order given
+
+**Chosen.** A `for` loop over the sub-queries.
+
+**Rejected.** A thread pool, which is the obvious reading of the brief's "parallel retrieval".
+
+**Why.** There is no latency to win — retrieval is in-process CPU work over a few hundred chunks —
+and there is a metric to lose. `docs/EVALUATION.md` reports recall@5 three ways, one of which is
+computed over the turn's **first** `retrieval` event, precisely so that the number is comparable
+across ablation presets that differ in how many retrievals they perform. Racing the sub-queries
+makes "first" a race, and that metric unreproducible. The fan-out shape the brief describes is real;
+what is sequential is its execution.
+
+### The "sources disagree" section is read from the corpus, not judged
+
+**Chosen.** Guideline notes carry a `## Where guidance differs` section wherever authorities
+genuinely diverge. `deep_research` extracts those sections verbatim from the notes it retrieved.
+`find_guideline` flags which retrieved notes have one but does not duplicate the extraction.
+
+**Rejected.** Asking a model to decide whether two retrieved passages disagree.
+
+**Why.** That would be an unvalidated LLM judge running inside a tool and reported as a fact — the
+same error as reporting faithfulness from a judge whose agreement with a human was never measured,
+except worse, because it would be invisible in the results table. Reading the section means an empty
+`disagreements` list says "the corpus does not record a divergence here", which is a checkable claim.
+It also means the skill needs the whole note, not the chunk that matched, so `SkillContext.documents`
+carries the loaded corpus; the section a disagreement lives in is usually not the chunk the query hit.
+
+### The symptom table lives in the Skills layer and the red-flag table does not
+
+**Chosen.** `RedFlagTable` in `consilium/safety/`; `SymptomSystemMap` in `consilium/skills/`.
+
+**Rejected.** Putting both in substrate for symmetry.
+
+**Why.** The rule that decides is how many layers consume the table. The red-flag table has two
+consumers — the `assess_risk` skill and `OutputRepair` — so it has to sit below both, and a second
+copy of its matching logic would let a symptom escalate through one path and not the other. The
+symptom table has exactly one consumer, so it belongs to the layer that consumes it. Promoting it on
+symmetry alone would put a table in the foundation that nothing in the foundation reads.
+
+The symptom table also has no negation guard, deliberately: it records where a symptom is felt, and
+"no chest pain" still tells you the person is describing a cardiovascular concern. Negation changes
+the answer only where urgency is decided, which is the other table.
