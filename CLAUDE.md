@@ -422,14 +422,87 @@ alternative, is in `docs/DESIGN.md` under "Phase 3 — skills and the registry".
 - **`analyze_symptoms` returns documents, never a ranked differential**, and reports
   `unrecognized` rather than filing unparsed input under `constitutional`.
 
-## 10. Phase status
+## 10. Frozen: the agent layer, the policy file, the turn boundary (Phase 4)
+
+Rationale for each decision, with the rejected alternative, is in `docs/DESIGN.md` under
+"Phase 4 — the ReAct loop, the agents, and the turn boundary".
+
+- **`data/policy.yaml` exists from Phase 4, carrying only the per-agent permitted-skill lists.**
+  Owner's pre-authorized resolution of an ordering contradiction in the brief: §3.2 requires
+  `BaseAgent` to load its permitted skills from `policy.yaml` at construction, while §3.7 does not
+  introduce the file until Phase 7. Phase 7 **expands the same file** with the full output policy
+  (required elements, forbidden behaviours, and a path reference to `data/red_flags.yaml` — never a
+  second copy of it) and bumps its `schema_version` from 1 to 2. The file lives in `data/` beside
+  the other two runtime tables; the loader lives in the safety layer at
+  `consilium/safety/policy.py`, exactly the split `red_flags.yaml`/`red_flags.py` already uses.
+- **`consilium/safety/policy.py` does not validate skill names against the registry.** Substrate may
+  not import the Skills layer above it. The check happens in `BaseAgent.__init__`, which calls
+  `registry.subset(permitted)` and raises on an unknown name — so an agent whose policy names a
+  skill that does not exist cannot be constructed.
+- **The three agents declare exactly two class attributes each**, `name` and `system_prompt`. There
+  is no per-agent tool wiring anywhere; `tests/test_agents.py` asserts the class bodies stay at two.
+  Permitted lists: `consultation` = search_knowledge, recommend_lifestyle, lookup_disease_code;
+  `diagnostic` = assess_risk, analyze_symptoms, search_knowledge; `research` = find_guideline,
+  deep_research, search_knowledge. Each specialist owns its own three; all three share the
+  unfiltered `search_knowledge`. `DEFAULT_AGENT` is `consultation`, and it is the planner fallback.
+- **The system prompts live in `consilium/agents/prompts.py`**, assembled as
+  `SHARED_RULES + specialty`. The shared block carries the non-negotiable constraints (no
+  diagnosis, no doses, ground every claim, escalate rather than reassure) so that one of three
+  prompts cannot quietly lose a rule.
+- **`loop.py` is at `consilium/agents/loop.py`, not `consilium/loop.py`.** The brief writes the
+  shorter path; the same brief requires that a reviewer be able to point at any file and name its
+  layer, and a `loop.py` beside `cli.py` and `config.py` reads as substrate. Same class of decision
+  as `consilium/api/` over a root-level `api/` in §6.
+- **Two budgets, one binding.** `max_tool_calls = 2` decides grounding and cost;
+  `max_iterations = 3` is an independent guard against a model that never calls a tool. Both are
+  overridable **per call**, because `full_budget_6` differs from `full` in exactly this number and
+  must not require a second loop instance.
+- **Tool calls requested beyond the budget are refused with a `tool` message and emit no
+  `tool_call` event.** They did not run; counting them would inflate the distribution that
+  `full_budget_6` exists to measure honestly. Every requested call still gets a `tool` message,
+  because a tool result with no matching request is rejected by every provider that supports tools.
+- **`llm_call.caller` is `forced_answer` only for a call caused by exhaustion.** A run with
+  `max_tool_calls=0` (`baseline_llm`) never offered tools, so its calls stay `agent:<name>` —
+  otherwise the entire control condition would land in a bucket named after a failure mode.
+- **`consilium/runtime.py` is the composition root *and* the turn boundary.** `Runtime` +
+  `build_runtime()` wire the layers from `Settings`; `run_turn()` owns the invariant that one user
+  turn is one `Tracer`, one trace file, and one `turn` event written last. All three entry points
+  go through it. From Phase 5 the routing decision inside a turn belongs to `consilium/router/`;
+  the boundary around it stays here.
+- **`consilium/safety/escalation.py` is built in Phase 4.** Three `turn` fields are
+  `escalation_present()` applied to two different strings, and `OutputRepair` is *defined in terms
+  of it* (the banner is prepended only when it returns False), so it is the older of the two. It is
+  deliberately **strict** — an explicit seek-care instruction, never a bare keyword — because
+  `escalation_present_post_repair` is red-flag recall and a loose detector would flatter it.
+  `ESCALATION_PHRASES` is part of the measurement: adding a phrase changes what recall means.
+- **In Phase 4 `run_turn` writes the same value into both escalation fields and
+  `repair_applied=False`.** Not a placeholder — with no repair in the system, the delivered answer
+  *is* the model's own answer, which is what those two fields claim.
+- **`Settings.data_dir`** (`CONSILIUM_DATA_DIR`, default `data`) locates `policy.yaml`,
+  `red_flags.yaml` and `symptom_systems.yaml` through three properties. One setting rather than
+  three: the files are edited and deployed together.
+- **`OpenAIProvider` and `AnthropicProvider` land in Phase 4**, because `consilium ask` needs a
+  provider factory (`consilium/llm/factory.py`, `make_provider`) and a factory that cannot build
+  two of its three providers is not one. Modules are `openai_provider.py`/`anthropic_provider.py`,
+  never `openai.py` — a file that shadows the library it imports is a trap. Every cross-provider
+  difference is a pure function (`to_openai_messages`, `to_anthropic_messages`,
+  `to_anthropic_tools`, `from_*`) and is tested without a client; Anthropic's tool schema is the
+  OpenAI one **unwrapped**, never a second derivation from the Pydantic models.
+- **The stub clients in `tests/test_provider_clients.py` are not the practice the brief rejects.**
+  That rejection is about faking `sentence_transformers`/`chromadb` instead of using the `Embedder`
+  and `VectorStore` seams. For the LLM layer the second real implementation is `MockProvider`, and
+  it is what the rest of the suite runs against; the stubs exercise request assembly, the retry
+  policy and streaming accumulation — code in this repository — through the provider's own `client`
+  argument, and claim nothing about a live endpoint.
+
+## 11. Phase status
 
 | phase | state | commit |
 |---|---|---|
 | 1. Scaffold, trace schema, offline seams, CI | done | `92a47e3` |
 | 2. Corpus, red flags, chunking, BM25, RRF, ingest | done | `1278c8e` |
-| 3. Skills + registry | done | |
-| 4. ReAct loop + agents + `trace` CLI | not started | |
+| 3. Skills + registry | done | `48dcfbc` |
+| 4. ReAct loop + agents + `trace` CLI | done | |
 | 5. Planner, router, blackboard, synthesizer | not started | |
 | 6. Memory | not started | |
 | 7. Safety | not started | |

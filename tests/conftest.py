@@ -23,7 +23,7 @@ from consilium.retrieval import (
     chunk_corpus,
     load_corpus,
 )
-from consilium.safety import RedFlagTable
+from consilium.safety import Policy, RedFlagTable
 from consilium.skills import SkillContext, SkillRegistry, SymptomSystemMap
 from consilium.trace import MemorySink, Tracer
 
@@ -37,6 +37,7 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 CORPUS_DIR = ROOT_DIR / "data" / "corpus"
 RED_FLAGS_PATH = ROOT_DIR / "data" / "red_flags.yaml"
 SYMPTOM_SYSTEMS_PATH = ROOT_DIR / "data" / "symptom_systems.yaml"
+POLICY_PATH = ROOT_DIR / "data" / "policy.yaml"
 
 
 @pytest.fixture
@@ -178,3 +179,8 @@ def skill_context(
         tracer=tracer,
         agent="consultation",
     )
+
+
+@pytest.fixture(scope="session")
+def policy() -> Policy:
+    return Policy.from_yaml(POLICY_PATH)

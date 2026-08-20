@@ -92,6 +92,43 @@ def index_chunks(
     lexical.add(chunks)
 
 
+def open_retriever(
+    *,
+    corpus_dir: Path,
+    embedder: Embedder,
+    store: VectorStore,
+    lexical: Bm25Index | None = None,
+) -> tuple[HybridRetriever, IngestReport]:
+    """Build a retriever, re-embedding only if the store does not already hold the corpus.
+
+    A persistent store outlives the process, so re-embedding 312 chunks on every ``consilium ask``
+    would pay the entire ingestion cost for one query.  An in-memory store starts empty, so it is
+    always ingested.  The freshness check is chunk count, which catches the case that matters --
+    notes added, removed, or rechunked -- and deliberately does not try to detect an edit that
+    leaves the count unchanged: ``consilium ingest`` resets the store and is the supported way to
+    reload after editing a note.
+    """
+    document_count, chunks = build_chunks(corpus_dir)
+    lexical = lexical if lexical is not None else Bm25Index()
+
+    if store.count() == len(chunks) and chunks:
+        lexical.add(chunks)
+    else:
+        store.reset()
+        index_chunks(chunks, embedder=embedder, store=store, lexical=lexical)
+
+    counts: Counter[Category] = Counter(chunk.category for chunk in chunks)
+    report = IngestReport(
+        corpus_dir=corpus_dir,
+        documents=document_count,
+        chunks=len(chunks),
+        chunks_by_category=dict(counts),
+        embedder=embedder.name,
+        store=store.name,
+    )
+    return HybridRetriever(embedder=embedder, store=store, lexical=lexical), report
+
+
 def ingest(
     *,
     corpus_dir: Path,

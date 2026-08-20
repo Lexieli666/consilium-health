@@ -46,7 +46,13 @@ from consilium.retrieval.hybrid import (
     TRACE_DEPTH,
     HybridRetriever,
 )
-from consilium.retrieval.index import IngestReport, ingest, make_embedder, make_store
+from consilium.retrieval.index import (
+    IngestReport,
+    ingest,
+    make_embedder,
+    make_store,
+    open_retriever,
+)
 from consilium.retrieval.store import ChromaStore, NumpyStore, VectorStore
 from consilium.retrieval.tokenize import STOPWORDS, tokenize
 from consilium.retrieval.types import CATEGORIES, Category, Chunk, ScoredChunk
@@ -90,6 +96,7 @@ __all__ = [
     "load_document",
     "make_embedder",
     "make_store",
+    "open_retriever",
     "parse_document",
     "reciprocal_rank_fusion",
     "tokenize",
