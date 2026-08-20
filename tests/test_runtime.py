@@ -7,6 +7,7 @@ about that invariant and about the honesty of the escalation fields in this phas
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -22,6 +23,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _settings() -> Settings:
     return Settings(root_dir=ROOT, data_dir=ROOT / "data", corpus_dir=ROOT / "data" / "corpus")
+
+
+def _plan(*agents: str) -> ScriptedResponse:
+    """A planner reply assigning one subtask per named agent.
+
+    Scripted rather than pinned, because the router now makes a planner call before any specialist
+    does: a test that forgets it would silently hand the planner's slot to the agent's script.
+    """
+    return ScriptedResponse(
+        content=json.dumps(
+            {
+                "subtasks": [
+                    {"agent": name, "objective": f"Handle the {name} part.", "why": "test"}
+                    for name in agents
+                ]
+            }
+        )
+    )
 
 
 def _runtime(responses: list[ScriptedResponse], *, config: RunConfig | None = None) -> Runtime:
@@ -71,6 +90,7 @@ def test_an_unknown_agent_name_names_the_ones_that_exist() -> None:
 async def test_a_turn_writes_exactly_one_turn_event_last(memory_sink: MemorySink) -> None:
     runtime = _runtime(
         [
+            _plan("consultation"),
             ScriptedResponse(
                 tool_calls=[ScriptedToolCall(name="search_knowledge", arguments={"query": "htn"})]
             ),
@@ -84,6 +104,7 @@ async def test_a_turn_writes_exactly_one_turn_event_last(memory_sink: MemorySink
     assert outcome.answer.startswith("Hypertension")
     assert outcome.mode == "single"
     assert outcome.agents == ("consultation",)
+    assert outcome.fallback is False
     assert outcome.sources
     (turn,) = memory_sink.of_type(TurnEvent)
     assert memory_sink.events[-1] is turn
@@ -108,7 +129,9 @@ async def test_a_red_flag_question_records_both_negation_policies(memory_sink: M
 
 
 async def test_a_negated_red_flag_is_recorded_as_suppressed(memory_sink: MemorySink) -> None:
-    runtime = _runtime([ScriptedResponse(content="Tiredness has many causes.")])
+    runtime = _runtime(
+        [_plan("consultation"), ScriptedResponse(content="Tiredness has many causes.")]
+    )
     tracer = Tracer(session_id="s", turn_index=0, sink=memory_sink)
 
     outcome = await run_turn(runtime, "I have no chest pain, just tired", tracer=tracer)
@@ -122,7 +145,7 @@ async def test_a_negated_red_flag_is_recorded_as_suppressed(memory_sink: MemoryS
 
 async def test_pre_and_post_repair_agree_while_there_is_no_repair(memory_sink: MemorySink) -> None:
     """Phase 4 delivers the model's own answer, so the two fields describe the same string."""
-    runtime = _runtime([ScriptedResponse(content="No escalation here.")])
+    runtime = _runtime([_plan("diagnostic"), ScriptedResponse(content="No escalation here.")])
     tracer = Tracer(session_id="s", turn_index=0, sink=memory_sink)
 
     await run_turn(runtime, "I have crushing chest pain", tracer=tracer)
@@ -135,12 +158,20 @@ async def test_pre_and_post_repair_agree_while_there_is_no_repair(memory_sink: M
 
 async def test_the_trace_file_round_trips_through_its_own_schema(tmp_path: Path) -> None:
     """Every reported number is read back out of this file, so it has to validate."""
-    runtime = _runtime([ScriptedResponse(content="An answer.")])
+    runtime = _runtime([_plan("consultation"), ScriptedResponse(content="An answer.")])
 
     with Tracer.for_turn(session_id="round-trip", turn_index=2, runs_dir=tmp_path) as tracer:
         await run_turn(runtime, "a question", tracer=tracer)
 
     events = read_trace(tmp_path / "round-trip" / "2.jsonl")
-    assert [event.type for event in events] == ["llm_call", "turn"]
+    assert [event.type for event in events] == [
+        "llm_call",  # the planner
+        "route",
+        "blackboard",  # assigned
+        "blackboard",  # started
+        "llm_call",  # the specialist
+        "blackboard",  # completed
+        "turn",
+    ]
     assert all(event.session_id == "round-trip" for event in events)
     assert all(event.turn_index == 2 for event in events)

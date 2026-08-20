@@ -17,6 +17,7 @@ runner = CliRunner()
 
 SCRIPT = """\
 responses:
+  - content: '{"subtasks": [{"agent": "consultation", "objective": "Explain it.", "why": "t"}]}'
   - tool_calls:
       - name: search_knowledge
         arguments: {query: "hypertension"}
@@ -24,10 +25,25 @@ responses:
 """
 
 
+PINNED_SCRIPT = """\
+responses:
+  - content: "Call emergency services now. Chest discomfort can indicate a heart attack."
+"""
+
+
 @pytest.fixture
 def script(tmp_path: Path) -> Path:
+    """A routed turn: a planner reply, then the specialist's tool call and answer."""
     path = tmp_path / "script.yaml"
     path.write_text(SCRIPT, encoding="utf-8")
+    return path
+
+
+@pytest.fixture
+def pinned_script(tmp_path: Path) -> Path:
+    """A pinned turn makes no planner call, so its script has no plan in it."""
+    path = tmp_path / "pinned.yaml"
+    path.write_text(PINNED_SCRIPT, encoding="utf-8")
     return path
 
 
@@ -60,19 +76,43 @@ def test_ask_answers_and_reports_its_sources_and_trace(env: Path, script: Path) 
     assert (env / "cli-one" / "0.jsonl").exists()
 
 
-def test_ask_names_the_specialist_it_used(env: Path, script: Path) -> None:
+def test_ask_can_pin_a_specialist_and_skip_routing(env: Path, pinned_script: Path) -> None:
     result = _ask(
         "I have crushing chest pain",
         "--agent",
         "diagnostic",
         "--script",
-        str(script),
+        str(pinned_script),
         "--session",
         "cli-two",
     )
 
     assert result.exit_code == 0
+    assert "route      : single [diagnostic]" in result.stdout
     assert "risk level : emergency" in result.stdout
+
+
+def test_ask_reports_the_route_the_planner_chose(env: Path, script: Path) -> None:
+    result = _ask("what is hypertension", "--script", str(script), "--session", "cli-routed")
+
+    assert result.exit_code == 0
+    assert "route      : single [consultation]" in result.stdout
+    assert "planner fallback" not in result.stdout
+
+
+def test_ask_says_so_when_the_planner_fell_back(env: Path, tmp_path: Path) -> None:
+    """A fallback means the plan was unusable; a reader should not need the trace to learn that."""
+    path = tmp_path / "unparseable.yaml"
+    path.write_text(
+        'responses:\n  - content: "I am not going to produce JSON today."\n'
+        '  - content: "An answer anyway."\n',
+        encoding="utf-8",
+    )
+
+    result = _ask("what is hypertension", "--script", str(path), "--session", "cli-fallback")
+
+    assert result.exit_code == 0
+    assert "planner fallback" in result.stdout
 
 
 def test_ask_rejects_an_unknown_agent(env: Path) -> None:
