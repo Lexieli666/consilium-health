@@ -537,7 +537,49 @@ naming; this section freezes the mechanism. Rationale in `docs/DESIGN.md` under 
 - **`tests/__init__.py` exists** so `tests.stubs` has exactly one module name; mypy refuses to
   check a file reachable under two.
 
-## 12. Phase status
+## 12. Frozen: the memory layer (Phase 6)
+
+Rationale in `docs/DESIGN.md` under "Phase 6 — memory".
+
+- **`consilium/memory/` module layout.** `working` (the per-session buffer and context compaction)
+  → `store` (where a session lives) → `episodic` (cross-session recall in SQLite).
+- **It is called *context compaction*, in every identifier, comment and document.** Never "entropy
+  management": nothing in the module computes an entropy.
+- **Session state is keyed by `session_id` and injected per turn; never a process-wide singleton.**
+  `Runtime` holds the `MemoryStore`; nothing holds a session. Sharing between the workers of one
+  turn is achieved by passing the same history object.
+  `tests/test_memory_store.py` interleaves six sessions under `asyncio.gather` and asserts none
+  sees another's turns.
+- **`WINDOW_EXCHANGES = 5` replayed verbatim; everything older is compacted by deterministic
+  extraction**, never by an LLM call. `llm_call.caller` has no slot for a summarizer, and a
+  generated recap would put a nondeterministic string into every later turn's input — which would
+  make the 30 multi-turn golden conversations irreproducible.
+- **The recap is a `user` message tagged `[earlier in this conversation]`**, not a `system` one:
+  Anthropic lifts system messages into a top-level parameter, where a recap would be glued onto the
+  agent's own rules.
+- **Tool observations are never replayed.** Memory carries the answer and the `doc_id` values, not
+  the passages. Replaying them would need the matching assistant tool-call messages — the whole
+  prior ReAct transcript, every turn — and would void the current turn's tool budget invisibly.
+- **Dedup is `blake2b`, not `hash()`**, which is salted per interpreter run. A golden digest
+  computed in another process is asserted in the tests.
+- **Redis is a backend, not a dependency.** `SerializedStore` works over `KeyValueBackend`;
+  `DictBackend` is a real implementation and is what the tests use; `RedisBackend` imports `redis`
+  inside its constructor and `redis` appears nowhere in `pyproject.toml` (only in the mypy
+  `ignore_missing_imports` list).
+- **`session_id` is validated against the same pattern in `memory/store.py` and `trace.py`** — it
+  becomes a cache key in one and a directory name in the other.
+- **Episodic memory: one upserted row per session in SQLite, float32 blob, brute-force cosine,
+  top 3, behind `EpisodicStore`.** `BRUTE_FORCE_ROW_CEILING = 10_000` is the stated limit past which
+  a full-table scan per query stops being reasonable; the store logs a warning above it. The row is
+  upserted per turn because neither the CLI nor a stateless API has a session-end signal.
+- **`EpisodicMemory.recall_enabled` defaults to `False` and no measured run enables it.** Recall
+  across a golden set of independent items would let item N answer from item N−1. The effect of
+  episodic memory on answer quality is therefore reported as `not measured` in
+  `docs/EVALUATION.md` — a deliberate measurement decision, not an omission.
+- **`Settings.data_dir` / `Runtime.memory` / `Runtime.episodic`.** `build_runtime(episodic=True)`
+  opts in; the default is `None`.
+
+## 13. Phase status
 
 | phase | state | commit |
 |---|---|---|
@@ -545,8 +587,8 @@ naming; this section freezes the mechanism. Rationale in `docs/DESIGN.md` under 
 | 2. Corpus, red flags, chunking, BM25, RRF, ingest | done | `1278c8e` |
 | 3. Skills + registry | done | `48dcfbc` |
 | 4. ReAct loop + agents + `trace` CLI | done | `b8caed0` |
-| 5. Planner, router, blackboard, synthesizer | done | |
-| 6. Memory | not started | |
+| 5. Planner, router, blackboard, synthesizer | done | `1d6660e` |
+| 6. Memory | done | |
 | 7. Safety | not started | |
 | 8. Eval harness + golden-set drafts | not started — **Checkpoint B** | |
 | 9. API + SSE + CLI polish | not started | |
