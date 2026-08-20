@@ -656,6 +656,18 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
   `not measured` (§12).
 - **`full_budget_6` runs on a 50-item *stratified* subset**, reported separately with its n stated.
   The golden set is written in category blocks, so the first 50 items would be two categories.
+- **The shipped `eval/data/*.jsonl` are unlabelled drafts** and `tests/test_eval_drafts.py` lints
+  them: 150 items in five blocks of 30, ids prefixed by block, every label field empty,
+  `draft_notes` present on every record, and the two drafting constraints enforced —
+  **no red-flag candidate reuses a string from `data/red_flags.yaml`**, and the only four items
+  that contain a pattern string are marked `FALSE-POSITIVE PROBE` (a negated "chest pain" and three
+  historical "heart attack" mentions, none of them red-flag items). The 30 `condition_coding` items
+  are asserted to vary along **six named conventions** rather than along the condition axis. The
+  multi-turn set is 30 conversations with **10 of 7+ turns**, all of which exceed the
+  5-exchange window.
+- **Observed at drafting time and recorded in `docs/EVALUATION.md`: 0 of the 22 drafted red-flag
+  candidates match the rule table.** That is the finding the constraint was written to produce, not
+  a defect in the questions; the questions are not edited toward the patterns.
 
 ## 15. Phase status
 
@@ -668,6 +680,6 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
 | 5. Planner, router, blackboard, synthesizer | done | `1d6660e` |
 | 6. Memory | done | `a36b160` |
 | 7. Safety | done | `48a1dfa` |
-| 8. Eval harness + golden-set drafts | harness done; drafts next — **Checkpoint B** | |
+| 8. Eval harness + golden-set drafts | **drafts written — STOPPED at Checkpoint B** | |
 | 9. API + SSE + CLI polish | not started | |
 | 10. Docs, published eval run, README numbers | not started | |

@@ -93,6 +93,24 @@ a pattern string, red-flag recall would measure only whether the matcher matches
 does not catch is a measured false negative, reported with its item id. It is not a defect in the
 question, and the fix is not to edit the question toward the pattern.
 
+At the time the draft was written, **none of the 22 drafted red-flag candidates matched
+`data/red_flags.yaml`** — a matcher diagnostic run over the questions, with no model called and no
+label written. That does not predict red-flag recall, which is measured on the *delivered answer*
+and which the model may well produce unaided; what it predicts is that the input-side guard will
+contribute close to nothing on realistically-phrased input, and that the gap between
+`escalation_present_pre_repair` and `escalation_present_post_repair` will be small. Several of the
+misses are near misses that a slightly broader pattern would catch — "worst hedache ive ever had"
+against `worst headache ever`, "ribs pulling in" against `ribs sucking in`, "rash that does not go
+pale" against `rash that does not fade`. That is the actionable form of the finding, and it belongs
+in the results rather than in an edit to the questions.
+
+**Four items reuse a pattern string on purpose**, and they are the only ones: `g-su-022` (a negated
+"chest pain", which the guard should suppress), `g-ge-018` and `g-md-011` (a historical "heart
+attack" in a guideline and a family-history question), and `m-018`. They are not red-flag items.
+They exist to probe the matcher's **false-positive** behaviour, which the paraphrase-only items
+cannot measure, and `tests/test_eval_drafts.py` asserts that no other item contains a pattern
+string.
+
 **The 30 `condition_coding` items vary along the *convention* axis, not the *condition* axis.** The
 `coding` category carries per-condition code-selection detail for seven conditions and chapter-level
 coverage for the rest (see `docs/CORPUS.md`), so thirty questions differing only in which condition
@@ -331,6 +349,14 @@ been run the faithfulness numbers come from an unvalidated instrument.
 code-selection note; the rest are covered at chapter level (`docs/CORPUS.md`). The 30
 `condition_coding` items therefore vary along the convention axis rather than the condition axis, and
 the block measures coverage of coding *conventions*, not of conditions.
+
+**The red-flag items were written with the pattern list in view.** The drafting constraint required
+it — the items must not reuse those strings — but the consequence is that the block is probably
+harder than a blind sample of real user input would be, and it measures the matcher's performance on
+*paraphrase* rather than on the mix of paraphrase and canonical phrasing that real traffic contains.
+The four false-positive probes are the only canonical-phrase items in the set. A red-flag recall
+number from this set is therefore a lower bound on what canonical input would produce, and it should
+be read that way.
 
 **Mock-provider numbers are never reported.** The test suite runs entirely against `MockProvider`
 with synthetic token counts. `eval/run.py` refuses to run against it.
