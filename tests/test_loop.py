@@ -15,6 +15,7 @@ from consilium.agents.loop import (
 )
 from consilium.llm import MockProvider, ScriptedResponse
 from consilium.llm.mock import ScriptedToolCall
+from consilium.safety import PolicyValidator
 from consilium.skills import SkillContext, SkillRegistry
 from consilium.trace import LLMCallEvent, MemorySink, ToolCallEvent
 
@@ -27,10 +28,15 @@ def _search(query: str = "hypertension") -> ScriptedToolCall:
 
 
 def _loop(
-    registry: SkillRegistry, responses: list[ScriptedResponse], **kwargs: int
+    registry: SkillRegistry,
+    responses: list[ScriptedResponse],
+    *,
+    validator: PolicyValidator | None = None,
+    **budgets: int,
 ) -> tuple[ReActLoop, MockProvider]:
     provider = MockProvider(responses)
-    return ReActLoop(provider=provider, registry=registry, **kwargs), provider
+    loop = ReActLoop(provider=provider, registry=registry, validator=validator, **budgets)
+    return loop, provider
 
 
 async def test_a_direct_answer_uses_one_call_and_no_tools(

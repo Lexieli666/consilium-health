@@ -46,9 +46,10 @@ from consilium.retrieval.index import (
 from consilium.router.planner import Planner
 from consilium.router.router import DEFAULT_DEADLINE_SECONDS, Router
 from consilium.router.synthesizer import Synthesizer
-from consilium.safety.escalation import escalation_present
 from consilium.safety.policy import Policy
 from consilium.safety.red_flags import RedFlagTable
+from consilium.safety.repair import OutputRepair, RepairResult
+from consilium.safety.validator import PolicyValidator
 from consilium.skills.base import SkillContext, SkillResult
 from consilium.skills.registry import SkillRegistry
 from consilium.skills.symptom_map import SymptomSystemMap
@@ -65,6 +66,8 @@ class Runtime:
     registry: SkillRegistry
     policy: Policy
     red_flags: RedFlagTable
+    validator: PolicyValidator
+    repair: OutputRepair
     symptoms: SymptomSystemMap
     documents: Mapping[str, Document]
     #: Working memory, keyed by ``session_id``.  Held here because it outlives a turn; the
@@ -100,6 +103,7 @@ class Runtime:
             registry=self.registry,
             max_iterations=self.config.max_iterations,
             max_tool_calls=self.config.max_tool_calls,
+            validator=self.validator,
         )
         return agent_type(
             provider=self.provider, registry=self.registry, policy=self.policy, loop=loop
@@ -168,13 +172,21 @@ def build_runtime(
             recall_enabled=episodic_recall,
         )
 
+    policy = Policy.from_yaml(settings.policy_path)
+    # The red-flag table is loaded from the path the policy names, not from a second setting: the
+    # policy references the file rather than restating it, and resolving the reference here is what
+    # makes that reference load-bearing instead of documentation.
+    red_flags = RedFlagTable.from_yaml(policy.red_flags_path or settings.red_flags_path)
+
     return Runtime(
         settings=settings,
         config=run_config,
         provider=provider or make_provider(settings, script=script),
         registry=SkillRegistry.discover(),
-        policy=Policy.from_yaml(settings.policy_path),
-        red_flags=RedFlagTable.from_yaml(settings.red_flags_path),
+        policy=policy,
+        red_flags=red_flags,
+        validator=PolicyValidator(policy),
+        repair=OutputRepair(policy),
         symptoms=SymptomSystemMap.from_yaml(settings.symptom_systems_path),
         documents={document.doc_id: document for document in documents},
         memory=memory or InMemoryStore(),
@@ -194,6 +206,9 @@ class TurnOutcome:
     agents: tuple[str, ...]
     #: True when the planner could not produce a usable plan and the single-agent default fired.
     fallback: bool
+    #: What the safety layer found and did.  Carried on the outcome so an interface can report it
+    #: without re-reading the trace.
+    safety: RepairResult
     #: Specialists whose subtask failed or timed out; named in the delivered answer.
     missing: tuple[str, ...]
     trace_id: str
@@ -227,10 +242,12 @@ async def run_turn(
     **The risk level comes from the red-flag table applied to the question, never from the answer.**
     That is what makes it immovable by anything the model or the synthesizer does.
 
-    The three escalation fields describe this phase honestly.  There is no ``OutputRepair`` yet, so
-    the delivered answer is the model's own: pre and post are the same value and ``repair_applied``
-    is False.  When the repair lands in Phase 7 the post-repair field starts describing a different
-    string, which is exactly the distinction those fields exist to draw.
+    **The safety layer runs between routing and delivery.**  ``PolicyValidator`` checks the routed
+    answer and records every violation; ``OutputRepair`` fixes what it found and records every
+    repair.  The two are separate counts and are reported as two rates.  The ``turn`` event's three
+    escalation fields are then filled from the repair result: pre-repair describes the model's own
+    answer, post-repair describes the delivered one -- **post-repair is red-flag recall** -- and
+    ``repair_applied`` says which of the two saved it.
     """
     assessment = runtime.red_flags.assess(question)
     router = runtime.router(tracer=tracer, deadline_seconds=deadline_seconds)
@@ -242,10 +259,19 @@ async def run_turn(
         routed = await router.handle(question, tracer=tracer, history=history, pinned_agent=agent)
     wall_ms = elapsed_ms()
 
+    guarded_by = routed.agents[0] if len(routed.agents) == 1 else None
+    violations = runtime.validator.check_output(
+        routed.answer, assessment=assessment, agent=guarded_by, tracer=tracer
+    )
+    repaired = runtime.repair.apply(routed.answer, violations, agent=guarded_by, tracer=tracer)
+
     if working is not None:
+        # The *delivered* answer, not the model's raw one.  A later turn's context must match what
+        # the user actually saw, or the conversation the model believes it had is not the one that
+        # happened -- and a redacted sentence would come back through memory.
         working.record(
             question=question,
-            answer=routed.answer,
+            answer=repaired.answer,
             tool_results=[
                 result for agent_result in routed.results for result in agent_result.tool_results
             ],
@@ -256,32 +282,32 @@ async def run_turn(
             runtime.episodic.remember(
                 session_id=tracer.session_id,
                 question=working.exchanges[0].question,
-                key_findings=routed.answer,
+                key_findings=repaired.answer,
                 risk_level=assessment.urgency,
                 sources=routed.sources,
             )
 
-    escalated = escalation_present(routed.answer)
     event = tracer.turn(
         question=question,
-        answer=routed.answer,
+        answer=repaired.answer,
         risk_level=assessment.urgency,
         wall_ms=wall_ms,
         red_flag_matched=assessment.matched,
         red_flag_matched_raw=assessment.matched_raw,
         red_flag_negation_suppressed=assessment.negation_suppressed,
-        escalation_present_pre_repair=escalated,
-        escalation_present_post_repair=escalated,
-        repair_applied=False,
+        escalation_present_pre_repair=repaired.escalation_present_pre_repair,
+        escalation_present_post_repair=repaired.escalation_present_post_repair,
+        repair_applied=repaired.repair_applied,
     )
     return TurnOutcome(
-        answer=routed.answer,
+        answer=repaired.answer,
         sources=routed.sources,
         risk_level=assessment.urgency,
         mode=routed.mode,
         agents=routed.agents,
         fallback=routed.fallback,
         missing=routed.missing,
+        safety=repaired,
         trace_id=tracer.trace_id,
         wall_ms=wall_ms,
         tool_results=tuple(

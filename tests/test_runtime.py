@@ -16,7 +16,14 @@ from consilium.config import RunConfig, Settings
 from consilium.llm import MockProvider, ScriptedResponse
 from consilium.llm.mock import ScriptedToolCall
 from consilium.runtime import Runtime, build_runtime, run_turn
-from consilium.trace import MemorySink, RetrievalEvent, Tracer, TurnEvent, read_trace
+from consilium.trace import (
+    MemorySink,
+    RetrievalEvent,
+    SafetyEvent,
+    Tracer,
+    TurnEvent,
+    read_trace,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -143,17 +150,42 @@ async def test_a_negated_red_flag_is_recorded_as_suppressed(memory_sink: MemoryS
     assert turn.red_flag_negation_suppressed is True
 
 
-async def test_pre_and_post_repair_agree_while_there_is_no_repair(memory_sink: MemorySink) -> None:
-    """Phase 4 delivers the model's own answer, so the two fields describe the same string."""
+async def test_a_red_flag_answer_that_does_not_escalate_is_repaired(
+    memory_sink: MemorySink,
+) -> None:
+    """Pre-repair records the model's failure; post-repair is red-flag recall."""
     runtime = _runtime([_plan("diagnostic"), ScriptedResponse(content="No escalation here.")])
+    tracer = Tracer(session_id="s", turn_index=0, sink=memory_sink)
+
+    outcome = await run_turn(runtime, "I have crushing chest pain", tracer=tracer)
+
+    (turn,) = memory_sink.of_type(TurnEvent)
+    assert turn.escalation_present_pre_repair is False
+    assert turn.escalation_present_post_repair is True
+    assert turn.repair_applied is True
+    assert outcome.answer.startswith("**Seek emergency care now.**")
+
+
+async def test_an_answer_that_already_escalates_needs_no_escalation_repair(
+    memory_sink: MemorySink,
+) -> None:
+    """A correctly handled red flag emits no escalation repair; measuring repairs would miss it."""
+    runtime = _runtime(
+        [
+            _plan("diagnostic"),
+            ScriptedResponse(content="Call emergency services now. This can be an emergency."),
+        ]
+    )
     tracer = Tracer(session_id="s", turn_index=0, sink=memory_sink)
 
     await run_turn(runtime, "I have crushing chest pain", tracer=tracer)
 
     (turn,) = memory_sink.of_type(TurnEvent)
-    assert turn.escalation_present_pre_repair is False
-    assert turn.escalation_present_post_repair is False
-    assert turn.repair_applied is False
+    assert turn.escalation_present_pre_repair is True
+    assert turn.escalation_present_post_repair is True
+    repairs = [event.rule for event in memory_sink.of_type(SafetyEvent) if event.event == "repair"]
+    assert "escalation_required" not in repairs
+    assert repairs == ["disclaimer"]  # only the boilerplate was missing
 
 
 async def test_the_trace_file_round_trips_through_its_own_schema(tmp_path: Path) -> None:
@@ -171,6 +203,8 @@ async def test_the_trace_file_round_trips_through_its_own_schema(tmp_path: Path)
         "blackboard",  # started
         "llm_call",  # the specialist
         "blackboard",  # completed
+        "safety",  # violation: the answer carried no disclaimer
+        "safety",  # repair: the disclaimer was appended
         "turn",
     ]
     assert all(event.session_id == "round-trip" for event in events)
