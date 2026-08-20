@@ -381,13 +381,54 @@ Rationale for each, with the rejected alternative, is in `docs/DESIGN.md`.
   the previous chunking of an edited note in the index produces stale hits that read as a
   retrieval-quality problem rather than an ingestion one.
 
-## 9. Phase status
+## 9. Frozen: the skills layer (Phase 3)
+
+Seven skills, one registry, one envelope. Rationale for each decision, with the rejected
+alternative, is in `docs/DESIGN.md` under "Phase 3 — skills and the registry".
+
+- **`consilium/skills/` module layout.** `base` (envelope, context, `@skill`) → `registry`
+  (discovery, tool schemas, the one invocation site) → one module per skill (`knowledge`, `risk`,
+  `symptoms`, `lifestyle`, `coding`, `guidelines`, `research`) → `symptom_map` (the data table
+  `analyze_symptoms` consumes). Nothing in the package imports from a layer above it.
+- **The seven names are fixed** and `SKILL_NAMES` in `consilium/skills/__init__.py` is the list:
+  `search_knowledge`, `assess_risk`, `analyze_symptoms`, `recommend_lifestyle`,
+  `lookup_disease_code`, `find_guideline`, `deep_research`. `policy.yaml` narrows per agent; it
+  never adds.
+- **`SkillResult`** (`skill`, `ok`, `data`, `error`, `latency_ms`, `sources`), `extra="forbid"`,
+  frozen. `sources` is a tuple of `doc_id`s and is copied onto `tool_call.source_doc_ids` by the
+  registry. `to_observation()` is what the ReAct loop feeds back to the model.
+- **A skill never raises into the loop.** Unknown name, invalid arguments, retrieval disabled, and
+  an exception inside the skill all return `ok=False` and all emit a `tool_call` event with
+  `ok=False`. The handling is in `SkillRegistry._invoke`, once.
+- **Tool schemas are derived**, via `model_json_schema()`, with only the class-name `title`
+  stripped. There is no hand-written JSON in the package and `tests/test_skill_registry.py`
+  asserts the emitted parameters equal what pydantic generates.
+- **Skills are synchronous; `SkillRegistry.execute()` dispatches through `asyncio.to_thread`.**
+  The parallel router's workers must overlap, and a skill holding the event loop would serialize
+  them — which would make the parallel-versus-single latency comparison measure the harness.
+- **`SkillContext`** is a frozen dataclass carrying `retriever`, `red_flags`, `symptoms`,
+  `documents`, `tracer`, `agent`. It is built per turn and injected; skills hold no module-level
+  state. `retriever=None` is a legitimate state (`RunConfig.retrieval=False`), not an error.
+- **`DIFFERS_HEADING = "## Where guidance differs"` lives in `consilium/retrieval/corpus.py`**,
+  with the other frozen corpus conventions, and is imported by `deep_research` and `find_guideline`
+  rather than restated. 11 of the 19 guideline notes carry the section.
+- **`deep_research` is corpus-only and issues no LLM call of its own.** `llm_call.caller` has no
+  slot for a skill; adding one would change a frozen schema. Sub-queries arrive as tool arguments
+  from the agent, capped at 5, with the question itself always first, and are retrieved
+  **sequentially** so that "the turn's first `retrieval` event" stays deterministic.
+- **`assess_risk` shares `RedFlagTable` with `OutputRepair`** and takes its tier from the table,
+  never from retrieved prose. `NO_MATCH_ACTION` is a fixed string stating that a non-match is not a
+  clearance.
+- **`analyze_symptoms` returns documents, never a ranked differential**, and reports
+  `unrecognized` rather than filing unparsed input under `constitutional`.
+
+## 10. Phase status
 
 | phase | state | commit |
 |---|---|---|
 | 1. Scaffold, trace schema, offline seams, CI | done | `92a47e3` |
-| 2. Corpus, red flags, chunking, BM25, RRF, ingest | done | |
-| 3. Skills + registry | not started | |
+| 2. Corpus, red flags, chunking, BM25, RRF, ingest | done | `1278c8e` |
+| 3. Skills + registry | done | |
 | 4. ReAct loop + agents + `trace` CLI | not started | |
 | 5. Planner, router, blackboard, synthesizer | not started | |
 | 6. Memory | not started | |

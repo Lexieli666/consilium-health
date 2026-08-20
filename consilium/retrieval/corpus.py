@@ -47,6 +47,12 @@ DISCLAIMER: Final = (
 
 _FRONT_MATTER_FENCE: Final = "---\n"
 
+#: The heading a guideline note uses when authorities genuinely diverge.  A frozen corpus
+#: convention (CLAUDE.md section 7), and the hook the ``deep_research`` skill reads its
+#: "sources disagree" section out of -- so it is defined once, here with the other conventions, and
+#: imported by the skill rather than restated as a literal in two places that could drift apart.
+DIFFERS_HEADING: Final = "## Where guidance differs"
+
 
 class CorpusError(ValueError):
     """Raised when a corpus file violates the format contract.

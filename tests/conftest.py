@@ -23,6 +23,8 @@ from consilium.retrieval import (
     chunk_corpus,
     load_corpus,
 )
+from consilium.safety import RedFlagTable
+from consilium.skills import SkillContext, SkillRegistry, SymptomSystemMap
 from consilium.trace import MemorySink, Tracer
 
 FIXED_TIME = datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)
@@ -31,7 +33,10 @@ FIXED_TIME = datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)
 #: notes: the properties that matter -- that `I10` survives tokenization, that per-`doc_id` dedup
 #: has something to deduplicate, that a category filter narrows a real pool -- are properties of
 #: this corpus, and a fixture corpus could satisfy all three while the real one did not.
-CORPUS_DIR = Path(__file__).resolve().parents[1] / "data" / "corpus"
+ROOT_DIR = Path(__file__).resolve().parents[1]
+CORPUS_DIR = ROOT_DIR / "data" / "corpus"
+RED_FLAGS_PATH = ROOT_DIR / "data" / "red_flags.yaml"
+SYMPTOM_SYSTEMS_PATH = ROOT_DIR / "data" / "symptom_systems.yaml"
 
 
 @pytest.fixture
@@ -135,3 +140,41 @@ def corpus_retriever(corpus_chunks: list[Chunk]) -> HybridRetriever:
     store = NumpyStore()
     store.add(corpus_chunks, embedder.embed_documents([chunk.text for chunk in corpus_chunks]))
     return HybridRetriever(embedder=embedder, store=store, lexical=Bm25Index(corpus_chunks))
+
+
+@pytest.fixture(scope="session")
+def red_flag_table() -> RedFlagTable:
+    return RedFlagTable.from_yaml(RED_FLAGS_PATH)
+
+
+@pytest.fixture(scope="session")
+def symptom_map() -> SymptomSystemMap:
+    return SymptomSystemMap.from_yaml(SYMPTOM_SYSTEMS_PATH)
+
+
+@pytest.fixture(scope="session")
+def registry() -> SkillRegistry:
+    return SkillRegistry.discover()
+
+
+@pytest.fixture
+def skill_context(
+    corpus_retriever: HybridRetriever,
+    corpus_documents: list[Document],
+    red_flag_table: RedFlagTable,
+    symptom_map: SymptomSystemMap,
+    tracer: Tracer,
+) -> SkillContext:
+    """A fully wired context: the real corpus, the real tables, a tracer into a memory sink.
+
+    Fully wired rather than minimal because the failure this catches is a skill that works against
+    invented data and returns nothing against the corpus it will actually run on.
+    """
+    return SkillContext(
+        retriever=corpus_retriever,
+        red_flags=red_flag_table,
+        symptoms=symptom_map,
+        documents={document.doc_id: document for document in corpus_documents},
+        tracer=tracer,
+        agent="consultation",
+    )

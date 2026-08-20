@@ -22,6 +22,7 @@ from consilium.retrieval.chunking import (
     chunk_document,
 )
 from consilium.retrieval.corpus import (
+    DIFFERS_HEADING,
     DISCLAIMER,
     FRONT_MATTER_KEYS,
     CorpusError,
@@ -53,6 +54,7 @@ from consilium.retrieval.types import CATEGORIES, Category, Chunk, ScoredChunk
 __all__ = [
     "CANDIDATE_DEPTH",
     "CATEGORIES",
+    "DIFFERS_HEADING",
     "DISCLAIMER",
     "EMBEDDING_DIM",
     "FRONT_MATTER_KEYS",
