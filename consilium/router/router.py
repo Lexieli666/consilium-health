@@ -36,6 +36,7 @@ from typing import Protocol
 
 from consilium.agents.base import AgentResult
 from consilium.config import RunConfig
+from consilium.llm.base import Message
 from consilium.log import get_logger
 from consilium.router.blackboard import Blackboard, SubtaskHandle, SubtaskRecord
 from consilium.router.plan import Subtask
@@ -68,7 +69,12 @@ class Worker(Protocol):
     def for_turn(self, ctx: SkillContext) -> SkillContext: ...
 
     async def answer(
-        self, question: str, *, ctx: SkillContext, objective: str | None = None
+        self,
+        question: str,
+        *,
+        ctx: SkillContext,
+        history: Sequence[Message] = (),
+        objective: str | None = None,
     ) -> AgentResult: ...
 
 
@@ -121,9 +127,20 @@ class Router:
         self.deadline_seconds = deadline_seconds
 
     async def handle(
-        self, question: str, *, tracer: Tracer | None = None, pinned_agent: str | None = None
+        self,
+        question: str,
+        *,
+        tracer: Tracer | None = None,
+        history: Sequence[Message] = (),
+        pinned_agent: str | None = None,
     ) -> RouteResult:
         """Route and answer one question.
+
+        ``history`` is the session's compacted prior turns.  **Every worker of a parallel turn
+        receives the same history object**, which is what "sharing across agents within one turn is
+        achieved by passing the same instance" means in practice -- and it is also why memory is a
+        parameter here rather than something the router owns: the router is per turn, the session is
+        not.
 
         ``pinned_agent`` bypasses routing and runs one named specialist.  It is a debugging
         affordance -- ``consilium ask --agent diagnostic`` -- and is deliberately the same code path
@@ -132,7 +149,7 @@ class Router:
         """
         if pinned_agent is not None or self.config.router != "planner":
             return await self._unrouted(
-                question, tracer=tracer, agent=pinned_agent or FALLBACK_AGENT
+                question, tracer=tracer, history=history, agent=pinned_agent or FALLBACK_AGENT
             )
 
         with stopwatch() as elapsed_ms:
@@ -151,7 +168,7 @@ class Router:
 
         board = Blackboard(tracer=tracer)
         handles = await board.assign(subtasks)
-        await self._dispatch(question, handles, parallel=mode == "parallel")
+        await self._dispatch(question, handles, history=history, parallel=mode == "parallel")
 
         completed = board.completed()
         missing = board.unfinished()
@@ -167,7 +184,9 @@ class Router:
             missing=tuple(sorted({record.subtask.agent for record in missing})),
         )
 
-    async def _unrouted(self, question: str, *, tracer: Tracer | None, agent: str) -> RouteResult:
+    async def _unrouted(
+        self, question: str, *, tracer: Tracer | None, history: Sequence[Message], agent: str
+    ) -> RouteResult:
         """`router="single"`, `router="none"`, or a pinned agent: one specialist, no route event."""
         subtask = Subtask(
             subtask_id=f"1-{agent}",
@@ -177,7 +196,7 @@ class Router:
         )
         board = Blackboard(tracer=tracer)
         (handle,) = await board.assign([subtask])
-        await self._run_one(question, handle)
+        await self._run_one(question, handle, history=history)
 
         completed = board.completed()
         missing = board.unfinished()
@@ -196,22 +215,35 @@ class Router:
         )
 
     async def _dispatch(
-        self, question: str, handles: Sequence[SubtaskHandle], *, parallel: bool
+        self,
+        question: str,
+        handles: Sequence[SubtaskHandle],
+        *,
+        history: Sequence[Message],
+        parallel: bool,
     ) -> None:
         if not parallel:
-            await self._run_one(question, handles[0])
+            await self._run_one(question, handles[0], history=history)
             return
 
         deadline_at = asyncio.get_running_loop().time() + self.deadline_seconds
         # `return_exceptions=True` even though every worker catches its own: a bug in the worker
         # wrapper itself must not cancel the siblings that already succeeded.
         await asyncio.gather(
-            *(self._run_one(question, handle, deadline_at=deadline_at) for handle in handles),
+            *(
+                self._run_one(question, handle, history=history, deadline_at=deadline_at)
+                for handle in handles
+            ),
             return_exceptions=True,
         )
 
     async def _run_one(
-        self, question: str, handle: SubtaskHandle, *, deadline_at: float | None = None
+        self,
+        question: str,
+        handle: SubtaskHandle,
+        *,
+        history: Sequence[Message] = (),
+        deadline_at: float | None = None,
     ) -> None:
         """Run one worker, recording its outcome on the board whatever happens."""
         await handle.started()
@@ -220,11 +252,16 @@ class Router:
 
         try:
             if deadline_at is None:
-                result = await agent.answer(question, ctx=ctx, objective=handle.subtask.objective)
+                result = await agent.answer(
+                    question, ctx=ctx, history=history, objective=handle.subtask.objective
+                )
             else:
                 async with asyncio.timeout_at(deadline_at):
                     result = await agent.answer(
-                        question, ctx=ctx, objective=handle.subtask.objective
+                        question,
+                        ctx=ctx,
+                        history=history,
+                        objective=handle.subtask.objective,
                     )
         except TimeoutError:
             log.warning(

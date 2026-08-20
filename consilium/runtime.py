@@ -29,8 +29,11 @@ from pathlib import Path
 from consilium.agents import AGENT_TYPES, BaseAgent
 from consilium.agents.loop import ReActLoop
 from consilium.config import RunConfig, Settings
-from consilium.llm.base import LLMProvider
+from consilium.llm.base import LLMProvider, Message
 from consilium.llm.factory import make_provider
+from consilium.memory.episodic import EpisodicMemory, SqliteEpisodicStore
+from consilium.memory.store import InMemoryStore, MemoryStore
+from consilium.memory.working import WorkingMemory
 from consilium.retrieval.corpus import Document, load_corpus
 from consilium.retrieval.hybrid import HybridRetriever
 from consilium.retrieval.index import (
@@ -64,9 +67,15 @@ class Runtime:
     red_flags: RedFlagTable
     symptoms: SymptomSystemMap
     documents: Mapping[str, Document]
+    #: Working memory, keyed by ``session_id``.  Held here because it outlives a turn; the
+    #: ``WorkingMemory`` for one session is fetched per turn and injected, never shared globally.
+    memory: MemoryStore
     #: ``None`` when ``RunConfig.retrieval`` is off -- the ``baseline_llm`` ablation row.  Skills
     #: that need it then fail with a stated reason rather than the run being impossible to express.
     retriever: HybridRetriever | None = None
+    #: ``None`` unless a store was configured.  Cross-session recall is off in every measured run;
+    #: see ``consilium/memory/episodic.py`` for why, and docs/EVALUATION.md for the consequence.
+    episodic: EpisodicMemory | None = None
 
     def context(self, *, agent: str, tracer: Tracer | None = None) -> SkillContext:
         """A per-turn skill context labelled for one agent."""
@@ -126,6 +135,9 @@ def build_runtime(
     script: Path | None = None,
     embedder: EmbedderName = "bge",
     store: StoreName = "chroma",
+    memory: MemoryStore | None = None,
+    episodic: bool = False,
+    episodic_recall: bool = False,
 ) -> Runtime:
     """Assemble a :class:`Runtime` from settings.
 
@@ -136,13 +148,24 @@ def build_runtime(
     """
     run_config = config or RunConfig(name="full")
     documents = load_corpus(settings.corpus_dir)
+    built_embedder = make_embedder(embedder)
 
     retriever: HybridRetriever | None = None
     if run_config.retrieval:
         retriever, _ = open_retriever(
             corpus_dir=settings.corpus_dir,
-            embedder=make_embedder(embedder),
+            embedder=built_embedder,
             store=make_store(store, path=settings.chroma_dir),
+        )
+
+    episodic_memory: EpisodicMemory | None = None
+    if episodic:
+        # The same embedder as retrieval, deliberately: two embedding models would mean two
+        # downloads and two dimensions to keep in step, for one lookup that runs once per turn.
+        episodic_memory = EpisodicMemory(
+            SqliteEpisodicStore(settings.episodic_db_path),
+            built_embedder,
+            recall_enabled=episodic_recall,
         )
 
     return Runtime(
@@ -154,7 +177,9 @@ def build_runtime(
         red_flags=RedFlagTable.from_yaml(settings.red_flags_path),
         symptoms=SymptomSystemMap.from_yaml(settings.symptom_systems_path),
         documents={document.doc_id: document for document in documents},
+        memory=memory or InMemoryStore(),
         retriever=retriever,
+        episodic=episodic_memory,
     )
 
 
@@ -193,6 +218,12 @@ async def run_turn(
     ``agent`` pins one specialist and skips routing.  It is the CLI's ``--agent`` flag, a debugging
     affordance; no measured run uses it.
 
+    **Memory is per session and injected for the duration of the turn.**  The ``WorkingMemory`` is
+    fetched from the store by ``tracer.session_id``, its compacted history is handed to every worker
+    of the turn -- the same object, which is how sharing between agents within one turn is achieved
+    -- and the exchange is recorded afterwards.  ``RunConfig.memory=False`` (the ``full_no_memory``
+    ablation) skips all of it: no history in, nothing recorded out.
+
     **The risk level comes from the red-flag table applied to the question, never from the answer.**
     That is what makes it immovable by anything the model or the synthesizer does.
 
@@ -204,9 +235,31 @@ async def run_turn(
     assessment = runtime.red_flags.assess(question)
     router = runtime.router(tracer=tracer, deadline_seconds=deadline_seconds)
 
+    working = runtime.memory.get(tracer.session_id) if runtime.config.memory else None
+    history = _history(runtime, working, question)
+
     with stopwatch() as elapsed_ms:
-        routed = await router.handle(question, tracer=tracer, pinned_agent=agent)
+        routed = await router.handle(question, tracer=tracer, history=history, pinned_agent=agent)
     wall_ms = elapsed_ms()
+
+    if working is not None:
+        working.record(
+            question=question,
+            answer=routed.answer,
+            tool_results=[
+                result for agent_result in routed.results for result in agent_result.tool_results
+            ],
+            risk_level=assessment.urgency,
+        )
+        runtime.memory.save(working)
+        if runtime.episodic is not None:
+            runtime.episodic.remember(
+                session_id=tracer.session_id,
+                question=working.exchanges[0].question,
+                key_findings=routed.answer,
+                risk_level=assessment.urgency,
+                sources=routed.sources,
+            )
 
     escalated = escalation_present(routed.answer)
     event = tracer.turn(
@@ -236,3 +289,24 @@ async def run_turn(
         ),
         turn_event=event,
     )
+
+
+def _history(runtime: Runtime, working: WorkingMemory | None, question: str) -> list[Message]:
+    """The prior-turn context handed to every worker of this turn.
+
+    Episodic recall is prepended only when a store is configured *and* recall is enabled, which no
+    measured run does.  Its absence in the ablation is a deliberate measurement decision, stated in
+    ``consilium/memory/episodic.py`` and in docs/EVALUATION.md, not an oversight.
+    """
+    if working is None:
+        return []
+    history = working.history()
+    if runtime.episodic is None:
+        return history
+
+    recalled = runtime.episodic.recall(question)
+    if not recalled:
+        return history
+    lines = [f"- {item.episode.question} -> {item.episode.key_findings[:200]}" for item in recalled]
+    note = "[recalled from earlier sessions]\n" + "\n".join(lines)
+    return [Message(role="user", content=note), *history]

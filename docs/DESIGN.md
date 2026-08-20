@@ -954,3 +954,145 @@ about dispatch.
 
 The factory is *injected* rather than imported for a separate reason: `consilium/runtime.py`
 constructs both the agents and the router, so importing it here would be a cycle.
+
+---
+
+## Phase 6 — memory
+
+### Session state is keyed and injected, never a process-wide singleton
+
+**Chosen.** `WorkingMemory` belongs to one `session_id` and is obtained from a `MemoryStore` keyed
+by it, then injected for the duration of a turn. `Runtime` holds the store; nothing holds a session.
+
+**Rejected.** A module-level conversation buffer, which is what the reference implementation does.
+
+**Why.** Two concurrent API users would share a history. That is a correctness bug (the answers
+would be wrong) *and* a privacy one (one user's symptoms would appear in another's context), and it
+is exactly the failure a single-user CLI demo never reveals. It also makes the module untestable
+without monkeypatching a module global, which is why the isolation test in
+`tests/test_memory_store.py` — two sessions interleaved under `asyncio.gather`, each seeing only its
+own turns — is possible at all.
+
+Sharing *within* one turn is achieved by passing the same instance: every worker of a parallel turn
+receives the same compacted history object. That is what the reference implementation actually
+needed, and it does not require a global to get it.
+
+### Context compaction, and never "entropy management"
+
+**Chosen.** The window-plus-dedup-plus-recap step is called context compaction in every identifier,
+comment, docstring and document.
+
+**Rejected.** "Entropy management", the reference implementation's term.
+
+**Why.** Nothing in the module computes an entropy. The term describes a dedup function and a
+truncation, and it survives exactly one follow-up question in an interview. Inflated names are a
+signal pointing the wrong way.
+
+### The recap is deterministic extraction, not an LLM summary
+
+**Chosen.** Exchanges older than the window are compacted by extracting the question, the opening
+sentence of the answer, the recorded risk level when it was not routine, and the deduplicated list
+of documents consulted.
+
+**Rejected.** An LLM call that summarizes the dropped exchanges.
+
+**Why.** Three reasons, and the first is decisive. `llm_call.caller` is pattern-validated to
+`planner`, `synthesizer`, `forced_answer` and `agent:<name>` — there is no slot for a summarizer, so
+the call would either be untraced (making tokens-per-turn understate the architecture's real cost)
+or force a change to a frozen schema. Second, it would put a nondeterministic string into the input
+of every subsequent turn, which makes the 30 multi-turn conversations in the golden set
+irreproducible — the same conversation would compact differently on two runs and the multi-turn
+resolution metric would be measuring the summarizer. Third, an extractive recap can be checked line
+by line against the transcript, and a generated one can only be checked by another model.
+
+The cost is that the recap is crude: one sentence per dropped exchange. For its actual job —
+reminding the model what has already been discussed and which documents were already read — crude is
+sufficient, and honest.
+
+### Tool observations are not replayed into later turns
+
+**Chosen.** What memory carries forward is the question, the answer, and the `doc_id` values behind
+it. The retrieved passages themselves are dropped after the turn that retrieved them.
+
+**Rejected.** Keeping the tool observations in the conversation buffer.
+
+**Why.** Replaying an observation requires replaying the matching assistant tool-call message —
+providers reject a tool result with no request — which means the entire prior ReAct transcript
+enters every later turn, and the context grows without bound across a 7-turn conversation. Worse, it
+voids the current turn's tool budget in a way no metric would show: the model could answer from
+evidence it did not retrieve this turn and is not obliged to cite, so `tool_call.source_doc_ids`
+would understate what the answer actually rests on. Re-retrieval costs one tool call; an unbounded,
+uncited context costs the grounding claim.
+
+Dedup by content hash is what makes the surviving citation list correct: the same passage retrieved
+in three turns is listed once. `blake2b` and not the built-in `hash()`, which is salted per
+interpreter run — the same session would otherwise compact differently on two machines, and the test
+pins a golden digest computed in another process to prove it.
+
+### The recap is a `user` message, not a `system` one
+
+**Chosen.** The recap is delivered as a `user` message tagged `[earlier in this conversation]`.
+
+**Rejected.** A `system` message, which is the conventional choice.
+
+**Why.** System content is instruction. On providers that lift system messages into a top-level
+parameter — Anthropic does, and `to_anthropic_messages` concatenates them — a system-role recap
+would be glued onto the agent's own rules and read as something the model must do rather than
+something that already happened. A user-role message tagged as history is what it actually is, and
+it behaves the same on both providers.
+
+### Redis is a backend, not a dependency
+
+**Chosen.** `SerializedStore` works over any `KeyValueBackend`. `DictBackend` is a real in-process
+implementation and is what the tests exercise; `RedisBackend` is fifteen lines that import `redis`
+inside the constructor. `redis` appears nowhere in `pyproject.toml`.
+
+**Rejected.** (a) Adding `redis` as a dependency or an extra. (b) Testing the Redis path by mocking
+the `redis` module.
+
+**Why.** The brief permits Redis as an optional backend and explicitly not as a requirement, and an
+optional backend that made the package fail to import would not be optional. Splitting at
+`KeyValueBackend` means everything above the adapter — the serialization, the key namespacing, the
+round trip, the unreadable-state error — is covered offline by a real second implementation, and the
+only untested code is the fifteen lines that call `redis` methods. The adapter itself is exercised
+against a client-shaped object, which proves the adapter without claiming anything about a server.
+
+### Episodic memory is SQLite with a brute-force scan, and the limit is written down
+
+**Chosen.** One row per session in local SQLite, embedding stored as a float32 blob, retrieved by
+cosine over every row, top 3, behind an `EpisodicStore` protocol. The same `Embedder` as retrieval.
+
+**Rejected.** A hosted memory service, or a vector index.
+
+**Why.** SQLite has no vector index, so a query reads every stored vector. At 384 dimensions that is
+1,536 bytes per row: 10,000 sessions is about 15 MB read and a 10,000×384 matmul, single-digit
+milliseconds, which is nothing next to one LLM round trip. `BRUTE_FORCE_ROW_CEILING = 10_000` is the
+stated limit; past it the scan dominates and the answer is an index (`sqlite-vec`, pgvector, or a
+real vector store behind the same protocol), not a faster loop. The store logs a warning when a
+query scans more rows than that, so the limit is enforced by the code rather than only claimed in a
+document. A portfolio project does not reach 10,000 sessions, so an index would be complexity bought
+for a load that does not exist — but the number makes "we did not need one" a measured claim.
+
+Using the same embedder as retrieval avoids two downloads, two dimensions to keep in step, and a
+second thing to explain; it also keeps the module runnable offline through `HashEmbedder`.
+
+The row is *upserted* per turn rather than written once at session end, because neither a CLI nor a
+stateless HTTP API has a session-end signal. The table therefore holds exactly one row per session,
+which is what "one summary per completed session" means in practice.
+
+### Episodic recall is disabled in every measured run, and that is reported
+
+**Chosen.** `EpisodicMemory.recall_enabled` defaults to `False`. Sessions are still remembered; only
+recall is off. `docs/EVALUATION.md` reports the effect of episodic memory on answer quality as
+`not measured`.
+
+**Rejected.** Enabling recall during the evaluation sweep.
+
+**Why.** The golden set's 150 items are independent questions. Running them through one system with
+cross-session recall means item N can be answered from item N−1's stored summary — contaminating
+faithfulness, recall@5 and the whole ablation at once, in a direction that flatters the system. The
+alternative would be to give every item its own database, which measures episodic memory by
+disabling it in a more expensive way.
+
+So the component is built, tested, and honestly labelled as unmeasured. That is the same rule the
+rest of the project follows: a number the harness did not produce does not get written down.
