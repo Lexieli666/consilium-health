@@ -613,7 +613,51 @@ Rationale in `docs/DESIGN.md` under "Phase 7 — safety".
 - **`consilium runs purge [--session ID] [--yes]`** is the retention mechanism `docs/SAFETY.md`
   documents. It refuses paths outside the configured runs directory and prompts unless `--yes`.
 
-## 14. Phase status
+## 14. Frozen: the evaluation harness (Phase 8)
+
+Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
+
+- **`eval/` is a top-level package, not part of `consilium/`.** It depends on the golden set and on
+  a live provider, neither of which belongs in an installed wheel. `consilium eval` therefore
+  imports it **lazily** and says so when it is absent. This is the opposite call from `api/` (§6)
+  and for the opposite reason: the API ships, the harness does not.
+- **`addopts` gained `--cov=eval`** (and `coverage.source`, `ruff.src`, `mypy.files` gained `eval`).
+  The harness computes every published number; leaving it as the one module whose coverage nobody
+  measures would be the wrong place to save a flag. This supersedes the addopts line in §5.
+- **Every metric in the brief's §5.2 was checked against the trace schema and all are computable.**
+  Nothing is approximated from a side channel. Two carry stated caveats: latency split by
+  `route.mode` is defined only where a `route` event exists, and faithfulness needs a judge.
+- **`eval/metrics.py` takes trace events and labels, and has no access to the runtime.** That is
+  what makes "computed from the trace and nothing else" checkable rather than claimed.
+- **`None` means `not measured` and is never rendered as 0.0**, and it survives into
+  `summary.json`. `n/a` is a different claim -- structurally undefined for that configuration --
+  and `STRUCTURALLY_UNDEFINED` in `eval/report.py` is the list.
+- **recall@5 is reported three ways** (union over the turn, first-retrieval-event-only,
+  `docs_retrieved_per_turn` beside them); **routing accuracy** unconditionally *and*
+  fallback-excluded, with the fallback rate; **red-flag recall** from
+  `turn.escalation_present_post_repair` with the raw false-negative count *and the item ids*;
+  **faithfulness** in two columns, the oracle one computed for every config including
+  `baseline_llm`.
+- **`eval/pricing.yaml` ships empty.** A rate card copied from a vendor page is not a measurement.
+  An unpriced model makes cost `not measured` and is listed under `unpriced_models`; a partial cost
+  is never reported, because it reads as a complete one.
+- **`eval/judges/*.md` are versioned prompt files** and the judge model is recorded beside every
+  number it produced. `--human-sample N` / `--score-judge CSV` is the validation loop; until it has
+  run, `docs/EVALUATION.md` says the judge is unvalidated **in those words**.
+- **`load_golden` refuses an unlabelled draft** unless `allow_draft=True`, which `eval/run.py`
+  never passes. `labeled: true` is trusted *and* checked, so the flag cannot be a lie. This is
+  Checkpoint B enforced in code.
+- **`eval/run.py` refuses a `mock` provider.** Numbers from a scripted mock are not measurements.
+- **The harness runs items through `run_turn`**, the same path the CLI and the API use, each item in
+  **its own session** so working memory cannot carry item N-1 into item N. Multi-turn conversations
+  are the only place a session spans turns. Items run **sequentially**: concurrency against a
+  rate-limited endpoint turns p90 latency into a measurement of the queue.
+- **Episodic recall is off in every measured run** and its effect on answer quality is reported as
+  `not measured` (§12).
+- **`full_budget_6` runs on a 50-item *stratified* subset**, reported separately with its n stated.
+  The golden set is written in category blocks, so the first 50 items would be two categories.
+
+## 15. Phase status
 
 | phase | state | commit |
 |---|---|---|
@@ -623,7 +667,7 @@ Rationale in `docs/DESIGN.md` under "Phase 7 — safety".
 | 4. ReAct loop + agents + `trace` CLI | done | `b8caed0` |
 | 5. Planner, router, blackboard, synthesizer | done | `1d6660e` |
 | 6. Memory | done | `a36b160` |
-| 7. Safety | done | |
-| 8. Eval harness + golden-set drafts | not started — **Checkpoint B** | |
+| 7. Safety | done | `48a1dfa` |
+| 8. Eval harness + golden-set drafts | harness done; drafts next — **Checkpoint B** | |
 | 9. API + SSE + CLI polish | not started | |
 | 10. Docs, published eval run, README numbers | not started | |
