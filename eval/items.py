@@ -25,6 +25,12 @@ candidate, corrects it, and removes the field's name from ``proposed_fields``; u
 loader refuses the file exactly as it refuses an empty one.  Without that marker, flipping
 ``labeled: true`` after writing the two judgement fields would silently promote 150 machine-written
 reference answers into ground truth, which is the failure this whole gate exists to prevent.
+
+**The phrasing stratum is a field, not a marker in the prose.**  Red-flag recall is reported split
+by ``phrasing_stratum``, and ``draft_notes`` is the field the labeller edits while working.  A
+dimension a metric splits on cannot live inside prose somebody is about to rewrite: trimming a note
+would move an item between strata, change both per-stratum numbers, and fail nothing, because the
+item would still be valid.  So the stratum is its own field, and ``draft_notes`` no longer says it.
 """
 
 from __future__ import annotations
@@ -70,14 +76,10 @@ GOLDEN_CATEGORIES: tuple[GoldenCategory, ...] = (
     "multi_dimensional",
 )
 
-#: The two phrasing strata a red-flag item can be drafted in, and the marker each carries in
-#: ``draft_notes``.  Red-flag recall is reported per stratum and never pooled: a pooled figure
-#: would move with the ratio between the strata, which is a drafting choice rather than a property
-#: of the system.  See docs/EVALUATION.md section 1.3.
-PHRASING_STRATA: dict[str, str] = {
-    "hard": "HARD-PHRASING STRATUM",
-    "easy": "EASY-PHRASING STRATUM",
-}
+#: The two phrasing strata a red-flag item can be drafted in.  Red-flag recall is reported per
+#: stratum and never pooled: a pooled figure would move with the ratio between the strata, which is
+#: a drafting choice rather than a property of the system.  See docs/EVALUATION.md section 1.3.
+type PhrasingStratum = Literal["hard", "easy"]
 
 #: How many of the 30 multi-turn conversations must exceed the 5-exchange working-memory window.
 #: Thirty two-turn conversations would test the window by never reaching it.
@@ -122,6 +124,13 @@ class GoldenItem(BaseModel):
     #: something for the labeller to verify or overwrite; the field is reported as missing until
     #: its name is removed from here, so a proposal cannot be promoted to a label by silence.
     proposed_fields: tuple[str, ...] = ()
+    #: Which phrasing stratum a red-flag candidate was drafted in, or ``None`` where the item is
+    #: not a red-flag candidate.  A first-class field rather than a marker inside ``draft_notes``,
+    #: because red-flag recall is *split* on it: a dimension a metric splits on cannot depend on
+    #: prose the labeller is invited to rewrite, or trimming a note would move an item between
+    #: strata, change the per-stratum numbers, and fail no test.  It is authoring intent, fixed at
+    #: drafting time and not the labeller's to decide, so it is never named in ``proposed_fields``.
+    phrasing_stratum: PhrasingStratum | None = None
     #: What the item was written to test.  Authoring intent, never an answer key.
     draft_notes: str = ""
 
@@ -132,21 +141,6 @@ class GoldenItem(BaseModel):
         if unknown:
             raise ValueError(f"proposed_fields names fields that are not labels: {unknown}")
         return value
-
-    @property
-    def phrasing_stratum(self) -> str | None:
-        """Which phrasing stratum this item was drafted in, or ``None`` if it is not a red-flag
-        candidate.
-
-        The marker lives in ``draft_notes`` because it is authoring intent rather than a label --
-        it describes how the question was written, which is fixed at drafting time and is not the
-        labeller's to decide.  It is read here rather than re-derived by each consumer so that the
-        metric and the draft lint cannot disagree about which stratum an item is in.
-        """
-        for name, marker in PHRASING_STRATA.items():
-            if marker in self.draft_notes:
-                return name
-        return None
 
     def missing_labels(self) -> tuple[str, ...]:
         """Which label fields still need the labeller.
