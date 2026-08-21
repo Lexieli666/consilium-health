@@ -58,6 +58,45 @@ def test_a_draft_reports_every_empty_label() -> None:
     assert _labeled().missing_labels() == ()
 
 
+def test_a_field_holding_a_machine_written_candidate_still_counts_as_missing() -> None:
+    """A candidate is something to verify, not a label.
+
+    Without this, an owner who filled in the two judgement fields and flipped ``labeled: true``
+    would silently promote every machine-written reference answer into ground truth.
+    """
+    item = _labeled().model_copy(update={"proposed_fields": ("reference_answer",)})
+
+    assert item.missing_labels() == ("reference_answer",)
+
+
+def test_clearing_the_marker_is_what_turns_a_candidate_into_a_label() -> None:
+    item = _labeled().model_copy(update={"proposed_fields": ("relevant_doc_ids",)})
+
+    assert item.model_copy(update={"proposed_fields": ()}).missing_labels() == ()
+
+
+def test_a_file_still_holding_a_candidate_is_refused(tmp_path: Path) -> None:
+    path = tmp_path / "golden.jsonl"
+    write_jsonl(path, [_labeled().model_copy(update={"proposed_fields": ("relevant_doc_ids",)})])
+
+    with pytest.raises(EvalDataError, match="relevant_doc_ids"):
+        load_golden(path)
+
+
+def test_a_provenance_marker_naming_something_that_is_not_a_label_is_refused(
+    tmp_path: Path,
+) -> None:
+    """A typo in the marker would disable the gate it exists to hold open."""
+    path = tmp_path / "golden.jsonl"
+    path.write_text(
+        '{"id":"x","question":"q","category":"general_health","proposed_fields":["notes"]}\n',
+        "utf-8",
+    )
+
+    with pytest.raises(EvalDataError, match="invalid golden item"):
+        load_golden(path, allow_draft=True)
+
+
 def test_red_flag_false_is_a_label_and_not_an_absence() -> None:
     """`None` means unlabelled; `False` means a person decided this is not a red-flag item."""
     item = _labeled().model_copy(update={"red_flag": False})

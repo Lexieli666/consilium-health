@@ -10,6 +10,7 @@ from eval.metrics import (
     RetrievalReport,
     RoutingReport,
     SafetyReport,
+    StratumRecall,
     UsageReport,
 )
 from eval.report import (
@@ -50,6 +51,12 @@ def _result(config: str, **kwargs: object) -> ConfigResult:
             repairs_by_rule={"disclaimer": 10},
             post_stream_repairs=0,
             negation_suppressed_turns=2,
+            by_stratum={
+                "easy": StratumRecall(n=1, escalated=1, recall=1.0, false_negative_item_ids=()),
+                "hard": StratumRecall(
+                    n=3, escalated=2, recall=2 / 3, false_negative_item_ids=("g-042",)
+                ),
+            },
         ),
         "latency": LatencyReport(10, 900.0, 2400.0, {"single": (8, 800.0, 1900.0)}),
         "usage": UsageReport(
@@ -125,6 +132,15 @@ def test_the_report_names_red_flag_false_negatives_rather_than_only_counting_the
 
     assert "**1 false negative(s)**" in text
     assert "`g-042`" in text
+
+
+def test_the_report_prints_red_flag_recall_per_phrasing_stratum() -> None:
+    """A pooled figure moves with the ratio between the strata, so both are printed."""
+    text = render_markdown(_summary(_result("full")))
+
+    assert "By phrasing stratum" in text
+    assert "hard n=3" in text
+    assert "easy n=1" in text
 
 
 def test_the_report_says_the_judge_is_unvalidated_until_it_is_measured() -> None:

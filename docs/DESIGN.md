@@ -1231,3 +1231,79 @@ other two, because this is the one that deletes.
 The confirmation prompt is not politeness: purging destroys the evidence behind every number
 computed from those traces, and `eval/results/published/` is committed precisely so that published
 numbers survive it.
+
+## Phase 8 — the evaluation harness
+
+The harness's metric definitions and their caveats live in `docs/EVALUATION.md` §3, which is where
+a reader looking for "how is recall@5 defined" should go. What follows is the subset of Phase 8
+decisions that had a real alternative and rejected it.
+
+### Two label fields ship as machine-written candidates, and two ship empty
+
+**Chosen.** `relevant_doc_ids` and `reference_answer` ship holding a candidate for the owner to
+verify. `expected_route` and `red_flag` ship empty and are never proposed, in any field.
+
+**Rejected — all four empty.** The original draft, and the safer-looking option.
+
+**Rejected — all four proposed.** The efficient-looking option, and the one that would have made
+the checkpoint decorative.
+
+**Why.** The two halves fail differently. Naming the corpus notes that answer a question, and
+writing two or three sentences from those notes, is mechanical: the labeller has to open the same
+documents either way, so a candidate saves the transcription and costs nothing in independence —
+what it anchors is a judgement the labeller was going to make against the same evidence, in the
+same session, with the note in front of them. Routing and red-flag status are not like that. There
+is no document to check them against; they are the labeller's reading of what the question is, and
+they are the exact labels that routing accuracy and red-flag recall are computed against. A
+candidate there would be an anchor on the two numbers the gate exists to protect, and the fact that
+a plausible-sounding suggestion is usually right is what makes it dangerous rather than what makes
+it acceptable.
+
+The cost of the split is that it is asymmetric and has to be explained; a uniform rule would be
+easier to state. That is the wrong thing to optimize for. `docs/EVALUATION.md` §1.1.1 states which
+side each field is on and why, because the distinction is the whole answer to "how do you know the
+eval set isn't circular".
+
+### A candidate is marked in the record, not only in the documentation
+
+**Chosen.** `proposed_fields` on every record names the fields holding a candidate, and
+`GoldenItem.missing_labels()` reports a named field as **missing** even though it is populated, so
+`load_golden` refuses the file until the marker is cleared.
+
+**Rejected.** Writing the candidates in and stating in `docs/EVALUATION.md` that they are
+candidates.
+
+**Why.** Same reason the labelling gate is in the loader rather than in a document. Without the
+marker, an owner who filled in `expected_route` and `red_flag` and set `labeled: true` would have a
+file that loads — and 148 machine-written reference answers would have become ground truth by
+silence, with nothing in the run able to tell that anyone had read them. With it, "the owner
+verified this field" is a property of the file that the loader can check, and clearing the marker
+is a deliberate act per item.
+
+The marker is validated against `LABEL_FIELDS` rather than accepted as free text, because the
+failure mode of a provenance marker is a typo that disables it, and a gate that fails open is worse
+than no gate: it reports the same green run.
+
+### The red-flag items are stratified by phrasing, and the strata are never pooled
+
+**Chosen.** 22 hard-phrasing items that do not reuse the strings in `data/red_flags.yaml`, 5
+easy-phrasing items that name the symptom the ordinary way, each item declaring its stratum, recall
+reported per stratum.
+
+**Rejected — hard phrasing only.** The original constraint, which produced a matcher hit rate of
+0 of 22.
+
+**Why.** A 0 with nothing beside it is not a measurement of the system; it is a measurement of
+whether the drafting instruction was followed. The number that matters is the distance between what
+paraphrase does and what canonical phrasing does, and that requires both. The five easy items make
+the 0 attributable: 5 of 5 match, so the rule table is not broken, and the gap is the phrasing.
+
+**Why not pooled.** A single red-flag recall figure over 27 items would move with the ratio between
+the strata, and that ratio is a drafting choice — five was picked as enough to bound the hard number
+from above without letting canonical phrasing become the bulk of the block. Pooling would launder
+that choice into what reads as a property of the system. Reporting `0/22` and `5/5` says what was
+actually observed, and the reader can weight them.
+
+The stratum is declared per item rather than inferred, because the alternative — "easy is the ones
+marked, hard is everything else" — silently absorbs any candidate nobody classified into the hard
+stratum, which is the one whose number is the finding.

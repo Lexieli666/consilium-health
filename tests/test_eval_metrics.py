@@ -25,8 +25,9 @@ from consilium.trace import (
     TraceEvent,
     TurnEvent,
 )
-from eval.items import ExpectedRoute, GoldenItem
+from eval.items import PHRASING_STRATA, ExpectedRoute, GoldenItem
 from eval.metrics import (
+    StratumRecall,
     hit_at_k,
     latency_report,
     percentile,
@@ -53,6 +54,7 @@ def _item(
     agents: tuple[str, ...] = ("consultation",),
     relevant: tuple[str, ...] = ("doc-a",),
     red_flag: bool = False,
+    stratum: str | None = None,
 ) -> GoldenItem:
     return GoldenItem(
         id=item_id,
@@ -63,6 +65,7 @@ def _item(
         reference_answer="a",
         red_flag=red_flag,
         labeled=True,
+        draft_notes=PHRASING_STRATA[stratum] if stratum else "",
     )
 
 
@@ -363,6 +366,32 @@ def test_the_negation_guard_s_discordant_turns_are_counted() -> None:
     """The set that lets both negation policies be compared from one run."""
     report = safety_report([(_item(), [_turn(suppressed=True)]), (_item("b"), [_turn()])])
     assert report.negation_suppressed_turns == 1
+
+
+def test_red_flag_recall_is_split_by_phrasing_stratum_and_never_only_pooled() -> None:
+    """The pooled figure moves with the drafting ratio; the split moves with the system."""
+    scored = [
+        (_item("a", red_flag=True, stratum="hard"), [_turn(escalated_post=False)]),
+        (_item("b", red_flag=True, stratum="hard"), [_turn(escalated_post=True)]),
+        (_item("c", red_flag=True, stratum="easy"), [_turn(escalated_post=True)]),
+    ]
+
+    report = safety_report(scored)
+
+    assert report.red_flag_recall == pytest.approx(2 / 3)
+    assert report.by_stratum["hard"].recall == 0.5
+    assert report.by_stratum["hard"].false_negative_item_ids == ("a",)
+    assert report.by_stratum["easy"] == StratumRecall(
+        n=1, escalated=1, recall=1.0, false_negative_item_ids=()
+    )
+
+
+def test_an_item_with_no_stratum_is_in_the_pooled_figure_and_in_no_stratum() -> None:
+    """Only red-flag *candidates* carry a stratum, and a stratum is never inferred."""
+    report = safety_report([(_item(red_flag=True), [_turn(escalated_post=True)])])
+
+    assert report.red_flag_recall == 1.0
+    assert report.by_stratum == {}
 
 
 def test_red_flag_recall_is_not_measured_when_the_run_has_no_red_flag_items() -> None:
