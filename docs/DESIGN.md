@@ -1307,3 +1307,28 @@ actually observed, and the reader can weight them.
 The stratum is declared per item rather than inferred, because the alternative — "easy is the ones
 marked, hard is everything else" — silently absorbs any candidate nobody classified into the hard
 stratum, which is the one whose number is the finding.
+
+### The stratum is a field on the record, not a marker inside `draft_notes`
+
+**Chosen.** `GoldenItem.phrasing_stratum`, `"hard" | "easy" | None`, populated at drafting time and
+kept out of `LABEL_FIELDS`.
+
+**Rejected — a marker substring in `draft_notes`, read back by a property.** How the drafts first
+shipped. It put the declaration next to the sentence explaining it, which is why it looked right.
+
+**Why.** `draft_notes` is the labeller's working field: the labelling guide asks for the reasoning
+behind each label to be recorded there, so those strings are prose somebody is about to rewrite.
+Red-flag recall is *split* on the stratum, and a dimension a published metric splits on cannot
+depend on text that changes under it. Trimming a note would have moved an item between strata,
+changed both per-stratum figures and the denominators they are computed over, and failed nothing —
+the item would still have been a perfectly valid item. The failure is silent, it lands in the one
+number the whole stratification exists to make interpretable, and no diff would say what happened.
+
+**Why not both.** Populating the field and leaving the markers in place would be two sources for
+one dimension, which is the same defect with an extra copy to drift. The markers were removed from
+the notes in the same commit, and `tests/test_eval_drafts.py` asserts they never reappear.
+
+**What the lint holds.** Every red-flag candidate has a non-null stratum; no other item has one;
+and the counts are asserted **exactly** at 22 hard and 5 easy rather than as floors, because those
+are the denominators of the two published recall figures — a change in either is a change in what
+is being reported and belongs in the commit that makes it, not in a later run's numbers.
