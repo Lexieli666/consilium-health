@@ -33,11 +33,29 @@ was replaced by the following, on the owner's instruction:
     gate is not tradeable for speed: an eval set the system wrote and scored itself against is
     worth nothing, and being able to say the owner annotated it is the point of the harness.
 
-    **Red-flag items must not reuse the strings in `data/red_flags.yaml`.** Owner's constraint,
-    2026-08-09, recorded here because it governs how the draft is written and would otherwise be
-    lost to compaction. If labelled red-flag questions echo the pattern strings, red-flag recall
-    measures only whether the matcher matches itself, which is worth nothing. Those items are
-    drafted the way users actually write:
+    **The four label fields split two ways, and the split is the substance of the checkpoint.**
+    Owner's instruction, 2026-08-20. `expected_route` and `red_flag` ship **empty and stay empty**:
+    they are pure judgement, they are the labels routing accuracy and red-flag recall are computed
+    against, and a machine-written candidate there would anchor exactly the numbers this gate
+    exists to protect — so nothing proposes them, not even as a suggestion in a second field.
+    `relevant_doc_ids` and `reference_answer` ship holding **machine-written candidates**, because
+    leaving them empty turns labelling into authoring and costs the owner nothing in independence:
+    the corpus notes have to be opened either way. A reference answer is written **only** from the
+    documents proposed beside it, keeps the corpus's own hedges rather than sharpening an
+    approximate band, and where a proposal is uncertain it names fewer documents and says so in
+    `draft_notes`. Two items ship with no candidate at all because the corpus cannot ground them.
+    **A candidate is not a label**: every field holding one is named in `proposed_fields`,
+    `missing_labels()` reports it as missing, and the loader refuses the file until the owner has
+    cleared the marker — otherwise flipping `labeled: true` would promote 148 machine-written
+    reference answers into ground truth by silence. `docs/EVALUATION.md` §1.1.1 is the table.
+
+    **Red-flag items are stratified by phrasing difficulty, and recall is reported per stratum.**
+    Owner's constraint of 2026-08-09 as amended 2026-08-20, recorded here because it governs how
+    the draft is written and would otherwise be lost to compaction.
+
+    The **hard-phrasing stratum** (22 items) must not reuse the strings in `data/red_flags.yaml`.
+    If those questions echo the pattern strings, that stratum measures only whether the matcher
+    matches itself, which is worth nothing. Those items are drafted the way users actually write:
     - hedged ("I think maybe something is wrong with my chest");
     - contracted and informally punctuated;
     - pluralised and inflected away from the canonical pattern;
@@ -48,6 +66,18 @@ was replaced by the following, on the owner's instruction:
       because that is the realistic failure mode and the one a pattern table is worst at.
     Expect this to produce misses. The misses are the finding, not a bug to be papered over by
     editing the questions toward the patterns.
+
+    The **easy-phrasing stratum** (5 items) is the deliberate counterpart: plain, direct questions
+    naming the symptom the ordinary way, across five different rules, exempt from the no-reuse rule
+    by construction. It exists because a set with only the hard stratum yields a lower bound with
+    nothing to compare it against, and real users do type the canonical terms. This is a designed
+    comparison, not the leakage the no-reuse rule forbids — the difference being that the two
+    strata are **never pooled**: a pooled figure would move with the ratio between them, which is a
+    drafting choice rather than a property of the system. Every candidate declares exactly one
+    stratum in `draft_notes` and `tests/test_eval_drafts.py` asserts it, because a stratum defined
+    by negation would absorb any item nobody classified. The set stays at 150 and the block at 30:
+    five non-red-flag symptom items were dropped, each one either unsupported by any corpus note or
+    drawing on documents another item already covers, and the dropped ids are **not reused**.
 
     **The 30 condition-and-coding items vary along the CONVENTION axis, not the CONDITION axis.**
     Owner's constraint, 2026-08-17, recorded here for the same reason as the red-flag one: it
@@ -647,6 +677,12 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
 - **`load_golden` refuses an unlabelled draft** unless `allow_draft=True`, which `eval/run.py`
   never passes. `labeled: true` is trusted *and* checked, so the flag cannot be a lie. This is
   Checkpoint B enforced in code.
+- **`proposed_fields` is what keeps a machine-written candidate from becoming a label by silence.**
+  `GoldenItem.missing_labels()` reports a field named there as missing even though it is populated,
+  so the refusal above covers an unverified candidate exactly as it covers an empty field. The
+  tuple is validated against `LABEL_FIELDS`, because a typo in a provenance marker would disable
+  the gate rather than fail loudly. `expected_route` and `red_flag` are never proposed and
+  `tests/test_eval_drafts.py` asserts it.
 - **`eval/run.py` refuses a `mock` provider.** Numbers from a scripted mock are not measurements.
 - **The harness runs items through `run_turn`**, the same path the CLI and the API use, each item in
   **its own session** so working memory cannot carry item N-1 into item N. Multi-turn conversations
@@ -657,17 +693,24 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
 - **`full_budget_6` runs on a 50-item *stratified* subset**, reported separately with its n stated.
   The golden set is written in category blocks, so the first 50 items would be two categories.
 - **The shipped `eval/data/*.jsonl` are unlabelled drafts** and `tests/test_eval_drafts.py` lints
-  them: 150 items in five blocks of 30, ids prefixed by block, every label field empty,
-  `draft_notes` present on every record, and the two drafting constraints enforced —
-  **no red-flag candidate reuses a string from `data/red_flags.yaml`**, and the only four items
-  that contain a pattern string are marked `FALSE-POSITIVE PROBE` (a negated "chest pain" and three
-  historical "heart attack" mentions, none of them red-flag items). The 30 `condition_coding` items
-  are asserted to vary along **six named conventions** rather than along the condition axis. The
-  multi-turn set is 30 conversations with **10 of 7+ turns**, all of which exceed the
-  5-exchange window.
-- **Observed at drafting time and recorded in `docs/EVALUATION.md`: 0 of the 22 drafted red-flag
-  candidates match the rule table.** That is the finding the constraint was written to produce, not
-  a defect in the questions; the questions are not edited toward the patterns.
+  them: 150 items in five blocks of 30, ids prefixed by block, both judgement fields empty on every
+  record, every populated field declared in `proposed_fields`, a proposed reference answer only
+  where documents are proposed with it, every proposed `doc_id` naming a real corpus note, no
+  proposal longer than three notes, `draft_notes` present on every record, and the drafting
+  constraints enforced — **no hard-stratum red-flag candidate reuses a string from
+  `data/red_flags.yaml`**, every candidate declares exactly one phrasing stratum, and the only
+  items outside the easy stratum that contain a pattern string are marked `FALSE-POSITIVE PROBE`
+  (a negated "chest pain" and three historical "heart attack" mentions, none of them red-flag
+  items). The 30 `condition_coding` items are asserted to vary along **six named conventions**
+  rather than along the condition axis. The multi-turn set is 30 conversations with **10 of 7+
+  turns**, all of which exceed the 5-exchange window.
+- **Observed at drafting time and recorded in `docs/EVALUATION.md`: the matcher hits 0 of the 22
+  hard-phrasing candidates and 5 of the 5 easy-phrasing ones**, under both negation policies. The
+  0 is the finding the constraint was written to produce, not a defect in the questions; the 5 is
+  what makes the 0 attributable to phrasing rather than to a broken table. The questions are not
+  edited toward the patterns. The same run shows the negation guard suppressing `g-su-022` and
+  **not** suppressing the three historical "heart attack" probes, which are measured false
+  positives and are left in place to be reported.
 
 ## 15. Phase status
 
@@ -680,6 +723,6 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
 | 5. Planner, router, blackboard, synthesizer | done | `1d6660e` |
 | 6. Memory | done | `a36b160` |
 | 7. Safety | done | `48a1dfa` |
-| 8. Eval harness + golden-set drafts | **drafts written — STOPPED at Checkpoint B** | |
+| 8. Eval harness + golden-set drafts | **drafts written, candidates proposed for the two mechanical label fields, phrasing strata added — STILL STOPPED at Checkpoint B** | |
 | 9. API + SSE + CLI polish | not started | |
 | 10. Docs, published eval run, README numbers | not started | |

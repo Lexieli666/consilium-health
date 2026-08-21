@@ -6,6 +6,13 @@ here instead of quietly becoming a worse measurement.
 
 Nothing in this file scores anything. It reads the drafts and the red-flag table; it calls no model
 and it writes no label.
+
+Two conventions here are newer than the rest and are worth naming. The shipped draft carries
+**machine-written candidates** in `relevant_doc_ids` and `reference_answer`, each declared in
+`proposed_fields`, while `expected_route` and `red_flag` ship empty; the tests below hold that
+split in place. And every red-flag candidate declares one of two **phrasing strata**, because
+recall is reported per stratum and a stratum defined by negation would absorb any item nobody
+classified.
 """
 
 from __future__ import annotations
@@ -36,9 +43,22 @@ RED_FLAGS_PATH = Path("data/red_flags.yaml")
 CANDIDATE_MARKER = "red-flag candidate"
 
 #: Marks an item that reuses a red-flag pattern string **on purpose**, in a context where
-#: escalating would be wrong. These probe the matcher's false-positive behaviour, and they are the
-#: only items allowed to contain a pattern string.
+#: escalating would be wrong. These probe the matcher's false-positive behaviour.
 PROBE_MARKER = "FALSE-POSITIVE PROBE"
+
+#: The two phrasing strata. Every red-flag candidate carries exactly one of them, because
+#: red-flag recall is reported per stratum and a stratum defined by negation ("the ones that are
+#: not easy") would silently absorb any item nobody classified.
+HARD_STRATUM = "HARD-PHRASING STRATUM"
+EASY_STRATUM = "EASY-PHRASING STRATUM"
+
+#: How many red-flag candidates are written in plain, direct phrasing. Small on purpose: the
+#: stratum exists to bound the hard number from above, not to become the bulk of the block.
+EASY_STRATUM_ITEMS = 5
+
+#: The corpus notes a proposal may point at. A proposed `doc_id` that names no file would be a
+#: label nobody can retrieve, and it would fail as a retrieval miss rather than as a typo.
+CORPUS_DIR = Path("data/corpus")
 
 
 @pytest.fixture(scope="module")
@@ -72,12 +92,70 @@ def test_ids_are_unique_and_name_their_block(golden: list[GoldenItem]) -> None:
 
 
 def test_the_shipped_golden_set_is_an_unlabelled_draft(golden: list[GoldenItem]) -> None:
-    """Checkpoint B: the owner labels it. Until then every label field is empty."""
+    """Checkpoint B: the owner labels it, and no item in the shipped file is labelled."""
     assert all(item.labeled is False for item in golden)
     assert all(item.missing_labels() for item in golden)
+
+
+def test_the_two_judgement_fields_ship_empty_and_are_never_proposed(
+    golden: list[GoldenItem],
+) -> None:
+    """`expected_route` and `red_flag` drive routing accuracy and red-flag recall.
+
+    They are the two fields where a machine-written candidate would be an anchor on the numbers
+    the checkpoint exists to protect, so nothing proposes them -- not even as a suggestion in a
+    different field.
+    """
     assert all(item.expected_route is None for item in golden)
-    assert all(item.relevant_doc_ids == () for item in golden)
     assert all(item.red_flag is None for item in golden)
+    assert all("expected_route" not in item.proposed_fields for item in golden)
+    assert all("red_flag" not in item.proposed_fields for item in golden)
+
+
+def test_every_candidate_field_is_declared_as_a_candidate(golden: list[GoldenItem]) -> None:
+    """The mechanical fields ship holding proposals, and each says so.
+
+    `relevant_doc_ids` and `reference_answer` are machine-written throughout, so a populated one
+    that did not name itself in `proposed_fields` would read as a verified label.
+    """
+    for item in golden:
+        populated = {
+            name
+            for name, value in (
+                ("relevant_doc_ids", item.relevant_doc_ids),
+                ("reference_answer", item.reference_answer.strip()),
+            )
+            if value
+        }
+        assert set(item.proposed_fields) == populated, item.id
+
+
+def test_a_proposed_reference_answer_is_grounded_in_a_proposed_document(
+    golden: list[GoldenItem],
+) -> None:
+    """The two mechanical fields are proposed together or not at all.
+
+    A reference answer with no proposed source is a claim with nothing behind it, which is the
+    one thing a reference answer must never be.
+    """
+    for item in golden:
+        assert bool(item.relevant_doc_ids) == bool(item.reference_answer.strip()), item.id
+
+
+def test_every_proposed_doc_id_names_a_corpus_note(golden: list[GoldenItem]) -> None:
+    stems = {path.stem for path in CORPUS_DIR.glob("*.md")}
+    unknown = {
+        item.id: sorted(set(item.relevant_doc_ids) - stems)
+        for item in golden
+        if set(item.relevant_doc_ids) - stems
+    }
+    assert not unknown, unknown
+
+
+def test_proposals_are_short_lists(golden: list[GoldenItem]) -> None:
+    """Over-listing inflates the recall@5 denominator, so a proposal stays at three or fewer."""
+    assert all(len(item.relevant_doc_ids) <= 3 for item in golden)
+    assert all(len(set(item.relevant_doc_ids)) == len(item.relevant_doc_ids) for item in golden)
 
 
 def test_loading_the_shipped_draft_without_allow_draft_is_refused() -> None:
@@ -87,25 +165,25 @@ def test_loading_the_shipped_draft_without_allow_draft_is_refused() -> None:
         load_multiturn(MULTITURN_PATH)
 
 
-def test_every_item_carries_authoring_intent_and_no_answer(golden: list[GoldenItem]) -> None:
-    """`draft_notes` says what the item is for; it must not say what the answer is."""
+def test_every_item_carries_authoring_intent(golden: list[GoldenItem]) -> None:
+    """`draft_notes` says what the item was written to test, and what a proposal left uncertain."""
     assert all(item.draft_notes.strip() for item in golden)
-    assert all(item.reference_answer == "" for item in golden)
 
 
 def test_no_red_flag_candidate_reuses_a_pattern_string(
     golden: list[GoldenItem], patterns: set[str]
 ) -> None:
-    """The frozen drafting constraint.
+    """The frozen drafting constraint, which binds the hard-phrasing stratum.
 
-    If a labelled red-flag item echoed a string from `data/red_flags.yaml`, red-flag recall would
-    measure only whether the matcher matches itself.
+    If a hard-stratum red-flag item echoed a string from `data/red_flags.yaml`, that stratum's
+    recall would measure only whether the matcher matches itself. The easy stratum is exempt by
+    construction: it exists to measure what canonical phrasing does, and the comparison between
+    the two is the finding.
     """
     offenders = {
         item.id: sorted(p for p in patterns if p in item.question.lower())
         for item in golden
-        if CANDIDATE_MARKER in item.draft_notes
-        and any(p in item.question.lower() for p in patterns)
+        if HARD_STRATUM in item.draft_notes and any(p in item.question.lower() for p in patterns)
     }
     assert not offenders, offenders
 
@@ -113,23 +191,29 @@ def test_no_red_flag_candidate_reuses_a_pattern_string(
 def test_the_only_items_reusing_a_pattern_string_are_marked_probes(
     golden: list[GoldenItem], patterns: set[str]
 ) -> None:
-    """A pattern string is allowed only where escalating on it would be wrong, and on purpose."""
+    """Outside the easy stratum, a pattern string appears only where escalating would be wrong."""
     reusing = [item for item in golden if any(p in item.question.lower() for p in patterns)]
 
     assert reusing, "the set needs at least one probe of the matcher's false-positive behaviour"
     for item in reusing:
-        assert PROBE_MARKER in item.draft_notes, item.id
+        assert PROBE_MARKER in item.draft_notes or EASY_STRATUM in item.draft_notes, item.id
 
 
 def test_the_symptom_block_mixes_emergencies_with_routine_questions(
     golden: list[GoldenItem],
 ) -> None:
-    """A block of only emergencies would measure recall with no false-positive denominator."""
+    """A block of only emergencies would measure recall with no false-positive denominator.
+
+    The floor came down from eight to six when the easy-phrasing stratum was added: the five
+    dropped items were routine ones, and the false-positive denominator that matters is the whole
+    set's 123 non-red-flag items rather than this block's share of them.
+    """
     block = [item for item in golden if item.category == "symptom_urgency"]
     candidates = [item for item in block if CANDIDATE_MARKER in item.draft_notes]
 
-    assert 12 <= len(candidates) <= 22
-    assert len(block) - len(candidates) >= 8
+    assert 12 <= len(candidates) <= 25
+    assert len(block) - len(candidates) >= 6
+    assert len([item for item in golden if CANDIDATE_MARKER not in item.draft_notes]) >= 120
 
 
 def test_the_red_flag_candidates_span_the_phrasing_styles_the_constraint_names(
@@ -141,6 +225,35 @@ def test_the_red_flag_candidates_span_the_phrasing_styles_the_constraint_names(
     )
     for style in ("hedged", "contracted", "inflected", "misspelled", "described", "buried"):
         assert style in notes, style
+
+
+def test_every_red_flag_candidate_declares_exactly_one_phrasing_stratum(
+    golden: list[GoldenItem],
+) -> None:
+    """Recall is reported per stratum, so an unclassified candidate would land in neither."""
+    candidates = [item for item in golden if CANDIDATE_MARKER in item.draft_notes]
+
+    for item in candidates:
+        strata = [s for s in (HARD_STRATUM, EASY_STRATUM) if s in item.draft_notes]
+        assert len(strata) == 1, (item.id, strata)
+
+    easy = [item for item in candidates if EASY_STRATUM in item.draft_notes]
+    assert len(easy) == EASY_STRATUM_ITEMS
+    assert len(candidates) - len(easy) >= 20
+
+
+def test_the_easy_stratum_is_phrased_the_way_the_rule_table_expects(
+    golden: list[GoldenItem], patterns: set[str]
+) -> None:
+    """The point of the stratum is canonical phrasing, so it has to actually be canonical.
+
+    This is not a measurement -- it asserts that the questions name their symptoms the ordinary
+    way, which is what makes the per-stratum comparison a comparison of phrasing rather than of
+    two arbitrary samples.
+    """
+    easy = [item for item in golden if EASY_STRATUM in item.draft_notes]
+
+    assert all(any(p in item.question.lower() for p in patterns) for item in easy)
 
 
 def test_the_coding_block_varies_along_the_convention_axis_not_the_condition_axis(

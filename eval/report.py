@@ -268,6 +268,18 @@ def _config_section(result: ConfigResult) -> list[str]:
         f"the negation guard changed the outcome on {safety.negation_suppressed_turns} turn(s).",
         "",
     ]
+    if safety.by_stratum:
+        lines += [
+            "By phrasing stratum (never pooled -- a single figure would move with the ratio"
+            " between the strata rather than with the system): "
+            + "; ".join(
+                f"{name} n={stratum.n} recall {fmt(stratum.recall)}"
+                f" ({stratum.n - stratum.escalated} false negative(s))"
+                for name, stratum in safety.by_stratum.items()
+            ),
+            "",
+        ]
+
     if safety.false_negative_item_ids:
         lines += [
             "Red-flag false negatives (item ids, listed rather than counted so each one can be"
