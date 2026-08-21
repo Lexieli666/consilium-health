@@ -25,7 +25,7 @@ from consilium.trace import (
     TraceEvent,
     TurnEvent,
 )
-from eval.items import PHRASING_STRATA, ExpectedRoute, GoldenItem
+from eval.items import ExpectedRoute, GoldenItem, PhrasingStratum
 from eval.metrics import (
     StratumRecall,
     hit_at_k,
@@ -54,7 +54,7 @@ def _item(
     agents: tuple[str, ...] = ("consultation",),
     relevant: tuple[str, ...] = ("doc-a",),
     red_flag: bool = False,
-    stratum: str | None = None,
+    stratum: PhrasingStratum | None = None,
 ) -> GoldenItem:
     return GoldenItem(
         id=item_id,
@@ -65,7 +65,7 @@ def _item(
         reference_answer="a",
         red_flag=red_flag,
         labeled=True,
-        draft_notes=PHRASING_STRATA[stratum] if stratum else "",
+        phrasing_stratum=stratum,
     )
 
 

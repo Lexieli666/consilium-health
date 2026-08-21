@@ -10,9 +10,11 @@ and it writes no label.
 Two conventions here are newer than the rest and are worth naming. The shipped draft carries
 **machine-written candidates** in `relevant_doc_ids` and `reference_answer`, each declared in
 `proposed_fields`, while `expected_route` and `red_flag` ship empty; the tests below hold that
-split in place. And every red-flag candidate declares one of two **phrasing strata**, because
-recall is reported per stratum and a stratum defined by negation would absorb any item nobody
-classified.
+split in place. And every red-flag candidate declares one of two **phrasing strata** in its own
+`phrasing_stratum` field, because recall is reported per stratum and a stratum defined by negation
+would absorb any item nobody classified. That field is deliberately not part of `draft_notes`: the
+labeller rewrites those notes while working, and a dimension a metric splits on cannot depend on
+prose that is about to change under it.
 """
 
 from __future__ import annotations
@@ -27,6 +29,7 @@ from consilium.safety import RedFlagTable
 from eval.items import (
     GOLDEN_CATEGORIES,
     ITEMS_PER_CATEGORY,
+    LABEL_FIELDS,
     LONG_CONVERSATION_TURNS,
     LONG_CONVERSATIONS_REQUIRED,
     EvalDataError,
@@ -46,14 +49,15 @@ CANDIDATE_MARKER = "red-flag candidate"
 #: escalating would be wrong. These probe the matcher's false-positive behaviour.
 PROBE_MARKER = "FALSE-POSITIVE PROBE"
 
-#: The two phrasing strata. Every red-flag candidate carries exactly one of them, because
-#: red-flag recall is reported per stratum and a stratum defined by negation ("the ones that are
-#: not easy") would silently absorb any item nobody classified.
-HARD_STRATUM = "HARD-PHRASING STRATUM"
-EASY_STRATUM = "EASY-PHRASING STRATUM"
+#: The strings that used to carry the stratum inside `draft_notes`, kept only so the lint can
+#: assert they never come back. The stratum is a field now, and two sources for one dimension is
+#: the defect the field was introduced to remove.
+RETIRED_STRATUM_MARKERS = ("HARD-PHRASING STRATUM", "EASY-PHRASING STRATUM")
 
-#: How many red-flag candidates are written in plain, direct phrasing. Small on purpose: the
-#: stratum exists to bound the hard number from above, not to become the bulk of the block.
+#: How many red-flag candidates are written in each phrasing stratum. These are exact, not floors:
+#: per-stratum recall is reported over these denominators, so a change in either is a change in
+#: what the two published numbers are computed over and belongs in the same commit as this line.
+HARD_STRATUM_ITEMS = 22
 EASY_STRATUM_ITEMS = 5
 
 #: The corpus notes a proposal may point at. A proposed `doc_id` that names no file would be a
@@ -183,7 +187,7 @@ def test_no_red_flag_candidate_reuses_a_pattern_string(
     offenders = {
         item.id: sorted(p for p in patterns if p in item.question.lower())
         for item in golden
-        if HARD_STRATUM in item.draft_notes and any(p in item.question.lower() for p in patterns)
+        if item.phrasing_stratum == "hard" and any(p in item.question.lower() for p in patterns)
     }
     assert not offenders, offenders
 
@@ -196,7 +200,7 @@ def test_the_only_items_reusing_a_pattern_string_are_marked_probes(
 
     assert reusing, "the set needs at least one probe of the matcher's false-positive behaviour"
     for item in reusing:
-        assert PROBE_MARKER in item.draft_notes or EASY_STRATUM in item.draft_notes, item.id
+        assert PROBE_MARKER in item.draft_notes or item.phrasing_stratum == "easy", item.id
 
 
 def test_the_symptom_block_mixes_emergencies_with_routine_questions(
@@ -227,19 +231,63 @@ def test_the_red_flag_candidates_span_the_phrasing_styles_the_constraint_names(
         assert style in notes, style
 
 
-def test_every_red_flag_candidate_declares_exactly_one_phrasing_stratum(
-    golden: list[GoldenItem],
-) -> None:
+def test_every_red_flag_candidate_declares_a_phrasing_stratum(golden: list[GoldenItem]) -> None:
     """Recall is reported per stratum, so an unclassified candidate would land in neither."""
     candidates = [item for item in golden if CANDIDATE_MARKER in item.draft_notes]
 
-    for item in candidates:
-        strata = [s for s in (HARD_STRATUM, EASY_STRATUM) if s in item.draft_notes]
-        assert len(strata) == 1, (item.id, strata)
+    unclassified = [item.id for item in candidates if item.phrasing_stratum is None]
+    assert not unclassified, unclassified
 
-    easy = [item for item in candidates if EASY_STRATUM in item.draft_notes]
-    assert len(easy) == EASY_STRATUM_ITEMS
-    assert len(candidates) - len(easy) >= 20
+
+def test_the_strata_hold_the_counts_the_published_numbers_are_computed_over(
+    golden: list[GoldenItem],
+) -> None:
+    """22 and 5 are the denominators of the two recall figures, so they are asserted exactly.
+
+    A floor would let an item drift between strata without failing anything, and the per-stratum
+    numbers would move for a reason no diff records. Changing either count is a deliberate act and
+    updates this test in the same commit.
+    """
+    counts = Counter(item.phrasing_stratum for item in golden if item.phrasing_stratum)
+
+    assert counts == {"hard": HARD_STRATUM_ITEMS, "easy": EASY_STRATUM_ITEMS}
+
+
+def test_only_red_flag_candidates_carry_a_stratum(golden: list[GoldenItem]) -> None:
+    """`None` means "not a red-flag candidate", and nothing else may claim a stratum.
+
+    A stratum on a routine item would add a denominator to a recall figure that is computed over
+    red-flag items only.
+    """
+    stray = [
+        item.id
+        for item in golden
+        if item.phrasing_stratum is not None and CANDIDATE_MARKER not in item.draft_notes
+    ]
+    assert not stray, stray
+
+
+def test_the_stratum_is_declared_in_one_place_only(golden: list[GoldenItem]) -> None:
+    """`draft_notes` is the labeller's working prose; the stratum is not in it.
+
+    It used to be, and a trimmed note would then have moved an item between strata and changed
+    both published recall figures with no test failing.
+    """
+    reintroduced = [
+        item.id
+        for item in golden
+        if any(marker in item.draft_notes for marker in RETIRED_STRATUM_MARKERS)
+    ]
+    assert not reintroduced, reintroduced
+
+
+def test_the_stratum_is_authoring_intent_and_not_a_label() -> None:
+    """It is fixed at drafting time, so it is not the owner's to label, verify or clear.
+
+    Keeping it out of `LABEL_FIELDS` is what keeps it out of `proposed_fields` and out of
+    `missing_labels()`: a drafting decision is not a thing the labelling gate can be waiting on.
+    """
+    assert "phrasing_stratum" not in LABEL_FIELDS
 
 
 def test_the_easy_stratum_is_phrased_the_way_the_rule_table_expects(
@@ -251,7 +299,7 @@ def test_the_easy_stratum_is_phrased_the_way_the_rule_table_expects(
     way, which is what makes the per-stratum comparison a comparison of phrasing rather than of
     two arbitrary samples.
     """
-    easy = [item for item in golden if EASY_STRATUM in item.draft_notes]
+    easy = [item for item in golden if item.phrasing_stratum == "easy"]
 
     assert all(any(p in item.question.lower() for p in patterns) for item in easy)
 

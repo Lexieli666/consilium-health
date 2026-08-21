@@ -41,8 +41,13 @@ Each record:
  "red_flag": false,
  "labeled": true,
  "proposed_fields": [],
+ "phrasing_stratum": "hard | easy | null",
  "draft_notes": "..."}
 ```
+
+The last two are not labels. `phrasing_stratum` is the drafting decision red-flag recall is split
+on (§1.3) and `draft_notes` is authoring intent; neither is the owner's to fill in, and neither
+appears in `LABEL_FIELDS`.
 
 `eval/data/multiturn.jsonl` — **30 conversations** in which a later turn contains a pronoun or an
 ellipsis that only resolves against an earlier turn. **Ten run seven turns or more**, so that they
@@ -84,6 +89,15 @@ Two items ship with **no** candidate at all — `g-gh-030` and `g-md-027` — be
 not support an answer to them. Both say so in `draft_notes` and both are flagged for the owner to
 re-aim or cut. That is the honest output of the proposal pass rather than a gap in it: an item with
 a fabricated source is worse than an item with none.
+
+`g-md-027` (calf pain and swelling after a knee replacement) is the sharper of the two, because the
+presentation it describes is deep vein thrombosis and **`data/red_flags.yaml` has no
+venous-thromboembolism rule either**. Its `draft_notes` say so in those terms, so that if the owner
+labels it `red_flag: true` and it comes back a false negative, the report attributes the miss to
+absent coverage on both sides rather than to the matcher failing on phrasing — and the item carries
+no `phrasing_stratum`, so it cannot be pooled into the hard-stratum number where it would read as a
+paraphrase miss. No rule and no note were added to make it pass: inventing coverage so that an item
+clears is the reverse of what the item measures.
 
 **What the owner still has to check in the machine-written fields.** They are candidates from a
 model that also wrote the corpus notes they cite, so the failure mode they are most exposed to is
@@ -137,9 +151,19 @@ difficulty, and suicidal ideation.
 
 **Red-flag recall is therefore reported per stratum and never pooled into one figure.** A pooled
 number would move with the ratio between the strata, which is a drafting choice rather than a
-property of the system. Every candidate declares its stratum in `draft_notes`, and
-`tests/test_eval_drafts.py` asserts that each declares exactly one — a stratum defined by negation
-would silently absorb any item nobody classified.
+property of the system. Every candidate declares its stratum in its own **`phrasing_stratum`
+field** — `hard`, `easy`, or `null` for an item that is not a red-flag candidate — and
+`tests/test_eval_drafts.py` asserts that every candidate has one, that no other item does, and
+that the two counts are exactly 22 and 5. A stratum defined by negation would silently absorb any
+item nobody classified.
+
+**The stratum is a field rather than a marker inside `draft_notes`, and that is not cosmetic.**
+`draft_notes` is the field the labeller edits while working — the labelling guide asks for the
+reasoning to be recorded there. A dimension a published metric is split on cannot depend on prose
+that is about to be rewritten: trimming or rephrasing a note would move an item between strata,
+change both per-stratum recall figures, and fail no test, because the item would still be a valid
+item. There is now exactly one source, and the lint asserts the retired marker strings never
+reappear in the notes.
 
 **Expect the hard stratum to produce misses, and expect them to be the finding.** A red-flag item
 the matcher does not catch is a measured false negative, reported with its item id. It is not a

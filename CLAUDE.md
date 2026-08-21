@@ -73,11 +73,26 @@ was replaced by the following, on the owner's instruction:
     nothing to compare it against, and real users do type the canonical terms. This is a designed
     comparison, not the leakage the no-reuse rule forbids — the difference being that the two
     strata are **never pooled**: a pooled figure would move with the ratio between them, which is a
-    drafting choice rather than a property of the system. Every candidate declares exactly one
-    stratum in `draft_notes` and `tests/test_eval_drafts.py` asserts it, because a stratum defined
-    by negation would absorb any item nobody classified. The set stays at 150 and the block at 30:
+    drafting choice rather than a property of the system. The set stays at 150 and the block at 30:
     five non-red-flag symptom items were dropped, each one either unsupported by any corpus note or
     drawing on documents another item already covers, and the dropped ids are **not reused**.
+
+    **The stratum is a first-class field, `phrasing_stratum`, and never a marker inside
+    `draft_notes`.** Owner's instruction, 2026-08-20, correcting the mechanism while leaving the
+    constraint above untouched. Values are `hard | easy | null`, `null` meaning the item is not a
+    red-flag candidate. `draft_notes` is the field the owner edits while labelling — the labelling
+    guide asks for the reasoning to be recorded there — so a stratum read out of it would be a
+    dimension a published metric splits on that depends on prose about to be rewritten: trimming a
+    note would move an item between strata, change both per-stratum recall figures, and fail no
+    test, because the item would still be valid. The field is populated at drafting time, it is
+    **not** in `LABEL_FIELDS` and therefore never in `proposed_fields` or `missing_labels()`
+    (authoring intent, not something the owner labels), and the marker strings were removed from
+    the notes in the same commit so there is exactly one source.
+    `tests/test_eval_drafts.py` asserts: every red-flag candidate carries a non-null stratum, no
+    other item carries one, the retired markers never reappear in `draft_notes`, and the counts
+    are **exactly** 22 hard and 5 easy — exact rather than a floor, because those are the
+    denominators of the two published recall figures, so changing either is a deliberate act that
+    updates the lint in the same commit.
 
     **The 30 condition-and-coding items vary along the CONVENTION axis, not the CONDITION axis.**
     Owner's constraint, 2026-08-17, recorded here for the same reason as the red-flag one: it
@@ -698,12 +713,23 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
   where documents are proposed with it, every proposed `doc_id` naming a real corpus note, no
   proposal longer than three notes, `draft_notes` present on every record, and the drafting
   constraints enforced — **no hard-stratum red-flag candidate reuses a string from
-  `data/red_flags.yaml`**, every candidate declares exactly one phrasing stratum, and the only
-  items outside the easy stratum that contain a pattern string are marked `FALSE-POSITIVE PROBE`
+  `data/red_flags.yaml`**, every candidate carries a non-null `phrasing_stratum` and no other item
+  does, the retired marker strings never reappear in `draft_notes`, the strata hold exactly 22 and
+  5, and the only items outside the easy stratum that contain a pattern string are marked
+  `FALSE-POSITIVE PROBE`
   (a negated "chest pain" and three historical "heart attack" mentions, none of them red-flag
   items). The 30 `condition_coding` items are asserted to vary along **six named conventions**
   rather than along the condition axis. The multi-turn set is 30 conversations with **10 of 7+
   turns**, all of which exceed the 5-exchange window.
+- **`phrasing_stratum` is a field on `GoldenItem`, not a substring of `draft_notes`** — see §1,
+  Checkpoint B, for why. It is outside `LABEL_FIELDS`, so it is never proposed, never reported
+  missing, and never something the labelling gate waits on.
+- **`g-md-027` is kept with no coverage on either side, and its `draft_notes` say so.** The
+  presentation is deep vein thrombosis; there is no corpus note and no rule in
+  `data/red_flags.yaml`. **No DVT rule and no DVT note were added** — inventing coverage to make an
+  item pass inverts what the item measures. The note exists so that a false negative there is
+  attributed to absent coverage rather than to matcher failure, and the item carries no stratum so
+  it cannot be pooled into the hard-phrasing number.
 - **Observed at drafting time and recorded in `docs/EVALUATION.md`: the matcher hits 0 of the 22
   hard-phrasing candidates and 5 of the 5 easy-phrasing ones**, under both negation policies. The
   0 is the finding the constraint was written to produce, not a defect in the questions; the 5 is
@@ -723,6 +749,6 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
 | 5. Planner, router, blackboard, synthesizer | done | `1d6660e` |
 | 6. Memory | done | `a36b160` |
 | 7. Safety | done | `48a1dfa` |
-| 8. Eval harness + golden-set drafts | **drafts written, candidates proposed for the two mechanical label fields, phrasing strata added — STILL STOPPED at Checkpoint B** | |
+| 8. Eval harness + golden-set drafts | **drafts written, candidates proposed for the two mechanical label fields, phrasing stratum promoted to a first-class field — STILL STOPPED at Checkpoint B** | |
 | 9. API + SSE + CLI polish | not started | |
 | 10. Docs, published eval run, README numbers | not started | |
