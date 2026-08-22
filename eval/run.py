@@ -80,6 +80,7 @@ from eval.report import (
     environment_notes,
     write_results,
 )
+from eval.validate import route_document_mismatches
 
 log = get_logger(__name__)
 
@@ -380,6 +381,7 @@ async def main(argv: Sequence[str] | None = None) -> int:
         config = get_preset(name)
         runtime = build_runtime(settings, config=config, embedder=args.embedder, store=args.store)
         documents = dict(runtime.documents)
+        _warn_route_document_mismatches(runtime, items)
         if judge is None and not args.no_judge:
             judge = Judge(runtime.provider)
 
@@ -461,6 +463,36 @@ async def main(argv: Sequence[str] | None = None) -> int:
     summary_path, report_path = write_results(out, summary)
     print(f"wrote {summary_path}\nwrote {report_path}")
     return 0
+
+
+def _warn_route_document_mismatches(runtime: Runtime, items: Sequence[GoldenItem]) -> None:
+    """Log, once per sweep, any item whose route carries no dedicated skill for its documents.
+
+    A **warning**, not a refusal.  ``search_knowledge`` is unfiltered and every agent holds it, so
+    no labelled route is impossible and nothing here invalidates a run.  What it flags is an item
+    whose documents the turn can only reach through the unfiltered search -- competing with the
+    whole corpus for a top-5 slot rather than with one category of it -- which is worth seeing
+    beside a recall@5 number rather than discovered afterwards.
+
+    ``tests/test_eval_drafts.py`` pins the same set against a reviewed baseline, so a new one is
+    caught before a sweep is ever paid for; this is the copy a person running the sweep sees.
+    """
+    mismatches = route_document_mismatches(
+        items,
+        policy=runtime.policy,
+        doc_categories={
+            doc_id: document.category for doc_id, document in runtime.documents.items()
+        },
+    )
+    for mismatch in mismatches:
+        log.warning(
+            "eval.route_document_mismatch",
+            item=mismatch.item_id,
+            agents=mismatch.agents,
+            expected_skills=mismatch.expected_skills,
+            owning_agents=mismatch.owning_agents,
+            detail=str(mismatch),
+        )
 
 
 def _score_judge(path: Path) -> int:
