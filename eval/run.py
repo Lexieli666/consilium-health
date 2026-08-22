@@ -19,6 +19,14 @@ Four commands, matching the brief:
 **The golden set must be labelled.**  ``load_golden`` refuses a draft, so this runner cannot be
 pointed at the file the system drafted for itself.  That is the point of the checkpoint: an eval set
 the system wrote and scored itself against is worth nothing.
+
+**And where a label was not verified, the run says so in its own output.**  The golden set's
+``relevant_doc_ids`` and ``reference_answer`` are machine-written and were knowingly accepted
+unverified; ``expected_route`` and ``red_flag`` were hand-labelled.  The counts go into
+``summary.json`` as ``unverified_labels`` and into ``report.md``'s results table, so a reviewer
+reading the committed evidence can tell which numbers rest on a machine-constructed reference
+without opening the golden set.  A run against a fully hand-verified set produces an empty
+``unverified_labels`` and the disclosure disappears on its own.
 """
 
 from __future__ import annotations
@@ -44,6 +52,8 @@ from eval.items import (
     MultiturnConversation,
     load_golden,
     load_multiturn,
+    unverified_item_count,
+    unverified_label_counts,
 )
 from eval.judge import (
     FAITHFULNESS_PROMPT,
@@ -66,6 +76,7 @@ from eval.report import (
     ConfigResult,
     JudgeReport,
     RunSummary,
+    UnverifiedLabels,
     environment_notes,
     write_results,
 )
@@ -414,6 +425,11 @@ async def main(argv: Sequence[str] | None = None) -> int:
         results.append(score("full_budget_6", runs, pricing=pricing))
 
     environment = environment_notes()
+    unverified = UnverifiedLabels(
+        n_total=len(items),
+        n_items=unverified_item_count(items),
+        fields=unverified_label_counts(items),
+    )
     summary = RunSummary(
         commit=git_commit(),
         started_at=started.isoformat(),
@@ -432,13 +448,15 @@ async def main(argv: Sequence[str] | None = None) -> int:
             if pricing
             else f"{PRICING_PATH.name} is empty, so cost is reported as not measured"
         ),
+        unverified_labels=unverified,
         results=results,
         notes=[
             "full_budget_6 is a diagnostic on a stratified subset, not an ablation row; its n is "
             "stated in its own section.",
             "Episodic memory was disabled for this run: cross-session recall over independent "
             "golden items would let item N answer from item N-1.",
-        ],
+        ]
+        + ([unverified.sentence()] if unverified.present else []),
     )
     summary_path, report_path = write_results(out, summary)
     print(f"wrote {summary_path}\nwrote {report_path}")

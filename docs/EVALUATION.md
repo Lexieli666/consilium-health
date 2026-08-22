@@ -8,11 +8,11 @@ Every number this project publishes is produced by `eval/run.py` and computed fr
 in `consilium/trace.py`. Anything not produced that way is written **`not measured`**, and anything
 structurally undefined for a configuration is written **`n/a`**. Neither is ever filled in by hand.
 
-**Current state: the golden set is an unlabelled draft, so nothing has been measured yet.** Every
-results number in this document and in the README reads `not measured` until the sets are labelled
-and a sweep has been run. Two of the four label fields ship holding machine-written candidates for
-the owner to verify, and the loader counts an unverified candidate as an unlabelled field — see
-§1.1.1, which is the part of this document an interviewer should read first.
+**Current state: the golden set is labelled and frozen; no sweep has been run, so nothing has been
+measured yet.** Every results number in this document and in the README reads `not measured` until
+a sweep has been run against the frozen set. Two of the four label fields were written by hand and
+two were written by a model and knowingly left unverified — see §1.1.1 and §1.5, which are the
+parts of this document an interviewer should read first.
 
 ---
 
@@ -41,13 +41,22 @@ Each record:
  "red_flag": false,
  "labeled": true,
  "proposed_fields": [],
+ "unverified_fields": ["relevant_doc_ids", "reference_answer"],
  "phrasing_stratum": "hard | easy | null",
  "draft_notes": "..."}
 ```
 
-The last two are not labels. `phrasing_stratum` is the drafting decision red-flag recall is split
-on (§1.3) and `draft_notes` is authoring intent; neither is the owner's to fill in, and neither
-appears in `LABEL_FIELDS`.
+`proposed_fields` and `unverified_fields` are two **provenance markers that do opposite things**,
+and the difference between them is §1.1.1. `proposed_fields` is a gate: a field named there is
+reported as missing by `GoldenItem.missing_labels()` and `load_golden` refuses the file.
+`unverified_fields` is a record: same field names, same values, no gate — it says a machine wrote
+the value and no person checked it, and its counts are republished in every run's `summary.json`
+and printed in the results table. They are disjoint per record, because a field cannot be both
+still waiting on the labeller and knowingly unverified.
+
+The last two fields are not labels. `phrasing_stratum` is the drafting decision red-flag recall is
+split on (§1.3) and `draft_notes` is authoring intent; neither is the owner's to fill in, and
+neither appears in `LABEL_FIELDS`.
 
 `eval/data/multiturn.jsonl` — **30 conversations** in which a later turn contains a pronoun or an
 ellipsis that only resolves against an earlier turn. **Ten run seven turns or more**, so that they
@@ -62,75 +71,187 @@ graded itself against measures nothing, and the only thing that makes these numb
 that a person annotated the labels by hand. A gate in a document is a request; a gate in the loader
 is a constraint.
 
-The shipped draft has `labeled: false` on every record. What it carries besides the question is
-`draft_notes` — one line per item saying what the item was written to test, and, where a proposal
-was uncertain, what it could not settle. That is authoring intent, not an answer key.
+The golden set has been through that gate. `eval/data/multiturn.jsonl` has not: it is still a
+draft, every conversation carries `labeled: false`, and `load_multiturn` still refuses it.
 
-### 1.1.1 Which fields are machine-proposed, and which are the owner's alone
+### 1.1.1 Which fields a person wrote, and which a model wrote and nobody checked
 
 This split is the substance of the checkpoint, so it is stated exactly rather than summarized.
 
-| field | who writes it | why |
-|---|---|---|
-| `expected_route` | **the owner, alone** | Which specialists genuinely own parts of a question is a judgement, and it is the label routing accuracy is computed against. A candidate here would anchor the number the ablation exists to produce. |
-| `red_flag` | **the owner, alone** | Whether a question describes a presentation that must produce a seek-care instruction is a judgement, and it is the label red-flag recall is computed against. Same reason, higher stakes. |
-| `relevant_doc_ids` | machine-proposed candidate | Mechanical: naming the notes that answer a question is what reading the corpus consists of, and the owner has to open the same documents either way. |
-| `reference_answer` | machine-proposed candidate | Mechanical for the same reason, and it is written **only** from the documents proposed beside it. |
+| field | who wrote it | verified by a person | why |
+|---|---|---|---|
+| `expected_route` | **the owner, by hand, blind** | yes, on all 150 | Which specialists genuinely own parts of a question is a judgement, and it is the label routing accuracy is computed against. A candidate here would have anchored the number the ablation exists to produce, so nothing ever proposed one. |
+| `red_flag` | **the owner, by hand, blind** | yes, on all 150 | Whether a question describes a presentation that must produce a seek-care instruction is a judgement, and it is the label red-flag recall is computed against. Same reason, higher stakes. |
+| `relevant_doc_ids` | a model | **no — 148 of 150** | Mechanical, so proposing it cost the labeller nothing in independence. The owner then decided not to verify the proposals item by item. |
+| `reference_answer` | a model | **no — 148 of 150** | Mechanical for the same reason, and written **only** from the documents proposed beside it. Same decision. |
 
-A candidate is not a label. Every field holding one is named in the record's `proposed_fields`, and
-`GoldenItem.missing_labels()` reports a proposed field as **still missing**, so the loader refuses a
-file holding candidates exactly as it refuses one holding empty fields. Labelling a field means
-verifying or overwriting the candidate and removing its name from `proposed_fields`; there is no
-way to accept the 148 machine-written reference answers by leaving them alone. `proposed_fields` is
-validated against the four label names, because a typo in a provenance marker would silently
-disable the gate it holds open.
+Two items carry no machine-written value in either mechanical field and are therefore not in the
+148: `g-gh-030`, whose documents and reference answer were rewritten by hand, and `g-md-027`, which
+has no documents at all (§1.1.2).
 
-Two items ship with **no** candidate at all — `g-gh-030` and `g-md-027` — because the corpus does
-not support an answer to them. Both say so in `draft_notes` and both are flagged for the owner to
-re-aim or cut. That is the honest output of the proposal pass rather than a gap in it: an item with
-a fabricated source is worse than an item with none.
+**The decision not to verify was the owner's, and it is disclosed rather than papered over.** While
+labelling was pending, `proposed_fields` was the right mechanism: it named every field holding a
+machine-written candidate, `missing_labels()` reported such a field as still missing, and the loader
+refused the file until the marker was cleared. Once the owner decided not to verify those two
+fields, that mechanism had exactly two exits and both were wrong. Clearing the marker would have
+made the file assert a verification that did not happen. Leaving it set would have blocked the load
+forever, which is a gate nobody can pass rather than a gate.
 
-`g-md-027` (calf pain and swelling after a knee replacement) is the sharper of the two, because the
-presentation it describes is deep vein thrombosis and **`data/red_flags.yaml` has no
-venous-thromboembolism rule either**. Its `draft_notes` say so in those terms, so that if the owner
-labels it `red_flag: true` and it comes back a false negative, the report attributes the miss to
-absent coverage on both sides rather than to the matcher failing on phrasing — and the item carries
-no `phrasing_stratum`, so it cannot be pooled into the hard-stratum number where it would read as a
-paraphrase miss. No rule and no note were added to make it pass: inventing coverage so that an item
-clears is the reverse of what the item measures.
+So the provenance was separated from the gate. `unverified_fields` carries the same field names and
+the same values and does not gate anything; the 148 records were migrated from one to the other in
+one commit; `proposed_fields` stays in the schema, still gating, for the multi-turn set and for any
+future re-label. The two are disjoint per record and the lint asserts it, because a field cannot be
+both still waiting on the labeller and knowingly unverified.
 
-**What the owner still has to check in the machine-written fields.** They are candidates from a
-model that also wrote the corpus notes they cite, so the failure mode they are most exposed to is
-an answer that is fluent, plausible and slightly beyond what the note actually says. The reference
-answers deliberately keep the corpus's hedges — "commonly stated", "guidance describes", the bands
-rather than a single number — because a reference answer that sharpens an approximate threshold
-would score every correct hedge as unfaithful.
+**What that costs, stated plainly and not softened:**
 
-### 1.2 Labelling process
+> `relevant_doc_ids` and `reference_answer` are model-proposed and unverified, so **recall@5 and
+> faithfulness are measured against a machine-constructed reference**. Routing accuracy and
+> red-flag recall are not: those two labels were written by a person, by hand, blind.
 
-For each item, in this order:
+That sentence is not confined to this document. `eval/run.py` writes the counts into
+`summary.json` as `unverified_labels`, and `report.md` prints the caveat **in the results table
+itself** — in the header of every affected column (`recall@5 (vs. unverified ref)`, both
+faithfulness columns), in a line directly under the table, and again in the per-configuration
+Retrieval and Judge paragraphs. A footnote is something a reader can finish a table without
+reaching, and the numbers in the table are exactly the ones the disclosure is about. Nothing marks
+the routing or red-flag columns, because nothing is wrong with them.
+
+The caveat is data-driven, not hard-coded. Hand-verifying the two fields and clearing
+`unverified_fields` removes it from the table with no code change — which is the property that
+makes it a disclosure rather than boilerplate.
+
+### 1.1.2 The two items with no machine-written reference
+
+Two items shipped with **no** candidate at all, because the corpus does not support an answer to
+them. Both said so in `draft_notes` and both were flagged for the owner to re-aim or cut. That was
+the honest output of the proposal pass rather than a gap in it: an item with a fabricated source is
+worse than an item with none.
+
+`g-gh-030` was re-aimed by hand and now names one corpus note. It carries no `unverified_fields`
+marker, so it is one of the two items whose mechanical fields *are* the owner's.
+
+`g-md-027` (calf pain and swelling after a knee replacement) is the sharper of the two, and it was
+kept as it was. The presentation it describes is deep vein thrombosis, and **`data/red_flags.yaml`
+has no venous-thromboembolism rule either**. The owner labelled it `red_flag: true` and left
+`relevant_doc_ids` empty, which is the label rather than a blank: no note in this corpus grounds
+the question. `eval/items.py` accepts an empty list beside a written reference answer for exactly
+that reason — requiring a non-empty list would have made inventing a source the only way to load
+the file, which inverts what the item measures. The consequences are all deliberate:
+
+- it is the one item **recall@5 is not computed over**, so the retrieval denominator is 149;
+- it carries **no `phrasing_stratum`**, so it cannot be pooled into the hard-stratum number where
+  a miss would read as a paraphrase failure;
+- if it comes back a red-flag false negative, the report attributes the miss to absent coverage on
+  both sides rather than to the matcher failing on phrasing.
+
+No rule and no note were added to make it pass. Inventing coverage so that an item clears is the
+reverse of what the item measures.
+
+**What nobody checked in the machine-written fields.** They are candidates from a model that also
+wrote the corpus notes they cite, so the failure mode they are most exposed to is an answer that is
+fluent, plausible and slightly beyond what the note actually says. The reference answers
+deliberately keep the corpus's hedges — "commonly stated", "guidance describes", the bands rather
+than a single number — because a reference answer that sharpened an approximate threshold would
+score every correct hedge as unfaithful. That is a property of how they were written, not evidence
+that they are right.
+
+### 1.2 How the two judgement labels were written: blind
+
+`expected_route` and `red_flag` were labelled **blind**, outside this repository, and the labels
+were merged back in afterwards. The labeller saw:
+
+- the question text, and nothing else.
+
+The labeller did **not** see:
+
+- the item's `category`, so the block could not tell them what the answer should be;
+- the item's `phrasing_stratum`, so a red-flag decision could not be read off the drafting intent;
+- the item's `id`, which was replaced by an opaque key — ids are block-prefixed (`g-su-`, `g-cc-`),
+  so a visible id leaks the category the shuffle was meant to hide;
+- the row order, which was shuffled — the set is written in category blocks, so file order is the
+  category, and thirty consecutive coding questions establish a rhythm that answers the thirty-first
+  before it is read.
+
+**Why blind.** These are the two labels routing accuracy and red-flag recall are computed against,
+and they are being written by the same person who commissioned the corpus, the blocks and the
+drafting constraints. Every one of those is a strong prior about what the answer ought to be. A
+label written with the block header visible is partly a transcription of the block header, and
+routing accuracy would then measure how consistently the drafting plan was executed rather than
+whether the planner routes correctly. Hiding the four channels above does not remove the prior —
+the labeller wrote the questions — but it removes the ones that operate without being noticed.
+
+**What blind labelling produced that a sighted pass would not have.** Three items in the
+`multi_dimensional` block came back `mode: single`, and two `symptom_urgency` items came back
+`mode: parallel`. Under the drafting plan every `multi_dimensional` item is parallel by
+construction. Those five disagreements are the evidence that the labeller was reading questions
+rather than blocks, and they are kept: correcting a blind label to match the block it came from
+would discard the only signal the procedure exists to produce. They are also a real finding about
+the drafts — an item written to have two dimensions does not automatically have two.
+
+**The one thing blindness cost, and the check that now catches it.** A labeller who cannot see the
+block also cannot see `data/policy.yaml`, and that file grants six of the seven skills to exactly
+one agent each. A route label can therefore name a set of agents that between them hold none of the
+skills the question needs — a route the system is structurally unable to answer the question
+through. One such conflict was found by hand during the merge and fixed. A check found by hand once
+is a check that will be missed the next time, so it is now derived in `eval/validate.py` from the
+policy file and the corpus categories and asserted in the lint (§1.4).
+
+**Per item, the labeller worked in this order:**
 
 1. **`red_flag`** — is the question describing a presentation that should produce a seek-care
-   instruction? Decide from the question, not from what the matcher does with it.
+   instruction? Decided from the question, not from what the matcher does with it.
 2. **`expected_route`** — which specialists genuinely own parts of this question?
    `consultation` owns background, lifestyle and classification; `diagnostic` owns urgency and
    symptom grouping; `research` owns guidance and evidence strength. Assign the fewest that can
-   answer it. Everything in the `multi_dimensional` block should end up `mode: parallel`.
-3. **`relevant_doc_ids`** — a candidate is already there. Read the notes it names, correct it, and
-   remove `relevant_doc_ids` from `proposed_fields`. `docs/CORPUS.md` lists every `doc_id`. Prefer
-   being strict: a document that merely mentions the topic is not relevant, and inflating this list
-   deflates recall. Proposals are at most three notes for that reason, and `draft_notes` says where
-   a proposal deliberately named fewer.
-4. **`reference_answer`** — a candidate is already there, written only from the documents proposed
-   beside it. Check it against those notes, correct it, and remove `reference_answer` from
-   `proposed_fields`. It is a reference for a human reading the report, not a string the harness
-   matches against.
-5. Set `labeled: true`. The loader will still refuse the file while any `proposed_fields` entry
-   remains, which is what makes step 3 and step 4 non-skippable.
+   answer it.
+3. The reasoning was recorded in `draft_notes`, appended after a `||` separator so the authoring
+   intent written at drafting time stays legible beside it.
+4. `labeled: true`.
 
-For a multi-turn conversation, annotate at least one later turn with `depends_on_turn` (the
-zero-based index of the turn it refers back to) and `expected_referent` (what the pronoun or
-ellipsis means), then set `labeled: true`.
+Steps 3 and 4 of the original guide — verify `relevant_doc_ids`, verify `reference_answer` — were
+not performed, by decision. §1.1.1 is what that means for the numbers.
+
+**For the multi-turn set**, which is still unlabelled: annotate at least one later turn with
+`depends_on_turn` (the zero-based index of the turn it refers back to) and `expected_referent`
+(what the pronoun or ellipsis means), then set `labeled: true`.
+
+### 1.2.1 The labelled distribution
+
+| | count |
+|---|---|
+| items | 150 |
+| `mode: single` | 121 |
+| `mode: parallel` | 29 |
+| `red_flag: true` | 28 |
+| `red_flag: false` | 122 |
+
+By agent set, as routing accuracy compares them (sorted, so `[a, b]` and `[b, a]` are one row):
+
+| mode | agents | items |
+|---|---|---|
+| single | `consultation` | 58 |
+| single | `research` | 33 |
+| single | `diagnostic` | 30 |
+| parallel | `diagnostic` + `research` | 16 |
+| parallel | `consultation` + `research` | 7 |
+| parallel | `consultation` + `diagnostic` | 4 |
+| parallel | `consultation` + `diagnostic` + `research` | 2 |
+
+By block:
+
+| block | labelled routes |
+|---|---|
+| `general_health` | 28 single `consultation`; 2 single `research` |
+| `symptom_urgency` | 28 single `diagnostic`; 2 parallel `consultation`+`diagnostic` |
+| `condition_coding` | 30 single `consultation` |
+| `guideline_evidence` | 30 single `research` |
+| `multi_dimensional` | 16 parallel `diagnostic`+`research`; 7 parallel `consultation`+`research`; 2 parallel `consultation`+`diagnostic`; 2 parallel all three; 2 single `diagnostic`; 1 single `research` |
+
+The 28 red-flag items are 23 in `symptom_urgency` and 5 in `multi_dimensional`. All 28 are routed
+to a set that includes `diagnostic`, which is the only agent permitted to call `assess_risk` — the
+lint asserts this, because a red-flag item routed away from `diagnostic` would have red-flag recall
+measured over a turn with no access to the table the label came from.
 
 ### 1.3 The drafting constraints that the labelling must not undo
 
@@ -177,6 +298,11 @@ Run over the questions with no model called, no label written and nothing scored
 |---|---|---|---|
 | hard phrasing | 22 | **0** | **0** |
 | easy phrasing | 5 | **5** | **5** |
+
+**Re-run against the labelled, frozen file and unchanged.** Both numbers are asserted in
+`tests/test_eval_drafts.py` rather than only written here: they move only if a question changes,
+and a question changing after the labels are attached to its wording is exactly what must not
+happen silently.
 
 That contrast is the designed comparison. The 0 measures what the rule table does with paraphrase,
 and the 5 confirms that the 0 is a property of the phrasing rather than of the table being broken.
@@ -232,6 +358,87 @@ items inflate apparent performance the same way duplicate documents inflate retr
 items vary instead along: the "with" presumption; combination codes; required second codes and their
 sequencing; three-character codes that take no further character; undecimalized roots versus the
 full code; and chapter boundaries.
+
+### 1.4 Checks that run in the lint, not by hand
+
+`eval/validate.py` holds the cross-file checks and `tests/test_eval_drafts.py` runs them, so a
+label edit that stops agreeing with another file fails in CI rather than in a sweep. `eval/items.py`
+validates a record against its own schema; these check a record against the files it points at.
+
+| check | why it cannot be a one-off script |
+|---|---|
+| every `relevant_doc_ids` entry names a real note in `data/corpus/` | `doc_id` is the filename stem by contract, and a typo would land in the results as a retrieval miss rather than as the typo it is |
+| the labelled route reaches at least one exclusive skill the item needs | a labeller does not have `data/policy.yaml` open, so nothing else stops a label encoding a route the system is forbidden to take |
+| every red-flag item is routed somewhere holding `assess_risk` | only `diagnostic` holds it, and it is the skill that consults the rule table the label came from |
+| the two provenance markers are disjoint | an item cannot be both verified and not |
+| the per-stratum matcher hits are 0/22 and 5/5 | both are published in §1.3, and both move only if a question changes |
+| the strata hold exactly 22 and 5 | they are the denominators of the two published recall figures |
+| the unverified counts are 148 in both mechanical fields | that number is printed in the results table, so the disclosure must not itself be unverified |
+| `g-md-027` is the only item with no relevant documents | it is the one item recall@5 is not computed over |
+
+The skill-grant check is derived, not restated: which skills are exclusive and to whom is read from
+`data/policy.yaml`, and which skill a labelled note needs is read from that note's corpus category.
+A copy of the grants in the test would be a second source that drifts from the file actually
+governing the agents.
+
+It reports a conflict only where the labelled agents hold **none** of the skills the item needs. A
+question can need two exclusive skills and be answerable through either, so a route reaching one of
+them is a defensible label; a route reaching none of them is the failure. `search_knowledge` is
+granted to every agent and filters nothing, so no corpus note is ever strictly unreachable — what a
+conflict means is that the **category-filtered specialist skill** for the labelled note is out of
+the route's reach and the note can only be found by an unfiltered search.
+
+**Four conflicts stand, are accepted, and are reported rather than relabelled**, all in
+`general_health`:
+
+| item | labelled route | skill it needs, and who holds it |
+|---|---|---|
+| `g-gh-001` | single `consultation` | `find_guideline` (`research`) |
+| `g-gh-017` | single `research` | `recommend_lifestyle` (`consultation`) |
+| `g-gh-026` | single `research` | `recommend_lifestyle` (`consultation`) |
+| `g-gh-029` | single `consultation` | `find_guideline` (`research`) |
+
+In all four the conflict is between a **hand-written** route and a **machine-written, unverified**
+document list, so which of the two is wrong is not something the lint can decide and is not
+something it guesses at. The set is asserted exactly, so a *new* conflict — the kind that would
+encode a route the system is structurally forbidden to take — fails the lint.
+
+### 1.5 The freeze
+
+Checkpoint B is closed. The golden set is labelled and frozen; the multi-turn set is not.
+
+| file | items | sha256 |
+|---|---|---|
+| `eval/data/golden.jsonl` | 150 questions, labelled | `b7b7781f135debd1059ad7ae0196d717ec3e7afc3d22c6483e0a59d99874d508` |
+| `eval/data/multiturn.jsonl` | 30 conversations, **still an unlabelled draft** | `a675635212245b1b442bac09fdd1e78ac80f25a891816ede8e09c64e938de2c2` |
+
+The digests are recorded so that a published number can be tied to the exact file it was computed
+over. `summary.json` records the commit; the commit records the file; the digest is what lets a
+reviewer check that the file at that commit is the one this document describes. Both digests are
+asserted against the files in `tests/test_eval_drafts.py`, in both directions — the file must hash
+to the value written here, and the value written here must appear in this document — because a
+stale digest in a frozen record is worse than no digest.
+
+**What is frozen:**
+
+- 150 items, 30 in each of five blocks; ids are block-prefixed and dropped ids are never reused.
+- `expected_route` and `red_flag` on all 150, hand-labelled blind (§1.2). 121 single, 29 parallel,
+  28 red-flag.
+- `relevant_doc_ids` and `reference_answer` machine-written on 148 of 150 and **unverified**
+  (§1.1.1), recorded per record in `unverified_fields`.
+- 22 hard-phrasing and 5 easy-phrasing red-flag items, matcher hits 0/22 and 5/5 under both
+  negation policies (§1.3).
+- `g-md-027` labelled `red_flag: true` with no relevant documents and no stratum (§1.1.2).
+
+**What changing any of it costs.** Every count above is a denominator of a published number, and
+every one is asserted in `tests/test_eval_drafts.py` as an exact value rather than a floor.
+Changing one is a deliberate act that updates the lint, this section and the digest in the same
+commit. Editing a question is a larger act than that: the labels are attached to the current
+wording, so a rewritten question carries a label written about a different question.
+
+**Not frozen, and still to do:** `eval/data/multiturn.jsonl` is unlabelled and `load_multiturn`
+still refuses it. No sweep has been run against either file, so every results number in §6 and in
+the README reads `not measured`.
 
 ---
 
@@ -424,15 +631,26 @@ path, the Python version and platform, and the pricing source, alongside every m
 
 ## 6. Results
 
-**`not measured`.** The golden set is an unlabelled draft; see §1.1. This section is filled in from
-`eval/results/published/summary.json` when a sweep has been run against a labelled set.
+**`not measured`.** The golden set is labelled and frozen (§1.5) but no sweep has been run. This
+section is filled in from `eval/results/published/summary.json` when one has.
 
-| configuration | routing acc | recall@5 | faithfulness | red-flag recall | p90 latency | tokens | cost |
+The column headers below are the ones `report.md` will carry. Two of them say what they are
+measured against, in the header rather than in a footnote, because `relevant_doc_ids` and
+`reference_answer` are model-proposed and unverified (§1.1.1) and the columns computed from them
+are not the same kind of number as the two beside them.
+
+| configuration | routing acc | recall@5 (vs. unverified ref) | faithfulness (vs. unverified ref) | red-flag recall | p90 latency | tokens | cost |
 |---|---|---|---|---|---|---|---|
 | `baseline_llm` | n/a | n/a | n/a | not measured | not measured | not measured | not measured |
 | `single_agent_rag` | n/a | not measured | not measured | not measured | not measured | not measured | not measured |
 | `full` | not measured | not measured | not measured | not measured | not measured | not measured | not measured |
 | `full_no_memory` | not measured | not measured | not measured | not measured | not measured | not measured | not measured |
+
+**recall@5 and faithfulness are measured against a machine-constructed reference; routing accuracy
+and red-flag recall are not.** `relevant_doc_ids` and `reference_answer` were written by a model on
+148 of the 150 items and no person verified them. `expected_route` and `red_flag` were written by a
+person, by hand, blind. The two pairs of numbers are not equally trustworthy and the table says so
+in the header of every affected column.
 
 ---
 
@@ -445,10 +663,9 @@ between two configurations on 30 red-flag items is not a difference; the confide
 proportion at n=30 is wide enough to swallow most of what the ablation is looking for. Read the
 counts, not the third decimal place.
 
-**One labeller.** Every label is a single person's judgement, and no inter-annotator agreement is
-measured because there is only one annotator. `relevant_doc_ids` in particular is a judgement call —
-whether a note that mentions the topic "answers" the question — and a second labeller would disagree
-on some of them.
+**`relevant_doc_ids` would not survive a second opinion.** Whether a note that merely mentions the
+topic "answers" the question is a judgement call, and a second labeller would disagree on some of
+them — except that on this set there was no first labeller for that field either. See below.
 
 **The corpus was written by the author of the system being evaluated.** The retrieval numbers are
 therefore an upper bound in a way that a public corpus would not be: the questions and the documents
@@ -472,11 +689,23 @@ against twenty-two the ratio is a drafting choice and not an estimate of how rea
 phrased, which is exactly why the two are reported separately and never pooled. Neither stratum is
 a sample of anything: both were written by one person, with the rule table open.
 
-**The reference answers were written by a model, against a corpus the same model family wrote.**
-They ship as candidates rather than labels, and the loader refuses to score anything until a person
-has cleared each one (§1.1.1). Until that happens, "the owner labelled it" is true of
-`expected_route` and `red_flag` by construction and true of the other two fields only once the
-`proposed_fields` markers are gone.
+**The reference answers and the relevant-document lists were written by a model, against a corpus
+the same model family wrote, and nobody checked them.** This is the largest threat in this list and
+it is a decision rather than an oversight (§1.1.1). `relevant_doc_ids` and `reference_answer` are
+model-proposed and unverified on 148 of 150 items, so **recall@5 and faithfulness are measured
+against a machine-constructed reference** — a reference that shares an author with the system being
+measured, which is the definition of the circularity the whole checkpoint exists to avoid, admitted
+in the one place it was not avoided. Read those two columns as "does the system agree with the
+model that wrote the corpus", not as "does the system retrieve the right documents".
+
+Routing accuracy and red-flag recall carry no such threat: `expected_route` and `red_flag` were
+hand-labelled on all 150 items, blind to the block and the stratum (§1.2), and nothing ever proposed
+a candidate for either.
+
+**One labeller, and blind labelling bounds only part of what that costs.** Every label is a single
+person's judgement and no inter-annotator agreement is measured, because there is one annotator.
+Blindness removes the channels that leak the drafting plan into the label — block, id, stratum, file
+order — but not the prior held by the person who wrote the questions in the first place.
 
 **Mock-provider numbers are never reported.** The test suite runs entirely against `MockProvider`
 with synthetic token counts. `eval/run.py` refuses to run against it.

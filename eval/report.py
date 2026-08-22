@@ -14,6 +14,15 @@ items would read as a measurement of a system that failed, which is the opposite
 **``n/a`` and ``not measured`` are different.**  ``n/a`` means the cell is structurally undefined --
 routing accuracy for a configuration that has no router.  ``not measured`` means it could have been
 measured and was not.  The ablation table distinguishes them, and neither is ever filled in.
+
+**A number computed against an unverified reference says so in the table, not in a footnote.**  The
+golden set's ``relevant_doc_ids`` and ``reference_answer`` are machine-written and the owner decided
+not to verify them item by item (``eval/items.py``).  recall@5 and both faithfulness columns are
+computed against exactly those two fields; routing accuracy and red-flag recall are not.  A reader
+who takes recall@5 for a number measured against a hand-built reference has been misled, and a
+footnote is something a reader can finish the table without reaching -- so the disclosure is in the
+column headers, in a line directly under the table, and in the two per-configuration paragraphs
+that report those metrics.
 """
 
 from __future__ import annotations
@@ -46,6 +55,66 @@ STRUCTURALLY_UNDEFINED: dict[str, tuple[str, ...]] = {
     "baseline_llm": ("routing_accuracy", "recall_at_5", "faithfulness_retrieved"),
     "single_agent_rag": ("routing_accuracy",),
 }
+
+
+#: Which metric each unverified label field is the reference for.  Used to name the affected
+#: numbers in the disclosure rather than saying "some metrics".
+METRICS_BY_LABEL_FIELD: dict[str, tuple[str, ...]] = {
+    "relevant_doc_ids": ("recall@5", "hit@5", "MRR@10", "faithfulness (oracle)"),
+    "reference_answer": ("faithfulness (oracle)",),
+    "expected_route": ("routing accuracy",),
+    "red_flag": ("red-flag recall",),
+}
+
+
+@dataclass(frozen=True)
+class UnverifiedLabels:
+    """Which label fields hold a machine-written value no person checked, and on how many items.
+
+    Carried in ``summary.json`` so a reviewer reading the committed evidence can see the provenance
+    of the reference the numbers were computed against, without having to open the golden set.
+    """
+
+    #: Items in the golden set the run was scored over.
+    n_total: int = 0
+    #: Items holding at least one unverified label field.
+    n_items: int = 0
+    #: ``label field -> how many items hold an unverified value in it``.
+    fields: dict[str, int] = field(default_factory=dict)
+
+    @property
+    def present(self) -> bool:
+        """Whether anything was left unverified.  False means every label was written by hand."""
+        return bool(self.fields)
+
+    @property
+    def affected_metrics(self) -> tuple[str, ...]:
+        """The metrics computed against an unverified field, deduplicated, in a stable order."""
+        seen: dict[str, None] = {}
+        for name in self.fields:
+            for metric in METRICS_BY_LABEL_FIELD.get(name, ()):
+                seen.setdefault(metric, None)
+        return tuple(seen)
+
+    def sentence(self) -> str:
+        """The disclosure, in one sentence, with the counts in it.
+
+        Deliberately not softened.  "Partly verified" or "lightly reviewed" would describe a
+        process that did not happen; what happened is that nobody read them.
+        """
+        if not self.present:
+            return ""
+        fields = ", ".join(
+            f"`{name}` ({count} of {self.n_total} items)" for name, count in self.fields.items()
+        )
+        return (
+            f"**Measured against an unverified reference.** {fields} were written by a model and "
+            "no person verified them, so "
+            + ", ".join(self.affected_metrics)
+            + " are measured against a machine-constructed reference. Routing accuracy and "
+            "red-flag recall are not: `expected_route` and `red_flag` were hand-labelled on all "
+            f"{self.n_total} items."
+        )
 
 
 @dataclass(frozen=True)
@@ -103,6 +172,8 @@ class RunSummary:
     python: str
     platform: str
     pricing_source: str
+    #: Provenance of the reference the retrieval and faithfulness numbers were computed against.
+    unverified_labels: UnverifiedLabels = field(default_factory=UnverifiedLabels)
     results: list[ConfigResult] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
@@ -155,6 +226,12 @@ def render_markdown(summary: RunSummary) -> str:
     The ablation table comes first because it is the claim: "the architecture helps" needs a
     control, and the table is where the control sits next to the system.
     """
+    unverified = summary.unverified_labels
+    #: Appended to the header of every column whose reference is machine-written.  In the header
+    #: rather than behind a marker, because a marker is a footnote and a footnote is optional
+    #: reading -- and the whole point is that the reader cannot take these three numbers for
+    #: something they are not.
+    caveat = " (vs. unverified ref)" if unverified.present else ""
     lines: list[str] = [
         "# Evaluation results",
         "",
@@ -179,8 +256,8 @@ def render_markdown(summary: RunSummary) -> str:
         "",
         "## Ablation",
         "",
-        "| configuration | routing acc | recall@5 | faithfulness (retrieved) |"
-        " faithfulness (oracle) | red-flag recall | p90 latency | tokens/turn | cost/turn |",
+        f"| configuration | routing acc | recall@5{caveat} | faithfulness retrieved{caveat} |"
+        f" faithfulness oracle{caveat} | red-flag recall | p90 latency | tokens/turn | cost/turn |",
         "|---|---|---|---|---|---|---|---|---|",
     ]
 
@@ -203,9 +280,12 @@ def render_markdown(summary: RunSummary) -> str:
             )
         )
 
+    if unverified.present:
+        lines += ["", unverified.sentence()]
+
     lines += ["", "## Per configuration", ""]
     for result in summary.results:
-        lines.extend(_config_section(result))
+        lines.extend(_config_section(result, unverified))
 
     if summary.notes:
         lines += ["## Notes", ""]
@@ -215,7 +295,7 @@ def render_markdown(summary: RunSummary) -> str:
     return "\n".join(lines)
 
 
-def _config_section(result: ConfigResult) -> list[str]:
+def _config_section(result: ConfigResult, unverified: UnverifiedLabels) -> list[str]:
     routing, retrieval, safety, latency, usage = (
         result.routing,
         result.retrieval,
@@ -256,7 +336,8 @@ def _config_section(result: ConfigResult) -> list[str]:
         f"recall@5 (first retrieval event) {fmt(retrieval.recall_at_5_first_event)}; "
         f"hit@5 {fmt(retrieval.hit_at_5)}; MRR@10 {fmt(retrieval.mrr_at_10)}; "
         f"documents retrieved per turn {fmt(retrieval.docs_retrieved_per_turn, digits=1)} "
-        f"over {fmt(retrieval.retrievals_per_turn, digits=1)} retrievals; n={retrieval.n}.",
+        f"over {fmt(retrieval.retrievals_per_turn, digits=1)} retrievals; n={retrieval.n}."
+        + _reference_caveat(unverified, "relevant_doc_ids"),
         "",
         "**Safety.** "
         f"red-flag recall {fmt(safety.red_flag_recall)} over n={safety.n_red_flag_items}, "
@@ -343,7 +424,8 @@ def _config_section(result: ConfigResult) -> list[str]:
         f"faithfulness against what was retrieved {fmt(judge.faithfulness_retrieved)}; "
         f"against the golden set's relevant documents {fmt(judge.faithfulness_oracle)}; "
         f"n={judge.n_judged}; judge model `{judge.judge_model or NOT_MEASURED}` "
-        f"(prompt `{judge.prompt_version or NOT_MEASURED}`).",
+        f"(prompt `{judge.prompt_version or NOT_MEASURED}`)."
+        + _reference_caveat(unverified, "reference_answer", "relevant_doc_ids"),
         "",
         "**Judge validation.** "
         + (
@@ -360,6 +442,25 @@ def _config_section(result: ConfigResult) -> list[str]:
         "",
     ]
     return lines
+
+
+def _reference_caveat(unverified: UnverifiedLabels, *fields: str) -> str:
+    """The one-clause form of the disclosure, appended to a paragraph that reports the metric.
+
+    The table header and the line under the table say it for a reader working top to bottom; this
+    says it again for one reading a single configuration's section on its own, which is how a
+    reader who already knows which preset they care about actually reads the file.
+    """
+    named = [name for name in fields if unverified.fields.get(name)]
+    if not named:
+        return ""
+    return (
+        " Computed against "
+        + " and ".join(f"`{name}`" for name in named)
+        + ", which "
+        + ("was" if len(named) == 1 else "were")
+        + " written by a model and never verified by a person."
+    )
 
 
 def _plain(value: Any) -> Any:

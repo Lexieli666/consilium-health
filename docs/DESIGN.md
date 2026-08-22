@@ -1332,3 +1332,133 @@ the notes in the same commit, and `tests/test_eval_drafts.py` asserts they never
 and the counts are asserted **exactly** at 22 hard and 5 easy rather than as floors, because those
 are the denominators of the two published recall figures — a change in either is a change in what
 is being reported and belongs in the commit that makes it, not in a later run's numbers.
+
+---
+
+## Phase 8, closing Checkpoint B — the labels, and what labelling them taught
+
+The drafting decisions above were made before anyone had labelled anything. These four were forced
+by actually doing it.
+
+### Provenance is separated from the labelling gate: `unverified_fields` beside `proposed_fields`
+
+**Chosen.** A second marker, `unverified_fields`, holding the same field names and the same values
+as `proposed_fields` and gating nothing. The 148 records carrying machine-written mechanical fields
+were migrated from one to the other; `proposed_fields` stays in the schema, still gating, for the
+multi-turn set and for any future re-label.
+
+**Rejected — clear `proposed_fields` and move on.** One line of `sed`, and the file loads.
+
+**Rejected — leave `proposed_fields` set.** Nothing to do, and the gate stays honest.
+
+**Why.** The owner decided not to verify `relevant_doc_ids` and `reference_answer` item by item.
+That decision is defensible — the two fields are mechanical, the corpus notes were the model's own
+source, and the labelling effort was spent on the two fields that are pure judgement — but it made
+`proposed_fields` a mechanism with two exits and no correct one. Clearing the marker means the
+record says "a person verified this", which is a false statement in a file whose entire value is
+that its claims about provenance are true. Leaving it set means `load_golden` refuses the file
+forever: not a gate but a wall, and the predictable end of a wall is that someone passes
+`allow_draft=True` in `eval/run.py` and the gate is gone with no diff saying so.
+
+The defect was that one field was carrying two claims — "a machine wrote this" and "nobody has
+dispositioned it" — which are the same claim only while labelling is in progress. Splitting them
+lets the file say the true thing: a machine wrote these, a person decided not to check them, and
+every number computed against them says so. The gate keeps its meaning for the file that still
+needs it.
+
+**What it cost.** A second marker is more schema, and two markers that mean similar things are a
+thing to explain — which is why they are asserted disjoint per record, why neither may name a
+judgement field, and why `eval/items.py`'s module docstring leads with the difference.
+
+### The unverified-reference caveat goes in the results table, not in a footnote
+
+**Chosen.** The affected column headers say `recall@5 (vs. unverified ref)`; a bold sentence sits
+directly under the ablation table; the per-configuration Retrieval and Judge paragraphs each repeat
+it in one clause. The counts go into `summary.json` as `unverified_labels`.
+
+**Rejected — a footnote under the table**, or a paragraph in `docs/EVALUATION.md` alone.
+
+**Why.** A footnote is optional reading and a table is not. The specific misreading being prevented
+is a reader taking recall@5 and faithfulness for the same kind of number as routing accuracy and
+red-flag recall, when one pair is measured against a machine-written reference and the other is
+not — and that misreading happens *inside* the table, in the row where the four numbers sit beside
+each other. The disclosure has to be where the mistake is made.
+
+Nothing marks the routing or red-flag columns, which is the other half of the point: a blanket
+disclaimer over the whole table would say every number is equally soft, and that is not true. It
+would also be the comfortable thing to write, which is a reason to distrust it.
+
+The caveat is rendered from the data rather than hard-coded. Hand-verifying the two fields and
+clearing `unverified_fields` removes it from the table with no code change, which is what makes it
+a disclosure rather than boilerplate that outlives the condition it describes.
+
+### The two judgement labels were written blind
+
+**Chosen.** `expected_route` and `red_flag` were labelled outside the repository with the category,
+the phrasing stratum, the item id and the file order all hidden.
+
+**Rejected — labelling in file order with the record visible.** The obvious way, and the fast one.
+
+**Why.** The labeller wrote the questions, chose the blocks and set the drafting constraints. Every
+one of those is a strong prior about what each label should be, and the record carries all of them
+next to the field being filled in: the block name, an id prefixed by the block, a stratum that only
+red-flag items have, and thirty consecutive questions of one kind. A label written with those in
+view is partly a transcription of them, and routing accuracy would then measure how consistently the
+drafting plan was executed rather than whether the planner routes correctly. Blindness does not
+remove the prior — nothing can, with one labeller who wrote the corpus — but it removes the channels
+that operate without being noticed.
+
+**What it produced.** Five disagreements with the drafting plan: three `multi_dimensional` items
+came back `single` and two `symptom_urgency` items came back `parallel`. They are kept. Correcting
+a blind label to match the block it came from would discard the only signal the procedure exists to
+produce, and they are also a real finding about the drafts — an item written to have two dimensions
+does not automatically have two.
+
+### Labelling guidance has to agree with the skill grants in `policy.yaml`
+
+**The lesson this checkpoint actually taught, and the one worth carrying forward.**
+
+`data/policy.yaml` grants six of the seven skills to exactly one agent each: `lookup_disease_code`
+and `recommend_lifestyle` to `consultation`, `assess_risk` and `analyze_symptoms` to `diagnostic`,
+`find_guideline` and `deep_research` to `research`. The labelling guide in `docs/EVALUATION.md`
+described the three agents in prose — "`consultation` owns background, lifestyle and
+classification; `diagnostic` owns urgency and symptom grouping; `research` owns guidance and
+evidence strength" — and that prose is a paraphrase of the grants, not the grants.
+
+A paraphrase is enough to route most questions and not enough to route the ones near a boundary. A
+labeller cannot see `policy.yaml`, and a blind labeller cannot even see the block that would have
+hinted at it, so nothing stops a route label from naming a set of agents that between them hold
+**none** of the skills the question needs. **The label then encodes a route the system is
+structurally forbidden to take**, and the run is scored against it: the turn cannot reach the
+category-filtered skill for the documents the item is labelled with, retrieval comes back thinner
+than the label expects, and it lands in the results as a retrieval failure or a routing miss with
+no trace of the fact that the label asked for something the policy forbids.
+
+One such conflict was found by hand during the merge and fixed. That is the part worth generalizing:
+it was found by reading, in a merge that happened to be careful, and the next one would not have
+been. So the check is now derived and permanent, in `eval/validate.py`:
+
+- which skills are exclusive, and to whom, is **read from `data/policy.yaml`** rather than restated
+  — a copy in the test would be a second source that drifts from the file actually governing the
+  agents, and the copy that lost would be the one deciding whether a labelled route is answerable;
+- which skill a labelled note needs is **read from that note's corpus `category`**;
+- which skill a block needs is the one thing stated in the module, because it is what the block is.
+
+It reports a conflict only where the labelled agents hold **none** of the needed skills. A question
+can need two exclusive skills and be answerable through either, so a route reaching one of them is a
+defensible label; a route reaching none of them is the failure. And because `search_knowledge` is
+granted to every agent and filters nothing, no corpus note is ever strictly unreachable — what a
+conflict means is that the category-filtered specialist skill for the note is out of the route's
+reach and the note can only be found by an unfiltered search. That is a retrieval-quality claim, not
+an impossibility claim, and it is reported as one.
+
+Four conflicts stand and are accepted rather than relabelled — `g-gh-001`, `g-gh-017`, `g-gh-026`,
+`g-gh-029`, listed with their skills in `docs/EVALUATION.md` §1.4. In all four the conflict is
+between a hand-written route and a machine-written, unverified document list, so which of the two is
+wrong is not something a lint can decide and not something it guesses at. The set is asserted
+exactly, so a new conflict fails.
+
+**The general form of the rule:** when a document tells a person how to produce a label, and a
+config file constrains what that label can mean, the two are one source with two copies. Either the
+guidance is derived from the file, or a check is. Prose describing a config file is documentation of
+it, and documentation drifts.
