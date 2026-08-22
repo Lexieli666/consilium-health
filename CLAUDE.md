@@ -51,7 +51,9 @@ was replaced by the following, on the owner's instruction:
     the only signal the procedure exists to produce.
 
     `relevant_doc_ids` and `reference_answer` were **not verified**, by the owner's decision of
-    2026-08-22. They stay machine-written on 148 of 150 items. **`recall@5` and `faithfulness` are
+    2026-08-22. They stay machine-written and unverified on 144 and 148 of the 150 items
+    respectively (the two counts differ because the fields are verified independently; see the
+    post-freeze note below). **`recall@5` and `faithfulness` are
     therefore measured against a machine-constructed reference while routing accuracy and
     red-flag recall are not**, and that sentence is not to be softened anywhere it appears.
 
@@ -80,13 +82,35 @@ was replaced by the following, on the owner's instruction:
     **Labelling guidance must agree with the skill grants in `data/policy.yaml`.** The lesson of
     this checkpoint, recorded in `docs/DESIGN.md`. The labelling guide paraphrases the grants in
     prose; a labeller cannot see the file and a blind labeller cannot see the block either, so a
-    route label can name agents that between them hold **none** of the exclusive skills the
-    question needs — a route the system is structurally forbidden to take, scored as if it were
-    reachable. One conflict was found by hand at merge. The check is now derived and permanent in
-    `eval/validate.py`: the exclusive grants are **read from `policy.yaml`** and the needed skills
-    from the labelled notes' corpus categories, never restated. It fires only where the route holds
-    **none** of the needed skills. Four conflicts stand, are accepted, and are asserted as an exact
-    set (`g-gh-001`, `g-gh-017`, `g-gh-026`, `g-gh-029`) so a new one fails.
+    route label can name agents that between them hold **none** of the dedicated skills the
+    labelled documents imply. The check is derived and permanent in `eval/validate.py`: the
+    exclusive grants are **read from `policy.yaml`** and the implied skills from the labelled
+    notes' corpus categories, never restated.
+
+    **It is a warning, not an error, and the first wording of it was wrong.** Owner's correction,
+    2026-08-22. `search_knowledge` takes an optional category argument, defaults to searching
+    everything, and is granted to all three agents (§10), so **no labelled route is structurally
+    impossible** and nothing here can be an error. What the check detects is a mismatch between the
+    **dedicated, category-filtered** skill the route carries and the corpus category of the
+    labelled documents: those documents stay reachable, but only through the unfiltered search,
+    competing with all 78 notes for a top-5 slot instead of with one category. It fires only where
+    the route holds **none** of the implied skills. `eval/run.py` logs each one at warning level
+    when a sweep starts; `tests/test_eval_drafts.py` pins the set to a **reviewed baseline**,
+    asserted exactly — empty would be a standing demand to relabel, unchecked would make the
+    warning invisible.
+
+    **Post-freeze resolution, 2026-08-22.** Of the four flagged, three were real labelling errors
+    with the route as the wrong half and were corrected (`g-gh-017` and `g-gh-026` to
+    `consultation`, `g-gh-029` to `research`; modes unchanged, so 121/29 and 28 red-flag still
+    hold). `g-gh-001` is **open** and is the whole of the current baseline: both its documents are
+    now verified, so it is two hand-written labels disagreeing, which is a decision and not a fix.
+    `relevant_doc_ids` is verified on those four, dropping its unverified count to 144 while
+    `reference_answer` stays 148.
+
+    **A frozen data file can be edited; it cannot be edited silently.** Every post-freeze change to
+    `eval/data/golden.jsonl` is logged in `docs/EVALUATION.md` §1.6 with the item id, what changed,
+    why, and the digest on both sides. The digest in §1.5 is always the current one and the lint
+    asserts it in both directions.
 
     **The four label fields split two ways, and the split is the substance of the checkpoint.**
     Owner's instruction, 2026-08-20. `expected_route` and `red_flag` ship **empty and stay empty**:
@@ -764,11 +788,13 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
   claim every number is equally soft and that is false. It is rendered from
   `RunSummary.unverified_labels`, so clearing the markers removes it with no code change.
 - **`eval/validate.py` holds the cross-file checks**, run by `tests/test_eval_drafts.py`:
-  `unknown_doc_ids`, `skill_grant_conflicts`, `ungrounded_items`. The exclusive skill grants are
-  **read from `data/policy.yaml`** and the needed skills from the labelled notes' corpus
-  `category`; nothing is restated. `condition` is deliberately not in `CATEGORY_SKILL` (it is
-  reachable through both `analyze_symptoms` and the unfiltered `search_knowledge`, so it names no
-  owning agent). The check fires only where the route holds **none** of the needed skills.
+  `unknown_doc_ids` (an **error** — a `doc_id` naming no note is a label nobody can retrieve),
+  `route_document_mismatches` (a **warning** against a reviewed baseline — see §1, Checkpoint B),
+  and `ungrounded_items`. The exclusive skill grants are **read from `data/policy.yaml`** and the
+  implied skills from the labelled notes' corpus `category`; nothing is restated. `condition` is
+  deliberately not in `CATEGORY_SKILL` (it is reachable through both `analyze_symptoms` and the
+  unfiltered `search_knowledge`, so it names no owning agent), and `search_knowledge` can never be
+  in it, which is exactly why the check is a warning.
 - **`eval/run.py` refuses a `mock` provider.** Numbers from a scripted mock are not measurements.
 - **The harness runs items through `run_turn`**, the same path the CLI and the API use, each item in
   **its own session** so working memory cannot carry item N-1 into item N. Multi-turn conversations

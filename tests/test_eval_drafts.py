@@ -54,7 +54,7 @@ from eval.items import (
     unverified_label_counts,
 )
 from eval.validate import (
-    skill_grant_conflicts,
+    route_document_mismatches,
     ungrounded_items,
     unknown_doc_ids,
 )
@@ -99,10 +99,15 @@ RED_FLAG_ITEMS = 28
 #: How many items hold a machine-written value the owner decided not to verify, and in which
 #: fields. Published in every run's `summary.json` and printed in the results table, so it is
 #: exact for the same reason the strata are.
+#:
+#: The two fields differ by four: the owner verified `relevant_doc_ids` on `g-gh-001`, `g-gh-017`,
+#: `g-gh-026` and `g-gh-029` on 2026-08-22 while resolving the route-document warnings, and left
+#: their reference answers unverified. The counts are per field rather than per item precisely so
+#: that a partial verification like that is expressible.
 UNVERIFIED_ITEMS = 148
 UNVERIFIED_FIELD_COUNTS = {
-    "relevant_doc_ids": UNVERIFIED_ITEMS,
-    "reference_answer": UNVERIFIED_ITEMS,
+    "relevant_doc_ids": 144,
+    "reference_answer": 148,
 }
 
 #: The one item labelled with no relevant document. `g-md-027` describes deep vein thrombosis, and
@@ -116,19 +121,26 @@ UNGROUNDED_ITEMS = ("g-md-027",)
 #: document. Changing a data file is a deliberate act that updates both in the same commit.
 EVALUATION_DOC = Path("docs/EVALUATION.md")
 FROZEN_DIGESTS = {
-    GOLDEN_PATH: "b7b7781f135debd1059ad7ae0196d717ec3e7afc3d22c6483e0a59d99874d508",
+    GOLDEN_PATH: "d062b6072ab9fb41ea05f7ff8add32ed79b92e878e7763d1e57894218c7383e6",
     MULTITURN_PATH: "a675635212245b1b442bac09fdd1e78ac80f25a891816ede8e09c64e938de2c2",
 }
 
-#: Items whose hand-labelled route reaches none of the exclusive skills the item needs, accepted
-#: and reported rather than relabelled. All four are `general_health` items where the conflict is
-#: between a hand-written route and a **machine-written, unverified** document list, so which of
-#: the two is wrong is not something this lint can decide. None is unreachable in practice:
-#: `search_knowledge` is granted to every agent and filters nothing, so what the conflict means is
-#: that the category-filtered specialist skill for the labelled note is out of the route's reach.
-#: Asserted as an exact set so that a *new* conflict -- the kind that would encode a route the
-#: system is structurally forbidden to take -- fails here.
-KNOWN_SKILL_GRANT_CONFLICTS = ("g-gh-001", "g-gh-017", "g-gh-026", "g-gh-029")
+#: The reviewed baseline for the route-versus-document **warning** (`eval/validate.py`). Four items
+#: were flagged at the freeze; the owner opened all four documents on 2026-08-22 and resolved
+#: three by correcting the route to match the documents (`g-gh-017`, `g-gh-026`, `g-gh-029`). What
+#: remains is the baseline: an item a person has looked at and has not yet decided.
+#:
+#: This is a warning and not an error, so the baseline is asserted as an exact set rather than
+#: required to be empty. Empty would be a demand to relabel; unchecked would make the warning
+#: invisible. Exact means a *new* mismatch fails and a reviewed one does not.
+#:
+#: `g-gh-001` is the open one. Its route is `consultation` and its documents are
+#: `condition-hypertension` (no dedicated owner) plus
+#: `guideline-hypertension-diagnosis-and-bp-targets` (`find_guideline`, held by `research`). Both
+#: labels have now been verified by a person, so this is two hand-written labels disagreeing rather
+#: than a hand-written one disagreeing with a machine-written one -- which is why it is a decision
+#: and not a fix. See docs/EVALUATION.md section 1.6.
+REVIEWED_ROUTE_DOCUMENT_MISMATCHES = ("g-gh-001",)
 
 
 @pytest.fixture(scope="module")
@@ -280,16 +292,20 @@ def test_every_machine_written_field_declares_itself_unverified(golden: list[Gol
 def test_an_unverified_reference_answer_names_the_documents_it_was_written_from(
     golden: list[GoldenItem],
 ) -> None:
-    """A machine-written reference answer was written *only* from the notes proposed beside it.
+    """A machine-written reference answer was written *only* from the notes labelled beside it.
 
-    So an unverified `reference_answer` implies an unverified `relevant_doc_ids` holding the notes
-    it came from. A reference answer with no source is a claim with nothing behind it, which is
-    the one thing a reference answer must never be.
+    So an unverified `reference_answer` implies a non-empty `relevant_doc_ids`: a reference answer
+    with no source is a claim with nothing behind it, which is the one thing a reference answer
+    must never be.
+
+    It does **not** imply that those documents are also unverified. The two fields are verified
+    independently and four items now differ -- the owner checked the document lists on `g-gh-001`,
+    `g-gh-017`, `g-gh-026` and `g-gh-029` without checking the answers written from them. Knowing
+    the sources are right is not knowing the prose is faithful to them.
     """
     for item in golden:
         if "reference_answer" not in item.unverified_fields:
             continue
-        assert "relevant_doc_ids" in item.unverified_fields, item.id
         assert item.relevant_doc_ids, item.id
 
 
@@ -322,23 +338,25 @@ def test_labelled_document_lists_stay_short(golden: list[GoldenItem]) -> None:
     assert all(len(set(item.relevant_doc_ids)) == len(item.relevant_doc_ids) for item in golden)
 
 
-def test_a_labelled_route_reaches_a_skill_the_item_needs(
+def test_the_route_document_warning_matches_its_reviewed_baseline(
     golden: list[GoldenItem], policy: Policy, doc_categories: dict[str, Category]
 ) -> None:
-    """The check that keeps a label from encoding a route the system cannot take.
+    """A warning, pinned to what a person has already looked at.
 
     `data/policy.yaml` grants six of the seven skills to one agent each, and a labeller does not
-    have that file open. A route naming agents that between them hold **none** of the exclusive
-    skills the question needs would be scored against a path the system is structurally unable to
-    answer through. The exclusive grants are read from the policy and the needed skills from the
-    labelled notes' corpus categories, so neither is a copy that can drift.
+    have that file open. What this detects is a route whose **dedicated, category-filtered** skill
+    does not match the corpus category of the documents labelled beside it. It is not a claim that
+    the route cannot answer the question: `search_knowledge` is unfiltered and every agent holds
+    it, so every note stays reachable. What is lost is the filtered path to it.
 
-    The four below are accepted and reported, not relabelled: see `KNOWN_SKILL_GRANT_CONFLICTS`.
+    The grants are read from the policy and the expected skills from the labelled notes' corpus
+    categories, so neither is a copy that can drift. The baseline is exact rather than empty,
+    because a warning nobody can leave standing is an error wearing a different name.
     """
-    conflicts = skill_grant_conflicts(golden, policy=policy, doc_categories=doc_categories)
+    mismatches = route_document_mismatches(golden, policy=policy, doc_categories=doc_categories)
 
-    assert tuple(conflict.item_id for conflict in conflicts) == KNOWN_SKILL_GRANT_CONFLICTS, [
-        str(conflict) for conflict in conflicts
+    assert tuple(m.item_id for m in mismatches) == REVIEWED_ROUTE_DOCUMENT_MISMATCHES, [
+        str(m) for m in mismatches
     ]
 
 
