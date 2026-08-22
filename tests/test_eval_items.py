@@ -9,10 +9,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from eval.items import (
     GOLDEN_CATEGORIES,
     ITEMS_PER_CATEGORY,
+    JUDGEMENT_FIELDS,
     LONG_CONVERSATION_TURNS,
     LONG_CONVERSATIONS_REQUIRED,
     EvalDataError,
@@ -95,6 +97,64 @@ def test_a_provenance_marker_naming_something_that_is_not_a_label_is_refused(
 
     with pytest.raises(EvalDataError, match="invalid golden item"):
         load_golden(path, allow_draft=True)
+
+
+def test_an_unverified_field_records_provenance_and_does_not_gate_the_load() -> None:
+    """The two markers are the whole point of `eval/items.py` and they do opposite things.
+
+    `proposed_fields` says "nobody has dispositioned this, refuse the file". `unverified_fields`
+    says "a machine wrote it, a person decided not to check it, and every number computed against
+    it says so". Clearing the first marker instead of migrating to the second would have made the
+    file assert a verification that did not happen; leaving it set would have blocked the load
+    forever.
+    """
+    gated = _labeled().model_copy(update={"proposed_fields": ("reference_answer",)})
+    recorded = _labeled().model_copy(update={"unverified_fields": ("reference_answer",)})
+
+    assert gated.missing_labels() == ("reference_answer",)
+    assert recorded.missing_labels() == ()
+    assert recorded.reference_answer == gated.reference_answer
+
+
+def test_a_field_cannot_be_both_dispositioned_and_not() -> None:
+    """Two incompatible claims about one value, and whichever a reader believed would be a toss."""
+    with pytest.raises(ValidationError, match="both proposed_fields and unverified_fields"):
+        GoldenItem(
+            id="x",
+            question="q",
+            category="general_health",
+            proposed_fields=("reference_answer",),
+            unverified_fields=("reference_answer",),
+        )
+
+
+def test_neither_marker_may_name_a_judgement_field() -> None:
+    """`expected_route` and `red_flag` are hand-written or they are nothing.
+
+    They are the labels routing accuracy and red-flag recall are computed against, so a marker
+    saying either was machine-written must be impossible rather than merely absent.
+    """
+    for field in JUDGEMENT_FIELDS:
+        with pytest.raises(ValidationError, match="judgement field"):
+            GoldenItem(id="x", question="q", category="general_health", proposed_fields=(field,))
+        with pytest.raises(ValidationError, match="judgement field"):
+            GoldenItem(id="x", question="q", category="general_health", unverified_fields=(field,))
+
+
+def test_an_empty_document_list_beside_a_reference_answer_is_a_label() -> None:
+    """ "No note in this corpus grounds this question" is a finding, not a blank.
+
+    Requiring a non-empty list would make inventing a source the only way to load the file, which
+    is the reverse of what an item like `g-md-027` is in the set to measure. An empty list with no
+    reference answer beside it is still an unlabelled item.
+    """
+    ungrounded = _labeled().model_copy(
+        update={"relevant_doc_ids": (), "reference_answer": "The corpus cannot ground this."}
+    )
+    blank = _labeled().model_copy(update={"relevant_doc_ids": (), "reference_answer": ""})
+
+    assert ungrounded.missing_labels() == ()
+    assert set(blank.missing_labels()) == {"relevant_doc_ids", "reference_answer"}
 
 
 def test_red_flag_false_is_a_label_and_not_an_absence() -> None:

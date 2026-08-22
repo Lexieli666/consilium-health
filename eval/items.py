@@ -7,24 +7,29 @@ itself against is worth nothing, and the only thing that makes the numbers mean 
 person annotated the labels by hand.  A gate in a document is a request; a gate in the loader is a
 constraint.
 
-The draft that ships alongside this module carries ``labeled: false`` and ``draft_notes`` -- one
-line per item saying what the item was written to test.  That is authoring intent, not an answer
-key.
+**Two of the four label fields were written by hand and two were not, and the record says which.**
+``expected_route`` and ``red_flag`` are pure judgement and are the labels routing accuracy and
+red-flag recall are computed against, so nothing ever proposed them: they were written by a person,
+blind to the category and to the phrasing stratum.  ``relevant_doc_ids`` and ``reference_answer``
+shipped as machine-written candidates, and the owner decided **not** to verify them item by item.
 
-**Two of the four label fields ship holding a machine-written candidate, and two ship empty.**
-``relevant_doc_ids`` and ``reference_answer`` are mechanical: proposing them costs the labeller
-nothing in independence, because reading the corpus notes is what filling them in consists of
-either way.  ``expected_route`` and ``red_flag`` ship empty and stay empty until a person writes
-them, because they are pure judgement and they are the two fields that drive routing accuracy and
-red-flag recall -- a candidate there would be an anchor on exactly the numbers the checkpoint
-exists to protect.
+That decision forced the split below, and the split is the point of this module:
 
-A candidate is not a label, so ``proposed_fields`` names every field that holds one and
-:meth:`GoldenItem.missing_labels` reports those fields as still missing.  The labeller verifies the
-candidate, corrects it, and removes the field's name from ``proposed_fields``; until then the
-loader refuses the file exactly as it refuses an empty one.  Without that marker, flipping
-``labeled: true`` after writing the two judgement fields would silently promote 150 machine-written
-reference answers into ground truth, which is the failure this whole gate exists to prevent.
+``proposed_fields`` is a **gate**.  A field named there holds a candidate nobody has dispositioned,
+:meth:`GoldenItem.missing_labels` reports it as missing, and ``load_golden`` refuses the file.  It
+is what stops flipping ``labeled: true`` from promoting a machine-written answer key into ground
+truth by silence.  The multi-turn set is still unlabelled, so the mechanism stays.
+
+``unverified_fields`` is **provenance**.  Same field names, same values, no gate.  It records that
+a machine wrote the value and no person checked it, and it is carried into ``summary.json`` and
+printed in the results table beside every number computed against it.  Clearing the marker instead
+would have made the file assert a verification that did not happen; leaving the gate set would have
+blocked the load forever.  The two sets are disjoint per record, because a field cannot be both
+dispositioned and not.
+
+What that costs is stated wherever the affected numbers appear rather than in a footnote:
+**recall@5 and faithfulness are measured against a machine-constructed reference, while routing
+accuracy and red-flag recall are not.**
 
 **The phrasing stratum is a field, not a marker in the prose.**  Red-flag recall is reported split
 by ``phrasing_stratum``, and ``draft_notes`` is the field the labeller edits while working.  A
@@ -36,23 +41,38 @@ item would still be valid.  So the stratum is its own field, and ``draft_notes``
 from __future__ import annotations
 
 import json
+from collections import Counter
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
 from consilium.trace import RouteMode
 
 #: The four label fields, in the order a labeller works through them (see docs/EVALUATION.md).
-#: ``proposed_fields`` is validated against this tuple, so a typo in a provenance marker cannot
-#: silently disable the gate it exists to hold open.
+#: ``proposed_fields`` and ``unverified_fields`` are both validated against this tuple, so a typo
+#: in a provenance marker cannot silently disable the gate it holds open, nor silently drop a
+#: field out of the disclosure that says which numbers rest on a machine-written reference.
 LABEL_FIELDS: tuple[str, ...] = (
     "expected_route",
     "relevant_doc_ids",
     "reference_answer",
     "red_flag",
 )
+
+#: The two label fields that are pure judgement.  Nothing ever proposed them and nothing may ever
+#: mark them unverified: they are the labels routing accuracy and red-flag recall are computed
+#: against, and the whole value of those two numbers is that a person wrote them by hand.
+JUDGEMENT_FIELDS: tuple[str, ...] = ("expected_route", "red_flag")
 
 #: The five blocks of the golden set.  ``multi_dimensional`` is the block labelled
 #: ``mode: parallel`` and it is not optional: with only single-specialty questions, a router that
@@ -120,10 +140,19 @@ class GoldenItem(BaseModel):
     #: Set to true by the person who labelled the item.  The loader trusts this flag *and* checks
     #: the fields, so a file cannot claim to be labelled while leaving a label empty.
     labeled: bool = False
-    #: Label fields holding a machine-written **candidate** rather than a label.  A candidate is
-    #: something for the labeller to verify or overwrite; the field is reported as missing until
-    #: its name is removed from here, so a proposal cannot be promoted to a label by silence.
+    #: **The gate.**  Label fields holding a machine-written candidate that nobody has
+    #: dispositioned.  A field named here is reported as missing by :meth:`missing_labels` even
+    #: though it is populated, so ``load_golden`` refuses the file: a proposal cannot be promoted
+    #: to a label by silence.  The multi-turn set is still unlabelled, so the mechanism stays.
     proposed_fields: tuple[str, ...] = ()
+    #: **Provenance, not a gate.**  Label fields whose value a machine wrote and no person
+    #: verified.  Same field names as ``proposed_fields`` and the same values; the difference is
+    #: that this one does not block the load.  It exists because the owner decided not to verify
+    #: ``relevant_doc_ids`` and ``reference_answer`` item by item: clearing the marker would have
+    #: made the file assert a verification that did not happen, and leaving the gate set would
+    #: have blocked loading forever.  The count is carried into ``summary.json`` and printed in
+    #: the results table beside every number computed against these fields.
+    unverified_fields: tuple[str, ...] = ()
     #: Which phrasing stratum a red-flag candidate was drafted in, or ``None`` where the item is
     #: not a red-flag candidate.  A first-class field rather than a marker inside ``draft_notes``,
     #: because red-flag recall is *split* on it: a dimension a metric splits on cannot depend on
@@ -134,27 +163,61 @@ class GoldenItem(BaseModel):
     #: What the item was written to test.  Authoring intent, never an answer key.
     draft_notes: str = ""
 
-    @field_validator("proposed_fields")
+    @field_validator("proposed_fields", "unverified_fields")
     @classmethod
-    def _known_label_fields(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+    def _known_label_fields(cls, value: tuple[str, ...], info: ValidationInfo) -> tuple[str, ...]:
         unknown = sorted(set(value) - set(LABEL_FIELDS))
         if unknown:
-            raise ValueError(f"proposed_fields names fields that are not labels: {unknown}")
+            raise ValueError(f"{info.field_name} names fields that are not labels: {unknown}")
+        judgement = sorted(set(value) & set(JUDGEMENT_FIELDS))
+        if judgement:
+            raise ValueError(
+                f"{info.field_name} names a judgement field: {judgement}. "
+                "expected_route and red_flag are written by a person by hand and by nothing else; "
+                "a marker on either would mean the two numbers the labelling gate exists to "
+                "protect rest on a machine-written value."
+            )
         return value
+
+    @model_validator(mode="after")
+    def _provenance_markers_are_disjoint(self) -> GoldenItem:
+        """A field cannot be both dispositioned and not.
+
+        ``proposed_fields`` says "nobody has looked at this yet, refuse the file";
+        ``unverified_fields`` says "a machine wrote this, a person decided not to check it, and
+        every number computed against it says so".  A field in both would be making two
+        incompatible claims, and whichever one a reader believed would be a coin toss.
+        """
+        both = sorted(set(self.proposed_fields) & set(self.unverified_fields))
+        if both:
+            raise ValueError(
+                f"{both} are named in both proposed_fields and unverified_fields. "
+                "A label field is either still waiting on the labeller or knowingly unverified; "
+                "it cannot be both."
+            )
+        return self
 
     def missing_labels(self) -> tuple[str, ...]:
         """Which label fields still need the labeller.
 
-        A field is missing when it is empty **or** when it holds an unverified machine-written
-        candidate.  The second half is what makes ``proposed_fields`` load-bearing: a candidate
-        that nobody has looked at is not a label, and the loader must refuse it for the same
-        reason it refuses an empty one.
+        A field is missing when it is empty **or** when it is named in ``proposed_fields`` --  a
+        candidate nobody has dispositioned is not a label, and the loader must refuse it for the
+        same reason it refuses an empty one.  ``unverified_fields`` deliberately does **not**
+        appear here: it records provenance for a value the owner has decided to accept as-is, and
+        a provenance marker that blocked the load would be a gate nobody could ever clear without
+        asserting a verification that did not happen.
+
+        ``relevant_doc_ids`` is the one field where empty is a legitimate label: it means "no note
+        in this corpus grounds this question", which `g-md-027` is in the set to record.  An empty
+        list *beside a blank reference answer* is still an unlabelled item, so the two are checked
+        together rather than dropping the check.
         """
         proposed = set(self.proposed_fields)
+        ungrounded = not self.relevant_doc_ids and not self.reference_answer.strip()
         missing: list[str] = []
         if self.expected_route is None or "expected_route" in proposed:
             missing.append("expected_route")
-        if not self.relevant_doc_ids or "relevant_doc_ids" in proposed:
+        if ungrounded or "relevant_doc_ids" in proposed:
             missing.append("relevant_doc_ids")
         if not self.reference_answer.strip() or "reference_answer" in proposed:
             missing.append("reference_answer")
@@ -268,6 +331,27 @@ def load_multiturn(path: Path, *, allow_draft: bool = False) -> list[MultiturnCo
     if not allow_draft:
         _require_labeled(path, conversations)
     return conversations
+
+
+def unverified_label_counts(items: Sequence[GoldenItem]) -> dict[str, int]:
+    """How many items hold a machine-written, unverified value in each label field.
+
+    This is the number ``eval/run.py`` carries into ``summary.json`` and ``report.md`` prints in
+    the results table.  It is reported per field rather than as one total because the fields are
+    not interchangeable: ``relevant_doc_ids`` is what recall@5 is computed against and
+    ``reference_answer`` is what the faithfulness judge reads, so which field is unverified
+    determines which number is affected.
+
+    Fields are returned in ``LABEL_FIELDS`` order, and a field nothing marks is absent rather than
+    present with a zero -- an empty mapping means every label in the set was verified by hand.
+    """
+    counts = Counter(field for item in items for field in item.unverified_fields)
+    return {field: counts[field] for field in LABEL_FIELDS if counts[field]}
+
+
+def unverified_item_count(items: Sequence[GoldenItem]) -> int:
+    """How many items hold at least one unverified label field."""
+    return sum(1 for item in items if item.unverified_fields)
 
 
 def _require_labeled(
