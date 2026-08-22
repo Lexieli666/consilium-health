@@ -82,12 +82,14 @@ This split is the substance of the checkpoint, so it is stated exactly rather th
 |---|---|---|---|
 | `expected_route` | **the owner, by hand, blind** | yes, on all 150 | Which specialists genuinely own parts of a question is a judgement, and it is the label routing accuracy is computed against. A candidate here would have anchored the number the ablation exists to produce, so nothing ever proposed one. |
 | `red_flag` | **the owner, by hand, blind** | yes, on all 150 | Whether a question describes a presentation that must produce a seek-care instruction is a judgement, and it is the label red-flag recall is computed against. Same reason, higher stakes. |
-| `relevant_doc_ids` | a model | **no — 148 of 150** | Mechanical, so proposing it cost the labeller nothing in independence. The owner then decided not to verify the proposals item by item. |
-| `reference_answer` | a model | **no — 148 of 150** | Mechanical for the same reason, and written **only** from the documents proposed beside it. Same decision. |
+| `relevant_doc_ids` | a model | **no — 144 of 150** | Mechanical, so proposing it cost the labeller nothing in independence. The owner then decided not to verify the proposals item by item, and later verified four of them (§1.6). |
+| `reference_answer` | a model | **no — 148 of 150** | Mechanical for the same reason, and written **only** from the documents proposed beside it. Same decision, and no exceptions to it. |
 
-Two items carry no machine-written value in either mechanical field and are therefore not in the
-148: `g-gh-030`, whose documents and reference answer were rewritten by hand, and `g-md-027`, which
-has no documents at all (§1.1.2).
+The two fields are verified independently, which is why their counts differ. Six items are outside
+the 144: `g-gh-030` and `g-md-027`, which carry no machine-written value in either mechanical field
+(§1.1.2), and `g-gh-001`, `g-gh-017`, `g-gh-026` and `g-gh-029`, whose document lists the owner read
+on 2026-08-22 while resolving the route-document warnings (§1.6). Their reference answers are still
+unverified: knowing the sources are right is not knowing the prose is faithful to them.
 
 **The decision not to verify was the owner's, and it is disclosed rather than papered over.** While
 labelling was pending, `proposed_fields` was the right mechanism: it named every field holding a
@@ -192,10 +194,11 @@ the drafts — an item written to have two dimensions does not automatically hav
 **The one thing blindness cost, and the check that now catches it.** A labeller who cannot see the
 block also cannot see `data/policy.yaml`, and that file grants six of the seven skills to exactly
 one agent each. A route label can therefore name a set of agents that between them hold none of the
-skills the question needs — a route the system is structurally unable to answer the question
-through. One such conflict was found by hand during the merge and fixed. A check found by hand once
-is a check that will be missed the next time, so it is now derived in `eval/validate.py` from the
-policy file and the corpus categories and asserted in the lint (§1.4).
+**dedicated** skills the labelled documents imply — so the turn reaches those documents only
+through `search_knowledge`, which is unfiltered, rather than through the skill filtered to their
+category. One such mismatch was found by hand during the merge and fixed. A check found by hand
+once is a check that will be missed the next time, so it is now derived in `eval/validate.py` from
+the policy file and the corpus categories and reported by the lint as a warning (§1.4).
 
 **Per item, the labeller worked in this order:**
 
@@ -226,12 +229,14 @@ not performed, by decision. §1.1.1 is what that means for the numbers.
 | `red_flag: true` | 28 |
 | `red_flag: false` | 122 |
 
-By agent set, as routing accuracy compares them (sorted, so `[a, b]` and `[b, a]` are one row):
+By agent set, as routing accuracy compares them (sorted, so `[a, b]` and `[b, a]` are one row).
+Three of these moved on 2026-08-22 when the route-document warnings were resolved (§1.6); the
+mode counts above did not, because those corrections changed which agent and never the mode:
 
 | mode | agents | items |
 |---|---|---|
-| single | `consultation` | 58 |
-| single | `research` | 33 |
+| single | `consultation` | 59 |
+| single | `research` | 32 |
 | single | `diagnostic` | 30 |
 | parallel | `diagnostic` + `research` | 16 |
 | parallel | `consultation` + `research` | 7 |
@@ -242,7 +247,7 @@ By block:
 
 | block | labelled routes |
 |---|---|
-| `general_health` | 28 single `consultation`; 2 single `research` |
+| `general_health` | 29 single `consultation`; 1 single `research` |
 | `symptom_urgency` | 28 single `diagnostic`; 2 parallel `consultation`+`diagnostic` |
 | `condition_coding` | 30 single `consultation` |
 | `guideline_evidence` | 30 single `research` |
@@ -368,40 +373,62 @@ validates a record against its own schema; these check a record against the file
 | check | why it cannot be a one-off script |
 |---|---|
 | every `relevant_doc_ids` entry names a real note in `data/corpus/` | `doc_id` is the filename stem by contract, and a typo would land in the results as a retrieval miss rather than as the typo it is |
-| the labelled route reaches at least one exclusive skill the item needs | a labeller does not have `data/policy.yaml` open, so nothing else stops a label encoding a route the system is forbidden to take |
+| **(warning)** the labelled route carries a dedicated skill for the labelled documents | a labeller does not have `data/policy.yaml` open, so nothing else notices when the route label and the document label disagree about what the question is |
 | every red-flag item is routed somewhere holding `assess_risk` | only `diagnostic` holds it, and it is the skill that consults the rule table the label came from |
 | the two provenance markers are disjoint | an item cannot be both verified and not |
 | the per-stratum matcher hits are 0/22 and 5/5 | both are published in §1.3, and both move only if a question changes |
 | the strata hold exactly 22 and 5 | they are the denominators of the two published recall figures |
-| the unverified counts are 148 in both mechanical fields | that number is printed in the results table, so the disclosure must not itself be unverified |
+| the unverified counts are 144 `relevant_doc_ids` and 148 `reference_answer` | those numbers are printed in the results table, so the disclosure must not itself be unverified |
 | `g-md-027` is the only item with no relevant documents | it is the one item recall@5 is not computed over |
 
-The skill-grant check is derived, not restated: which skills are exclusive and to whom is read from
-`data/policy.yaml`, and which skill a labelled note needs is read from that note's corpus category.
-A copy of the grants in the test would be a second source that drifts from the file actually
-governing the agents.
+#### The route-document check is a warning, and the earlier wording of it was wrong
 
-It reports a conflict only where the labelled agents hold **none** of the skills the item needs. A
-question can need two exclusive skills and be answerable through either, so a route reaching one of
-them is a defensible label; a route reaching none of them is the failure. `search_knowledge` is
-granted to every agent and filters nothing, so no corpus note is ever strictly unreachable — what a
-conflict means is that the **category-filtered specialist skill** for the labelled note is out of
-the route's reach and the note can only be found by an unfiltered search.
+An earlier version of this section said a mismatch meant "a route the system is structurally
+forbidden to take". **That was too strong and is corrected here rather than quietly dropped.**
+`search_knowledge` takes an optional category argument, defaults to searching everything, and is
+granted to all three agents — so every agent can reach every corpus note and **no labelled route is
+structurally impossible**.
 
-**Four conflicts stand, are accepted, and are reported rather than relabelled**, all in
-`general_health`:
+What the check actually detects is narrower and worth stating precisely: **the dedicated skills are
+category-filtered and `search_knowledge` is not**, so when the labelled route carries none of the
+dedicated skills for the categories of its labelled documents, those documents are reachable only
+through the unfiltered search — competing with all 78 notes for a top-5 slot rather than with the
+13 lifestyle notes or the 19 guideline notes. That is a claim about retrieval quality, and it can
+equally mean the route label and the document label simply disagree about what the question is.
+Neither is something a lint can decide, so it **warns against a reviewed baseline** rather than
+failing.
 
-| item | labelled route | skill it needs, and who holds it |
-|---|---|---|
-| `g-gh-001` | single `consultation` | `find_guideline` (`research`) |
-| `g-gh-017` | single `research` | `recommend_lifestyle` (`consultation`) |
-| `g-gh-026` | single `research` | `recommend_lifestyle` (`consultation`) |
-| `g-gh-029` | single `consultation` | `find_guideline` (`research`) |
+It is derived, not restated: which skills are exclusive and to whom is read from `data/policy.yaml`,
+and which skill a labelled note implies is read from that note's corpus category. A copy of the
+grants in the test would be a second source that drifts from the file actually governing the agents.
 
-In all four the conflict is between a **hand-written** route and a **machine-written, unverified**
-document list, so which of the two is wrong is not something the lint can decide and is not
-something it guesses at. The set is asserted exactly, so a *new* conflict — the kind that would
-encode a route the system is structurally forbidden to take — fails the lint.
+It reports a mismatch only where the labelled agents hold **none** of the dedicated skills the
+item's labels imply. A question can imply two and be well served by either, so a route reaching one
+of them is a defensible label; a route reaching none of them is the one worth a person's attention.
+
+`eval/run.py` logs each mismatch at warning level when a sweep starts, so a person paying for the
+run sees it beside the recall@5 number rather than discovering it afterwards.
+`tests/test_eval_drafts.py` pins the same set to the reviewed baseline, so a new one is caught
+before a sweep is paid for at all. The baseline is asserted as an **exact set** rather than required
+to be empty: empty would be a standing demand to relabel, unchecked would make the warning
+invisible, and exact means a new mismatch fails while a reviewed one does not.
+
+#### The four that were flagged, and what happened to them
+
+All four were `general_health` items. The owner opened all four documents on 2026-08-22 and
+resolved three by correcting the route to match the documents; the full record is §1.6.
+
+| item | flagged route | dedicated skill the documents imply | resolution |
+|---|---|---|---|
+| `g-gh-017` | single `research` | `recommend_lifestyle` (`consultation`) | route corrected to `consultation` |
+| `g-gh-026` | single `research` | `recommend_lifestyle` (`consultation`) | route corrected to `consultation` |
+| `g-gh-029` | single `consultation` | `find_guideline` (`research`) | route corrected to `research` |
+| `g-gh-001` | single `consultation` | `find_guideline` (`research`) | **open** — both documents verified, decision pending (§1.6) |
+
+`g-gh-001` is therefore the whole of the current baseline. It is also now a different kind of
+finding from the other three: its document list has been verified, so the warning is two
+hand-written labels disagreeing rather than a hand-written label disagreeing with a machine-written
+one. That is a decision for the owner and not a fix for a lint.
 
 ### 1.5 The freeze
 
@@ -409,7 +436,7 @@ Checkpoint B is closed. The golden set is labelled and frozen; the multi-turn se
 
 | file | items | sha256 |
 |---|---|---|
-| `eval/data/golden.jsonl` | 150 questions, labelled | `b7b7781f135debd1059ad7ae0196d717ec3e7afc3d22c6483e0a59d99874d508` |
+| `eval/data/golden.jsonl` | 150 questions, labelled | `d062b6072ab9fb41ea05f7ff8add32ed79b92e878e7763d1e57894218c7383e6` |
 | `eval/data/multiturn.jsonl` | 30 conversations, **still an unlabelled draft** | `a675635212245b1b442bac09fdd1e78ac80f25a891816ede8e09c64e938de2c2` |
 
 The digests are recorded so that a published number can be tied to the exact file it was computed
@@ -424,8 +451,9 @@ stale digest in a frozen record is worse than no digest.
 - 150 items, 30 in each of five blocks; ids are block-prefixed and dropped ids are never reused.
 - `expected_route` and `red_flag` on all 150, hand-labelled blind (§1.2). 121 single, 29 parallel,
   28 red-flag.
-- `relevant_doc_ids` and `reference_answer` machine-written on 148 of 150 and **unverified**
-  (§1.1.1), recorded per record in `unverified_fields`.
+- `reference_answer` machine-written and **unverified** on 148 of 150; `relevant_doc_ids`
+  machine-written and unverified on 144 of 150, the other six being two the owner wrote and four
+  the owner verified on 2026-08-22 (§1.6). Recorded per record in `unverified_fields`.
 - 22 hard-phrasing and 5 easy-phrasing red-flag items, matcher hits 0/22 and 5/5 under both
   negation policies (§1.3).
 - `g-md-027` labelled `red_flag: true` with no relevant documents and no stratum (§1.1.2).
@@ -439,6 +467,47 @@ wording, so a rewritten question carries a label written about a different quest
 **Not frozen, and still to do:** `eval/data/multiturn.jsonl` is unlabelled and `load_multiturn`
 still refuses it. No sweep has been run against either file, so every results number in §6 and in
 the README reads `not measured`.
+
+**A frozen file can still be edited; it cannot be edited silently.** Every post-freeze change to
+`eval/data/golden.jsonl` is logged in §1.6 with the item id, what changed, why, and the digest on
+both sides of it. The digest in the table above is always the current one.
+
+### 1.6 Post-freeze changelog
+
+#### 2026-08-22 — route-document warnings resolved, one stale note corrected
+
+`b7b7781f135debd1059ad7ae0196d717ec3e7afc3d22c6483e0a59d99874d508`
+→ `d062b6072ab9fb41ea05f7ff8add32ed79b92e878e7763d1e57894218c7383e6`
+
+The freeze lint reported four items where the hand-labelled route carried no dedicated skill for
+the labelled documents (§1.4). The owner opened all four documents and resolved them. No question
+text was edited, no `red_flag` label was touched, and no other item was changed.
+
+| item | change | why |
+|---|---|---|
+| `g-gh-017` | `expected_route.agents` `["research"]` → `["consultation"]`; mode stays `single` | The dietary content lives in `lifestyle-hypertension-diet`, so the document list was right and the route was wrong. `recommend_lifestyle` is `consultation`'s. |
+| `g-gh-026` | `expected_route.agents` `["research"]` → `["consultation"]`; mode stays `single` | The same, against `lifestyle-generalized-anxiety-disorder-activity`. |
+| `g-gh-029` | `expected_route.agents` `["consultation"]` → `["research"]`; mode stays `single` | Measurement technique and the confirm-the-diagnosis rule both live in `guideline-hypertension-diagnosis-and-bp-targets`, so the document was right and the route was wrong. `find_guideline` is `research`'s. |
+| `g-gh-001` | **unchanged, open** | The owner verified both documents and paused: the last sentence of the reference answer is sourced from the guideline note that dropping it would remove. See below. |
+| `g-md-030` | `draft_notes` text only | The note still said the question quotes "6.2", a mmol/L value; the question says 165 mg/dL. Corrected to match, along with the two claims that hung off it — the corpus states lipid values in mg/dL, so the question's number now agrees with it, and the modifiable coronary-risk factors it asks for are carried by `condition-coronary-artery-disease`. No label changed. |
+| `g-gh-001`, `g-gh-017`, `g-gh-026`, `g-gh-029` | `relevant_doc_ids` removed from `unverified_fields` | The owner read all four document lists while resolving the above. Their `reference_answer` values stay unverified, and both fields stay unverified on the other 146. |
+
+**Effect on the published counts.** `mode` stays 121 single / 29 parallel and `red_flag` stays 28,
+because the three route corrections changed which agent, never the mode. Unverified
+`relevant_doc_ids` falls 148 → 144; unverified `reference_answer` stays 148. The per-stratum
+matcher hits were re-run and are unchanged at 0/22 hard and 5/5 easy under both negation policies.
+
+**`g-gh-001` is open and is recorded here rather than decided quietly.** Its route is
+`consultation` and its documents are `condition-hypertension` and
+`guideline-hypertension-diagnosis-and-bp-targets`. The intent was to drop the guideline note, but
+the reference answer's last sentence — "the diagnosis rests on an average of two or more readings
+on two or more separate occasions, usually confirmed with home or ambulatory measurement" — is
+sourced from that note and from no other. `condition-hypertension` carries the qualitative claim
+("a diagnosis rests on repeated measurements rather than one reading") and explicitly defers the
+rest: "Diagnostic thresholds, treatment targets, drug classes and follow-up intervals are covered
+by the hypertension guideline notes in this corpus." The quantified standard and the out-of-office
+confirmation appear only in the guideline note. Until the owner decides, the item stands as
+labelled and is the reviewed baseline of the §1.4 warning.
 
 ---
 
@@ -692,8 +761,9 @@ a sample of anything: both were written by one person, with the rule table open.
 **The reference answers and the relevant-document lists were written by a model, against a corpus
 the same model family wrote, and nobody checked them.** This is the largest threat in this list and
 it is a decision rather than an oversight (§1.1.1). `relevant_doc_ids` and `reference_answer` are
-model-proposed and unverified on 148 of 150 items, so **recall@5 and faithfulness are measured
-against a machine-constructed reference** — a reference that shares an author with the system being
+model-proposed and unverified on 144 and 148 of the 150 items respectively, so **recall@5 and
+faithfulness are measured against a machine-constructed reference** — a reference that shares an
+author with the system being
 measured, which is the definition of the circularity the whole checkpoint exists to avoid, admitted
 in the one place it was not avoided. Read those two columns as "does the system agree with the
 model that wrote the corpus", not as "does the system retrieve the right documents".

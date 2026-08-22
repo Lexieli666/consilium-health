@@ -1428,35 +1428,63 @@ evidence strength" — and that prose is a paraphrase of the grants, not the gra
 A paraphrase is enough to route most questions and not enough to route the ones near a boundary. A
 labeller cannot see `policy.yaml`, and a blind labeller cannot even see the block that would have
 hinted at it, so nothing stops a route label from naming a set of agents that between them hold
-**none** of the skills the question needs. **The label then encodes a route the system is
-structurally forbidden to take**, and the run is scored against it: the turn cannot reach the
-category-filtered skill for the documents the item is labelled with, retrieval comes back thinner
-than the label expects, and it lands in the results as a retrieval failure or a routing miss with
-no trace of the fact that the label asked for something the policy forbids.
+**none** of the dedicated skills the labelled documents imply. The run is then scored against a
+route whose dedicated, category-filtered path to those documents does not exist: retrieval comes
+back thinner than the label expects, and it lands in the results as a retrieval failure or a routing
+miss with no trace of the fact that the route and the document list disagreed about what the
+question was.
 
-One such conflict was found by hand during the merge and fixed. That is the part worth generalizing:
+**A correction to how this was first written.** The first version of this section said such a label
+"encodes a route the system is structurally forbidden to take". That is wrong, and it is corrected
+here rather than quietly deleted, because the overstatement is instructive. `search_knowledge` takes
+an optional category argument, defaults to searching everything, and is granted to all three agents.
+So every agent reaches every corpus note and **no labelled route is structurally impossible**. What
+is actually lost is the *filtered* path: the dedicated skills narrow retrieval to one category —
+`recommend_lifestyle` to the 13 lifestyle notes, `find_guideline` to the 19 guideline notes — and a
+route without them must find the same documents in a search across all 78. The accurate claim is
+about retrieval quality and about two labels disagreeing, not about impossibility.
+
+The error is worth keeping visible because of what produced it: a check was built, it fired four
+times, and the framing was written from the check's output rather than from the policy file the
+check reads. `search_knowledge` being unfiltered and universal is stated plainly in `policy.yaml`'s
+own comments and in §10 of CLAUDE.md. Writing "structurally forbidden" made the finding sound more
+serious than it was, which is the direction an error of this kind always goes, and a reader who
+checked would have caught it immediately.
+
+One such mismatch was found by hand during the merge and fixed. That is the part worth generalizing:
 it was found by reading, in a merge that happened to be careful, and the next one would not have
 been. So the check is now derived and permanent, in `eval/validate.py`:
 
 - which skills are exclusive, and to whom, is **read from `data/policy.yaml`** rather than restated
   — a copy in the test would be a second source that drifts from the file actually governing the
-  agents, and the copy that lost would be the one deciding whether a labelled route is answerable;
-- which skill a labelled note needs is **read from that note's corpus `category`**;
-- which skill a block needs is the one thing stated in the module, because it is what the block is.
+  agents, and the copy that lost would be the one deciding whether a labelled route matches its
+  documents;
+- which skill a labelled note implies is **read from that note's corpus `category`**;
+- which skill a block implies is the one thing stated in the module, because it is what the block is.
 
-It reports a conflict only where the labelled agents hold **none** of the needed skills. A question
-can need two exclusive skills and be answerable through either, so a route reaching one of them is a
-defensible label; a route reaching none of them is the failure. And because `search_knowledge` is
-granted to every agent and filters nothing, no corpus note is ever strictly unreachable — what a
-conflict means is that the category-filtered specialist skill for the note is out of the route's
-reach and the note can only be found by an unfiltered search. That is a retrieval-quality claim, not
-an impossibility claim, and it is reported as one.
+**It warns; it does not fail.** A mismatch can mean the route is wrong, or the document list is
+wrong, or that an item legitimately spans two notes one agent cannot both reach in a filtered way.
+A lint cannot tell those apart, and a check that cannot tell them apart should not be able to stop a
+build. `eval/run.py` logs each one at warning level when a sweep starts, so it is seen beside the
+recall@5 number rather than after it; `tests/test_eval_drafts.py` pins the set to a **reviewed
+baseline**, asserted exactly. Exact rather than "must be empty", which would be a standing demand to
+relabel, and rather than unchecked, which would make the warning invisible: exact means a new
+mismatch fails and a reviewed one does not.
 
-Four conflicts stand and are accepted rather than relabelled — `g-gh-001`, `g-gh-017`, `g-gh-026`,
-`g-gh-029`, listed with their skills in `docs/EVALUATION.md` §1.4. In all four the conflict is
-between a hand-written route and a machine-written, unverified document list, so which of the two is
-wrong is not something a lint can decide and not something it guesses at. The set is asserted
-exactly, so a new conflict fails.
+It reports a mismatch only where the labelled agents hold **none** of the implied skills. A question
+can imply two and be well served by either, so a route reaching one of them is a defensible label;
+a route reaching none of them is the one worth a person's attention.
+
+**What the four turned out to be.** All four were `general_health`. The owner opened the documents
+and resolved three by correcting the route to match them — `g-gh-017` and `g-gh-026` from `research`
+to `consultation` (both label a `lifestyle` note), `g-gh-029` from `consultation` to `research` (it
+labels the hypertension guideline note). So in three of four cases the check was pointing at a real
+labelling error, and the route was the half that was wrong.
+
+The fourth, `g-gh-001`, is open and is the current baseline. Its documents are now verified too, so
+it is no longer a hand-written label disagreeing with a machine-written one — it is two verified
+labels disagreeing, which is a design decision about whether an item may span a condition note and
+a guideline note. `docs/EVALUATION.md` §1.6 records it.
 
 **The general form of the rule:** when a document tells a person how to produce a label, and a
 config file constrains what that label can mean, the two are one source with two copies. Either the
