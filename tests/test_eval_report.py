@@ -19,11 +19,20 @@ from eval.report import (
     ConfigResult,
     JudgeReport,
     RunSummary,
+    UnverifiedLabels,
     fmt,
     fmt_cell,
     render_markdown,
     to_json,
     write_results,
+)
+
+#: What the shipped golden set carries: both mechanical label fields machine-written on all but
+#: two items, both judgement fields hand-labelled on every item.
+UNVERIFIED = UnverifiedLabels(
+    n_total=150,
+    n_items=148,
+    fields={"relevant_doc_ids": 148, "reference_answer": 148},
 )
 
 
@@ -79,7 +88,7 @@ def _result(config: str, **kwargs: object) -> ConfigResult:
     return ConfigResult(config=config, n_items=10, **defaults)  # type: ignore[arg-type]
 
 
-def _summary(*results: ConfigResult) -> RunSummary:
+def _summary(*results: ConfigResult, unverified: UnverifiedLabels | None = None) -> RunSummary:
     return RunSummary(
         commit="abc123def456",
         started_at="2026-08-20T10:00:00+00:00",
@@ -94,6 +103,7 @@ def _summary(*results: ConfigResult) -> RunSummary:
         python="3.12.0",
         platform="Linux 6.6",
         pricing_source="pricing.yaml is empty, so cost is reported as not measured",
+        unverified_labels=unverified or UnverifiedLabels(),
         results=list(results),
     )
 
@@ -198,3 +208,57 @@ def test_writing_results_produces_both_artifacts(tmp_path: Path) -> None:
     assert report_path.name == "report.md"
     assert json.loads(summary_path.read_text(encoding="utf-8"))["commit"] == "abc123def456"
     assert report_path.read_text(encoding="utf-8").startswith("# Evaluation results")
+
+
+def test_an_unverified_reference_is_disclosed_in_the_table_not_only_in_a_footnote() -> None:
+    """The three affected columns say so in their own headers.
+
+    recall@5 and both faithfulness columns are computed against `relevant_doc_ids` and
+    `reference_answer`, which no person verified. A reader who takes those numbers for
+    measurements against a hand-built reference has been misled, and a footnote is something a
+    reader can finish the table without reaching -- so the disclosure is in the header, in a line
+    under the table, and again in the two paragraphs that report the metrics.
+    """
+    report = render_markdown(_summary(_result("full"), unverified=UNVERIFIED))
+    header = next(line for line in report.splitlines() if line.startswith("| configuration |"))
+
+    assert "recall@5 (vs. unverified ref)" in header
+    assert "faithfulness retrieved (vs. unverified ref)" in header
+    assert "faithfulness oracle (vs. unverified ref)" in header
+    assert "routing acc |" in header and "routing acc (vs" not in header
+    assert "red-flag recall |" in header and "red-flag recall (vs" not in header
+
+    assert "**Measured against an unverified reference.**" in report
+    assert "`relevant_doc_ids` (148 of 150 items)" in report
+    assert "Routing accuracy and red-flag recall are not" in report
+    assert "written by a model and never verified by a person" in report
+
+
+def test_a_fully_verified_set_prints_no_disclosure_at_all() -> None:
+    """The caveat is data-driven, so hand-verifying the labels removes it without an edit here."""
+    report = render_markdown(_summary(_result("full")))
+
+    assert "unverified" not in report
+    assert "| configuration | routing acc | recall@5 | faithfulness retrieved |" in report
+
+
+def test_the_provenance_of_the_reference_survives_into_the_committed_json() -> None:
+    """A reviewer reading `summary.json` can see it without opening the golden set."""
+    payload = json.loads(to_json(_summary(_result("full"), unverified=UNVERIFIED)))
+
+    assert payload["unverified_labels"] == {
+        "n_total": 150,
+        "n_items": 148,
+        "fields": {"relevant_doc_ids": 148, "reference_answer": 148},
+    }
+
+
+def test_the_disclosure_names_the_metrics_the_unverified_fields_are_the_reference_for() -> None:
+    assert UNVERIFIED.affected_metrics == (
+        "recall@5",
+        "hit@5",
+        "MRR@10",
+        "faithfulness (oracle)",
+    )
+    assert UnverifiedLabels().affected_metrics == ()
+    assert UnverifiedLabels().sentence() == ""

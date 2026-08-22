@@ -27,11 +27,66 @@ was replaced by the following, on the owner's instruction:
     and not to be revisited: the `source:` field naming a kind of authority, the "Where guidance
     differs" sections, `doc_id` == filename stem, the five fixed front-matter keys, the
     byte-identical disclaimer, and the note-length band.
-  - **Checkpoint B — Phase 8, at the golden set.** Generate `eval/data/golden.jsonl` (150 items)
-    and `eval/data/multiturn.jsonl` (30 conversations) as **drafts only**. Do not label them, do
-    not run the eval against them, do not proceed to Phase 9. The owner labels them by hand. This
-    gate is not tradeable for speed: an eval set the system wrote and scored itself against is
-    worth nothing, and being able to say the owner annotated it is the point of the harness.
+  - **Checkpoint B — Phase 8, at the golden set.** ✅ **Cleared 2026-08-22 for the golden set
+    only.** `eval/data/golden.jsonl` is labelled and frozen; `eval/data/multiturn.jsonl` is
+    **still an unlabelled draft** and `load_multiturn` still refuses it. Phase 9 does not start.
+    The freeze record — both sha256 digests, the counts, the blind procedure, the per-stratum
+    pattern-hit table, the unverified-reference limitation — is `docs/EVALUATION.md` §1.5, and the
+    digests are asserted in `tests/test_eval_drafts.py` in both directions.
+
+    The original instruction, kept because it is what the drafts were written under: generate
+    `eval/data/golden.jsonl` (150 items) and `eval/data/multiturn.jsonl` (30 conversations) as
+    **drafts only**. Do not label them, do not run the eval against them, do not proceed to
+    Phase 9. The owner labels them by hand. This gate is not tradeable for speed: an eval set the
+    system wrote and scored itself against is worth nothing, and being able to say the owner
+    annotated it is the point of the harness.
+
+    **What the golden set actually carries, frozen 2026-08-22.** `expected_route` and `red_flag`
+    were hand-labelled on all 150 items **blind** — the labeller saw the question and nothing
+    else: not the `category`, not the `phrasing_stratum`, not the `id` (block-prefixed, so it
+    leaks the category), and not the file order (block-ordered, so it leaks it too). Result: 121
+    single, 29 parallel, 28 red-flag. Five items disagree with the drafting plan (three
+    `multi_dimensional` labelled `single`, two `symptom_urgency` labelled `parallel`) and **the
+    disagreements are kept** — correcting a blind label to match the block it came from discards
+    the only signal the procedure exists to produce.
+
+    `relevant_doc_ids` and `reference_answer` were **not verified**, by the owner's decision of
+    2026-08-22. They stay machine-written on 148 of 150 items. **`recall@5` and `faithfulness` are
+    therefore measured against a machine-constructed reference while routing accuracy and
+    red-flag recall are not**, and that sentence is not to be softened anywhere it appears.
+
+    **`unverified_fields` records provenance; `proposed_fields` remains the gate.** Owner's
+    instruction, 2026-08-22. `proposed_fields` means "nobody has dispositioned this" and
+    `missing_labels()` reports it as missing so `load_golden` refuses the file — which is right
+    while labelling is pending and wrong once the owner has decided not to verify: clearing the
+    marker would make the file assert a verification that did not happen, and leaving it set would
+    block loading forever. So the 148 records moved to `unverified_fields`, same values, no gate.
+    `proposed_fields` **stays in the schema, still gating**, for the multi-turn set and any future
+    re-label. The two are **disjoint per record** (a field cannot be both dispositioned and not),
+    **neither may ever name `expected_route` or `red_flag`** (`JUDGEMENT_FIELDS`, refused by the
+    schema), and the counts are carried into `summary.json` as `unverified_labels` and printed by
+    `report.md` **in the results table itself** — in the header of every affected column, in a line
+    under the table, and in the per-config Retrieval and Judge paragraphs. Not a footnote: the
+    misreading being prevented happens inside the table, in the row where the four numbers sit
+    beside each other. Nothing marks the routing or red-flag columns, because nothing is wrong with
+    them. The caveat is rendered from the data, so clearing `unverified_fields` removes it with no
+    code change.
+
+    **An empty `relevant_doc_ids` is a label, not a blank.** It means "no note in this corpus
+    grounds this question", which is what `g-md-027` is in the set to record; `missing_labels()`
+    reports it as missing only when the `reference_answer` beside it is also blank. Requiring a
+    non-empty list would have made inventing a source the only way to load the file.
+
+    **Labelling guidance must agree with the skill grants in `data/policy.yaml`.** The lesson of
+    this checkpoint, recorded in `docs/DESIGN.md`. The labelling guide paraphrases the grants in
+    prose; a labeller cannot see the file and a blind labeller cannot see the block either, so a
+    route label can name agents that between them hold **none** of the exclusive skills the
+    question needs — a route the system is structurally forbidden to take, scored as if it were
+    reachable. One conflict was found by hand at merge. The check is now derived and permanent in
+    `eval/validate.py`: the exclusive grants are **read from `policy.yaml`** and the needed skills
+    from the labelled notes' corpus categories, never restated. It fires only where the route holds
+    **none** of the needed skills. Four conflicts stand, are accepted, and are asserted as an exact
+    set (`g-gh-001`, `g-gh-017`, `g-gh-026`, `g-gh-029`) so a new one fails.
 
     **The four label fields split two ways, and the split is the substance of the checkpoint.**
     Owner's instruction, 2026-08-20. `expected_route` and `red_flag` ship **empty and stay empty**:
@@ -691,13 +746,29 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
   run, `docs/EVALUATION.md` says the judge is unvalidated **in those words**.
 - **`load_golden` refuses an unlabelled draft** unless `allow_draft=True`, which `eval/run.py`
   never passes. `labeled: true` is trusted *and* checked, so the flag cannot be a lie. This is
-  Checkpoint B enforced in code.
+  Checkpoint B enforced in code. The golden set now passes it; `multiturn.jsonl` still does not.
 - **`proposed_fields` is what keeps a machine-written candidate from becoming a label by silence.**
   `GoldenItem.missing_labels()` reports a field named there as missing even though it is populated,
   so the refusal above covers an unverified candidate exactly as it covers an empty field. The
   tuple is validated against `LABEL_FIELDS`, because a typo in a provenance marker would disable
-  the gate rather than fail loudly. `expected_route` and `red_flag` are never proposed and
-  `tests/test_eval_drafts.py` asserts it.
+  the gate rather than fail loudly.
+- **`unverified_fields` is the same names and values with no gate**, and it is what the golden set
+  carries now: see §1, Checkpoint B, for why the two are separate. Both markers are validated
+  against `LABEL_FIELDS`, both refuse a `JUDGEMENT_FIELDS` name (`expected_route`, `red_flag`) at
+  the schema level, and a model validator refuses a field named in both. `unverified_label_counts`
+  and `unverified_item_count` are what `eval/run.py` publishes.
+- **The unverified-reference caveat is rendered in the results table, not in a footnote.**
+  `report.md`'s ablation header reads `recall@5 (vs. unverified ref)` and the same for both
+  faithfulness columns; a bold line sits under the table; the per-config Retrieval and Judge
+  paragraphs repeat it. Routing and red-flag columns are unmarked, because a blanket caveat would
+  claim every number is equally soft and that is false. It is rendered from
+  `RunSummary.unverified_labels`, so clearing the markers removes it with no code change.
+- **`eval/validate.py` holds the cross-file checks**, run by `tests/test_eval_drafts.py`:
+  `unknown_doc_ids`, `skill_grant_conflicts`, `ungrounded_items`. The exclusive skill grants are
+  **read from `data/policy.yaml`** and the needed skills from the labelled notes' corpus
+  `category`; nothing is restated. `condition` is deliberately not in `CATEGORY_SKILL` (it is
+  reachable through both `analyze_symptoms` and the unfiltered `search_knowledge`, so it names no
+  owning agent). The check fires only where the route holds **none** of the needed skills.
 - **`eval/run.py` refuses a `mock` provider.** Numbers from a scripted mock are not measurements.
 - **The harness runs items through `run_turn`**, the same path the CLI and the API use, each item in
   **its own session** so working memory cannot carry item N-1 into item N. Multi-turn conversations
@@ -749,6 +820,6 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
 | 5. Planner, router, blackboard, synthesizer | done | `1d6660e` |
 | 6. Memory | done | `a36b160` |
 | 7. Safety | done | `48a1dfa` |
-| 8. Eval harness + golden-set drafts | **drafts written, candidates proposed for the two mechanical label fields, phrasing stratum promoted to a first-class field — STILL STOPPED at Checkpoint B** | |
+| 8. Eval harness + golden set | **golden set hand-labelled blind and frozen; provenance split from the gate; cross-file lint added — Checkpoint B cleared for `golden.jsonl` only. `multiturn.jsonl` is still an unlabelled draft and Phase 9 has not started.** | |
 | 9. API + SSE + CLI polish | not started | |
 | 10. Docs, published eval run, README numbers | not started | |
