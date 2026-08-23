@@ -58,10 +58,24 @@ The last two fields are not labels. `phrasing_stratum` is the drafting decision 
 split on (§1.3) and `draft_notes` is authoring intent; neither is the owner's to fill in, and
 neither appears in `LABEL_FIELDS`.
 
-`eval/data/multiturn.jsonl` — **30 conversations** in which a later turn contains a pronoun or an
-ellipsis that only resolves against an earlier turn. **Ten run seven turns or more**, so that they
-exceed the five-exchange working-memory window and actually exercise the compaction path. Thirty
-two-turn conversations would test the window by never reaching it.
+`eval/data/multiturn.jsonl` — **29 conversations** in which a later turn contains a pronoun or an
+ellipsis that only resolves against one or more earlier turns. **Ten run seven turns or more**, so
+that they are long enough to pass the five-exchange working-memory window; **five actually carry a
+dependency that reaches past it**, and those five are the only items in the whole evaluation that
+exercise the compaction path. Thirty two-turn conversations would test the window by never reaching
+it. Thirty were drafted; the labeller rejected one whole (§1.7).
+
+```json
+{"id": "m-030",
+ "turns": [{"question": "...", "depends_on_turn": null, "expected_referent": ""},
+           {"question": "...", "depends_on_turn": [1, 2, 3, 4], "expected_referent": "..."}],
+ "labeled": true,
+ "draft_notes": "... || LABEL: ..."}
+```
+
+`depends_on_turn` accepts `int`, `list[int]` or `null` and is a tuple everywhere after the loader;
+the file is written back with every value as a list, so a reader never has to handle two shapes.
+**Eleven turns name more than one referent**, and what that means for scoring is §3.3.
 
 ### 1.1 The labelling gate
 
@@ -71,8 +85,18 @@ graded itself against measures nothing, and the only thing that makes these numb
 that a person annotated the labels by hand. A gate in a document is a request; a gate in the loader
 is a constraint.
 
-The golden set has been through that gate. `eval/data/multiturn.jsonl` has not: it is still a
-draft, every conversation carries `labeled: false`, and `load_multiturn` still refuses it.
+**Both files have now been through that gate.** The golden set cleared it on 2026-08-22 and the
+multi-turn set later the same day; `load_golden` and `load_multiturn` both load their file without
+`allow_draft`, and both still refuse a draft — `tests/test_eval_items.py` asserts each refusal
+against a constructed one, so the gate is checked rather than merely no longer in the way.
+
+`proposed_fields` is therefore **currently gating nothing**. It is a `GoldenItem` field and always
+was; `MultiturnConversation` has never carried one, and the multi-turn set was gated by
+`missing_labels()` reporting a conversation with no annotated referent. Earlier revisions of this
+document and of `eval/items.py` said `proposed_fields` "stays gating for the multi-turn set", which
+was wrong about the mechanism if right about the effect, and is corrected here rather than left to
+be repeated. The field stays in the schema for a future re-label, where a machine-written candidate
+would once again need to be kept from becoming a label by silence.
 
 ### 1.1.1 Which fields a person wrote, and which a model wrote and nobody checked
 
@@ -215,9 +239,10 @@ the policy file and the corpus categories and reported by the lint as a warning 
 Steps 3 and 4 of the original guide — verify `relevant_doc_ids`, verify `reference_answer` — were
 not performed, by decision. §1.1.1 is what that means for the numbers.
 
-**For the multi-turn set**, which is still unlabelled: annotate at least one later turn with
-`depends_on_turn` (the zero-based index of the turn it refers back to) and `expected_referent`
-(what the pronoun or ellipsis means), then set `labeled: true`.
+**For the multi-turn set**, done on 2026-08-22 (§1.7): annotate every dependent turn with
+`depends_on_turn` (the zero-based indices of the turns it refers back to — one, or several) and
+`expected_referent` (what the pronoun or ellipsis means), then set `labeled: true`. A conversation
+that does not test reference resolution is rejected whole rather than repaired.
 
 ### 1.2.1 The labelled distribution
 
@@ -472,12 +497,13 @@ every time.
 
 ### 1.5 The freeze
 
-Checkpoint B is closed. The golden set is labelled and frozen; the multi-turn set is not.
+**Checkpoint B is closed on both files.** The golden set was labelled and frozen on 2026-08-22 and
+the multi-turn set later the same day (§1.7).
 
 | file | items | sha256 |
 |---|---|---|
 | `eval/data/golden.jsonl` | 150 questions, labelled | `1dbbf218fe3f666b79a4a45c2b7be820ad444360b97bf254620714b4c3be6432` |
-| `eval/data/multiturn.jsonl` | 30 conversations, **still an unlabelled draft** | `a675635212245b1b442bac09fdd1e78ac80f25a891816ede8e09c64e938de2c2` |
+| `eval/data/multiturn.jsonl` | 29 conversations, labelled | `d98f9289771b8097e71a959c7c25bf044dbed3ceedaf0e700de49c65b0df79e1` |
 
 The digests are recorded so that a published number can be tied to the exact file it was computed
 over. `summary.json` records the commit; the commit records the file; the digest is what lets a
@@ -498,6 +524,8 @@ stale digest in a frozen record is worse than no digest.
 - 22 hard-phrasing and 5 easy-phrasing red-flag items, matcher hits 0/22 and 5/5 under both
   negation policies (§1.3).
 - `g-md-027` labelled `red_flag: true` with no relevant documents and no stratum (§1.1.2).
+- 29 multi-turn conversations, 132 turns, 83 of them annotated with a referent; 10 conversations at
+  7+ turns; the past-window set exactly `m-021`, `m-023`, `m-026`, `m-027`, `m-030` (§1.7).
 
 **What changing any of it costs.** Every count above is a denominator of a published number, and
 every one is asserted in `tests/test_eval_drafts.py` as an exact value rather than a floor.
@@ -505,13 +533,13 @@ Changing one is a deliberate act that updates the lint, this section and the dig
 commit. Editing a question is a larger act than that: the labels are attached to the current
 wording, so a rewritten question carries a label written about a different question.
 
-**Not frozen, and still to do:** `eval/data/multiturn.jsonl` is unlabelled and `load_multiturn`
-still refuses it. No sweep has been run against either file, so every results number in §6 and in
-the README reads `not measured`.
+**Not frozen, and still to do:** nothing in the data. **No sweep has been run against either
+file**, so every results number in §6 and in the README reads `not measured`, and the judge is
+unvalidated.
 
 **A frozen file can still be edited; it cannot be edited silently.** Every post-freeze change to
-`eval/data/golden.jsonl` is logged in §1.6 with the item id, what changed, why, and the digest on
-both sides of it. The digest in the table above is always the current one.
+either file is logged in §1.6 with the item id, what changed, why, and the digest on both sides of
+it. The digests in the table above are always the current ones.
 
 ### 1.6 Post-freeze changelog
 
@@ -639,6 +667,148 @@ Unlike the route-document warning, it is not logged by `eval/run.py` at sweep st
 on retrieval quality and belongs beside a recall@5 number; this one bears on nothing a sweep
 measures, so it stays where `unknown_doc_ids` and `ungrounded_items` already are — in the lint.
 
+#### 2026-08-22 (fourth change) — the multi-turn set labelled, `m-017` dropped
+
+`eval/data/multiturn.jsonl`:
+`a675635212245b1b442bac09fdd1e78ac80f25a891816ede8e09c64e938de2c2`
+→ `d98f9289771b8097e71a959c7c25bf044dbed3ceedaf0e700de49c65b0df79e1`
+
+`eval/data/golden.jsonl` is **unchanged** by this entry and its digest is unmoved.
+
+The labeller's completed sheet was merged into the draft: `depends_on_turn` and
+`expected_referent` on all 83 dependent turns, `labeled: true` on all 29 conversations, and the
+labeller's per-conversation reasoning appended to `draft_notes` after a `|| LABEL:` separator — the
+same split the golden set uses. **No turn text was edited**: every question in the merged file is
+byte-identical to the draft, checked pairwise during the merge and again after it, and the merge
+took each question from the draft rather than from the spreadsheet so that a CSV round trip could
+not silently rewrite one. **No label was changed**; the sheet's values were taken as written.
+
+`m-017` was dropped whole. Three schema changes travelled with the merge and are described in §1.7:
+`depends_on_turn` widened to accept several referents, a turn index and its referent are now
+required to travel together, and a self, forward or out-of-range reference is refused at the loader.
+
+---
+
+### 1.7 The multi-turn set, labelled 2026-08-22
+
+The last piece of Checkpoint B. Labelled by hand from `multiturn-to-label-completed.csv`, one row
+per turn; merged, validated and frozen in one commit.
+
+**What it holds.**
+
+| | |
+|---|---|
+| conversations | **29** (30 drafted, one rejected — see below) |
+| turns | 132 |
+| turns annotated with a referent | 83 |
+| turn-count distribution | 2×1, 3×18, 7×5, 8×4, 9×1 |
+| conversations at 7+ turns | **10** — `m-021` … `m-030` |
+| conversations whose dependency reaches **past** the window | **5** — `m-021`, `m-023`, `m-026`, `m-027`, `m-030` |
+| turns naming more than one referent | 11 (7 name two, 2 name three, 2 name four) |
+| turns that depend on themselves or on a later turn | 0 |
+| conversations with no dependent turn | 0 |
+
+Every count above is asserted in `tests/test_eval_drafts.py` as an exact value, and the past-window
+set is pinned as an exact tuple rather than as a floor of five — see below for why.
+
+#### `m-017` was rejected whole, and the gap is left visible
+
+Its second turn is "what would they check?", and **"they" has no antecedent in any earlier turn**.
+The conversation opens with "I get chest discomfort when I am stressed" and "how would I tell it
+apart from a heart problem?"; nothing in either introduces the clinicians "they" refers to. The
+labeller's annotation says so in the sheet, using an `UNRESOLVED:` prefix in the referent column —
+a rejection annotation, not a referent, and it left with the conversation.
+
+That makes the conversation unusable for what this file measures. The labelling guide's test is
+whether the dependent turn is answerable with the earlier turns covered; "what would they check?"
+is answerable, because "they" resolves from world knowledge rather than from the transcript. An
+item like that scores the model's willingness to guess, not its reference resolution.
+
+Three decisions about the drop, all deliberate:
+
+- **Whole, not turn by turn.** Two thirds of a rejected conversation is not a conversation. Keeping
+  turns 0 and 1 would have left a two-turn item whose dependency is fine, which is a *different*
+  item that nobody drafted and nobody labelled.
+- **No replacement.** Writing a thirty-first conversation to restore the count would mean drafting
+  an item after the labelling, which is the drafting-to-fit that the whole checkpoint exists to
+  prevent. **The set is 29 and 29 is accepted.**
+- **The id is not reused, and the ids are not renumbered.** `m-016` is followed by `m-018`. The gap
+  is the only durable record that a conversation was rejected rather than never drafted; renumbering
+  would erase it and would silently invalidate any external reference to an id.
+
+#### A turn may resolve against more than one earlier turn
+
+Eleven of the 83 annotated turns name several referents, and the schema was **widened to carry
+that** rather than made to pick one. `depends_on_turn` accepts `int`, `list[int]` or `null` and is a
+tuple everywhere after the loader.
+
+This is the labeller's extension, and it is more accurate than a single referent would be. "Does
+his age change what is recommended?" (`m-019`) needs both the turn that introduced the son and the
+turn that gave his age. "Are those two things significant?" (`m-025`) needs both symptoms — food
+sticking on swallowing *and* unintentional weight loss — and an answer about only one of them is
+not a correct answer to the question that was asked. Recording only the nearest referent would have
+made the label say something the labeller did not mean, and the resolution metric would then have
+scored an answer that dropped half the question as correct.
+
+`expected_referent` stays **one string** even where four turns are named. The labeller's prose does
+not decompose one-to-one onto the indices — "sleeping badly and waking around 4 a.m." is one phrase
+for two turns, "father's acute confusion, urinary retention, possible fever, and living alone" is
+four clauses for four — so splitting it on punctuation to line the parts up would be a machine
+inventing the parts of a hand-written label. The judge is given the indices, the numbered
+transcript to look them up in, and the instruction to resolve all of them. What that scores is §3.3.
+
+#### The five that reach past the window, and why the set is pinned exactly
+
+Reach is measured from the dependent turn to the **earliest** turn it names: a turn resolving
+against turns 0 and 5 is only answerable if turn 0 survived, so the nearest referent is not the one
+at risk. A conversation is past-window when its furthest reach is strictly greater than
+`WINDOW_EXCHANGES`.
+
+| conversation | turns | furthest reach | |
+|---|---|---|---|
+| `m-021` | 7 | 6 | turn 6 → turn 0, "how soon would they recheck **it**" |
+| `m-023` | 7 | 6 | turn 6 → turn 0, "what should **she** be doing about salt" |
+| `m-026` | 8 | 6 | turn 6 → turns 0, 1, "at eight a month, would prevention be considered" |
+| `m-027` | 8 | 7 | turn 7 → turns 0, 2, 3, "someone at **this stage**" |
+| `m-030` | 8 | 7 | turn 7 → turns 0, 5, 6, "what would they check when I got **there**" |
+
+`m-022` and `m-028` reach back **exactly five** and are deliberately not in the set. At turn *n* the
+window still replays turn *n−5* verbatim, so a reach of exactly five is the oldest turn still inside
+it; the comparison is strictly greater than, and the boundary is where it has to be.
+
+The set is asserted as an **exact tuple**, not as a floor of five, for the same reason the
+route-document baseline is (§1.4). A floor would pass if one of these five lost its long-range
+dependency while an unrelated conversation gained one — which is a different set of items measuring
+a different thing, arriving with nothing failing. `past_window_conversations` in `eval/validate.py`
+reads `WINDOW_EXCHANGES` from `consilium.memory` rather than writing `5`, so retuning the window
+cannot leave this set describing the old one.
+
+#### What the labeller's notes carry
+
+The ten long conversations each carry a LABEL half in `draft_notes`, appended after `|| LABEL:`:
+five say `PAST-WINDOW` with the reach, five say `WITHIN WINDOW` with the reason, and two also say
+`HARD CASE` — `m-029`, where "they" and "we" are generic rather than explicit noun-phrase
+antecedents, and `m-030`, where "there" implies an assessment setting. Both were kept, and the
+labelling guide's cap of two or three deliberate ambiguous cases holds.
+
+`m-022`'s note also records that the **drafting** note beside it is wrong: the draft said the
+seventh turn's "it" looks back to the diabetes diagnosis in turn 0, and the labeller resolved it to
+the HbA1c in turn 1. The drafting note is left as drafted, exactly as the golden set keeps the five
+blind labels that disagree with their block (§1.2): the left half of `draft_notes` is the plan, and
+the plan being wrong is a finding rather than a defect to be tidied away.
+
+#### The limitation, stated where the number is
+
+> **The summarization path is exercised by five conversations.** Inside the working-memory window
+> `full` and `full_no_memory` replay the same verbatim transcript, so only the five conversations
+> above can distinguish them on the compaction path at all. **Any effect size the memory ablation
+> reports on that path rests on n=5**, and five items cannot separate a real effect from noise. The
+> other 24 conversations still measure reference resolution; they do not measure summarization.
+
+This is not softened anywhere it appears. `eval/run.py` computes it from the file and writes it into
+every run's `summary.json` `notes`, so it travels with the numbers rather than living only here, and
+it cannot go stale against the file.
+
 ---
 
 ## 2. Configurations
@@ -689,7 +859,7 @@ from it**; none is approximated from a side channel.
 | tokens per turn | summed over **all** `llm_call` events, split by caller and by mode | `llm_call` |
 | cost per turn | tokens × the rates in `eval/pricing.yaml`, keyed on provider + model | `llm_call` |
 | answer faithfulness | share of answer claims supported by a source | LLM judge |
-| multi-turn resolution | whether a later turn resolved its annotated referent | LLM judge |
+| multi-turn resolution | whether a later turn resolved **every** turn its label names (§3.3) | LLM judge |
 
 ### 3.1 Definitions that are easy to get subtly wrong
 
@@ -743,6 +913,42 @@ force) and `red_flag_negation_suppressed` (the discordant set).
 
 **If the guard costs any recall on the labelled set, the default reverts to raw matching**, and
 `docs/DESIGN.md` says so with the two numbers. Until a sweep has been run, this is `not measured`.
+
+### 3.3 Multi-turn resolution is all-or-nothing over the referents a turn names
+
+The metric grades one **labelled turn** as one item, into three buckets: `resolved`, `unresolved`
+(the answer asked what the user meant, or declined to commit) and `misresolved` (the answer
+committed to something else). The three are reported as three rates and never merged: a clarifying
+question is a different behaviour, not a wrong answer.
+
+**Eleven of the 83 annotated turns name more than one referent** (§1.7), and for those the rule is:
+
+> An answer resolves the turn **only if it accounts for every turn the label names**. Partial
+> resolution — the answer picks up some referents and silently drops the others — scores
+> `misresolved`.
+
+`misresolved` rather than `unresolved`, because the answer *did* commit to a reading of the
+question and that reading is wrong: it answered a narrower question than the one asked, and the
+reader cannot tell from the answer alone that something was dropped. That is the definition of the
+`misresolved` bucket, and it is why that bucket exists. `unresolved` is for an answer that declines
+to commit at all, which a partial answer has not done.
+
+The alternative — grading each referent separately — was rejected. It would turn one labelled turn
+into two, three or four items, weight the multi-referent turns more heavily than the single ones
+purely because they are harder, and let a system that resolved three of four referents score 0.75
+on a question it answered wrongly.
+
+The cost of the all-or-nothing rule is that the reported rate is a mean over a mixed difficulty
+distribution: a turn naming four earlier turns is a strictly harder item than one naming a pronoun
+antecedent. The mix is therefore published and asserted rather than left implicit — 72 turns name
+one referent, 7 name two, 2 name three, 2 name four.
+
+`eval/judges/multiturn_v1.md` states the rule to the judge, is given the referent turn indices and
+a numbered transcript to look them up in, and is asked to name the dropped referent in its
+rationale. **It is still `v1` after that extension, deliberately**: the rule that a prompt change is
+a version change exists so that numbers from two prompts are never compared as one measurement, and
+this prompt has produced no numbers at all. A `v2` whose `v1` has no results would be a version
+history whose first entry means nothing.
 
 ---
 
@@ -801,13 +1007,13 @@ Per turn, by configuration:
 | `full` | 2–5 (planner + specialist round trips + a synthesizer call on a parallel turn) |
 | `full_no_memory` | as `full` |
 
-A full sweep is 150 items × 4 configurations, plus a 50-item `full_budget_6` diagnostic, plus 30
-multi-turn conversations at the `full` configuration. That is **650 golden turns** plus roughly 150
+A full sweep is 150 items × 4 configurations, plus a 50-item `full_budget_6` diagnostic, plus 29
+multi-turn conversations at the `full` configuration. That is **650 golden turns** plus **132**
 conversation turns. At the per-turn call counts above the sweep is on the order of **1,500–2,500
 provider calls**, before the judge.
 
 The judge adds up to two faithfulness calls per item per configuration — up to **1,200 calls** — plus
-one per annotated multi-turn turn. `--no-judge` skips them entirely.
+one per annotated multi-turn turn, of which there are **83**. `--no-judge` skips them entirely.
 
 **Cost: `not measured`.** `eval/pricing.yaml` ships empty on purpose. A rate card copied from a
 vendor page at some past date is not a measurement: it looks measured, goes stale silently, and would
@@ -901,6 +1107,24 @@ model that wrote the corpus", not as "does the system retrieve the right documen
 Routing accuracy and red-flag recall carry no such threat: `expected_route` and `red_flag` were
 hand-labelled on all 150 items, blind to the block and the stratum (§1.2), and nothing ever proposed
 a candidate for either.
+
+**The summarization path is exercised by five conversations, and the memory ablation rests on
+that.** Of the 29 multi-turn conversations, ten run seven turns or more but only **five** carry a
+dependency reaching past the working-memory window (§1.7). Inside the window `full` and
+`full_no_memory` replay the same verbatim transcript, so the other 24 conversations cannot
+distinguish them on the compaction path at all — whatever they show is about the window, not about
+summarization. **Any effect size the memory ablation reports on that path rests on n=5.** Five items
+cannot separate a real effect from noise, and the direction of a difference at n=5 is not evidence
+of one. Read the five conversation-level verdicts, not the rate.
+
+This is a property of the labelled set and it is not repaired by drafting more: adding conversations
+after the labelling to raise the n would be drafting to fit a number, which is what §1.7 refused
+when it declined to replace `m-017`. It is disclosed instead.
+
+**The multi-turn set is 29, not 30, and the missing one was rejected rather than lost.** `m-017`
+was dropped whole by the labeller because its "they" has no antecedent in any earlier turn (§1.7).
+The count in the brief is 30; this file has 29 and says so wherever the number appears. No
+replacement was written and the id was not reused.
 
 **One labeller, and blind labelling bounds only part of what that costs.** Every label is a single
 person's judgement and no inter-annotator agreement is measured, because there is one annotator.

@@ -287,6 +287,84 @@ def test_an_unlabelled_conversation_set_is_refused(tmp_path: Path) -> None:
         load_multiturn(path)
 
 
+def test_a_turn_may_resolve_against_several_earlier_turns() -> None:
+    """The widening of 2026-08-22: `int | list[int] | None` in, a tuple everywhere after.
+
+    Eleven of the labelled turns name more than one referent. A bare int is accepted because that
+    is what the labelling sheet writes for the common case and what a hand edit naturally writes;
+    both shapes normalize, so nothing downstream has to handle two.
+    """
+    single = MultiturnTurn(question="q", depends_on_turn=0, expected_referent="r")
+    listed = MultiturnTurn(question="q", depends_on_turn=[0, 2, 3], expected_referent="r")
+
+    assert single.depends_on_turn == (0,)
+    assert listed.depends_on_turn == (0, 2, 3)
+    assert MultiturnTurn(question="q").depends_on_turn is None
+
+
+def test_a_referent_list_is_not_silently_repaired() -> None:
+    """Out of order, duplicated, negative or empty is a typo in a hand-edited label.
+
+    Sorting and deduping it here would produce a label nobody wrote, and it would be the label the
+    judge was graded against.
+    """
+    for bad in ([3, 1], [1, 1], [-1], []):
+        with pytest.raises(ValidationError):
+            MultiturnTurn(question="q", depends_on_turn=bad, expected_referent="r")
+
+
+def test_a_dependency_and_its_referent_do_not_stand_alone() -> None:
+    """A referent with no turn index is how the labeller *rejected* m-017's third turn."""
+    with pytest.raises(ValidationError):
+        MultiturnTurn(question="q", expected_referent="UNRESOLVED: generic clinician")
+    with pytest.raises(ValidationError):
+        MultiturnTurn(question="q", depends_on_turn=0)
+
+
+def test_a_dependency_must_point_at_an_earlier_turn(tmp_path: Path) -> None:
+    """Self, forward and out-of-range references are refused at the loader, not linted after.
+
+    Such a reference would reach the judge as a referent the model has not been shown yet, and the
+    resolution number would come back looking merely poor.
+    """
+    for referent in (1, 2, 5):
+        with pytest.raises(ValidationError):
+            MultiturnConversation(
+                id="m-001",
+                turns=(
+                    MultiturnTurn(question="a"),
+                    MultiturnTurn(question="b", depends_on_turn=referent, expected_referent="r"),
+                ),
+            )
+
+    path = tmp_path / "multiturn.jsonl"
+    path.write_text(
+        '{"id":"m","turns":[{"question":"a"},'
+        '{"question":"b","depends_on_turn":[0,1],"expected_referent":"r"}]}\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(EvalDataError, match="invalid conversation"):
+        load_multiturn(path, allow_draft=True)
+
+
+def test_dependency_reach_measures_to_the_earliest_referent() -> None:
+    """A turn resolving against turns 0 and 5 is only answerable if turn 0 survived.
+
+    The nearest referent is not the one at risk, so the reach is measured to the earliest.
+    """
+    turns = [MultiturnTurn(question=f"t{i}") for i in range(8)]
+    turns[7] = MultiturnTurn(question="t7", depends_on_turn=[0, 5, 6], expected_referent="r")
+    conversation = MultiturnConversation(id="m-030", turns=tuple(turns), labeled=True)
+
+    assert conversation.dependency_reach() == 7
+    assert conversation.dependent_turns() == (7,)
+
+    independent = MultiturnConversation(
+        id="m-x", turns=(MultiturnTurn(question="a"), MultiturnTurn(question="b"))
+    )
+    assert independent.dependency_reach() == 0
+
+
 def test_a_conversation_needs_at_least_two_turns(tmp_path: Path) -> None:
     path = tmp_path / "multiturn.jsonl"
     path.write_text('{"id":"m","turns":[{"question":"one"}]}\n', encoding="utf-8")

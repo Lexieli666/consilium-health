@@ -18,7 +18,8 @@ That decision forced the split below, and the split is the point of this module:
 ``proposed_fields`` is a **gate**.  A field named there holds a candidate nobody has dispositioned,
 :meth:`GoldenItem.missing_labels` reports it as missing, and ``load_golden`` refuses the file.  It
 is what stops flipping ``labeled: true`` from promoting a machine-written answer key into ground
-truth by silence.  The multi-turn set is still unlabelled, so the mechanism stays.
+truth by silence.  Both files are labelled now, so it currently gates nothing; it stays in the
+schema for any future re-label.
 
 ``unverified_fields`` is **provenance**.  Same field names, same values, no gate.  It records that
 a machine wrote the value and no person checked it, and it is carried into ``summary.json`` and
@@ -30,6 +31,13 @@ dispositioned and not.
 What that costs is stated wherever the affected numbers appear rather than in a footnote:
 **recall@5 and faithfulness are measured against a machine-constructed reference, while routing
 accuracy and red-flag recall are not.**
+
+**A multi-turn dependency may name more than one earlier turn.**  ``depends_on_turn`` accepts
+``int``, ``list[int]`` or ``null`` and normalizes to a tuple.  Eleven of the labelled turns resolve
+against two or more earlier turns, and the schema was widened to carry that rather than made to
+pick one referent: a label that named only the nearest of two would score an answer that dropped
+the other as correct.  The judge is told all of them and an answer resolves the turn only if it
+accounts for all of them.
 
 **The phrasing stratum is a field, not a marker in the prose.**  Red-flag recall is reported split
 by ``phrasing_stratum``, and ``draft_notes`` is the field the labeller edits while working.  A
@@ -101,10 +109,27 @@ GOLDEN_CATEGORIES: tuple[GoldenCategory, ...] = (
 #: a drafting choice rather than a property of the system.  See docs/EVALUATION.md section 1.3.
 type PhrasingStratum = Literal["hard", "easy"]
 
-#: How many of the 30 multi-turn conversations must exceed the 5-exchange working-memory window.
-#: Thirty two-turn conversations would test the window by never reaching it.
+#: How many of the multi-turn conversations must run long enough to exceed the 5-exchange
+#: working-memory window.  A set of two-turn conversations would test the window by never
+#: reaching it.
 LONG_CONVERSATIONS_REQUIRED = 10
 LONG_CONVERSATION_TURNS = 7
+
+#: How many conversations the labelled multi-turn set holds.  **29, not the 30 that were drafted.**
+#: The labeller rejected `m-017` whole on 2026-08-22 -- its second turn says "what would they
+#: check?" and "they" has no antecedent in any earlier turn, so the conversation does not test
+#: reference resolution and its referent turn cannot be annotated reproducibly.  The conversation
+#: was dropped entire rather than turn by turn, no replacement was written, and the id is not
+#: reused: the gap in the sequence is the record that something was rejected.  See
+#: docs/EVALUATION.md section 1.7.
+MULTITURN_CONVERSATIONS = 29
+
+#: How many conversations must carry a dependency reaching **past** the working-memory window.
+#: The floor the drafting constraint demands, not the number the set happens to have -- the exact
+#: set is pinned in ``tests/test_eval_drafts.py``, because losing a specific one is what matters.
+#: These are the only conversations that can distinguish ``full`` from ``full_no_memory`` on the
+#: compaction path: inside the window both configurations replay the same verbatim transcript.
+PAST_WINDOW_CONVERSATIONS_REQUIRED = 5
 
 
 class EvalDataError(RuntimeError):
@@ -143,7 +168,9 @@ class GoldenItem(BaseModel):
     #: **The gate.**  Label fields holding a machine-written candidate that nobody has
     #: dispositioned.  A field named here is reported as missing by :meth:`missing_labels` even
     #: though it is populated, so ``load_golden`` refuses the file: a proposal cannot be promoted
-    #: to a label by silence.  The multi-turn set is still unlabelled, so the mechanism stays.
+    #: to a label by silence.  Both files are labelled now, so it currently gates nothing; it
+    #: stays for any future re-label.  ``MultiturnConversation`` has never carried this field --
+    #: the multi-turn set was gated by :meth:`MultiturnConversation.missing_labels` instead.
     proposed_fields: tuple[str, ...] = ()
     #: **Provenance, not a gate.**  Label fields whose value a machine wrote and no person
     #: verified.  Same field names as ``proposed_fields`` and the same values; the difference is
@@ -227,15 +254,81 @@ class GoldenItem(BaseModel):
 
 
 class MultiturnTurn(BaseModel):
-    """One turn of a multi-turn conversation."""
+    """One turn of a multi-turn conversation.
+
+    **A turn may resolve against more than one earlier turn**, and the schema was widened to say so
+    rather than made to pick one.  Eleven of the 132 labelled turns are written that way -- "does
+    his age change what is recommended?" needs both the turn that introduced the son and the turn
+    that gave his age; "are those two things significant?" needs both symptoms.  Forcing a single
+    referent onto those would have made the label say something the labeller did not mean, and the
+    resolution metric would then score an answer that dropped half the question as correct.
+
+    So ``depends_on_turn`` accepts ``int``, ``list[int]`` or ``null`` on the way in and is a tuple
+    everywhere afterwards.  A bare int is accepted because that is what the labelling sheet writes
+    for the common case and what a hand edit will naturally write; the file is written back with
+    every value as a list, so a reader never has to handle two shapes.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     question: str = Field(min_length=1)
-    #: Zero-based index of the earlier turn this one resolves against.  A label.
-    depends_on_turn: int | None = None
-    #: What the pronoun or ellipsis refers to, in the labeller's words.  A label.
+    #: Zero-based indices of the earlier turns this one resolves against, in ascending order, or
+    #: ``None`` where the turn stands on its own.  A label.  **All of them have to be resolved for
+    #: the turn to count as resolved** -- see ``eval/judges/multiturn_v1.md``.
+    depends_on_turn: tuple[int, ...] | None = None
+    #: What the pronoun or ellipsis refers to, in the labeller's words.  A label.  One string even
+    #: where several turns are named: the labeller's prose does not decompose one-to-one onto the
+    #: indices, and splitting it on punctuation would be a machine inventing the parts.
     expected_referent: str = ""
+
+    @field_validator("depends_on_turn", mode="before")
+    @classmethod
+    def _normalize_referents(cls, value: object) -> object:
+        """Accept ``int | list[int] | None``; normalize to a tuple.  Reject the rest loudly.
+
+        Ascending and distinct rather than sorted-and-deduped on the way in: silently repairing
+        ``[3, 1, 1]`` would hide a typo in a hand-edited label, and the repaired value would be a
+        label nobody wrote.
+        """
+        if value is None:
+            return None
+        if isinstance(value, bool) or not isinstance(value, int | list | tuple):
+            return value  # let pydantic produce the type error, with its own message
+        indices: tuple[object, ...] = (value,) if isinstance(value, int) else tuple(value)
+        if not indices:
+            raise ValueError(
+                "depends_on_turn is an empty list. A turn that resolves against nothing is "
+                "written as null; an empty list is a label that was started and not finished."
+            )
+        if any(not isinstance(index, int) or isinstance(index, bool) for index in indices):
+            raise ValueError(f"depends_on_turn must hold turn indices: {indices!r}")
+        referents = tuple(index for index in indices if isinstance(index, int))
+        if any(index < 0 for index in referents):
+            raise ValueError(f"depends_on_turn holds a negative turn index: {referents!r}")
+        if list(referents) != sorted(set(referents)):
+            raise ValueError(
+                f"depends_on_turn must be ascending and distinct: {referents!r}. "
+                "It is not repaired here, because a repaired label is one nobody wrote."
+            )
+        return referents
+
+    @model_validator(mode="after")
+    def _referent_and_turns_travel_together(self) -> MultiturnTurn:
+        """A dependency and its referent are one label in two fields, so neither stands alone.
+
+        A referent with no turn index is the shape the labeller used to *reject* a turn -- m-017's
+        "UNRESOLVED: generic healthcare professional" -- and that annotation left with the
+        conversation.  A turn index with no referent is an annotation that was never finished.
+        Either way the judge cannot grade the turn, and the metric would silently skip it.
+        """
+        if (self.depends_on_turn is None) != (not self.expected_referent.strip()):
+            raise ValueError(
+                f"depends_on_turn={self.depends_on_turn!r} and "
+                f"expected_referent={self.expected_referent!r} disagree about whether this turn "
+                "resolves against an earlier one. A dependent turn carries both; an independent "
+                "turn carries neither."
+            )
+        return self
 
 
 class MultiturnConversation(BaseModel):
@@ -252,11 +345,57 @@ class MultiturnConversation(BaseModel):
     def length(self) -> int:
         return len(self.turns)
 
+    @model_validator(mode="after")
+    def _dependencies_point_backwards(self) -> MultiturnConversation:
+        """Every referent index names a **strictly earlier** turn in this conversation.
+
+        Refused at load rather than reported by the lint, for the same reason the corpus loader
+        refuses a bad front-matter key: a turn that depends on itself, on a later turn, or on a
+        turn that does not exist is not a label a reviewer could decide to keep.  It would reach
+        the judge as a referent the model has not been shown yet, and the resolution number would
+        come back looking merely poor.
+        """
+        for index, turn in enumerate(self.turns):
+            for referent in turn.depends_on_turn or ():
+                if referent >= index:
+                    raise ValueError(
+                        f"{self.id}: turn {index} depends on turn {referent}, which is not "
+                        "earlier. A later turn resolves against an earlier one, never the "
+                        "reverse, and turn 0 resolves against nothing."
+                    )
+                if referent >= len(self.turns):
+                    raise ValueError(
+                        f"{self.id}: turn {index} depends on turn {referent}, which does not exist"
+                    )
+        return self
+
     def missing_labels(self) -> tuple[str, ...]:
         """A conversation is labelled when at least one turn carries a resolved referent."""
         if any(turn.depends_on_turn is not None and turn.expected_referent for turn in self.turns):
             return ()
         return ("depends_on_turn", "expected_referent")
+
+    def dependent_turns(self) -> tuple[int, ...]:
+        """The indices of the turns that resolve against an earlier one."""
+        return tuple(
+            index for index, turn in enumerate(self.turns) if turn.depends_on_turn is not None
+        )
+
+    def dependency_reach(self) -> int:
+        """How far back the furthest-reaching dependency in this conversation goes, in turns.
+
+        Measured from the dependent turn to the **earliest** turn it names, because a turn that
+        resolves against turns 0 and 5 is only answerable if turn 0 survived -- the nearest
+        referent is not the one at risk.  ``0`` where nothing depends on anything.
+        """
+        return max(
+            (
+                index - min(turn.depends_on_turn)
+                for index, turn in enumerate(self.turns)
+                if turn.depends_on_turn
+            ),
+            default=0,
+        )
 
 
 def read_jsonl(path: Path) -> Iterator[tuple[int, dict[str, object]]]:

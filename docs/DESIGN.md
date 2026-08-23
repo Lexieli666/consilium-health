@@ -1000,7 +1000,7 @@ of documents consulted.
 `planner`, `synthesizer`, `forced_answer` and `agent:<name>` — there is no slot for a summarizer, so
 the call would either be untraced (making tokens-per-turn understate the architecture's real cost)
 or force a change to a frozen schema. Second, it would put a nondeterministic string into the input
-of every subsequent turn, which makes the 30 multi-turn conversations in the golden set
+of every subsequent turn, which makes the 29 multi-turn conversations in the golden set
 irreproducible — the same conversation would compact differently on two runs and the multi-turn
 resolution metric would be measuring the summarizer. Third, an extractive recap can be checked line
 by line against the transcript, and a generated one can only be checked by another model.
@@ -1344,8 +1344,10 @@ by actually doing it.
 
 **Chosen.** A second marker, `unverified_fields`, holding the same field names and the same values
 as `proposed_fields` and gating nothing. The 148 records carrying machine-written mechanical fields
-were migrated from one to the other; `proposed_fields` stays in the schema, still gating, for the
-multi-turn set and for any future re-label.
+were migrated from one to the other; `proposed_fields` stays in the schema, still gating, for any
+future re-label. (It said "for the multi-turn set" here, which was wrong about the mechanism:
+`MultiturnConversation` never carried the field, and that set was gated by `missing_labels()`
+reporting a conversation with no annotated referent.)
 
 **Rejected — clear `proposed_fields` and move on.** One line of `sed`, and the file loads.
 
@@ -1497,3 +1499,69 @@ note, and when it does, the route is parallel. `docs/EVALUATION.md` §1.6 record
 config file constrains what that label can mean, the two are one source with two copies. Either the
 guidance is derived from the file, or a check is. Prose describing a config file is documentation of
 it, and documentation drifts.
+
+---
+
+## Phase 8, closing Checkpoint B — the multi-turn set
+
+Two decisions came out of the labeller's completed sheet. Both are recorded in
+`docs/EVALUATION.md` §1.7 and frozen in `CLAUDE.md`.
+
+### A dependency may name several earlier turns, and the schema widened to say so
+
+**Chosen.** `depends_on_turn` accepts `int`, `list[int]` or `null` and normalizes to a tuple.
+Eleven of the 83 annotated turns name two, three or four earlier turns.
+
+**Rejected — flatten to the nearest referent.** No schema change, one integer per turn, and the
+existing metric works untouched.
+
+**Rejected — flatten to the earliest referent.** The same, and it at least keeps the turn that is
+actually at risk of being compacted away.
+
+**Why.** Both flattenings make the label say something the labeller did not mean, and the damage
+lands in the metric rather than in the file. `m-025`'s "are those two things significant?" resolves
+against food sticking on swallowing *and* unintentional weight loss; an answer about only the weight
+loss is not a correct answer to that question, but against a flattened label naming only one of them
+it scores as resolved. The label is the answer key, so a label that is easier to store than the
+question it describes buys storage convenience with measurement error.
+
+The cost of widening is that the metric has to decide what partial resolution scores, which is the
+next decision. The cost of flattening would have been that it never gets asked.
+
+`expected_referent` stays one string. The labeller's prose does not decompose one-to-one onto the
+indices — "sleeping badly and waking around 4 a.m." is one phrase for two turns — so splitting it
+on punctuation to pair the parts with the indices would be a machine inventing the parts of a
+hand-written label. The judge is given the indices and a numbered transcript instead, which is
+evidence rather than a guess.
+
+### Partial resolution scores `misresolved`, and the turn stays one item
+
+**Chosen.** An answer resolves the turn only if it accounts for every turn the label names.
+Anything less is `misresolved`.
+
+**Rejected — score each referent separately and report the mean.** Finer-grained, and it
+distinguishes an answer that dropped one referent from one that dropped three.
+
+**Rejected — call partial resolution `unresolved`.** It is not a full resolution, and `unresolved`
+is the bucket for "did not land on the referent".
+
+**Rejected — add a fourth `partial` bucket.** Honest about what happened, and it keeps the failure
+visible without pooling it with a wholly wrong referent.
+
+**Why.** Per-referent scoring silently reweights the set: a turn naming four referents would
+contribute four times the weight of a turn naming one, purely because it is harder, and a system
+that resolved three of four would score 0.75 on a question it answered wrongly. A labelled turn is
+one item because it is one thing a user asked.
+
+`unresolved` is wrong because it is defined as the answer declining to commit — asking what the user
+means, or answering generically. A partial answer *did* commit; it committed to a narrower reading
+than the question had. That is what `misresolved` is for, and the reason that bucket exists is
+precisely the reason partial resolution belongs in it: the reader cannot tell from the answer alone
+that something was dropped.
+
+A fourth bucket was the closest call. It was rejected because eleven turns is a thin base for a rate
+of its own — a `partial` column would be a percentage of eleven, reported beside three percentages
+of eighty-three — and because the three-way split is already load-bearing in `report.md` and in the
+judge prompt. The information is not lost: the judge is asked to name the dropped referent in its
+rationale, and the referent-count mix is published so a reader knows how many items could have
+failed this way.
