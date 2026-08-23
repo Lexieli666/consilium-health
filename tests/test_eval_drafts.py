@@ -54,6 +54,7 @@ from eval.items import (
     unverified_label_counts,
 )
 from eval.validate import (
+    label_note_agent_mentions,
     route_document_mismatches,
     ungrounded_items,
     unknown_doc_ids,
@@ -121,7 +122,7 @@ UNGROUNDED_ITEMS = ("g-md-027",)
 #: document. Changing a data file is a deliberate act that updates both in the same commit.
 EVALUATION_DOC = Path("docs/EVALUATION.md")
 FROZEN_DIGESTS = {
-    GOLDEN_PATH: "4116454d9c69c9984d0eb095246c44ca7adc9727ca184c3d6d4d29cea63c6763",
+    GOLDEN_PATH: "1dbbf218fe3f666b79a4a45c2b7be820ad444360b97bf254620714b4c3be6432",
     MULTITURN_PATH: "a675635212245b1b442bac09fdd1e78ac80f25a891816ede8e09c64e938de2c2",
 }
 
@@ -143,6 +144,25 @@ FROZEN_DIGESTS = {
 #: 2026-08-22: the question carries two information needs owned by different specialists, so the
 #: route was the half that was wrong, as in the other three. See docs/EVALUATION.md section 1.6.
 REVIEWED_ROUTE_DOCUMENT_MISMATCHES: tuple[str, ...] = ()
+
+#: The reviewed baseline for the LABEL-note **warning** (`eval/validate.py`). One `(item, agent)`
+#: pair per reviewed mention, which is finer than the item id: a *different* stale agent name in
+#: the same item still fails.
+#:
+#: `g-ge-001` is the only entry and it is a false positive, dispositioned once. Its note reads
+#: "Asks for the diagnostic blood-pressure threshold and whether major guideline bodies agree" --
+#: `diagnostic` there is an adjective on `threshold`, not the agent, and the item is correctly
+#: routed to `research`. It is in the baseline rather than excluded by a rule because no lexical
+#: rule separates the adjective from the agent name: "the diagnostic threshold" and "the
+#: consultation agent" have the same shape, and a matcher tuned to tell them apart would be fitted
+#: to the two examples in this file and would go on to silence the next genuinely stale note that
+#: happened to match it. One reviewed exception is cheaper and it is honest about what it is.
+#:
+#: Two entries were removed on 2026-08-22 when the notes they came from were rewritten. `g-gh-017`
+#: and `g-gh-026` said the route was `research` while the label said `consultation`: the owner had
+#: overridden that reasoning after reading the documents and the notes stopped at the intermediate
+#: state. See docs/EVALUATION.md section 1.6.
+REVIEWED_LABEL_NOTE_AGENT_MENTIONS: tuple[tuple[str, str], ...] = (("g-ge-001", "diagnostic"),)
 
 
 @pytest.fixture(scope="module")
@@ -361,6 +381,31 @@ def test_the_route_document_warning_matches_its_reviewed_baseline(
 
     assert tuple(m.item_id for m in mismatches) == REVIEWED_ROUTE_DOCUMENT_MISMATCHES, [
         str(m) for m in mismatches
+    ]
+
+
+def test_a_label_note_does_not_name_an_agent_the_item_is_not_routed_to(
+    golden: list[GoldenItem], policy: Policy
+) -> None:
+    """A stale LABEL note explains a decision the record no longer carries.
+
+    Nothing downstream reads `draft_notes`, so this costs no measured number. It costs the reviewer,
+    who opens the note precisely to find out why the label is what it is -- and three notes had gone
+    stale before this check existed, two of them because the owner overrode the reasoning after
+    reading the documents and the note kept the superseded version.
+
+    Only the LABEL half is read. The authoring half is the drafting plan, which the blind pass was
+    allowed to disagree with and did; scanning the whole field would fire on six `multi_dimensional`
+    items for having exactly the property the procedure exists to produce.
+
+    Pinned as an exact set for the same reason as the route-document baseline: the one entry is an
+    adjective that cannot be told from an agent name by a rule, so it is dispositioned by a person
+    once rather than papered over by a matcher fitted to it.
+    """
+    mentions = label_note_agent_mentions(golden, policy=policy)
+
+    assert tuple((m.item_id, m.agent) for m in mentions) == REVIEWED_LABEL_NOTE_AGENT_MENTIONS, [
+        str(m) for m in mentions
     ]
 
 
