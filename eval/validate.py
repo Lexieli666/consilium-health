@@ -1,4 +1,4 @@
-"""Cross-file consistency checks over the labelled golden set.
+"""Cross-file consistency checks over the labelled evaluation data.
 
 ``eval/items.py`` validates one record against its own schema.  This module checks a record
 against the **other** files it points at -- the corpus it names ``doc_id`` values from, and the
@@ -9,6 +9,12 @@ because the thing they catch is a label that quietly stops agreeing with a file 
 :func:`label_note_agent_mentions` is the one check here that reads nothing but the record itself.
 It is here anyway, because it is the same *kind* of check -- a claim in one field that quietly stops
 agreeing with another -- and because it needs the agent names, which are in ``data/policy.yaml``.
+
+The multi-turn functions at the bottom are the same kind of check against a different file.
+:func:`past_window_conversations` names the conversations whose dependencies reach past the
+working-memory window, and it reads ``WINDOW_EXCHANGES`` from ``consilium.memory`` rather than
+writing ``5``: that set is the denominator of the memory ablation's effect on the compaction path,
+and a literal here would keep describing the old window if the runtime's were ever retuned.
 
 Everything here is a pure function over already-loaded data.  ``tests/test_eval_drafts.py`` is what
 runs it, so a label edit that breaks one of these fails in CI rather than in a sweep.
@@ -46,9 +52,10 @@ import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 
+from consilium.memory import WINDOW_EXCHANGES
 from consilium.retrieval.types import Category
 from consilium.safety.policy import Policy
-from eval.items import GoldenCategory, GoldenItem
+from eval.items import GoldenCategory, GoldenItem, MultiturnConversation
 
 #: The dedicated, category-filtered skill for a corpus category, where exactly one skill filters to
 #: it.  ``search_knowledge`` is not in this table and never can be: it takes an optional category
@@ -309,3 +316,69 @@ def label_note_agent_mentions(
                 )
             )
     return mentions
+
+
+# ----------------------------------------------------------------------------------------------
+# The multi-turn set
+# ----------------------------------------------------------------------------------------------
+
+
+def past_window_conversations(
+    conversations: Sequence[MultiturnConversation],
+) -> tuple[str, ...]:
+    """The conversations whose furthest dependency reaches back **past** the memory window.
+
+    These are the only items in the whole evaluation that exercise the compaction path.  Inside the
+    window the last :data:`WINDOW_EXCHANGES` exchanges are replayed verbatim, so a dependency that
+    reaches no further than that is answerable from the transcript and says nothing about whether
+    summarization preserved anything.  Past it, the referent exists only in the recap, and the
+    answer is correct only if the recap kept it.
+
+    The comparison is ``reach > WINDOW_EXCHANGES``, and the boundary is the point: at turn *n* the
+    window still holds turn *n - WINDOW_EXCHANGES*, so a reach of exactly five is the oldest turn
+    still replayed verbatim.  Two conversations sit exactly there (`m-022`, `m-028`) and are
+    **not** in this set.
+
+    ``WINDOW_EXCHANGES`` is imported from ``consilium.memory`` rather than written as ``5``.  This
+    set is the denominator of the memory ablation's effect on the compaction path; if the window
+    were ever retuned, a literal here would leave the published set describing the old window while
+    the runtime used the new one, and nothing would fail.
+    """
+    return tuple(
+        conversation.id
+        for conversation in conversations
+        if conversation.dependency_reach() > WINDOW_EXCHANGES
+    )
+
+
+def conversations_without_dependencies(
+    conversations: Sequence[MultiturnConversation],
+) -> tuple[str, ...]:
+    """Conversations in which no turn resolves against an earlier one.
+
+    Such a conversation is a list of independent questions sharing a session: it exercises the
+    session plumbing and measures nothing about reference resolution, which is the only thing this
+    file is for.  ``load_multiturn`` already refuses one through :meth:`missing_labels`; this names
+    them, so the lint can say which rather than only that.
+    """
+    return tuple(
+        conversation.id for conversation in conversations if not conversation.dependent_turns()
+    )
+
+
+def multiturn_referent_counts(
+    conversations: Sequence[MultiturnConversation],
+) -> dict[int, int]:
+    """``number of referents -> how many labelled turns name that many``, ascending.
+
+    Reported because the resolution metric is **all-or-nothing** over the referents a turn names
+    (``eval/judges/multiturn_v1.md``): a turn naming four earlier turns is a strictly harder item
+    than one naming a single pronoun antecedent, and pooling the two without saying how many of
+    each there are would hide the difference inside one rate.
+    """
+    counts: dict[int, int] = {}
+    for conversation in conversations:
+        for turn in conversation.turns:
+            if turn.depends_on_turn:
+                counts[len(turn.depends_on_turn)] = counts.get(len(turn.depends_on_turn), 0) + 1
+    return dict(sorted(counts.items()))

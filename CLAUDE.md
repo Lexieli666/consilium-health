@@ -27,12 +27,12 @@ was replaced by the following, on the owner's instruction:
     and not to be revisited: the `source:` field naming a kind of authority, the "Where guidance
     differs" sections, `doc_id` == filename stem, the five fixed front-matter keys, the
     byte-identical disclaimer, and the note-length band.
-  - **Checkpoint B — Phase 8, at the golden set.** ✅ **Cleared 2026-08-22 for the golden set
-    only.** `eval/data/golden.jsonl` is labelled and frozen; `eval/data/multiturn.jsonl` is
-    **still an unlabelled draft** and `load_multiturn` still refuses it. Phase 9 does not start.
-    The freeze record — both sha256 digests, the counts, the blind procedure, the per-stratum
-    pattern-hit table, the unverified-reference limitation — is `docs/EVALUATION.md` §1.5, and the
-    digests are asserted in `tests/test_eval_drafts.py` in both directions.
+  - **Checkpoint B — Phase 8, at the golden set.** ✅ **Cleared 2026-08-22, both files.**
+    `eval/data/golden.jsonl` and `eval/data/multiturn.jsonl` are both labelled and frozen, and both
+    load without `allow_draft`. **Phase 9 is unlocked and has not been started.** The freeze record
+    — both sha256 digests, the counts, the blind procedure, the per-stratum pattern-hit table, the
+    unverified-reference limitation — is `docs/EVALUATION.md` §1.5, the multi-turn record is §1.7,
+    and the digests are asserted in `tests/test_eval_drafts.py` in both directions.
 
     The original instruction, kept because it is what the drafts were written under: generate
     `eval/data/golden.jsonl` (150 items) and `eval/data/multiturn.jsonl` (30 conversations) as
@@ -67,8 +67,9 @@ was replaced by the following, on the owner's instruction:
     while labelling is pending and wrong once the owner has decided not to verify: clearing the
     marker would make the file assert a verification that did not happen, and leaving it set would
     block loading forever. So the 148 records moved to `unverified_fields`, same values, no gate.
-    `proposed_fields` **stays in the schema, still gating**, for the multi-turn set and any future
-    re-label. The two are **disjoint per record** (a field cannot be both dispositioned and not),
+    `proposed_fields` **stays in the schema, still gating**, for any future re-label. (It was
+    written here as "for the multi-turn set" and that was wrong about the mechanism —
+    `MultiturnConversation` never carried the field; see Checkpoint B's multi-turn record.) The two are **disjoint per record** (a field cannot be both dispositioned and not),
     **neither may ever name `expected_route` or `red_flag`** (`JUDGEMENT_FIELDS`, refused by the
     schema), and the counts are carried into `summary.json` as `unverified_labels` and printed by
     `report.md` **in the results table itself** — in the header of every affected column, in a line
@@ -137,9 +138,73 @@ was replaced by the following, on the owner's instruction:
     log it — it bears on nothing a sweep measures, unlike the route-document warning.
 
     **A frozen data file can be edited; it cannot be edited silently.** Every post-freeze change to
-    `eval/data/golden.jsonl` is logged in `docs/EVALUATION.md` §1.6 with the item id, what changed,
-    why, and the digest on both sides. The digest in §1.5 is always the current one and the lint
-    asserts it in both directions.
+    either data file is logged in `docs/EVALUATION.md` §1.6 with the item id, what changed, why,
+    and the digest on both sides. The digests in §1.5 are always the current ones and the lint
+    asserts them in both directions.
+
+    **The multi-turn set, labelled 2026-08-22 — 29 conversations, not 30.** Full record in
+    `docs/EVALUATION.md` §1.7. The frozen decisions:
+
+    **`m-017` was rejected whole by the labeller and is dropped without replacement.** Its second
+    turn asks "what would they check?" and **"they" has no antecedent in any earlier turn**, so the
+    conversation does not test reference resolution — "they" resolves from world knowledge, not
+    from the transcript, and the item would score the model's willingness to guess. Dropped
+    **whole**, because two thirds of a rejected conversation is a different item that nobody
+    drafted and nobody labelled; **no replacement was written**, because drafting a thirty-first
+    after the labelling to restore a count is the drafting-to-fit this checkpoint exists to
+    prevent; and **the ids are not renumbered**, so `m-016` is followed by `m-018` and the gap is
+    the only durable record that something was rejected rather than never drafted. **The set is 29
+    and 29 is accepted.** The labeller's `UNRESOLVED:` prefix in the referent column was a
+    rejection annotation rather than a referent, and it left with the conversation.
+
+    **`depends_on_turn` accepts `int | list[int] | None` and normalizes to a tuple.** The
+    labeller's extension, kept because it is more accurate than forcing one referent: **11 of the
+    83 annotated turns** name two, three or four earlier turns, and recording only the nearest
+    would make the label say something the labeller did not mean. `expected_referent` stays **one
+    string** even then — the prose does not decompose one-to-one onto the indices, and splitting it
+    on punctuation would be a machine inventing the parts of a hand-written label. The file is
+    written back with every value as a list, so a reader never handles two shapes. Two invariants
+    travel with it, both refused at the loader rather than linted after: a turn index and its
+    referent must **both** be present or **both** absent (a referent alone is how m-017 was
+    rejected), and every referent must name a **strictly earlier** turn.
+
+    **The resolution metric is all-or-nothing over the referents a turn names, and partial
+    resolution scores `misresolved`.** One labelled turn is one item; the judge is given every
+    referent index plus a numbered transcript and resolves the turn only if the answer accounts for
+    all of them. `misresolved` and not `unresolved` because the answer **committed** to a reading
+    and the reading is wrong — it answered a narrower question, and the reader cannot tell from the
+    answer alone that something was dropped, which is the definition of that bucket. Grading each
+    referent separately was rejected: it would weight the harder turns more heavily by construction
+    and let a system that resolved three of four score 0.75 on a question it answered wrongly. The
+    difficulty mix is published instead (72 turns name one referent, 7 two, 2 three, 2 four).
+    `eval/judges/multiturn_v1.md` states the rule and **stays `v1`**: prompt versioning exists so
+    numbers from two prompts are never pooled, and this prompt has produced no numbers at all.
+
+    **Five conversations reach past the working-memory window, and the set is pinned exactly.**
+    `m-021`, `m-023`, `m-026`, `m-027`, `m-030`. Reach is measured to the **earliest** turn a
+    dependency names, because that is the one at risk; past-window is strictly greater than
+    `WINDOW_EXCHANGES`, so `m-022` and `m-028` at exactly five are inside it. Pinned as an exact
+    tuple in `tests/test_eval_drafts.py` rather than as a floor of five, for the same reason as the
+    route-document baseline: a floor passes if one of the five loses its long-range dependency
+    while an unrelated conversation gains one, which is a different set of items measuring a
+    different thing with nothing failing. `past_window_conversations` in `eval/validate.py` reads
+    `WINDOW_EXCHANGES` from `consilium.memory` rather than writing `5`.
+
+    **The limitation, and it is not to be softened: the summarization path is exercised by five
+    conversations.** Inside the window `full` and `full_no_memory` replay the same verbatim
+    transcript, so only those five can distinguish them on the compaction path at all — **any
+    effect size the memory ablation reports on that path rests on n=5**, which cannot separate a
+    real effect from noise. `eval/run.py` computes the sentence from the file and writes it into
+    every run's `summary.json` `notes`, so it travels with the numbers instead of living only in
+    `docs/EVALUATION.md` §1.7 and §7.
+
+    **`proposed_fields` now gates nothing, and the earlier claim about it was wrong.**
+    `proposed_fields` is a `GoldenItem` field and always was; `MultiturnConversation` has never
+    carried one, and the multi-turn set was gated by `missing_labels()` reporting a conversation
+    with no annotated referent. This file and `eval/items.py` previously said `proposed_fields`
+    "stays gating for the multi-turn set", which was wrong about the mechanism if right about the
+    effect. It stays in the schema, still gating, **for any future re-label**, where a
+    machine-written candidate would again need keeping from becoming a label by silence.
 
     **The four label fields split two ways, and the split is the substance of the checkpoint.**
     Owner's instruction, 2026-08-20. `expected_route` and `red_flag` ship **empty and stay empty**:
@@ -706,7 +771,7 @@ Rationale in `docs/DESIGN.md` under "Phase 6 — memory".
 - **`WINDOW_EXCHANGES = 5` replayed verbatim; everything older is compacted by deterministic
   extraction**, never by an LLM call. `llm_call.caller` has no slot for a summarizer, and a
   generated recap would put a nondeterministic string into every later turn's input — which would
-  make the 30 multi-turn golden conversations irreproducible.
+  make the 29 multi-turn golden conversations irreproducible.
 - **The recap is a `user` message tagged `[earlier in this conversation]`**, not a `system` one:
   Anthropic lifts system messages into a top-level parameter, where a recap would be glued onto the
   agent's own rules.
@@ -768,7 +833,9 @@ Rationale in `docs/DESIGN.md` under "Phase 7 — safety".
 
 ## 14. Frozen: the evaluation harness (Phase 8)
 
-Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
+Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness", "Phase 8, closing
+Checkpoint B — the labels, and what labelling them taught", and "Phase 8, closing Checkpoint B
+— the multi-turn set".
 
 - **`eval/` is a top-level package, not part of `consilium/`.** It depends on the golden set and on
   a live provider, neither of which belongs in an installed wheel. `consilium eval` therefore
@@ -799,7 +866,9 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
   run, `docs/EVALUATION.md` says the judge is unvalidated **in those words**.
 - **`load_golden` refuses an unlabelled draft** unless `allow_draft=True`, which `eval/run.py`
   never passes. `labeled: true` is trusted *and* checked, so the flag cannot be a lie. This is
-  Checkpoint B enforced in code. The golden set now passes it; `multiturn.jsonl` still does not.
+  Checkpoint B enforced in code. `load_multiturn` is the same gate over the other file, and **both
+  files now pass without `allow_draft`**; `tests/test_eval_items.py` asserts each refusal against a
+  constructed draft, so the gate is checked rather than merely out of the way.
 - **`proposed_fields` is what keeps a machine-written candidate from becoming a label by silence.**
   `GoldenItem.missing_labels()` reports a field named there as missing even though it is populated,
   so the refusal above covers an unverified candidate exactly as it covers an empty field. The
@@ -845,8 +914,20 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
   `FALSE-POSITIVE PROBE`
   (a negated "chest pain" and three historical "heart attack" mentions, none of them red-flag
   items). The 30 `condition_coding` items are asserted to vary along **six named conventions**
-  rather than along the condition axis. The multi-turn set is 30 conversations with **10 of 7+
-  turns**, all of which exceed the 5-exchange window.
+  rather than along the condition axis. The multi-turn set is **29** conversations (132 turns, 83
+  annotated) with **10 of 7+ turns**, of which **exactly five** carry a dependency reaching past
+  the 5-exchange window — pinned as an exact tuple, with the referent-count mix, the turn-length
+  distribution and the absence of any self, forward or turn-0 dependency asserted beside it.
+- **`MultiturnTurn.depends_on_turn` is `int | list[int] | None` in, a tuple after** — see §1,
+  Checkpoint B. A turn index and its referent must both be present or both absent, and every
+  referent must name a strictly earlier turn; both are **refused at the loader**, because such a
+  reference would reach the judge as a referent the model has not been shown and the resolution
+  number would come back looking merely poor. `MultiturnConversation.dependency_reach()` measures
+  to the **earliest** referent, and `eval/validate.py`'s `past_window_conversations` compares it
+  against `WINDOW_EXCHANGES` read from `consilium.memory` rather than a literal `5`.
+- **`eval/run.py` writes the five-conversation compaction caveat into every run's `summary.json`.**
+  Computed from the file by `_compaction_note`, so it cannot go stale against it, and carried with
+  the numbers rather than left in `docs/EVALUATION.md` alone.
 - **`phrasing_stratum` is a field on `GoldenItem`, not a substring of `draft_notes`** — see §1,
   Checkpoint B, for why. It is outside `LABEL_FIELDS`, so it is never proposed, never reported
   missing, and never something the labelling gate waits on.
@@ -875,6 +956,6 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
 | 5. Planner, router, blackboard, synthesizer | done | `1d6660e` |
 | 6. Memory | done | `a36b160` |
 | 7. Safety | done | `48a1dfa` |
-| 8. Eval harness + golden set | **golden set hand-labelled blind and frozen; provenance split from the gate; cross-file lint added — Checkpoint B cleared for `golden.jsonl` only. `multiturn.jsonl` is still an unlabelled draft and Phase 9 has not started.** | |
-| 9. API + SSE + CLI polish | not started | |
+| 8. Eval harness + golden set | **done — Checkpoint B cleared on both files.** Golden set hand-labelled blind and frozen; multi-turn set labelled, `m-017` dropped, 29 conversations frozen; provenance split from the gate; cross-file lint over both files. | |
+| 9. API + SSE + CLI polish | **unlocked, not started** | |
 | 10. Docs, published eval run, README numbers | not started | |

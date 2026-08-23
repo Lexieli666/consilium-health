@@ -46,15 +46,21 @@ from eval.items import (
     LABEL_FIELDS,
     LONG_CONVERSATION_TURNS,
     LONG_CONVERSATIONS_REQUIRED,
-    EvalDataError,
+    MULTITURN_CONVERSATIONS,
+    PAST_WINDOW_CONVERSATIONS_REQUIRED,
     GoldenItem,
+    MultiturnConversation,
     load_golden,
     load_multiturn,
     unverified_item_count,
     unverified_label_counts,
 )
 from eval.validate import (
+    LABEL_NOTE_SEPARATOR,
+    conversations_without_dependencies,
     label_note_agent_mentions,
+    multiturn_referent_counts,
+    past_window_conversations,
     route_document_mismatches,
     ungrounded_items,
     unknown_doc_ids,
@@ -123,8 +129,41 @@ UNGROUNDED_ITEMS = ("g-md-027",)
 EVALUATION_DOC = Path("docs/EVALUATION.md")
 FROZEN_DIGESTS = {
     GOLDEN_PATH: "1dbbf218fe3f666b79a4a45c2b7be820ad444360b97bf254620714b4c3be6432",
-    MULTITURN_PATH: "a675635212245b1b442bac09fdd1e78ac80f25a891816ede8e09c64e938de2c2",
+    MULTITURN_PATH: "d98f9289771b8097e71a959c7c25bf044dbed3ceedaf0e700de49c65b0df79e1",
 }
+
+#: The conversation the labeller rejected whole, and the gap its id leaves in the sequence. Its
+#: second turn asks "what would they check?" and "they" has no antecedent in any earlier turn, so
+#: the conversation does not test reference resolution and its referent turn cannot be annotated
+#: reproducibly. Dropped entire rather than turn by turn -- two thirds of a rejected conversation
+#: is not a conversation -- with no replacement written and the id not reused. The set is 29 and
+#: 29 is accepted. See docs/EVALUATION.md section 1.7.
+DROPPED_CONVERSATION = "m-017"
+
+#: **The reviewed baseline for the past-window set**, pinned exactly rather than counted, for the
+#: same reason as the route-document baseline: these five are the only conversations in the whole
+#: evaluation whose dependencies reach past the working-memory window, so they are the only ones
+#: that can distinguish `full` from `full_no_memory` on the compaction path. A floor of five would
+#: pass if one of these lost its long-range dependency and a different conversation gained one --
+#: which is a different set of items measuring a different thing, arriving with no failure.
+#:
+#: `m-022` and `m-028` reach back exactly five and are deliberately *not* here. At turn n the
+#: window still holds turn n-5, so a reach of exactly five is the oldest turn still replayed
+#: verbatim; the comparison is strictly greater than, and the boundary is where it has to be.
+PAST_WINDOW_CONVERSATIONS = ("m-021", "m-023", "m-026", "m-027", "m-030")
+
+#: How many labelled turns name one, two, three and four earlier turns. Exact, because the
+#: resolution metric is all-or-nothing over the referents a turn names: a turn naming four is a
+#: strictly harder item than one naming a pronoun antecedent, and the mix is what the single
+#: reported rate is a mean over.
+MULTITURN_REFERENT_COUNTS = {1: 72, 2: 7, 3: 2, 4: 2}
+
+#: The turn-count distribution of the labelled set, and the total. Exact for the same reason the
+#: golden set's block counts are: `n` for the multi-turn resolution metric is the number of
+#: annotated turns, not the number of conversations.
+MULTITURN_TURN_LENGTHS = {2: 1, 3: 18, 7: 5, 8: 4, 9: 1}
+MULTITURN_TURNS = 132
+MULTITURN_DEPENDENT_TURNS = 83
 
 #: The reviewed baseline for the route-versus-document **warning** (`eval/validate.py`). Four items
 #: were flagged at the freeze; the owner opened all four documents on 2026-08-22 and resolved all
@@ -168,6 +207,12 @@ REVIEWED_LABEL_NOTE_AGENT_MENTIONS: tuple[tuple[str, str], ...] = (("g-ge-001", 
 @pytest.fixture(scope="module")
 def golden() -> list[GoldenItem]:
     return load_golden(GOLDEN_PATH)
+
+
+@pytest.fixture(scope="module")
+def multiturn() -> list[MultiturnConversation]:
+    """Loaded through the real gate. `allow_draft` is gone: the file no longer needs it."""
+    return load_multiturn(MULTITURN_PATH)
 
 
 @pytest.fixture(scope="module")
@@ -244,10 +289,17 @@ def test_the_golden_set_is_labelled_and_loads_without_allow_draft() -> None:
     assert not [item.id for item in items if item.missing_labels()]
 
 
-def test_the_multi_turn_set_is_still_a_draft_and_is_still_refused() -> None:
-    """The gate is not retired -- the other file has not been labelled yet."""
-    with pytest.raises(EvalDataError, match="labelled by hand"):
-        load_multiturn(MULTITURN_PATH)
+def test_the_multi_turn_set_is_labelled_and_loads_without_allow_draft() -> None:
+    """Checkpoint B, closed on both files. The gate held until the labelling was done.
+
+    The gate is not retired by this passing. `load_multiturn` still refuses an unlabelled file and
+    `tests/test_eval_items.py` asserts it against a constructed draft; what changed is that this
+    particular file has been through it.
+    """
+    conversations = load_multiturn(MULTITURN_PATH)
+
+    assert all(conversation.labeled for conversation in conversations)
+    assert not [c.id for c in conversations if c.missing_labels()]
 
 
 def test_the_two_judgement_fields_are_labelled_on_every_item(golden: list[GoldenItem]) -> None:
@@ -645,27 +697,147 @@ def test_the_coding_block_varies_along_the_convention_axis_not_the_condition_axi
 
 
 # ------------------------------------------------------------------------------------------
-# The multi-turn set, which is still a draft
+# The multi-turn set, labelled 2026-08-22
 # ------------------------------------------------------------------------------------------
 
 
-def test_the_multi_turn_set_is_thirty_conversations_with_ten_long_ones() -> None:
-    """Ten must exceed the working-memory window, or the compaction path is never exercised."""
-    conversations = load_multiturn(MULTITURN_PATH, allow_draft=True)
+def test_the_multi_turn_set_is_twenty_nine_conversations_with_ten_long_ones(
+    multiturn: list[MultiturnConversation],
+) -> None:
+    """29, not the 30 that were drafted, and the ten long ones survived the drop.
 
-    assert len(conversations) == 30
-    assert len({c.id for c in conversations}) == 30
-    long_ones = [c for c in conversations if c.length >= LONG_CONVERSATION_TURNS]
-    assert len(long_ones) >= LONG_CONVERSATIONS_REQUIRED
+    `m-017` was rejected whole by the labeller and no replacement was written, so the set is 29 and
+    29 is what the denominators say. The dropped id is not reused: the gap in the sequence is the
+    only durable record that a conversation was rejected rather than never drafted.
+    """
+    assert len(multiturn) == MULTITURN_CONVERSATIONS == 29
+    assert len({c.id for c in multiturn}) == len(multiturn)
+    assert DROPPED_CONVERSATION not in {c.id for c in multiturn}
+
+    long_ones = [c for c in multiturn if c.length >= LONG_CONVERSATION_TURNS]
+    assert len(long_ones) == LONG_CONVERSATIONS_REQUIRED == 10
     assert all(c.length > WINDOW_EXCHANGES for c in long_ones)
-    assert all(c.length >= 2 for c in conversations)
+    assert all(c.length >= 2 for c in multiturn)
 
 
-def test_every_conversation_is_an_unlabelled_draft_with_a_stated_shape() -> None:
-    conversations = load_multiturn(MULTITURN_PATH, allow_draft=True)
+def test_the_turn_counts_are_the_denominators_the_metric_uses(
+    multiturn: list[MultiturnConversation],
+) -> None:
+    """`n` for multi-turn resolution is annotated turns, not conversations."""
+    assert Counter(c.length for c in multiturn) == MULTITURN_TURN_LENGTHS
+    assert sum(c.length for c in multiturn) == MULTITURN_TURNS
+    assert sum(len(c.dependent_turns()) for c in multiturn) == MULTITURN_DEPENDENT_TURNS
 
-    assert all(c.labeled is False for c in conversations)
-    assert all(c.missing_labels() for c in conversations)
-    assert all(turn.depends_on_turn is None for c in conversations for turn in c.turns)
-    assert all(turn.expected_referent == "" for c in conversations for turn in c.turns)
-    assert all(c.draft_notes.strip() for c in conversations)
+
+def test_five_conversations_reach_past_the_memory_window_and_they_are_these_five(
+    multiturn: list[MultiturnConversation],
+) -> None:
+    """The reviewed baseline, pinned exactly -- losing one is a failure, not a drift.
+
+    These five are the only conversations whose dependencies reach further back than the window
+    replays verbatim, so they are the only ones that can distinguish `full` from `full_no_memory`
+    on the compaction path at all. A floor of five would pass if one of them lost its long-range
+    dependency while an unrelated conversation gained one, which is a different set of items
+    measuring a different thing arriving with nothing failing.
+    """
+    past_window = past_window_conversations(multiturn)
+
+    assert past_window == PAST_WINDOW_CONVERSATIONS
+    assert len(past_window) >= PAST_WINDOW_CONVERSATIONS_REQUIRED
+
+    #: The boundary, asserted rather than assumed. At turn n the window still holds turn n-5, so a
+    #: reach of exactly WINDOW_EXCHANGES is the oldest turn still replayed verbatim and is inside.
+    assert all(c.dependency_reach() > WINDOW_EXCHANGES for c in multiturn if c.id in past_window)
+    assert all(
+        c.dependency_reach() <= WINDOW_EXCHANGES for c in multiturn if c.id not in past_window
+    )
+    assert {c.id for c in multiturn if c.dependency_reach() == WINDOW_EXCHANGES} == {
+        "m-022",
+        "m-028",
+    }
+
+
+def test_every_conversation_has_a_turn_that_depends_on_an_earlier_one(
+    multiturn: list[MultiturnConversation],
+) -> None:
+    """A conversation with no dependent turn is independent questions sharing a session."""
+    assert conversations_without_dependencies(multiturn) == ()
+
+
+def test_no_dependency_points_at_itself_or_forwards(
+    multiturn: list[MultiturnConversation],
+) -> None:
+    """Asserted here, refused at the loader.
+
+    `MultiturnConversation` raises on a self, forward or out-of-range reference, so this passing is
+    partly a statement that the file loaded at all. It is asserted anyway, in the file that carries
+    the frozen record: a reader checking what the freeze covers should find the property stated,
+    not have to infer it from the absence of an exception somewhere else.
+    """
+    for conversation in multiturn:
+        for index, turn in enumerate(conversation.turns):
+            for referent in turn.depends_on_turn or ():
+                assert 0 <= referent < index, (conversation.id, index, referent)
+        assert conversation.turns[0].depends_on_turn is None, conversation.id
+
+
+def test_a_dependent_turn_carries_both_halves_of_the_label(
+    multiturn: list[MultiturnConversation],
+) -> None:
+    """A turn index and a referent are one label in two fields, so neither stands alone.
+
+    A referent with no turn index is the shape the labeller used to *reject* a turn -- m-017's
+    "UNRESOLVED: generic healthcare professional" -- and that annotation left with the
+    conversation. It is asserted gone rather than assumed gone.
+    """
+    for conversation in multiturn:
+        for turn in conversation.turns:
+            assert (turn.depends_on_turn is None) == (not turn.expected_referent.strip())
+            assert "UNRESOLVED" not in turn.expected_referent.upper()
+
+
+def test_eleven_turns_resolve_against_more_than_one_earlier_turn(
+    multiturn: list[MultiturnConversation],
+) -> None:
+    """The schema was widened for these, and the mix is what the single rate is a mean over.
+
+    The resolution metric is all-or-nothing over the referents a turn names, so a turn naming four
+    earlier turns is a strictly harder item than one naming a pronoun antecedent. Pooling the two
+    is the right call -- a labelled turn is one item -- but the proportions are part of what the
+    number means, so they are pinned rather than counted after the fact.
+    """
+    counts = multiturn_referent_counts(multiturn)
+
+    assert counts == MULTITURN_REFERENT_COUNTS
+    assert sum(n for size, n in counts.items() if size > 1) == 11
+    assert all(
+        list(turn.depends_on_turn) == sorted(set(turn.depends_on_turn))
+        for c in multiturn
+        for turn in c.turns
+        if turn.depends_on_turn
+    )
+
+
+def test_every_conversation_states_its_shape(multiturn: list[MultiturnConversation]) -> None:
+    """`draft_notes` says what the conversation was written to test, and what the labeller found.
+
+    The `|| LABEL:` split is the golden set's convention (`eval/validate.py`): authoring intent to
+    the left, the labeller's reasoning to the right. Exactly the ten long conversations carry a
+    LABEL half, because those are the ones the labelling guide asks for a past-window ruling on;
+    five say PAST-WINDOW and five say WITHIN WINDOW, and both are the labeller's finding.
+
+    `m-022`'s note also records that the *drafting* note beside it is wrong about which turn "it"
+    means. The drafting note is left as drafted, exactly as the golden set keeps the five blind
+    labels that disagree with their block: the left half is the plan, and the plan being wrong is
+    a finding rather than a defect to be tidied.
+    """
+    assert all(c.draft_notes.strip() for c in multiturn)
+    labelled = [c for c in multiturn if LABEL_NOTE_SEPARATOR in c.draft_notes]
+    assert len(labelled) == LONG_CONVERSATIONS_REQUIRED == 10
+    assert {c.id for c in labelled} == {
+        c.id for c in multiturn if c.length >= LONG_CONVERSATION_TURNS
+    }
+    assert set(PAST_WINDOW_CONVERSATIONS) <= {c.id for c in labelled}
+    for conversation in labelled:
+        _, _, note = conversation.draft_notes.partition(LABEL_NOTE_SEPARATOR)
+        assert note.strip(), conversation.id
