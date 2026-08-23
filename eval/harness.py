@@ -111,9 +111,10 @@ async def run_conversation(
 ) -> ConversationRun:
     """Run every turn of a conversation in **one** session, so memory is exercised.
 
-    This is the only place a session spans turns.  Ten of the thirty conversations run seven turns
-    or more, which is what takes them past the five-exchange window and into the compaction path;
-    thirty two-turn conversations would test the window by never reaching it.
+    This is the only place a session spans turns.  Ten of the twenty-nine conversations run seven
+    turns or more, and **five** of those carry a dependency reaching past the five-exchange window
+    and into the compaction path; a set of two-turn conversations would test the window by never
+    reaching it.  See docs/EVALUATION.md section 1.7 for why that five is a stated limitation.
     """
     session_id = session_id_for(conversation.id, prefix=prefix)
     run = ConversationRun(conversation=conversation)

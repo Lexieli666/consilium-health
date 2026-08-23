@@ -32,7 +32,7 @@ from eval.judge import (
 )
 from eval.metrics import turn_event
 from eval.run import git_commit, load_pricing, stratified
-from tests.stubs import FailingProvider
+from tests.stubs import FailingProvider, RecordingProvider
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -124,7 +124,12 @@ async def test_a_judge_outage_does_not_end_a_paid_sweep() -> None:
 
 async def test_the_multiturn_judge_rejects_a_verdict_outside_its_three() -> None:
     judge = Judge(MockProvider([ScriptedResponse(content='{"verdict": "maybe", "why": "x"}')]))
-    assert await judge.multiturn(conversation=["a"], question="q", referent="r", answer="x") is None
+    assert (
+        await judge.multiturn(
+            conversation=["a"], question="q", referent="r", referent_turns=(0,), answer="x"
+        )
+        is None
+    )
 
 
 async def test_the_multiturn_judge_returns_its_verdict_and_reason() -> None:
@@ -136,11 +141,37 @@ async def test_the_multiturn_judge_returns_its_verdict_and_reason() -> None:
         conversation=["I have high blood pressure"],
         question="what about diet?",
         referent="hypertension",
+        referent_turns=(0,),
         answer="For high blood pressure, sodium reduction is described.",
     )
 
     assert verdict is not None
     assert verdict.verdict == "resolved"
+
+
+async def test_the_judge_is_shown_every_referent_turn_and_a_numbered_transcript() -> None:
+    """A turn may resolve against several earlier turns, and the judge has to see which.
+
+    The labeller's referent text is one string even for four turns -- "father's acute confusion,
+    urinary retention, possible fever, and living alone" -- so the indices are what tells the judge
+    how many referents there are, and the numbered transcript is what lets it look them up. Without
+    both, "resolve all of them" is an instruction the judge has no way to follow.
+    """
+    provider = RecordingProvider(content='{"verdict": "resolved", "why": "ok"}')
+    judge = Judge(provider)
+
+    await judge.multiturn(
+        conversation=["I am 34 weeks pregnant.", "My hands have been swelling.", "And a headache."],
+        question="Is that combination worth calling someone about?",
+        referent="swollen hands; persistent headache",
+        referent_turns=(1, 2),
+        answer="Those two together during pregnancy warrant urgent assessment.",
+    )
+
+    sent = provider.messages[-1][-1].content or ""
+    assert "REFERENT TURNS:\n1, 2" in sent
+    assert "[0] I am 34 weeks pregnant." in sent
+    assert "[2] And a headache." in sent
 
 
 # --- judge validation ----------------------------------------------------------------------------

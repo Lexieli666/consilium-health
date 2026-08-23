@@ -80,7 +80,7 @@ from eval.report import (
     environment_notes,
     write_results,
 )
-from eval.validate import route_document_mismatches
+from eval.validate import past_window_conversations, route_document_mismatches
 
 log = get_logger(__name__)
 
@@ -251,7 +251,14 @@ async def judge_config(
 async def judge_conversations(
     judge: Judge, runs: Sequence[ConversationRun], base: JudgeReport
 ) -> JudgeReport:
-    """Multi-turn resolution, over the turns a labeller annotated with a referent."""
+    """Multi-turn resolution, over the turns a labeller annotated with a referent.
+
+    A turn may be annotated with **several** referent turns, and such a turn is graded as one item:
+    the judge is given every index and resolves the turn only if the answer accounts for all of
+    them (``eval/judges/multiturn_v1.md``).  Grading each referent separately would have turned one
+    labelled turn into two, four or five items and let a system that resolved three of four
+    referents score 0.75 on a question it answered wrongly.
+    """
     counts = {"resolved": 0, "unresolved": 0, "misresolved": 0}
     graded = 0
     for run in runs:
@@ -266,6 +273,7 @@ async def judge_conversations(
                 conversation=[t.question for t in run.conversation.turns[:index]],
                 question=turn.question,
                 referent=turn.expected_referent,
+                referent_turns=turn.depends_on_turn,
                 answer=run.answers[index],
             )
             if verdict is None:
@@ -458,6 +466,7 @@ async def main(argv: Sequence[str] | None = None) -> int:
             "Episodic memory was disabled for this run: cross-session recall over independent "
             "golden items would let item N answer from item N-1.",
         ]
+        + [_compaction_note(conversations)]
         + ([unverified.sentence()] if unverified.present else []),
     )
     summary_path, report_path = write_results(out, summary)
@@ -493,6 +502,26 @@ def _warn_route_document_mismatches(runtime: Runtime, items: Sequence[GoldenItem
             owning_agents=mismatch.owning_agents,
             detail=str(mismatch),
         )
+
+
+def _compaction_note(conversations: Sequence[MultiturnConversation]) -> str:
+    """The small-n caveat on the memory ablation, computed from the file and carried into the run.
+
+    Only the conversations whose dependencies reach past the working-memory window can distinguish
+    ``full`` from ``full_no_memory`` on the compaction path at all: inside the window both configs
+    replay the same verbatim transcript.  There are five of them, out of twenty-nine, so any effect
+    size read off that comparison rests on five items.  It is computed here rather than written as
+    a sentence in a document so that it cannot go stale against the file, and it lands in every
+    run's ``summary.json`` rather than only in ``docs/EVALUATION.md`` -- the number it qualifies is
+    in the results, and so is the qualification.
+    """
+    past_window = past_window_conversations(conversations)
+    return (
+        f"The summarization path is exercised by {len(past_window)} of {len(conversations)} "
+        f"multi-turn conversations ({', '.join(past_window) or 'none'}): only these carry a "
+        "dependency reaching past the working-memory window, so the memory ablation's effect on "
+        f"that path rests on n={len(past_window)}."
+    )
 
 
 def _score_judge(path: Path) -> int:

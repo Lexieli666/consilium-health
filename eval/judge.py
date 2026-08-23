@@ -139,14 +139,32 @@ class Judge:
         )
 
     async def multiturn(
-        self, *, conversation: Sequence[str], question: str, referent: str, answer: str
+        self,
+        *,
+        conversation: Sequence[str],
+        question: str,
+        referent: str,
+        referent_turns: Sequence[int],
+        answer: str,
     ) -> MultiturnVerdict | None:
-        """Grade whether a later turn resolved its annotated referent."""
-        history = "\n".join(f"- {turn}" for turn in conversation)
+        """Grade whether a later turn resolved its annotated referent, or all of them.
+
+        ``referent_turns`` is the label's turn indices and ``referent`` is the labeller's one
+        description of them.  Both are passed, and the description is passed **whole**: eleven of
+        the labelled turns name several earlier turns, and the labeller's prose does not decompose
+        onto them one-to-one -- "sleeping badly and waking around 4 a.m." is one phrase for two
+        turns, "father's acute confusion, urinary retention, possible fever, and living alone" is
+        four clauses for four.  Splitting it on punctuation to line the parts up with the indices
+        would be a machine inventing the parts of a hand-written label.  So the judge gets the
+        indices, gets the numbered transcript to look them up in, and is told in the prompt that an
+        answer resolves the turn only if it accounts for all of them.
+        """
+        history = "\n".join(f"[{index}] {turn}" for index, turn in enumerate(conversation))
+        numbers = ", ".join(str(index) for index in referent_turns) or "(none)"
         payload = await self._ask(
             MULTITURN_PROMPT,
             f"CONVERSATION:\n{history}\n\nQUESTION:\n{question}\n\n"
-            f"REFERENT:\n{referent}\n\nANSWER:\n{answer}",
+            f"REFERENT TURNS:\n{numbers}\n\nREFERENT:\n{referent}\n\nANSWER:\n{answer}",
         )
         if payload is None:
             return None
