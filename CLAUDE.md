@@ -121,6 +121,21 @@ was replaced by the following, on the owner's instruction:
     four, dropping its unverified count to 144 while `reference_answer` stays 148 — `g-gh-001`'s
     reference answer was left as it stands and stays unverified.
 
+    **A LABEL note that disagrees with its own label is a defect, and the check reads half a
+    field.** Owner's instruction, 2026-08-22, after scanning all 150 notes against the final routes.
+    `draft_notes` splits on `|| LABEL:` into authoring intent (left) and the labeller's reasoning
+    (right). `label_note_agent_mentions` reads **only the right half**: the left half is the
+    drafting plan, which the blind pass was allowed to disagree with and did five times, so scanning
+    the whole field would flag six `multi_dimensional` items for exactly the property the procedure
+    exists to produce. Two notes were stale — `g-gh-017` and `g-gh-026` still said `research` after
+    the owner overrode that reasoning on reading the documents — and were rewritten to the reason
+    that actually decided them; `g-ge-001` is a **false positive** kept as the whole baseline,
+    because its `diagnostic` is an adjective on `threshold`. It is a **warning against an exact
+    `(item, agent)` baseline** and not an assertion: no lexical rule separates the adjective from
+    the agent name, and a matcher fitted to this file's two examples would fail silently on the next
+    stale note. Text-only edits; no label and no published count moved. `eval/run.py` does **not**
+    log it — it bears on nothing a sweep measures, unlike the route-document warning.
+
     **A frozen data file can be edited; it cannot be edited silently.** Every post-freeze change to
     `eval/data/golden.jsonl` is logged in `docs/EVALUATION.md` §1.6 with the item id, what changed,
     why, and the digest on both sides. The digest in §1.5 is always the current one and the lint
@@ -804,7 +819,7 @@ Rationale in `docs/DESIGN.md` under "Phase 8 — the evaluation harness".
 - **`eval/validate.py` holds the cross-file checks**, run by `tests/test_eval_drafts.py`:
   `unknown_doc_ids` (an **error** — a `doc_id` naming no note is a label nobody can retrieve),
   `route_document_mismatches` (a **warning** against a reviewed baseline — see §1, Checkpoint B),
-  and `ungrounded_items`. The exclusive skill grants are **read from `data/policy.yaml`** and the
+  `ungrounded_items`, and `label_note_agent_mentions`. The exclusive skill grants are **read from `data/policy.yaml`** and the
   implied skills from the labelled notes' corpus `category`; nothing is restated. `condition` is
   deliberately not in `CATEGORY_SKILL` (it is reachable through both `analyze_symptoms` and the
   unfiltered `search_knowledge`, so it names no owning agent), and `search_knowledge` can never be

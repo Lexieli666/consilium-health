@@ -6,6 +6,10 @@ agent policy its ``expected_route`` implies a set of skills from.  Those checks 
 schema because the schema does not get to read ``data/``, and they cannot live in a one-off script
 because the thing they catch is a label that quietly stops agreeing with a file it never mentions.
 
+:func:`label_note_agent_mentions` is the one check here that reads nothing but the record itself.
+It is here anyway, because it is the same *kind* of check -- a claim in one field that quietly stops
+agreeing with another -- and because it needs the agent names, which are in ``data/policy.yaml``.
+
 Everything here is a pure function over already-loaded data.  ``tests/test_eval_drafts.py`` is what
 runs it, so a label edit that breaks one of these fails in CI rather than in a sweep.
 
@@ -14,7 +18,10 @@ Two severities, and the difference matters:
 **Errors.**  :func:`unknown_doc_ids` is one.  A ``doc_id`` naming no corpus note is a label nobody
 can retrieve, and there is no reading of the data that makes it acceptable.
 
-**Warnings.**  :func:`route_document_mismatches` is one, and it is deliberately *not* an error.
+**Warnings.**  :func:`route_document_mismatches` and :func:`label_note_agent_mentions` are both
+warnings, pinned to reviewed baselines.  The second is a warning because ``diagnostic`` is an
+English adjective as well as an agent name and no lexical rule separates the two; its docstring has
+the argument.  The first is deliberately *not* an error either.
 ``data/policy.yaml`` grants six of the seven skills to exactly one agent each, but it grants
 ``search_knowledge`` -- the one retrieval skill with **no category filter** -- to all three.  So
 every agent can reach every corpus note, and **no labelled route is structurally impossible**.  An
@@ -35,6 +42,7 @@ against a reviewed baseline instead of failing.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 
@@ -213,3 +221,91 @@ def ungrounded_items(items: Sequence[GoldenItem]) -> tuple[str, ...]:
     in this set is part of what recall@5 was computed over and is asserted rather than counted.
     """
     return tuple(item.id for item in items if not item.relevant_doc_ids)
+
+
+#: The separator between the two halves of ``draft_notes``.  Left of it is the authoring intent,
+#: written when the question was drafted; right of it is the labeller's reasoning, appended when
+#: the label was decided.
+LABEL_NOTE_SEPARATOR = "|| LABEL:"
+
+
+def label_note(item: GoldenItem) -> str:
+    """The labeller's half of ``draft_notes``, or ``""`` if the record has no LABEL section."""
+    _, separator, note = item.draft_notes.partition(LABEL_NOTE_SEPARATOR)
+    return note if separator else ""
+
+
+@dataclass(frozen=True)
+class LabelNoteAgentMention:
+    """A **warning**: a LABEL note names an agent the item is not routed to.
+
+    Usually a stale note -- the labeller changed the route after reading the documents and the
+    reasoning stopped at the intermediate state, leaving the record explaining a decision it no
+    longer records.  Nothing downstream reads ``draft_notes``, so this costs no measured number; it
+    costs the reviewer, who is reading the note precisely to find out why the label is what it is.
+    """
+
+    item_id: str
+    #: The agent name the note uses, lowercased.
+    agent: str
+    #: The agents the item is actually routed to.
+    route_agents: tuple[str, ...]
+    #: The words around the mention, for the log line.  Not part of the reviewed baseline: a note
+    #: may be reworded without re-review, and pinning prose here would demand one.
+    excerpt: str
+
+    def __str__(self) -> str:
+        return (
+            f"{self.item_id}: LABEL note names {self.agent!r}, which is not in the labelled route "
+            f"({'+'.join(self.route_agents) or 'none'}) -- ...{self.excerpt}..."
+        )
+
+
+def label_note_agent_mentions(
+    items: Sequence[GoldenItem], *, policy: Policy
+) -> list[LabelNoteAgentMention]:
+    """Warn where a LABEL note names an agent that is not in the item's ``expected_route``.
+
+    **Only the LABEL half of ``draft_notes`` is read, and that is the whole design.**  The half to
+    the left of the separator is the *drafting plan* -- "urgency plus a guideline target: diagnostic
+    and research" -- written before any label existed.  The blind pass was allowed to disagree with
+    that plan and did so five times, and those disagreements are kept on purpose (CLAUDE.md §1).
+    Scanning the whole field would therefore fire on six ``multi_dimensional`` items for having
+    exactly the property the labelling procedure exists to produce.  The labeller's half is
+    different: it was written *about* the label, so it disagreeing with the label is a defect.
+
+    **A warning against a reviewed baseline, not an error, because the match cannot be made
+    exact.**  ``diagnostic`` is an ordinary English adjective as well as an agent name, and
+    ``g-ge-001`` uses it as one ("the diagnostic blood-pressure threshold").  No lexical rule
+    separates that from a genuine agent reference: "the diagnostic threshold" and "the consultation
+    agent" have the same shape, and a rule tuned to tell them apart would be fitted to the two
+    examples in this file and would silence the next stale note that happened to match it.  So the
+    ambiguity is left visible and dispositioned by a person once, in the baseline.
+
+    Agent names are read from ``data/policy.yaml`` rather than restated, for the same reason
+    :func:`exclusive_skill_owners` reads the grants from it: a second copy of the names is a copy
+    that can drift, and the one that drifted would be the one deciding whether a note is stale.
+    Returned in file order, one entry per (item, agent) pair.
+    """
+    mentions: list[LabelNoteAgentMention] = []
+    for item in items:
+        note = label_note(item)
+        if not note:
+            continue
+        routed = frozenset(item.expected_route.agents if item.expected_route else ())
+        for agent in policy:
+            if agent in routed:
+                continue
+            match = re.search(rf"\b{re.escape(agent)}\b", note, re.IGNORECASE)
+            if match is None:
+                continue
+            start, end = max(0, match.start() - 40), min(len(note), match.end() + 40)
+            mentions.append(
+                LabelNoteAgentMention(
+                    item_id=item.id,
+                    agent=agent,
+                    route_agents=tuple(item.expected_route.agents) if item.expected_route else (),
+                    excerpt=" ".join(note[start:end].split()),
+                )
+            )
+    return mentions
