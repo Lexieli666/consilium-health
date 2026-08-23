@@ -53,17 +53,28 @@ uv run consilium chat        # multi-turn REPL; one session id, one memory path
 uv run uvicorn consilium.api.main:app     # POST /v1/ask, POST /v1/chat (SSE), GET /healthz
 ```
 
+Then open <http://127.0.0.1:8000/> for the single-file demo page: it holds one session, streams a
+turn, and paints the escalation banner before the first character of the answer arrives. It is
+served by the API rather than opened from the filesystem so that the page and the endpoint share an
+origin and no CORS policy has to be opened for a demo; it loads nothing from the network.
+
 `ask` and `chat` need a provider: set `CONSILIUM_PROVIDER` and the matching key in `.env`, or pass
 `--script` to replay a scripted `MockProvider` fixture with no key at all. The HTTP API serves the
 same turn the CLI runs and the evaluation harness measures; `GET /v1/sessions/{id}` returns the
 shape of a conversation and none of its content (see Limitations).
 
-To serve the API with no model download at all — the offline pipeline the tests use:
+To bring the whole path up with no model download and no key — the offline pipeline the tests use:
 
 ```bash
 uv run python -c "import uvicorn; from consilium.api.app import create_app; \
     uvicorn.run(create_app(embedder='hash', store='numpy'))"
 ```
+
+That checks the wiring, not the answers: with `CONSILIUM_PROVIDER=mock` and no script, the planner
+consumes the single placeholder reply and the turn reports that no specialist completed. The
+routing, the safety layer, the trace and the SSE ordering are all real in that run; the text is
+not, deliberately, because a mock reply that reads like content is how a screenshot of a mock ends
+up in a README.
 
 `uv run consilium ingest --embedder hash --store numpy` runs the same pipeline end to end with no
 model download and no persistence. That is the path the test suite uses, and it exists because the

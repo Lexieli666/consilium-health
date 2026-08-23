@@ -264,3 +264,44 @@ async def test_the_runs_directory_is_the_configured_one(
 
     assert (api_settings.runs_dir / "s-where" / "0.jsonl").exists()
     assert not (tmp_path / "runs").exists()
+
+
+async def test_the_demo_page_is_served_from_the_api(client: httpx.AsyncClient) -> None:
+    """Same origin as the endpoint it calls, so no CORS policy has to be opened for a demo."""
+    response = await client.get("/")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    assert "Not medical advice" in response.text
+    assert "/v1/chat" in response.text
+
+
+async def test_the_demo_page_loads_nothing_from_the_network(client: httpx.AsyncClient) -> None:
+    """A page that fetched a framework from a CDN would put a network request into a project whose
+    test rule is that it needs none."""
+    page = (await client.get("/")).text
+
+    assert "src=" not in page
+    assert "http://" not in page.replace("http://www.w3.org", "")
+    assert "https://" not in page
+
+
+async def test_a_checkout_without_the_demo_page_serves_a_404(
+    offline_runtime: Callable[[LLMProvider], Runtime],
+    provider: TurnProvider,
+    tmp_path: Path,
+) -> None:
+    """The page is not part of the wheel, so its absence is a 404 and not a startup failure."""
+    from dataclasses import replace
+
+    runtime = offline_runtime(provider)
+    runtime = replace(runtime, settings=runtime.settings.model_copy(update={"root_dir": tmp_path}))
+    app = create_app(runtime=runtime)
+
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://consilium.test"
+    ) as bare:
+        response = await bare.get("/")
+
+    assert response.status_code == 404
+    assert "/v1" in response.json()["detail"]

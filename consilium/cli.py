@@ -264,7 +264,11 @@ def chat(
         ) from exc
 
     session_id = session or f"chat-{uuid.uuid4().hex[:12]}"
+    # Two counters, because they answer different questions on a resumed session: `turn_index` is
+    # where this turn's trace goes and continues from what is already on disk, while `answered` is
+    # how many turns this REPL held and starts at zero every time.
     turn_index = _first_free_turn(settings.runs_dir, session_id)
+    answered = 0
 
     typer.echo(CHAT_HEADER)
     typer.echo(f"session    : {session_id}")
@@ -304,8 +308,9 @@ def chat(
         _echo_outcome(outcome, trace_path(settings.runs_dir, session_id, turn_index))
         typer.echo("")
         turn_index += 1
+        answered += 1
 
-    typer.echo(f"session {session_id} ended after {turn_index} turn(s).")
+    typer.echo(f"session {session_id} ended after {answered} turn(s).")
 
 
 def _chat_command(

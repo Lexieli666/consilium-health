@@ -1744,3 +1744,22 @@ guarantee — SSE is an ordered stream — but it is weaker than the one the des
 the banner is emitted before the first provider call. So `stream_turn` is a public generator and the
 strict guarantee is asserted directly against it: pull one event, assert the provider has not been
 called, assert the event is the banner.
+
+### The demo page is served by the API, not opened from the filesystem
+
+**Chosen.** `web/index.html` is a single file with no build step and no external asset, returned by
+`GET /` from the same application that serves `/v1/chat`.
+
+**Rejected — open it as a `file://` URL and allow cross-origin requests.** No route to write, and
+the page can live entirely outside the application.
+
+**Why.** That trade is a permanent CORS policy on the API in exchange for a demo. Serving the page
+from the same origin needs six lines and opens nothing. The file is not shipped in the wheel, so the
+route is a 404 wherever it is absent — an installed copy of `consilium` has an API and no demo,
+which is the correct shape — and it is excluded from the OpenAPI schema, because it is not part of
+the interface.
+
+The page reads the stream from `fetch()` rather than through `EventSource`, which only issues GET
+requests and so cannot carry a question body. Parsing SSE by hand is about fifteen lines; the
+alternative was a client library from a CDN, which would put a network fetch into a project whose
+test rule is that it needs none.
