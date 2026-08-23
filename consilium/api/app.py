@@ -35,6 +35,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi.responses import HTMLResponse
 from sse_starlette import EventSourceResponse, ServerSentEvent
 
 from consilium.api.models import (
@@ -52,7 +53,6 @@ from consilium.config import RunConfig, Settings, get_preset
 from consilium.llm.base import LLMProvider
 from consilium.log import bind_turn, clear_turn, get_logger
 from consilium.memory.store import MemoryStoreError, validate_session_id
-from consilium.memory.working import WINDOW_EXCHANGES
 from consilium.retrieval.index import EmbedderName, StoreName
 from consilium.runtime import Runtime, TurnOutcome, build_runtime, run_turn
 from consilium.safety import violation_rules
@@ -76,6 +76,13 @@ SESSION_PREFIX = "api-"
 #: The response body for a session that cannot be read.  Deliberately the same for an id that never
 #: existed, an id that was purged, and a malformed one.
 NO_SUCH_SESSION = "no such session"
+
+#: The single-file demo page, relative to ``Settings.root_dir``.  Served by the API itself so that
+#: the page and the endpoint share an origin: a demo opened from the filesystem would need a CORS
+#: policy, and opening the API to cross-origin requests to make a demo work is a real change to the
+#: deployment for a decorative reason.  The file is not part of the wheel, so ``GET /`` is a 404
+#: wherever it is absent rather than a startup failure.
+DEMO_PAGE = Path("web") / "index.html"
 
 
 @dataclass
@@ -203,6 +210,17 @@ def _require_memory(runtime: Runtime) -> None:
 
 
 def _register_routes(app: FastAPI) -> None:
+    @app.get("/", include_in_schema=False)
+    async def demo(state: StateDep) -> HTMLResponse:
+        """The single-file demo page, when the repository it lives in is what is being served."""
+        path = state.runtime.settings.root_dir / DEMO_PAGE
+        if not path.is_file():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"no demo page at {DEMO_PAGE}; the API itself is under /v1",
+            )
+        return HTMLResponse(path.read_text(encoding="utf-8"))
+
     @app.get("/healthz", response_model=HealthResponse, tags=["ops"])
     async def healthz(state: StateDep) -> HealthResponse:
         """Liveness, and what the answers from this process are grounded in."""
@@ -269,7 +287,10 @@ def _register_routes(app: FastAPI) -> None:
         return SessionResponse(
             session_id=session_id,
             turns=len(memory),
-            window_exchanges=WINDOW_EXCHANGES,
+            # Read off the session's own buffer rather than from the module constant: the store
+            # decides the window, and a response that reported the default while the store used
+            # something else would be a fact about the source code, not about this conversation.
+            window_exchanges=memory.window,
             compacted_turns=len(memory.compacted()),
             observations_deduplicated=memory.duplicates_dropped,
         )
