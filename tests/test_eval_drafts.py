@@ -92,8 +92,8 @@ EASY_STRATUM_MATCHES = 5
 #: The labelled route and red-flag counts, published in docs/EVALUATION.md section 1.1. They are
 #: the denominators of routing accuracy and red-flag recall; asserting them keeps the frozen
 #: record and the file from drifting apart in either direction.
-SINGLE_ROUTE_ITEMS = 121
-PARALLEL_ROUTE_ITEMS = 29
+SINGLE_ROUTE_ITEMS = 120
+PARALLEL_ROUTE_ITEMS = 30
 RED_FLAG_ITEMS = 28
 
 #: How many items hold a machine-written value the owner decided not to verify, and in which
@@ -121,26 +121,28 @@ UNGROUNDED_ITEMS = ("g-md-027",)
 #: document. Changing a data file is a deliberate act that updates both in the same commit.
 EVALUATION_DOC = Path("docs/EVALUATION.md")
 FROZEN_DIGESTS = {
-    GOLDEN_PATH: "d062b6072ab9fb41ea05f7ff8add32ed79b92e878e7763d1e57894218c7383e6",
+    GOLDEN_PATH: "4116454d9c69c9984d0eb095246c44ca7adc9727ca184c3d6d4d29cea63c6763",
     MULTITURN_PATH: "a675635212245b1b442bac09fdd1e78ac80f25a891816ede8e09c64e938de2c2",
 }
 
 #: The reviewed baseline for the route-versus-document **warning** (`eval/validate.py`). Four items
-#: were flagged at the freeze; the owner opened all four documents on 2026-08-22 and resolved
-#: three by correcting the route to match the documents (`g-gh-017`, `g-gh-026`, `g-gh-029`). What
-#: remains is the baseline: an item a person has looked at and has not yet decided.
+#: were flagged at the freeze; the owner opened all four documents on 2026-08-22 and resolved all
+#: four by correcting the route to match them -- `g-gh-017` and `g-gh-026` to `consultation`,
+#: `g-gh-029` to `research`, and `g-gh-001` to parallel `consultation` + `research`. So the
+#: baseline is empty *at present*, which is a fact about the current labels and not a rule.
 #:
-#: This is a warning and not an error, so the baseline is asserted as an exact set rather than
-#: required to be empty. Empty would be a demand to relabel; unchecked would make the warning
-#: invisible. Exact means a *new* mismatch fails and a reviewed one does not.
+#: The assertion form stays an exact set, and that is the part worth keeping. Rewriting it as
+#: `assert not mismatches` would promote today's empty baseline into a permanent requirement -- a
+#: standing demand that every future mismatch be relabelled rather than reviewed and kept, which is
+#: an error wearing a warning's name. Exact means a *new* mismatch fails, and a reviewed one is
+#: added back here with the reasoning that admitted it. Unchecked would make the warning invisible.
 #:
-#: `g-gh-001` is the open one. Its route is `consultation` and its documents are
-#: `condition-hypertension` (no dedicated owner) plus
-#: `guideline-hypertension-diagnosis-and-bp-targets` (`find_guideline`, held by `research`). Both
-#: labels have now been verified by a person, so this is two hand-written labels disagreeing rather
-#: than a hand-written one disagreeing with a machine-written one -- which is why it is a decision
-#: and not a fix. See docs/EVALUATION.md section 1.6.
-REVIEWED_ROUTE_DOCUMENT_MISMATCHES = ("g-gh-001",)
+#: `g-gh-001` was the last open one, and the only one where both labels had been verified by a
+#: person -- two hand-written labels disagreeing rather than a hand-written one disagreeing with a
+#: machine-written one, which is why it was a decision and not a fix. The owner decided it on
+#: 2026-08-22: the question carries two information needs owned by different specialists, so the
+#: route was the half that was wrong, as in the other three. See docs/EVALUATION.md section 1.6.
+REVIEWED_ROUTE_DOCUMENT_MISMATCHES: tuple[str, ...] = ()
 
 
 @pytest.fixture(scope="module")
@@ -350,8 +352,10 @@ def test_the_route_document_warning_matches_its_reviewed_baseline(
     it, so every note stays reachable. What is lost is the filtered path to it.
 
     The grants are read from the policy and the expected skills from the labelled notes' corpus
-    categories, so neither is a copy that can drift. The baseline is exact rather than empty,
-    because a warning nobody can leave standing is an error wearing a different name.
+    categories, so neither is a copy that can drift. The baseline holds nothing today -- all four
+    flagged items were resolved on 2026-08-22 -- but it is asserted as an exact set rather than as
+    `assert not mismatches`, because a warning nobody is allowed to leave standing is an error
+    wearing a different name.
     """
     mismatches = route_document_mismatches(golden, policy=policy, doc_categories=doc_categories)
 

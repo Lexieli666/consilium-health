@@ -1475,16 +1475,23 @@ It reports a mismatch only where the labelled agents hold **none** of the implie
 can imply two and be well served by either, so a route reaching one of them is a defensible label;
 a route reaching none of them is the one worth a person's attention.
 
-**What the four turned out to be.** All four were `general_health`. The owner opened the documents
-and resolved three by correcting the route to match them — `g-gh-017` and `g-gh-026` from `research`
-to `consultation` (both label a `lifestyle` note), `g-gh-029` from `consultation` to `research` (it
-labels the hypertension guideline note). So in three of four cases the check was pointing at a real
-labelling error, and the route was the half that was wrong.
+**What the four turned out to be.** All four were `general_health`, and all four were resolved by
+correcting the route to match the documents — `g-gh-017` and `g-gh-026` from `research` to
+`consultation` (both label a `lifestyle` note), `g-gh-029` from `consultation` to `research` (it
+labels the hypertension guideline note), and `g-gh-001` from single `consultation` to parallel
+`consultation` + `research` (it labels one of each and needs both). **In four of four cases the
+check was pointing at a real labelling error, and in four of four the route was the half that was
+wrong.** That is the strongest thing the check has said so far, and it is worth stating precisely:
+it does not mean the documents are always right, only that a labeller working blind got the
+document list right and the route wrong every time it disagreed with them.
 
-The fourth, `g-gh-001`, is open and is the current baseline. Its documents are now verified too, so
-it is no longer a hand-written label disagreeing with a machine-written one — it is two verified
-labels disagreeing, which is a design decision about whether an item may span a condition note and
-a guideline note. `docs/EVALUATION.md` §1.6 records it.
+`g-gh-001` took a decision rather than a fix, and is the interesting one. Its document list had been
+verified by then, so it was two hand-written labels disagreeing rather than a hand-written one
+disagreeing with a machine-written one — no lint could say which half to move. The owner read both
+notes: the quantified confirmation rule the reference answer's last sentence depends on exists only
+in the guideline note, so dropping that note would have left the reference answer unable to answer
+the second half of its own question. An item may therefore span a condition note and a guideline
+note, and when it does, the route is parallel. `docs/EVALUATION.md` §1.6 records it.
 
 **The general form of the rule:** when a document tells a person how to produce a label, and a
 config file constrains what that label can mean, the two are one source with two copies. Either the

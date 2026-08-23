@@ -45,10 +45,14 @@ was replaced by the following, on the owner's instruction:
     were hand-labelled on all 150 items **blind** — the labeller saw the question and nothing
     else: not the `category`, not the `phrasing_stratum`, not the `id` (block-prefixed, so it
     leaks the category), and not the file order (block-ordered, so it leaks it too). Result: 121
-    single, 29 parallel, 28 red-flag. Five items disagree with the drafting plan (three
-    `multi_dimensional` labelled `single`, two `symptom_urgency` labelled `parallel`) and **the
-    disagreements are kept** — correcting a blind label to match the block it came from discards
-    the only signal the procedure exists to produce.
+    single, 29 parallel, 28 red-flag. **The current counts are 120 single / 30 parallel / 28
+    red-flag**, the one difference being `g-gh-001`, moved post-freeze with the documents open (see
+    the post-freeze note below); 121/29 stays written here because it is what the blind pass
+    produced. Five items disagree with the drafting plan (three `multi_dimensional` labelled
+    `single`, two `symptom_urgency` labelled `parallel`) and **the disagreements are kept** —
+    correcting a blind label to match the block it came from discards the only signal the procedure
+    exists to produce. `g-gh-001` is not among those five and is not evidence about the blind
+    procedure: it was decided sighted, and it is a correction rather than a finding.
 
     `relevant_doc_ids` and `reference_answer` were **not verified**, by the owner's decision of
     2026-08-22. They stay machine-written and unverified on 144 and 148 of the 150 items
@@ -96,16 +100,26 @@ was replaced by the following, on the owner's instruction:
     competing with all 78 notes for a top-5 slot instead of with one category. It fires only where
     the route holds **none** of the implied skills. `eval/run.py` logs each one at warning level
     when a sweep starts; `tests/test_eval_drafts.py` pins the set to a **reviewed baseline**,
-    asserted exactly — empty would be a standing demand to relabel, unchecked would make the
-    warning invisible.
+    asserted exactly — *requiring* empty would be a standing demand to relabel, unchecked would
+    make the warning invisible. The baseline is empty as of 2026-08-22 because all four flagged
+    items were resolved, which is a fact about the current labels and not a rule; the assertion
+    form stays an exact set so a future mismatch can be reviewed and kept.
 
-    **Post-freeze resolution, 2026-08-22.** Of the four flagged, three were real labelling errors
-    with the route as the wrong half and were corrected (`g-gh-017` and `g-gh-026` to
-    `consultation`, `g-gh-029` to `research`; modes unchanged, so 121/29 and 28 red-flag still
-    hold). `g-gh-001` is **open** and is the whole of the current baseline: both its documents are
-    now verified, so it is two hand-written labels disagreeing, which is a decision and not a fix.
-    `relevant_doc_ids` is verified on those four, dropping its unverified count to 144 while
-    `reference_answer` stays 148.
+    **Post-freeze resolution, 2026-08-22.** All four flagged items were real labelling errors with
+    **the route as the wrong half**, and all four were corrected: `g-gh-017` and `g-gh-026` to
+    `consultation`, `g-gh-029` to `research` (modes unchanged), and `g-gh-001` from single
+    `consultation` to **parallel `consultation` + `research`**. `g-gh-001` was decided last and
+    separately, because both of its labels were verified by then — two hand-written labels
+    disagreeing is a decision, not a fix. The owner read both notes: the quantified confirmation
+    rule the reference answer's last sentence rests on is in
+    `guideline-hypertension-diagnosis-and-bp-targets` alone, and `condition-hypertension` carries
+    only the qualitative version and defers the rest, so dropping the guideline note would have
+    left the reference answer unable to answer the second half of its own question. **An item may
+    span a condition note and a guideline note, and when it does the route is parallel.** That
+    moved the mode counts to **120 single / 30 parallel**, with three parallel items now outside
+    the `multi_dimensional` block; `red_flag` stays 28. `relevant_doc_ids` is verified on those
+    four, dropping its unverified count to 144 while `reference_answer` stays 148 — `g-gh-001`'s
+    reference answer was left as it stands and stays unverified.
 
     **A frozen data file can be edited; it cannot be edited silently.** Every post-freeze change to
     `eval/data/golden.jsonl` is logged in `docs/EVALUATION.md` §1.6 with the item id, what changed,
