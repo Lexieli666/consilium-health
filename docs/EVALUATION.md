@@ -381,12 +381,39 @@ validates a record against its own schema; these check a record against the file
 |---|---|
 | every `relevant_doc_ids` entry names a real note in `data/corpus/` | `doc_id` is the filename stem by contract, and a typo would land in the results as a retrieval miss rather than as the typo it is |
 | **(warning)** the labelled route carries a dedicated skill for the labelled documents | a labeller does not have `data/policy.yaml` open, so nothing else notices when the route label and the document label disagree about what the question is |
+| **(warning)** no LABEL note names an agent outside the item's `expected_route` | a note that explains a superseded decision reads as the current one; three had gone stale before the check existed, and nothing downstream reads `draft_notes` to notice |
 | every red-flag item is routed somewhere holding `assess_risk` | only `diagnostic` holds it, and it is the skill that consults the rule table the label came from |
 | the two provenance markers are disjoint | an item cannot be both verified and not |
 | the per-stratum matcher hits are 0/22 and 5/5 | both are published in §1.3, and both move only if a question changes |
 | the strata hold exactly 22 and 5 | they are the denominators of the two published recall figures |
 | the unverified counts are 144 `relevant_doc_ids` and 148 `reference_answer` | those numbers are printed in the results table, so the disclosure must not itself be unverified |
 | `g-md-027` is the only item with no relevant documents | it is the one item recall@5 is not computed over |
+
+#### The LABEL-note check, and why it reads half a field
+
+`draft_notes` has two halves either side of a `|| LABEL:` separator. Left of it is the **authoring
+intent**, written when the question was drafted and often naming the agents the drafting plan
+expected — "urgency plus a guideline target: diagnostic and research". Right of it is the
+**labeller's reasoning**, appended when the label was decided.
+
+The check reads only the right half, and that is the whole design. The blind pass was allowed to
+disagree with the drafting plan and did so five times, and those disagreements are kept on purpose
+(§1.2); scanning the whole field would flag six `multi_dimensional` items for having exactly the
+property the labelling procedure exists to produce. The labeller's half is different in kind: it
+was written *about* the label, so it disagreeing with the label is a defect and never a finding.
+
+It is a **warning against a reviewed baseline** rather than a bare assertion, because the match
+cannot be made exact. `diagnostic` is an ordinary English adjective as well as an agent name —
+`g-ge-001`'s note says "the diagnostic blood-pressure threshold" — and no lexical rule separates
+that from a real agent reference, since "the diagnostic threshold" and "the consultation agent"
+have the same shape. A matcher tuned to tell them apart would be fitted to the two examples in this
+file, and the cost of it being wrong later is silence: the stale note it fails to flag. So the one
+ambiguous case is dispositioned by a person, once, in a baseline of `(item, agent)` pairs — finer
+than an item id, so a *different* stale name in the same item still fails.
+
+Unlike the route-document warning it is not logged by `eval/run.py` at sweep start: that one bears
+on retrieval quality and belongs beside a recall@5 number, and this one bears on nothing a sweep
+measures. §1.6 records the three notes the check was written after.
 
 #### The route-document check is a warning, and the earlier wording of it was wrong
 
@@ -449,7 +476,7 @@ Checkpoint B is closed. The golden set is labelled and frozen; the multi-turn se
 
 | file | items | sha256 |
 |---|---|---|
-| `eval/data/golden.jsonl` | 150 questions, labelled | `4116454d9c69c9984d0eb095246c44ca7adc9727ca184c3d6d4d29cea63c6763` |
+| `eval/data/golden.jsonl` | 150 questions, labelled | `1dbbf218fe3f666b79a4a45c2b7be820ad444360b97bf254620714b4c3be6432` |
 | `eval/data/multiturn.jsonl` | 30 conversations, **still an unlabelled draft** | `a675635212245b1b442bac09fdd1e78ac80f25a891816ede8e09c64e938de2c2` |
 
 The digests are recorded so that a published number can be tied to the exact file it was computed
@@ -565,6 +592,52 @@ counts are unchanged — `relevant_doc_ids` 144, `reference_answer` 148 — beca
 document list was already verified in the previous entry. The per-stratum matcher hits were re-run
 and are unchanged at 0/22 hard and 5/5 easy under both negation policies. The §1.4 warning baseline
 is now empty.
+
+#### 2026-08-22 (third change) — three stale LABEL notes reviewed, two rewritten
+
+`4116454d9c69c9984d0eb095246c44ca7adc9727ca184c3d6d4d29cea63c6763`
+→ `1dbbf218fe3f666b79a4a45c2b7be820ad444360b97bf254620714b4c3be6432`
+
+**Text only. No label changed, no question changed, and no published count moved.** The owner
+scanned all 150 LABEL notes against the final routes and found three that name an agent the item is
+not routed to. Two were stale and were rewritten; the third was a false positive and was left alone.
+
+| item | change | why |
+|---|---|---|
+| `g-gh-017` | LABEL note rewritten | It said "so research remains sufficient" while the route says `consultation`. The owner had overridden that reasoning on reading the documents (first entry above) and the note stopped at the intermediate state. It now gives the reason that actually decided it: the question says "guidance", but what it asks for is the dietary pattern, which lives in a `lifestyle` note. |
+| `g-gh-026` | LABEL note rewritten | The same, one word stronger — "research remains the best single agent". Rewritten to the deciding reason: exercise for anxiety is lifestyle content. |
+| `g-ge-001` | **unchanged** | A false positive, and dispositioned as one. Its note reads "Asks for the diagnostic blood-pressure threshold and whether major guideline bodies agree": `diagnostic` is an adjective on `threshold`, not the agent name, and `research` is the right route for a threshold question that lands on a documented disagreement. |
+
+**Why the two were wrong in the same way.** Both notes recorded the reasoning the owner started
+with — the question contains the word "guidance", so route it to `research` — and neither was
+updated when reading the documents overturned it. That is the same failure as `g-md-030` in the
+first entry: a record whose prose explains a decision the record no longer carries. It costs no
+measured number, because nothing downstream reads `draft_notes`; it costs the reviewer, who opens
+the note precisely to find out why the label is what it is.
+
+**The check that makes this class non-recurring.** `label_note_agent_mentions` in
+`eval/validate.py` reports every LABEL note that names an agent outside the item's
+`expected_route.agents`, and `tests/test_eval_drafts.py` pins the result to an exact reviewed
+baseline of `(item, agent)` pairs — currently the single `g-ge-001` / `diagnostic` entry above. A
+new stale note fails; so does a *different* stale agent name inside `g-ge-001`.
+
+Two things about it are deliberate:
+
+- **It reads only the LABEL half of `draft_notes`.** The half left of the `|| LABEL:` separator is
+  the drafting plan, written before any label existed — "urgency plus a guideline target:
+  diagnostic and research". The blind pass was allowed to disagree with that plan and did so five
+  times, and those disagreements are kept (§1.2). Scanning the whole field would fire on six
+  `multi_dimensional` items for having exactly the property the procedure exists to produce.
+- **It is a warning against a baseline rather than a bare assertion**, because `diagnostic` is an
+  ordinary English adjective as well as an agent name, and no lexical rule separates the two: "the
+  diagnostic threshold" and "the consultation agent" have the same shape. A matcher tuned to tell
+  them apart would be fitted to the two examples in this file, and the cost of it being wrong later
+  is silence — the stale note it fails to flag. One reviewed exception is cheaper and does not
+  pretend to a precision the matcher does not have.
+
+Unlike the route-document warning, it is not logged by `eval/run.py` at sweep start. That one bears
+on retrieval quality and belongs beside a recall@5 number; this one bears on nothing a sweep
+measures, so it stays where `unknown_doc_ids` and `ungrounded_items` already are — in the lint.
 
 ---
 
