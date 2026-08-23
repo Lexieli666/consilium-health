@@ -70,6 +70,16 @@ correct-by-construction path also the fastest one. The residual case — a red f
 in the model's own answer — is real and is handled late; `docs/SAFETY.md` states plainly which path
 repairs after delivery rather than leaving a reader to infer it.
 
+**Amended in Phase 9, in one half.** The banner is still decided on the input and is still the first
+event of the stream — that half is built and tested. The second half is not: the answer body turned
+out not to be a genuine provider-token stream, because the ReAct loop cannot know which of its calls
+will be the final one without streaming tool-call deltas, which Phase 1 scoped out. The body is
+therefore assembled and then delivered incrementally — and since the server is holding the repaired
+text at that moment, sending the unrepaired one instead would display a forbidden sentence and
+retract it for no latency gain. So **repair happens before delivery on this path too, and
+`post_stream` is never set.** The full argument, with what would have to change to reverse it, is
+in "Phase 9 — the interfaces" below.
+
 ### Two protocol seams, each with a second real implementation
 
 **Chosen.** `Embedder` (`BgeEmbedder` / `HashEmbedder`) and `VectorStore` (`ChromaStore` /
@@ -1565,3 +1575,172 @@ of eighty-three — and because the three-way split is already load-bearing in `
 judge prompt. The information is not lost: the judge is asked to name the dropped referent in its
 rationale, and the referent-count mix is published so a reader knows how many items could have
 failed this way.
+
+---
+
+## Phase 9 — the interfaces: the REPL, the API, and the SSE stream
+
+### A request runs the same `run_turn` the CLI and the harness run
+
+**Chosen.** `POST /v1/ask` and `POST /v1/chat` build a session id and a turn index, call
+`consilium.runtime.run_turn`, and render what comes back. The `consilium chat` REPL does the same
+thing in a loop. Nothing in `consilium/api/` reaches below the turn boundary.
+
+**Rejected — a request path that assembles the layers itself.** An HTTP handler that built a router,
+a context and a tracer would be free to configure them slightly differently, which is how three
+entry points end up being three systems.
+
+**Why.** `docs/EVALUATION.md` reports numbers measured by running golden items through `run_turn`.
+The claim that those numbers describe *this API* holds only while the API is the same call. It is
+one line of enforcement — the endpoint has no other way to answer — and it is the reason the
+streaming decision below came out the way it did.
+
+### The escalation banner is its own first event, and the answer body is delivered after the turn
+
+**Chosen.** On `POST /v1/chat` the red-flag table is matched against the *question* before anything
+else happens, and a match emits an `escalation` event carrying the banner. Only then is the turn
+run. The delivered — repaired — answer is then chunked into `token` events, and a `done` event
+carries the full `AnswerResponse`. **`safety.post_stream` is never set on this path**, because
+nothing is delivered before the safety layer has cleared it.
+
+**Rejected — stream the model's own answer and repair after it, marking the repairs
+`post_stream: true`.** This is what CLAUDE.md §4 refinement 2 froze in Phase 0, and it is the reason
+`post_stream` exists in the trace schema at all.
+
+**Rejected — thread `stream_chat` through the ReAct loop, the router and the synthesizer**, so that
+the final answer is genuinely a sequence of provider deltas.
+
+**Why the third option is not reachable.** The final text-producing call of a turn is the agent's
+answering call on a single-worker turn and the synthesizer's merge on a parallel one — and on the
+single-worker path the loop cannot know *in advance* which call will be the final one, because any
+call that offers tools may come back asking for one. Streaming it would mean streaming tool-call
+deltas, which `consilium/llm/base.py` scoped out in Phase 1 with its own rationale. Restricting
+streaming to the calls that are terminal by construction — the forced-answer call and the merge —
+would stream some turns and buffer others, with the client unable to tell which. So the honest
+description of what this endpoint does is: **the answer body is delivered incrementally, but its
+time-to-first-token is the turn's latency, not the model's.** That is stated here rather than
+implied, and it is stated again in the README's limitations.
+
+**Why the second option is then wrong.** Once the turn is buffered, the server is holding the
+repaired text and the raw text at the same moment, and choosing to send the raw one. A forbidden
+sentence — a dose, a definitive diagnosis, a blanket reassurance — would be displayed and then
+retracted, on a health-adjacent surface, in exchange for nothing: the tokens were not going to
+arrive any earlier either way. Refinement 2's *purpose* is the first sentence of it, that the banner
+must be knowable before generation and must arrive first, and that purpose is met exactly. Its
+second sentence is a consequence the owner drew from the assumption that the body would be a genuine
+token stream; with that assumption gone, following it anyway would be keeping a rule past its
+premise. **This is the one place Phase 9 departs from a frozen decision, and it is reversible in one
+place** — `stream_turn` would stream `routed.answer` and call `OutputRepair.apply(...,
+post_stream=True)` afterwards. `post_stream` stays in the schema and `OutputRepair` still accepts
+it; no caller in this repository sets it, and `tests/test_api_stream.py` asserts that.
+
+The banner is delivered once, not twice: `OutputRepair` prepends exactly `banner + "\n\n"`, so the
+prefix is removed from the body by construction rather than by a heuristic, and `done.answer` still
+carries the complete delivered text — byte-identical to what the `turn` event recorded, which a test
+asserts against the trace file.
+
+### `GET /v1/sessions/{id}` returns the shape of a conversation and none of its content
+
+**Chosen.** The endpoint returns `session_id`, `turns`, `window_exchanges`, `compacted_turns` and
+`observations_deduplicated`. It returns no question text, no answer text, no cited `doc_id` values
+and no risk levels. An id that is unknown, purged, or malformed all produce the same
+`404 {"detail": "no such session"}`.
+
+**Rejected — return the transcript.** It is the obvious content for the endpoint and it is what a
+naive client would want.
+
+**Rejected — return metadata including risk levels and cited documents.** Structural rather than
+verbatim, and useful for a demo panel.
+
+**Why.** This project has no authentication, so the endpoint cannot distinguish the caller who
+started a session from a caller who guessed its id. That fact decides the design rather than being a
+caveat attached to it: whatever this endpoint returns is what a stranger holding an id can read.
+Answer text is a health conversation. Cited `doc_id` values are barely better — `condition-hypertension`
+tells the reader what the person asked about — and a risk level of `emergency` is a clinical
+inference about them. All four are returned exactly once, to the caller who asked the question, in
+the response to the turn that produced them; none of them is readable afterwards by id.
+
+The uniform 404 follows from the same fact. A 422 for a malformed id would tell a prober which of
+their guesses were the right *shape*, and a 200-versus-404 split already tells them which ids are
+real — so the only thing left to protect is what a real id yields, which is why it yields nothing
+sensitive. The endpoint also reads the store's key list rather than calling `MemoryStore.get`, which
+creates on miss: a probe that used `get` would make every guessed id exist and would let an
+unauthenticated caller grow the store one request at a time.
+
+**This is not an authorization boundary and the project does not claim one.** The README's
+limitations section says so, and no real conversation should be held with a deployment of this
+repository — which the disclaimer already forbids for other reasons.
+
+### Turns of one session are serialized; different sessions are not
+
+**Chosen.** One `asyncio.Lock` per `session_id`, held on the app instance, taken for the duration of
+a turn.
+
+**Rejected — no lock.** Concurrency is the point of an async server, and `InMemoryStore` is already
+lock-guarded.
+
+**Why.** The store being safe is not the same as the conversation being coherent. Two requests on
+one session read the same `WorkingMemory`, derive the same turn index from it, and write two turns'
+events into one trace file — after which no reader can tell which `retrieval` event belonged to
+which question. The lock is keyed by session, so it constrains exactly the pair of requests that
+share state and leaves every other pair concurrent, which `tests/test_api_concurrency.py` asserts
+by requiring that two conversations actually overlapped before it checks that they stayed separate.
+
+The dict of locks grows with the number of sessions the process has served. That is accepted for a
+demo server and written down rather than hidden; a deployment that needed bounding would evict
+alongside the memory store, which has the same property and the same fix.
+
+### The turn index is the count of recorded exchanges, and a memory-off runtime is refused
+
+**Chosen.** `turn_index = len(runtime.memory.get(session_id))`, read under the session lock.
+`create_app` raises on a `RunConfig` with `memory=False`.
+
+**Rejected — a counter kept by the API, keyed by session.** One more piece of session-keyed state
+beside the one the design already mandates, and two things that can disagree about how long a
+conversation is.
+
+**Why.** The session already knows how many turns it has had; asking it is one line and cannot drift.
+The refusal is the consequence: with memory off nothing is ever recorded, so every turn of a session
+would be turn 0 and would append to one trace file. The memory-off presets exist for the ablation
+table, which runs through the harness and gives every item its own session; refusing them at the API
+is refusing to serve a configuration whose traces would be unreadable, not a limitation of the API.
+
+The REPL resolves the same question differently and deliberately: it starts from the first turn index
+with no trace file on disk, so `consilium chat --session x` twice does not append a second turn's
+events to the first turn's file. The two answer different questions — the store knows how much of the
+conversation *this process* remembers, the runs directory knows how many turns have ever been written
+under that id — and the REPL is the one that can be restarted against a session that already has
+traces.
+
+### The REPL keeps no conversation state of its own
+
+**Chosen.** `consilium chat` builds one `Runtime`, mints one session id, and calls `run_turn` once
+per line. The session's `WorkingMemory` comes from `Runtime.memory`, keyed by that id.
+
+**Rejected — a list of messages in the command function**, appended to as the conversation goes and
+passed into each turn.
+
+**Why.** It would work, and it would mean the multi-turn golden set was measured through
+`run_turn`'s memory path while a human trying the system by hand exercised a different one — so the
+compaction behaviour a reviewer sees in the terminal would not be the behaviour the numbers describe.
+It would also be a second place for the window, the dedup and the recap to be got wrong.
+
+### The API tests drive the app through httpx's ASGI transport, not `starlette.testclient`
+
+**Chosen.** `httpx.AsyncClient(transport=httpx.ASGITransport(app=app))`.
+
+**Rejected — `fastapi.testclient.TestClient`.**
+
+**Why.** The installed Starlette deprecates using its test client with `httpx` and asks for a
+different package, which this project does not depend on and which §2 of the brief does not list;
+with `filterwarnings = ["error"]` that deprecation is a collection error rather than a warning. The
+ASGI transport needs nothing new, `httpx` is the dependency the brief already names, and it drives
+the application as an ASGI app rather than through a synchronous portal — which is what it will be
+in deployment.
+
+The one thing that transport cannot show is ordering *within* a response: it buffers the body, so
+"the banner arrived before the first token" can only be read off the finished bytes. That is a real
+guarantee — SSE is an ordered stream — but it is weaker than the one the design makes, which is that
+the banner is emitted before the first provider call. So `stream_turn` is a public generator and the
+strict guarantee is asserted directly against it: pull one event, assert the provider has not been
+called, assert the event is the banner.

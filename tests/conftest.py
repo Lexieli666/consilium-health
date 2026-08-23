@@ -6,13 +6,17 @@ under ``pytest -m "not network"`` on a machine with neither.
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 
+from consilium.config import Settings, get_preset
 from consilium.llm import MockProvider, ScriptedResponse
+from consilium.llm.base import LLMProvider
+from consilium.memory import InMemoryStore
 from consilium.retrieval import (
     Bm25Index,
     Chunk,
@@ -23,6 +27,7 @@ from consilium.retrieval import (
     chunk_corpus,
     load_corpus,
 )
+from consilium.runtime import Runtime, build_runtime
 from consilium.safety import Policy, RedFlagTable
 from consilium.skills import SkillContext, SkillRegistry, SymptomSystemMap
 from consilium.trace import MemorySink, Tracer
@@ -184,3 +189,50 @@ def skill_context(
 @pytest.fixture(scope="session")
 def policy() -> Policy:
     return Policy.from_yaml(POLICY_PATH)
+
+
+# ----------------------------------------------------------------------------------------------
+# The HTTP API.
+#
+# Building a `Runtime` loads the corpus and indexes 312 chunks, which is a second of work that the
+# API tests have no interest in repeating.  It is built once for the session on the offline seams,
+# and each test takes a copy with its own provider and its own empty `MemoryStore` -- a fresh store
+# per test, because a shared one would let one test's session be visible to the next, which is the
+# exact failure the concurrency test exists to detect.
+# ----------------------------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def api_settings(tmp_path_factory: pytest.TempPathFactory) -> Settings:
+    """Settings pointing at the repository's data and a temporary runs directory."""
+    root = tmp_path_factory.mktemp("api")
+    return Settings(
+        provider="mock",
+        root_dir=ROOT_DIR,
+        runs_dir=root / "runs",
+        data_dir=ROOT_DIR / "data",
+        corpus_dir=CORPUS_DIR,
+        chroma_dir=root / "chroma",
+        episodic_db_path=root / "episodic.db",
+    )
+
+
+@pytest.fixture(scope="session")
+def _runtime_template(api_settings: Settings) -> Runtime:
+    return build_runtime(
+        api_settings,
+        config=get_preset("full"),
+        provider=MockProvider([]),
+        embedder="hash",
+        store="numpy",
+    )
+
+
+@pytest.fixture
+def offline_runtime(_runtime_template: Runtime) -> Callable[[LLMProvider], Runtime]:
+    """A factory: one runtime per test, with the given provider and an empty memory store."""
+
+    def build(provider: LLMProvider) -> Runtime:
+        return replace(_runtime_template, provider=provider, memory=InMemoryStore())
+
+    return build

@@ -9,14 +9,14 @@ grounds the answer in a retrieval corpus, enforces a safety policy on every outp
 structured trace of the whole turn so that every reported number can be recomputed from evidence in
 this repository.
 
-**Status: in construction (Phase 1 of 10 complete).** No results have been measured yet. The
+**Status: in construction (Phase 9 of 10 complete).** No results have been measured yet. The
 results table below stays empty until `eval/run.py` has produced them; the numbers it will hold come
 from a committed `eval/results/published/summary.json` and nowhere else.
 
 ## Architecture
 
 ```
-Interface       cli.py · api/            HTTP and terminal entry points
+Interface       cli.py · consilium/api/  HTTP and terminal entry points
     │
 Router          planner · blackboard · synthesizer
     │
@@ -45,12 +45,24 @@ generating commit, date, model and judge model stated alongside.
 
 ## Quickstart
 
-Answering questions is not yet wired up — `ask` and `chat` arrive in Phase 4 and the HTTP API in
-Phase 9. What runs today is the retrieval pipeline:
-
 ```bash
 uv sync --extra embeddings   # sentence-transformers + chromadb; not installed in CI
 uv run consilium ingest      # load, chunk, embed and index data/corpus/ into data/chroma/
+uv run consilium ask "what does guidance say about starting a statin?"
+uv run consilium chat        # multi-turn REPL; one session id, one memory path
+uv run uvicorn consilium.api.main:app     # POST /v1/ask, POST /v1/chat (SSE), GET /healthz
+```
+
+`ask` and `chat` need a provider: set `CONSILIUM_PROVIDER` and the matching key in `.env`, or pass
+`--script` to replay a scripted `MockProvider` fixture with no key at all. The HTTP API serves the
+same turn the CLI runs and the evaluation harness measures; `GET /v1/sessions/{id}` returns the
+shape of a conversation and none of its content (see Limitations).
+
+To serve the API with no model download at all — the offline pipeline the tests use:
+
+```bash
+uv run python -c "import uvicorn; from consilium.api.app import create_app; \
+    uvicorn.run(create_app(embedder='hash', store='numpy'))"
 ```
 
 `uv run consilium ingest --embedder hash --store numpy` runs the same pipeline end to end with no
@@ -79,6 +91,16 @@ are needed for real retrieval quality numbers and are deliberately absent from C
   therefore evaluated across coding *conventions* rather than across conditions, and the system
   should not be expected to select a code for a condition it has no selection note for.
   `docs/CORPUS.md` lists exactly which seven.
+- **The HTTP API has no authentication, and `GET /v1/sessions/{id}` is not an authorization
+  boundary.** Anyone holding a session id can read that session's metadata, which is why the
+  endpoint returns no question text, no answer text, no cited document ids and no risk levels —
+  only how many turns a conversation holds and how much of it has been compacted. Server-minted ids
+  are 96 bits of hex so that they cannot be guessed. Do not hold a real conversation with a
+  deployment of this repository.
+- **`POST /v1/chat` streams, but the answer body is not a provider-token stream.** The escalation
+  banner is genuinely early — it is decided from the question and is emitted before the turn starts
+  — while the body is assembled and then delivered incrementally, so its time to first token is the
+  turn's latency. The reason, and what would have to change, is in `docs/DESIGN.md`, "Phase 9".
 - No claim is made about clinical validity, accuracy on real patients, or regulatory readiness.
   This is not a medical device and it performs no diagnosis.
 - Coverage, latency, cost and quality numbers will be stated with their measurement conditions or
@@ -89,6 +111,7 @@ are needed for real retrieval quality numbers and are deliberately absent from C
 - `docs/DESIGN.md` — every non-obvious design decision, the alternative rejected, and why.
 - `docs/EVALUATION.md` — golden-set construction, metric definitions, judge validation, results.
 - `docs/SAFETY.md` — policy model, red-flag provenance, repair behaviour, trace retention.
+  Written in Phase 10; the safety layer it will document is built and tested.
 
 ## License
 
