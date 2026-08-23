@@ -1037,13 +1037,13 @@ Rationale for each decision, with the rejected alternative, is in `docs/DESIGN.m
 
 | phase | state | commit |
 |---|---|---|
-| 1. Scaffold, trace schema, offline seams, CI | done | `92a47e3` |
-| 2. Corpus, red flags, chunking, BM25, RRF, ingest | done | `1278c8e` |
-| 3. Skills + registry | done | `48dcfbc` |
-| 4. ReAct loop + agents + `trace` CLI | done | `b8caed0` |
-| 5. Planner, router, blackboard, synthesizer | done | `1d6660e` |
-| 6. Memory | done | `a36b160` |
-| 7. Safety | done | `48a1dfa` |
-| 8. Eval harness + golden set | **done — Checkpoint B cleared on both files.** Golden set hand-labelled blind and frozen; multi-turn set labelled, `m-017` dropped, 29 conversations frozen; provenance split from the gate; cross-file lint over both files. | |
-| 9. API + SSE + CLI polish | **done.** `consilium chat`; `consilium/api/` with `/v1/ask`, `/v1/chat` (SSE), `/v1/sessions/{id}`, `/healthz`; banner-before-token, API-layer concurrency and session-leak tests. One departure from a frozen decision, §4 refinement 2. | |
+| 1. Scaffold, trace schema, offline seams, CI | done | `503c089` |
+| 2. Corpus, red flags, chunking, BM25, RRF, ingest | done | `e90252d` |
+| 3. Skills + registry | done | `b555337` |
+| 4. ReAct loop + agents + `trace` CLI | done | `cc53c32` |
+| 5. Planner, router, blackboard, synthesizer | done | `358e144` |
+| 6. Memory | done | `af2cca6` |
+| 7. Safety | done | `917b0b2` |
+| 8. Eval harness + golden set | **done — Checkpoint B cleared on both files.** Golden set hand-labelled blind and frozen; multi-turn set labelled, `m-017` dropped, 29 conversations frozen; provenance split from the gate; cross-file lint over both files. | `c2c7cf6` |
+| 9. API + SSE + CLI polish | **done.** `consilium chat`; `consilium/api/` with `/v1/ask`, `/v1/chat` (SSE), `/v1/sessions/{id}`, `/healthz`; banner-before-token, API-layer concurrency and session-leak tests. One departure from a frozen decision, §4 refinement 2. | `374f479` |
 | 10. Docs, published eval run, README numbers | not started -- `docs/SAFETY.md` still to be written | |
