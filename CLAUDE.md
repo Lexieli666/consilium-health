@@ -366,7 +366,10 @@ Frozen details that are easy to break by accident:
   the labelled set, the default reverts to raw matching and `docs/DESIGN.md` says so with the
   data.**
 - **`safety.post_stream`** marks a repair applied after tokens were already delivered to the
-  client. Only the SSE path can set it. `docs/SAFETY.md` must state this plainly.
+  client. Only the SSE path can set it. `docs/SAFETY.md` must state this plainly. **Phase 9 built
+  the SSE path and it does not set the flag** -- it repairs before the first byte of the body -- so
+  the field stays in the schema, `OutputRepair` still accepts it, and no caller in this repository
+  passes `True`. See §4 refinement 2 and §15.
 - **`PlannedSubtask`** (`subtask_id`, `agent`, `objective`, `why`) is declared in `trace.py`, not
   imported from the router: substrate may not depend on a layer above it. The router maps its own
   model onto this one.
@@ -385,6 +388,20 @@ These were decided by the owner after the Phase-0 critique and **override the br
    and the escalation banner is streamed **first**, before model tokens. Output-side repairs happen
    after the stream and are marked `post_stream: true`. `POST /v1/ask` and the CLI repair before
    delivery, so they have no post-stream case.
+
+   **Phase 9 built the first half and departed from the second, and this is the one such departure
+   in the phase.** The banner is decided on the input and is the first event of the stream, asserted
+   twice: through HTTP against the wire order, and against `stream_turn` directly, which proves the
+   banner is yielded *before the first provider call*. The body, however, is not a provider-token
+   stream. The final text-producing call of a turn cannot be identified in advance on the
+   single-worker path -- any call that offers tools may come back asking for one -- so streaming it
+   would mean streaming tool-call deltas, which `consilium/llm/base.py` scoped out in Phase 1. The
+   body is therefore assembled and then delivered incrementally, which means the server is holding
+   the repaired text and the raw text at the same moment. It sends the repaired one: displaying a
+   dose and retracting it buys nothing when the tokens were never going to arrive earlier.
+   **`post_stream` is therefore never set**, `tests/test_api_stream.py` asserts that, and the
+   reversal is one function -- `stream_turn` would stream `routed.answer` and repair afterwards with
+   `post_stream=True`. Full argument in `docs/DESIGN.md`, "Phase 9 -- the interfaces".
 3. **The golden set is 150 items** (30 general health, 30 symptom/urgency, 30 condition-and-coding,
    30 guideline/evidence, 30 multi-dimensional labelled `mode: parallel`). The ablation table is
    4 presets × 150. `full_budget_6` is a **diagnostic on a 50-item stratified subset**, reported
@@ -825,9 +842,10 @@ Rationale in `docs/DESIGN.md` under "Phase 7 — safety".
   The loop's refusal is the enforcement; the validator's event is the measurement.
 - **Memory records the delivered (post-repair) answer**, so a later turn's context matches what the
   user saw and a redacted sentence cannot return through memory.
-- **`safety.post_stream` is set only by a caller that says so**, which will be the SSE path in
-  Phase 9. `docs/SAFETY.md` must state plainly that a post-stream repair is one the user already
-  saw the unrepaired version of.
+- **`safety.post_stream` is set only by a caller that says so.** It was to be the SSE path in
+  Phase 9; that path repairs before delivery instead, so **nothing in this repository sets it**
+  (§4 refinement 2, §15). `docs/SAFETY.md` must still state plainly what a post-stream repair would
+  be -- one the user already saw the unrepaired version of -- and that no shipped path produces one.
 - **`consilium runs purge [--session ID] [--yes]`** is the retention mechanism `docs/SAFETY.md`
   documents. It refuses paths outside the configured runs directory and prompts unless `--yes`.
 
@@ -945,7 +963,72 @@ Checkpoint B — the labels, and what labelling them taught", and "Phase 8, clos
   **not** suppressing the three historical "heart attack" probes, which are measured false
   positives and are left in place to be reported.
 
-## 15. Phase status
+## 15. Frozen: the interfaces -- the REPL, the API, the SSE stream (Phase 9)
+
+Rationale for each decision, with the rejected alternative, is in `docs/DESIGN.md` under
+"Phase 9 -- the interfaces: the REPL, the API, and the SSE stream".
+
+- **`consilium/api/` module layout.** `models` (the request and response models) -> `app`
+  (`create_app`, the four endpoints, the per-session locks) -> `main` (`app = create_app()`, the
+  ASGI entry point). Nothing in the package reaches below the turn boundary: an endpoint builds a
+  session id and a turn index, calls `run_turn`, and renders what comes back. Import path is
+  `consilium.api.main:app` (§6); importing it builds no runtime and loads no corpus, so generating
+  the OpenAPI schema does not need an embedding model.
+- **Every answer carries `sources`, `route`, `risk_level` and `trace_id`**, as required fields of
+  `AnswerResponse`, so an endpoint cannot forget one. `safety` (violations and repairs, as two
+  lists) is carried beside them. `GET /healthz` and `GET /v1/sessions/{id}` are not answers and
+  carry none of it.
+- **Every request model is `extra="forbid"`.** A `sessionid` typo would otherwise start a fresh
+  conversation on every request, which reads as a memory bug in a layer that is working.
+- **`consilium chat` holds one session id for the whole REPL and opens no second memory path.**
+  The session's `WorkingMemory` is the one `run_turn` fetches from `Runtime.memory` by the tracer's
+  session id -- the same store the API and the harness use, keyed the same way -- so a conversation
+  held by hand exercises the code the multi-turn numbers come from. `--session` also continues the
+  **trace** numbering: the REPL starts at the first turn index with no file on disk, because a
+  trace sink appends and starting again at 0 would interleave two turns' events in one file.
+- **The SSE event sequence is `escalation`? -> `token`* -> `done`, or `error`.** The banner is
+  decided from the question alone and is emitted **before routing starts**; `stream_turn` is public
+  precisely so that guarantee is assertable directly (pull one event, assert the provider has not
+  been called yet), because an ASGI test transport buffers the body and can only show wire order.
+  The banner is delivered once: `OutputRepair` prepends exactly `banner + "\n\n"`, so the prefix is
+  stripped from the body by construction, and `done.answer` still carries the complete delivered
+  text -- byte-identical to the `turn` event's, which a test asserts against the trace file.
+- **The answer body is delivered incrementally but is not a provider-token stream, and repair
+  happens before the first byte.** `post_stream` is never set. See §4 refinement 2 for the argument
+  and for what would have to change to reverse it.
+- **A failure after the stream has started is a terminal `error` event, not a status code.** An SSE
+  response commits to 200 with its first byte.
+- **`GET /v1/sessions/{id}` returns the shape of a conversation and none of its content**:
+  `turns`, `window_exchanges`, `compacted_turns`, `observations_deduplicated`. No question text, no
+  answer text, no cited `doc_id` values, no risk levels. **An unknown id, a purged id and a
+  malformed id all produce the same `404 {"detail": "no such session"}`.** The project has no
+  authentication, so the endpoint cannot tell the caller who started a session from a caller who
+  guessed its id; that fact decides what it may return rather than being a caveat attached to it.
+  It reads the store's key list rather than `MemoryStore.get`, which creates on miss -- a probe
+  through `get` would make every guessed id exist. **This is not an authorization boundary and the
+  project does not claim one**; the README's limitations say so.
+- **Server-minted session ids are `api-` plus 96 bits of hex.** An id is the only thing standing
+  between a stranger and a session's metadata, so it must not be guessable.
+- **Turns of one session are serialized by an `asyncio.Lock` held on the app instance; different
+  sessions are not.** Two requests on one session would otherwise read the same buffer, derive the
+  same turn index, and write two turns into one trace file. The lock dict grows with the number of
+  sessions served, which is accepted for a demo server and written down.
+- **`turn_index` is `len(runtime.memory.get(session_id))`, read under that lock, and `create_app`
+  refuses a runtime with `memory=False`** -- with memory off nothing is recorded, so every turn of
+  a session would be turn 0. The memory-off presets are for the ablation table, which runs through
+  the harness with one session per item.
+- **Nothing session-scoped is held on the app, on a module, or in a cached dependency.** The state
+  is read off `request.app.state`, so two apps in one process do not share a `MemoryStore`.
+  `tests/test_api_concurrency.py` asserts the property at this layer -- and asserts it about *what
+  reached the model*, not about what came back: two responses can look right while the prompts that
+  produced them were contaminated. It requires that the two conversations actually overlapped
+  before it checks that no single LLM call saw two sessions' questions.
+- **The API tests drive the app through `httpx.ASGITransport`, not `starlette.testclient`.** The
+  installed Starlette deprecates its test client with `httpx` and asks for a package this project
+  does not depend on and §2 of the brief does not list; under `filterwarnings = ["error"]` that is
+  a collection error. `httpx` is already the named dev dependency.
+
+## 16. Phase status
 
 | phase | state | commit |
 |---|---|---|
@@ -957,5 +1040,5 @@ Checkpoint B — the labels, and what labelling them taught", and "Phase 8, clos
 | 6. Memory | done | `a36b160` |
 | 7. Safety | done | `48a1dfa` |
 | 8. Eval harness + golden set | **done — Checkpoint B cleared on both files.** Golden set hand-labelled blind and frozen; multi-turn set labelled, `m-017` dropped, 29 conversations frozen; provenance split from the gate; cross-file lint over both files. | |
-| 9. API + SSE + CLI polish | **unlocked, not started** | |
-| 10. Docs, published eval run, README numbers | not started | |
+| 9. API + SSE + CLI polish | **done.** `consilium chat`; `consilium/api/` with `/v1/ask`, `/v1/chat` (SSE), `/v1/sessions/{id}`, `/healthz`; banner-before-token, API-layer concurrency and session-leak tests. One departure from a frozen decision, §4 refinement 2. | |
+| 10. Docs, published eval run, README numbers | not started -- `docs/SAFETY.md` still to be written | |
