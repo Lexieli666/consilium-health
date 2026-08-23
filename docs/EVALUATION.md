@@ -224,22 +224,23 @@ not performed, by decision. §1.1.1 is what that means for the numbers.
 | | count |
 |---|---|
 | items | 150 |
-| `mode: single` | 121 |
-| `mode: parallel` | 29 |
+| `mode: single` | 120 |
+| `mode: parallel` | 30 |
 | `red_flag: true` | 28 |
 | `red_flag: false` | 122 |
 
 By agent set, as routing accuracy compares them (sorted, so `[a, b]` and `[b, a]` are one row).
-Three of these moved on 2026-08-22 when the route-document warnings were resolved (§1.6); the
-mode counts above did not, because those corrections changed which agent and never the mode:
+Four of these moved on 2026-08-22 when the route-document warnings were resolved (§1.6). Three
+changed which agent and not the mode; the fourth, `g-gh-001`, changed both, and it is the only
+post-freeze edit so far that has moved the mode counts above:
 
 | mode | agents | items |
 |---|---|---|
-| single | `consultation` | 59 |
+| single | `consultation` | 58 |
 | single | `research` | 32 |
 | single | `diagnostic` | 30 |
 | parallel | `diagnostic` + `research` | 16 |
-| parallel | `consultation` + `research` | 7 |
+| parallel | `consultation` + `research` | 8 |
 | parallel | `consultation` + `diagnostic` | 4 |
 | parallel | `consultation` + `diagnostic` + `research` | 2 |
 
@@ -247,11 +248,17 @@ By block:
 
 | block | labelled routes |
 |---|---|
-| `general_health` | 29 single `consultation`; 1 single `research` |
+| `general_health` | 28 single `consultation`; 1 single `research`; 1 parallel `consultation`+`research` |
 | `symptom_urgency` | 28 single `diagnostic`; 2 parallel `consultation`+`diagnostic` |
 | `condition_coding` | 30 single `consultation` |
 | `guideline_evidence` | 30 single `research` |
 | `multi_dimensional` | 16 parallel `diagnostic`+`research`; 7 parallel `consultation`+`research`; 2 parallel `consultation`+`diagnostic`; 2 parallel all three; 2 single `diagnostic`; 1 single `research` |
+
+Three parallel items now sit outside the `multi_dimensional` block: the two `symptom_urgency`
+items the blind pass returned as parallel (§1.2), and `g-gh-001`, which the owner moved to parallel
+on 2026-08-22 with the documents open (§1.6). The first two are blind-labelling findings and the
+third is a post-freeze correction; they are counted together here because the file has one route
+label per item, but only the first two are evidence about the blind procedure.
 
 The 28 red-flag items are 23 in `symptom_urgency` and 5 in `multi_dimensional`. All 28 are routed
 to a set that includes `diagnostic`, which is the only agent permitted to call `assess_risk` — the
@@ -410,8 +417,10 @@ of them is a defensible label; a route reaching none of them is the one worth a 
 run sees it beside the recall@5 number rather than discovering it afterwards.
 `tests/test_eval_drafts.py` pins the same set to the reviewed baseline, so a new one is caught
 before a sweep is paid for at all. The baseline is asserted as an **exact set** rather than required
-to be empty: empty would be a standing demand to relabel, unchecked would make the warning
-invisible, and exact means a new mismatch fails while a reviewed one does not.
+to be empty: a requirement of emptiness would be a standing demand to relabel, unchecked would make
+the warning invisible, and exact means a new mismatch fails while a reviewed one does not. As of
+2026-08-22 the baseline holds nothing, because all four flagged items were resolved — which is a
+statement about the current labels, not a rule the next mismatch has to satisfy.
 
 #### The four that were flagged, and what happened to them
 
@@ -423,12 +432,16 @@ resolved three by correcting the route to match the documents; the full record i
 | `g-gh-017` | single `research` | `recommend_lifestyle` (`consultation`) | route corrected to `consultation` |
 | `g-gh-026` | single `research` | `recommend_lifestyle` (`consultation`) | route corrected to `consultation` |
 | `g-gh-029` | single `consultation` | `find_guideline` (`research`) | route corrected to `research` |
-| `g-gh-001` | single `consultation` | `find_guideline` (`research`) | **open** — both documents verified, decision pending (§1.6) |
+| `g-gh-001` | single `consultation` | `find_guideline` (`research`) | route corrected to parallel `consultation` + `research` |
 
-`g-gh-001` is therefore the whole of the current baseline. It is also now a different kind of
-finding from the other three: its document list has been verified, so the warning is two
-hand-written labels disagreeing rather than a hand-written label disagreeing with a machine-written
-one. That is a decision for the owner and not a fix for a lint.
+`g-gh-001` was held open for a day longer than the other three, because it was a different kind
+of finding: its document list had been verified, so the warning was two hand-written labels
+disagreeing rather than a hand-written label disagreeing with a machine-written one. That made it a
+decision for the owner rather than a fix for a lint, and the owner made it on 2026-08-22 by reading
+both notes and finding the route to be the wrong half — as in the other three, but for a reason no
+lint could have supplied. §1.6 records it. **In all four cases the check pointed at a real
+labelling error, and in all four the route was the half that was wrong**; the documents were right
+every time.
 
 ### 1.5 The freeze
 
@@ -436,7 +449,7 @@ Checkpoint B is closed. The golden set is labelled and frozen; the multi-turn se
 
 | file | items | sha256 |
 |---|---|---|
-| `eval/data/golden.jsonl` | 150 questions, labelled | `d062b6072ab9fb41ea05f7ff8add32ed79b92e878e7763d1e57894218c7383e6` |
+| `eval/data/golden.jsonl` | 150 questions, labelled | `4116454d9c69c9984d0eb095246c44ca7adc9727ca184c3d6d4d29cea63c6763` |
 | `eval/data/multiturn.jsonl` | 30 conversations, **still an unlabelled draft** | `a675635212245b1b442bac09fdd1e78ac80f25a891816ede8e09c64e938de2c2` |
 
 The digests are recorded so that a published number can be tied to the exact file it was computed
@@ -449,8 +462,9 @@ stale digest in a frozen record is worse than no digest.
 **What is frozen:**
 
 - 150 items, 30 in each of five blocks; ids are block-prefixed and dropped ids are never reused.
-- `expected_route` and `red_flag` on all 150, hand-labelled blind (§1.2). 121 single, 29 parallel,
-  28 red-flag.
+- `expected_route` and `red_flag` on all 150, hand-labelled blind (§1.2). 120 single, 30 parallel,
+  28 red-flag. The blind pass produced 121/29; `g-gh-001` was moved to parallel post-freeze, with
+  the documents open, and is logged in §1.6.
 - `reference_answer` machine-written and **unverified** on 148 of 150; `relevant_doc_ids`
   machine-written and unverified on 144 of 150, the other six being two the owner wrote and four
   the owner verified on 2026-08-22 (§1.6). Recorded per record in `unverified_fields`.
@@ -488,16 +502,17 @@ text was edited, no `red_flag` label was touched, and no other item was changed.
 | `g-gh-017` | `expected_route.agents` `["research"]` → `["consultation"]`; mode stays `single` | The dietary content lives in `lifestyle-hypertension-diet`, so the document list was right and the route was wrong. `recommend_lifestyle` is `consultation`'s. |
 | `g-gh-026` | `expected_route.agents` `["research"]` → `["consultation"]`; mode stays `single` | The same, against `lifestyle-generalized-anxiety-disorder-activity`. |
 | `g-gh-029` | `expected_route.agents` `["consultation"]` → `["research"]`; mode stays `single` | Measurement technique and the confirm-the-diagnosis rule both live in `guideline-hypertension-diagnosis-and-bp-targets`, so the document was right and the route was wrong. `find_guideline` is `research`'s. |
-| `g-gh-001` | **unchanged, open** | The owner verified both documents and paused: the last sentence of the reference answer is sourced from the guideline note that dropping it would remove. See below. |
+| `g-gh-001` | **unchanged, open at the time** | The owner verified both documents and paused: the last sentence of the reference answer is sourced from the guideline note that dropping it would remove. Decided later the same day — see the entry below. |
 | `g-md-030` | `draft_notes` text only | The note still said the question quotes "6.2", a mmol/L value; the question says 165 mg/dL. Corrected to match, along with the two claims that hung off it — the corpus states lipid values in mg/dL, so the question's number now agrees with it, and the modifiable coronary-risk factors it asks for are carried by `condition-coronary-artery-disease`. No label changed. |
 | `g-gh-001`, `g-gh-017`, `g-gh-026`, `g-gh-029` | `relevant_doc_ids` removed from `unverified_fields` | The owner read all four document lists while resolving the above. Their `reference_answer` values stay unverified, and both fields stay unverified on the other 146. |
 
-**Effect on the published counts.** `mode` stays 121 single / 29 parallel and `red_flag` stays 28,
-because the three route corrections changed which agent, never the mode. Unverified
-`relevant_doc_ids` falls 148 → 144; unverified `reference_answer` stays 148. The per-stratum
-matcher hits were re-run and are unchanged at 0/22 hard and 5/5 easy under both negation policies.
+**Effect on the published counts.** `mode` stayed 121 single / 29 parallel and `red_flag` stayed
+28, because the three route corrections changed which agent, never the mode; the entry below moves
+the mode counts, and §1.5 carries the current ones. Unverified `relevant_doc_ids` fell 148 → 144;
+unverified `reference_answer` stayed 148. The per-stratum matcher hits were re-run and are
+unchanged at 0/22 hard and 5/5 easy under both negation policies.
 
-**`g-gh-001` is open and is recorded here rather than decided quietly.** Its route is
+**`g-gh-001` was left open and recorded here rather than decided quietly.** Its route was
 `consultation` and its documents are `condition-hypertension` and
 `guideline-hypertension-diagnosis-and-bp-targets`. The intent was to drop the guideline note, but
 the reference answer's last sentence — "the diagnosis rests on an average of two or more readings
@@ -506,8 +521,50 @@ sourced from that note and from no other. `condition-hypertension` carries the q
 ("a diagnosis rests on repeated measurements rather than one reading") and explicitly defers the
 rest: "Diagnostic thresholds, treatment targets, drug classes and follow-up intervals are covered
 by the hypertension guideline notes in this corpus." The quantified standard and the out-of-office
-confirmation appear only in the guideline note. Until the owner decides, the item stands as
-labelled and is the reviewed baseline of the §1.4 warning.
+confirmation appear only in the guideline note. The entry below is the decision.
+
+#### 2026-08-22 (later the same day) — `g-gh-001` decided: route corrected to parallel
+
+`d062b6072ab9fb41ea05f7ff8add32ed79b92e878e7763d1e57894218c7383e6`
+→ `4116454d9c69c9984d0eb095246c44ca7adc9727ca184c3d6d4d29cea63c6763`
+
+The last of the four route-document warnings (§1.4), and the only one that was a decision rather
+than a fix: both of its labels had already been verified by a person, so the warning was two
+hand-written labels disagreeing rather than a hand-written one disagreeing with a machine-written
+one. The owner read both notes and resolved it in favour of the documents.
+
+**What the notes actually carry.** `condition-hypertension` carries the *qualitative* claim, in
+"What it is": pressure varies through the day, which is "why a diagnosis rests on repeated
+measurements rather than one reading". It carries no confirmation rule anywhere else — "How it is
+usually recognized" says only that hypertension is typically symptomless and found on routine
+measurement — and it explicitly defers the rest to the guideline notes. The *quantified* standard,
+an average of two or more readings on two or more separate occasions confirmed by home or
+ambulatory measurement, is in `guideline-hypertension-diagnosis-and-bp-targets` under "Confirming
+the diagnosis" and in no other note. That sentence of the reference answer therefore has exactly
+one source, and it is the guideline note.
+
+**Why the other two resolutions were rejected.** Dropping the guideline note would have left the
+reference answer unable to answer the second half of its own question, which would penalize any
+system that does answer it — a labelling error that shows up as a retrieval and faithfulness
+failure in something else. Re-sourcing the claim to `condition-hypertension` was not available,
+because the claim is not in it. So the documents were right and the route was the wrong half,
+exactly as in the other three.
+
+| item | change | why |
+|---|---|---|
+| `g-gh-001` | `expected_route` `single ["consultation"]` → `parallel ["consultation", "research"]` | The question has two information needs owned by different specialists. "What is high blood pressure" is condition explanation, which `consultation` owns; "how is it different from one high reading" is the diagnostic-criteria rule, which lives in a `guideline` note and which `find_guideline` — `research`'s — is the skill filtered to. |
+
+The `reference_answer` was left exactly as it stands, and stays in `unverified_fields`. No question
+text was edited, no `red_flag` label was touched, and no other item was changed.
+
+**Effect on the published counts.** `mode` moves **121 single / 29 parallel → 120 / 30**, and this
+is the first post-freeze edit to move them; §1.2.1 and §1.5 are updated in the same commit, as is
+the by-block breakdown, where `general_health` becomes 28 single `consultation`, 1 single
+`research`, 1 parallel `consultation`+`research`. `red_flag` is unchanged at 28. The unverified
+counts are unchanged — `relevant_doc_ids` 144, `reference_answer` 148 — because this item's
+document list was already verified in the previous entry. The per-stratum matcher hits were re-run
+and are unchanged at 0/22 hard and 5/5 easy under both negation policies. The §1.4 warning baseline
+is now empty.
 
 ---
 
