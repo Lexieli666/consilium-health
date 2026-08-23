@@ -222,6 +222,17 @@ def test_resuming_a_session_id_continues_the_trace_numbering(runs: Path, script:
     assert turn_events(runs, "c-resume", 1)[0].question == "and what about diet"
 
 
+def test_the_closing_line_counts_this_repl_not_the_traces_on_disk(runs: Path, script: Path) -> None:
+    """A resumed session continues the trace numbering, but it did not hold the earlier turns."""
+    chat("--script", str(script), "--session", "c-count", keys="what is hypertension\n/exit\n")
+    result = chat(
+        "--script", str(script), "--session", "c-count", keys="and what about diet\n/exit\n"
+    )
+
+    assert "ended after 1 turn(s)." in result.stdout
+    assert len(turn_events(runs, "c-count", 1)) == 1
+
+
 def test_an_unknown_preset_is_refused(runs: Path, script: Path) -> None:
     result = chat("--script", str(script), "--config", "nope", keys="/exit\n")
 

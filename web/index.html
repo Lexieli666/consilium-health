@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>consilium-health — demo</title>
+<!--
+  A single self-contained page for POST /v1/chat.  No CDN, no framework, no build step: the point
+  of the demo is to show the SSE contract, and a dependency that has to be downloaded would put a
+  network fetch into a project whose test rule is that it needs none.
+
+  It is served by the API itself, at GET /, so the page and the endpoint share an origin and no
+  CORS policy has to be opened for a demo.  EventSource cannot be used because it only issues GET
+  requests; the stream is read from fetch() and parsed here, which is about fifteen lines.
+
+  The one behaviour worth watching: for a question that matches the red-flag table, the escalation
+  banner is painted before the first character of the answer arrives.  That ordering is the reason
+  the escalation is decided on the input.
+-->
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fbfbfa; --fg: #1a1a19; --muted: #6b6b68; --line: #dededa;
+    --card: #ffffff; --alarm-bg: #fff1f0; --alarm-fg: #8a1c14; --alarm-line: #e8b4ae;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17181a; --fg: #e8e8e6; --muted: #9a9a97; --line: #303236;
+      --card: #1f2124; --alarm-bg: #2a1614; --alarm-fg: #ffb4ab; --alarm-line: #6d2f28;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 46rem; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+  h1 { font-size: 1.1rem; margin: 0 0 .25rem; letter-spacing: .01em; }
+  .disclaimer {
+    border-left: 3px solid var(--line); padding: .5rem .75rem; margin: 0 0 1.25rem;
+    color: var(--muted); font-size: .82rem;
+  }
+  .turn { border-top: 1px solid var(--line); padding: 1rem 0 .25rem; }
+  .question { font-weight: 600; margin: 0 0 .6rem; }
+  .answer { white-space: pre-wrap; margin: 0; }
+  .alarm {
+    background: var(--alarm-bg); color: var(--alarm-fg); border: 1px solid var(--alarm-line);
+    border-radius: 6px; padding: .7rem .85rem; margin: 0 0 .75rem; font-weight: 600;
+  }
+  .meta {
+    margin-top: .8rem; padding-top: .6rem; border-top: 1px dashed var(--line);
+    color: var(--muted); font-size: .78rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap;
+  }
+  .meta.error { color: var(--alarm-fg); }
+  form { display: flex; gap: .5rem; margin-top: 1.5rem; }
+  input, button {
+    font: inherit; border: 1px solid var(--line); border-radius: 6px; padding: .55rem .7rem;
+    background: var(--card); color: var(--fg);
+  }
+  input { flex: 1 1 auto; }
+  button { cursor: pointer; font-weight: 600; }
+  button[disabled] { opacity: .5; cursor: progress; }
+  footer { margin-top: 2rem; color: var(--muted); font-size: .75rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>consilium-health</h1>
+  <p class="disclaimer">
+    <strong>Not medical advice.</strong> This is an educational software project. It does not
+    diagnose, treat, or provide clinical guidance, and it must not be used for real medical
+    decisions. No patient data of any kind may be used with it.
+  </p>
+
+  <div id="transcript"></div>
+
+  <form id="composer">
+    <input id="question" autocomplete="off" placeholder="Ask a health question…" required />
+    <button id="send" type="submit">Send</button>
+  </form>
+
+  <footer id="session">no session yet</footer>
+</main>
+
+<script>
+const transcript = document.getElementById("transcript");
+const composer = document.getElementById("composer");
+const field = document.getElementById("question");
+const send = document.getElementById("send");
+const footer = document.getElementById("session");
+
+// One session id for the whole page, minted by the server on the first turn and echoed back on
+// every later one. The page keeps no history of its own: the conversation lives in the server's
+// session-keyed working memory, which is the thing the multi-turn evaluation measures.
+let sessionId = null;
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+/** Split an SSE chunk stream into {event, data} records. */
+async function* events(response) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let split;
+    while ((split = buffer.search(/\r?\n\r?\n/)) !== -1) {
+      const block = buffer.slice(0, split);
+      buffer = buffer.slice(split).replace(/^\r?\n\r?\n/, "");
+      let name = "message";
+      let data = "";
+      for (const line of block.split(/\r?\n/)) {
+        if (line.startsWith("event:")) name = line.slice(6).trim();
+        else if (line.startsWith("data:")) data += line.slice(5).trim();
+      }
+      if (data) yield { event: name, data: JSON.parse(data) };
+    }
+  }
+}
+
+function summarize(done) {
+  const route = `${done.route.mode} [${done.route.agents.join(", ")}]`;
+  const missing = done.route.missing.length ? `  missing: ${done.route.missing.join(", ")}` : "";
+  const fallback = done.route.fallback ? "  (planner fallback)" : "";
+  const repairs = done.safety.repairs.length ? done.safety.repairs.join(", ") : "none";
+  return [
+    `route      : ${route}${fallback}${missing}`,
+    `risk level : ${done.risk_level}`,
+    `sources    : ${done.sources.length ? done.sources.join(", ") : "none"}`,
+    `repairs    : ${repairs}`,
+    `trace      : ${done.session_id} / turn ${done.turn_index} / ${done.trace_id}`,
+  ].join("\n");
+}
+
+async function ask(question) {
+  const turn = el("section", "turn");
+  turn.append(el("p", "question", question));
+  const answer = el("p", "answer", "");
+  turn.append(answer);
+  transcript.append(turn);
+  turn.scrollIntoView({ block: "end", behavior: "smooth" });
+
+  const body = sessionId ? { question, session_id: sessionId } : { question };
+  const response = await fetch("/v1/chat", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    turn.append(el("p", "meta error", `request failed: HTTP ${response.status}`));
+    return;
+  }
+
+  for await (const { event, data } of events(response)) {
+    if (event === "escalation") {
+      // Painted before any token of the answer exists. That ordering is the guarantee.
+      turn.insertBefore(el("p", "alarm", data.banner), answer);
+    } else if (event === "token") {
+      answer.textContent += data.text;
+    } else if (event === "done") {
+      sessionId = data.session_id;
+      footer.textContent = `session ${sessionId} — ${data.turn_index + 1} turn(s)`;
+      turn.append(el("p", "meta", summarize(data)));
+    } else if (event === "error") {
+      turn.append(el("p", "meta error", `the turn failed: ${data.detail}`));
+    }
+  }
+}
+
+composer.addEventListener("submit", async (submitted) => {
+  submitted.preventDefault();
+  const question = field.value.trim();
+  if (!question) return;
+  field.value = "";
+  send.disabled = field.disabled = true;
+  try {
+    await ask(question);
+  } finally {
+    send.disabled = field.disabled = false;
+    field.focus();
+  }
+});
+
+field.focus();
+</script>
+</body>
+</html>

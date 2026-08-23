@@ -1023,6 +1023,11 @@ Rationale for each decision, with the rejected alternative, is in `docs/DESIGN.m
   reached the model*, not about what came back: two responses can look right while the prompts that
   produced them were contaminated. It requires that the two conversations actually overlapped
   before it checks that no single LLM call saw two sessions' questions.
+- **The single-file demo at `web/index.html` is served by the API itself, at `GET /`.** Same origin
+  as the endpoint it calls, so no CORS policy is opened for a demo; it loads nothing from the
+  network, has no build step, and is not part of the wheel -- so `GET /` is a 404 wherever the file
+  is absent rather than a startup failure. It is resolved relative to `Settings.root_dir` and
+  excluded from the OpenAPI schema.
 - **The API tests drive the app through `httpx.ASGITransport`, not `starlette.testclient`.** The
   installed Starlette deprecates its test client with `httpx` and asks for a package this project
   does not depend on and §2 of the brief does not list; under `filterwarnings = ["error"]` that is
