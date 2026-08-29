@@ -41,7 +41,13 @@ log = get_logger(__name__)
 
 JUDGE_DIR = Path(__file__).parent / "judges"
 
-FAITHFULNESS_PROMPT = "faithfulness_v1"
+#: The faithfulness prompt in force.  ``v1`` produced the round-1 validation numbers
+#: (``docs/EVALUATION.md`` §4.1: raw agreement 0.675, kappa 0.350, below the 0.4 line) and stays on
+#: disk unedited, because the version that produced a number has to remain readable beside it.
+#: ``v2`` is the revision written against round 1's two failure modes and is **unvalidated**:
+#: re-validation is pending on a fresh sample, drawn with ``--sample-seed`` and ``--exclude-sample``
+#: so that it cannot reuse the items the prompt was revised against.
+FAITHFULNESS_PROMPT = "faithfulness_v2"
 MULTITURN_PROMPT = "multiturn_v1"
 
 #: Columns of ``judge_sample.csv``, in the order they are written.  ``human_notes`` and

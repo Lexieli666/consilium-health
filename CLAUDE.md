@@ -880,8 +880,30 @@ Checkpoint B — the labels, and what labelling them taught", and "Phase 8, clos
   An unpriced model makes cost `not measured` and is listed under `unpriced_models`; a partial cost
   is never reported, because it reads as a complete one.
 - **`eval/judges/*.md` are versioned prompt files** and the judge model is recorded beside every
-  number it produced. `--human-sample N` / `--score-judge CSV` is the validation loop; until it has
-  run, `docs/EVALUATION.md` says the judge is unvalidated **in those words**.
+  number it produced. `--human-sample N` / `--score-judge CSV` is the validation loop; until a round
+  **passes**, `docs/EVALUATION.md` says the judge is unvalidated **in those words**.
+- **A superseded judge prompt is never edited, and the constant is what moves.** Round 1 of judge
+  validation (2026-08-29, `gpt-4o-mini`, `faithfulness_v1`, n=40, drawn stratified with seed
+  20260829 and labelled blind) measured raw agreement 0.675 and **Cohen's kappa 0.350** — below the
+  0.4 line, so the instrument is not measuring what it is supposed to. The 13 disagreements split 9
+  too-strict (transitions, hedges and restated meta-commentary graded as claims; paraphrase refused)
+  and 4 too-loose (topical overlap accepted without checking the object, threshold or mechanism; a
+  claim about what the sources contain never checked against them). `eval/judges/faithfulness_v2.md`
+  is written against both halves and `FAITHFULNESS_PROMPT` points at it; **`faithfulness_v1.md`
+  stays on disk unedited**, because the version that produced a published number has to remain
+  readable beside it. The output contract `eval/judge.py` parses — `claims`, `supported`, `total` —
+  is unchanged across the revision. The full record, with the confusion matrix, is
+  `docs/EVALUATION.md` §4.1.
+- **A revised judge prompt is re-validated on a fresh sample, and the draw enforces it.**
+  `--sample-seed INT` (default `SAMPLE_SEED`) moves the shuffle and `--exclude-sample CSV`
+  (repeatable) removes a prior sample's `item_id` values from each block's candidates **before** it
+  — a new seed alone reshuffles the same pool and draws some of the same rows back. Both are
+  recorded in `judge_sample_method.txt`. If the exclusion leaves any block below `N // 5`
+  candidates the draw is **refused** (`SampleDrawError`), checked once against the golden set
+  before the paid sweep and again inside the draw: taking fewer from a short block, or letting an
+  emptied block drop out and restratifying over the survivors, would silently change the sampling
+  method the earlier round's number was computed under. The blocks are therefore enumerated before
+  the exclusion is applied, so an emptied one is reported as short rather than disappearing.
 - **`--human-sample` draws a sample that can actually be scored, and the three things that means
   are frozen.** As first shipped the command could not produce one: it wrote empty `judge_label`
   and `judge_rationale` columns and returned before the judge was ever called, so `--score-judge`
