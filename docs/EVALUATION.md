@@ -8,9 +8,12 @@ Every number this project publishes is produced by `eval/run.py` and computed fr
 in `consilium/trace.py`. Anything not produced that way is written **`not measured`**, and anything
 structurally undefined for a configuration is written **`n/a`**. Neither is ever filled in by hand.
 
-**Current state: the golden set is labelled and frozen; no sweep has been run, so nothing has been
-measured yet.** Every results number in this document and in the README reads `not measured` until
-a sweep has been run against the frozen set. Two of the four label fields were written by hand and
+**Current state: the golden set is labelled and frozen; no sweep has been published, so no results
+number has been measured yet.** Every results number in this document and in the README reads
+`not measured` until a sweep has been run against the frozen set and its `summary.json` committed.
+The one measurement that exists is judge validation round 1 (§4.1): a `full` pass over the golden
+set fed a 40-item sample to a human labeller, the judge agreed with them at kappa 0.350, and the
+judge prompt was revised as a consequence. Two of the four label fields were written by hand and
 two were written by a model and knowingly left unverified — see §1.1.1 and §1.5, which are the
 parts of this document an interviewer should read first.
 
@@ -533,9 +536,10 @@ Changing one is a deliberate act that updates the lint, this section and the dig
 commit. Editing a question is a larger act than that: the labels are attached to the current
 wording, so a rewritten question carries a label written about a different question.
 
-**Not frozen, and still to do:** nothing in the data. **No sweep has been run against either
+**Not frozen, and still to do:** nothing in the data. **No sweep has been published against either
 file**, so every results number in §6 and in the README reads `not measured`, and the judge is
-unvalidated.
+unvalidated — measured once, at kappa 0.350, which is why the prompt was revised and why the word
+still applies (§4.1).
 
 **A frozen file can still be edited; it cannot be edited silently.** Every post-freeze change to
 either file is logged in §1.6 with the item id, what changed, why, and the digest on both sides of
@@ -996,7 +1000,112 @@ Cohen's kappa is reported alongside raw agreement because the label distribution
 raters who both mostly say "supported" agree about 90% of the time by chance, and a raw number alone
 would read as a validated judge.
 
-**Judge agreement: `not measured`.** No sample has been labelled yet.
+**Judge agreement: measured once, and it failed.** Round 1 is recorded in §4.1. The judge remains
+an unvalidated instrument, and every faithfulness number carries that caveat until a round passes.
+
+### 4.1 Round 1 — 2026-08-29, `faithfulness_v1`: raw agreement 0.675, kappa 0.350
+
+| | |
+|---|---|
+| judge model | `gpt-4o-mini` |
+| judge prompt | `eval/judges/faithfulness_v1.md` |
+| configuration sampled | `full` |
+| n | 40 |
+| sampling method | 40 rows from config `full`, stratified over 5 item-id blocks (g-cc, g-ge, g-gh, g-md, g-su) at 8 per block, shuffled with random.Random(20260829); no row needed replacing |
+| labelled | by hand, **blind** |
+| raw agreement | **0.675** (27 of 40) |
+| Cohen's kappa | **0.350** |
+| decision rule | below the 0.4 line: the instrument is not measuring what it is supposed to measure |
+| consequence | the prompt was revised to `faithfulness_v2`; re-validation is **pending on a fresh sample** |
+
+The sentence in the sampling-method row is the one `eval/run.py` wrote to `judge_sample_method.txt`
+beside the CSV, copied verbatim rather than re-described: the seed is what lets a reviewer re-run the
+draw. It predates the two flags added below, so the same command today appends `no prior sample
+excluded` to it; the draw it describes is unchanged.
+
+**The sample was labelled blind**, in those words. The `judge_label` and `judge_rationale` columns
+were hidden in the spreadsheet before the first row was read, not read and then set aside — anchoring
+on the judge's verdict is how the effect works, not a lapse a labeller can correct for consciously.
+The labeller worked from `sources_text`, the numbered excerpts the judge itself was shown, so the
+disagreement below is disagreement about the answers rather than about which documents each rater
+had open.
+
+**The confusion matrix**, rows = judge, columns = human:
+
+| | human `supported` | human `unsupported` | judge total |
+|---|---|---|---|
+| **judge `supported`** | 11 | 4 | 15 |
+| **judge `unsupported`** | 9 | 16 | 25 |
+| **human total** | 20 | 20 | 40 |
+
+**The marginals are close to balanced** — human 20/20, judge 15/25 — so this is not the degenerate
+case where one label takes nearly the whole sample and the chance correction has almost nothing to
+correct against. The chance-agreement term is 0.500 and kappa is (0.675 − 0.500) / 0.500 = 0.350.
+The number is low because the two raters genuinely disagreed on 13 of 40 answers, not because the
+statistic is being computed on a skewed distribution. Neither stratification nor per-class reporting
+would rescue it.
+
+**The 13 disagreements split two ways, and each half has a named cause.** This is what the revision
+was written against; both halves are stated in `eval/judges/faithfulness_v2.md` itself, so a later
+edit that drops one is visible in the diff.
+
+- **The judge was too strict on 9 of 13** (judge `unsupported`, human `supported`). It enumerated
+  summary sentences, transitions, hedges ("this depends on your situation") and closing
+  meta-commentary that restated already-graded content as separate factual claims, then graded them
+  unsupported; and it refused paraphrase, wanting the answer's wording to appear in the source. The
+  answer-level roll-up is `supported` only when every claim is, so one graded transition sentence
+  flips a whole item. Examples: `g-su-035`, where "do not leave your situation unaddressed" was
+  graded as a claim; `g-gh-011`, where "supportive care, such as rest and staying hydrated" was
+  called unsupported against sources that describe exactly that.
+- **The judge was too loose on 4 of 13** (judge `supported`, human `unsupported`). It accepted
+  claims on topical overlap without checking the attribute actually asserted. `g-gh-020`: the
+  sources describe an action plan built on daily weight change and fluid-retention warning signs,
+  and the answer's salt-intake action plan was passed anyway — same note, same condition, wrong
+  object. `g-cc-013`: the coding rule is in the sources, the billing and record-complexity rationale
+  the answer gives for it is not, and the supported half carried the unsupported half.
+  `g-ge-019`: the answer said the specific drug classes were not in the retrieved passage while
+  source [1] listed all four, and a claim *about what the sources contain* was never checked
+  against them.
+
+**What changed in `v2`.** Against the strict half: a stated list of what is **not** a claim
+(summary, framing and transition sentences; hedges carrying no specific fact; meta-commentary
+restating something already listed; exhortations asserting nothing checkable), and an explicit rule
+that paraphrase — including aggregating several source statements into one sentence — is support.
+Against the loose half: a specific-attribute check to run before writing `supported` (object,
+threshold or number, mechanism, population), with a claim that attaches a source's fact to a
+different one graded `contradicted`; a rule that a claim about what the sources contain is checked
+against the sources; and a requirement that every `supported` verdict carry the source number and a
+short verbatim span, so a verdict that cannot cite one is not `supported`. The output contract
+`eval/judge.py` parses — `claims`, `supported`, `total` — is unchanged.
+
+**Round 2 must not reuse round 1's items.** A prompt scored against the sample it was revised on
+measures how well the revision was fitted to those items and nothing else, so `--human-sample` gained
+two flags:
+
+```bash
+python -m eval.run --config full --human-sample 40 \
+  --sample-seed <a seed that is not 20260829> \
+  --exclude-sample <round 1's judge_sample.csv>
+```
+
+Round 1's CSV, the labelled copy of it and the labelling procedure live in the annotation workspace
+outside this repository, which is why the command above names the file by description: the flag
+takes any CSV carrying an `item_id` column, and it is repeatable so a third round can exclude the
+first two.
+
+`--sample-seed` moves the shuffle and `--exclude-sample` removes the prior round's `item_id` values
+from each block's candidates **before** it, because a different shuffle of the same pool draws some
+of the same rows back. Both are recorded in `judge_sample_method.txt` beside the new CSV, so the
+claim "these are items round 1 did not use" is one a reviewer can check rather than one they have to
+take. If the exclusion leaves any block with fewer than `N // 5` candidates the draw is **refused**
+rather than adjusted: taking fewer from a short block, or letting an emptied block drop out and
+restratifying over the survivors, would change the sampling method the first round's number was
+computed under. With 40 items excluded from 150 each block still holds 22, so a second 40-item round
+is drawable.
+
+**Until a round passes, the caveat stays.** `faithfulness_v2` is unvalidated in exactly the sense
+`v1` was before round 1: it has produced no measured agreement with a human at all. Faithfulness is
+reported with that stated, in those words, wherever it is reported.
 
 ---
 
@@ -1099,8 +1208,12 @@ share vocabulary because the same person chose both. `scripts/ingest_medquad.py`
 can be pointed at an external corpus, and any run against one should be reported separately.
 
 **The judge is the same family of model as the system.** Self-preference in LLM judging is
-documented and real. This is what the human-agreement loop in §4 exists to bound, and until it has
-been run the faithfulness numbers come from an unvalidated instrument.
+documented and real. This is what the human-agreement loop in §4 exists to bound. It has now been
+run once: `faithfulness_v1` scored kappa 0.350 against a hand-labelled blind sample of 40 (§4.1),
+below the line at which the instrument measures what it is supposed to. The prompt was revised to
+`faithfulness_v2` and re-validation on a fresh sample is pending, so the faithfulness numbers still
+come from an unvalidated instrument — now with a measured reason to think so rather than an
+unexamined one.
 
 **The coding block is narrower than it looks.** Seven of sixteen conditions have a per-condition
 code-selection note; the rest are covered at chapter level (`docs/CORPUS.md`). The 30
