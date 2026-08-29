@@ -3,15 +3,18 @@
 from __future__ import annotations
 
 import csv
+import dataclasses
 import json
+from collections import Counter
 from pathlib import Path
 
 import pytest
 
 from consilium.config import RunConfig, Settings
 from consilium.llm import MockProvider, ScriptedResponse
+from consilium.retrieval.corpus import Document
 from consilium.runtime import build_runtime
-from eval.harness import run_conversation, run_golden_item, session_id_for
+from eval.harness import ItemRun, run_conversation, run_golden_item, session_id_for
 from eval.items import (
     ExpectedRoute,
     GoldenCategory,
@@ -22,16 +25,25 @@ from eval.items import (
 from eval.judge import (
     FAITHFULNESS_PROMPT,
     MULTITURN_PROMPT,
+    SAMPLE_COLUMNS,
     Judge,
     JudgeError,
     SampleRow,
     agreement,
     load_prompt,
+    numbered_sources,
     score_sample,
     write_sample,
 )
 from eval.metrics import turn_event
-from eval.run import git_commit, load_pricing, stratified
+from eval.run import (
+    SAMPLE_SEED,
+    draw_human_sample,
+    git_commit,
+    load_pricing,
+    sample_block,
+    stratified,
+)
 from tests.stubs import FailingProvider, RecordingProvider
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -177,7 +189,7 @@ async def test_the_judge_is_shown_every_referent_turn_and_a_numbered_transcript(
 # --- judge validation ----------------------------------------------------------------------------
 
 
-def test_the_sample_csv_leaves_the_human_column_empty(tmp_path: Path) -> None:
+def test_the_sample_csv_leaves_the_two_human_columns_empty(tmp_path: Path) -> None:
     path = tmp_path / "judge_sample.csv"
     write_sample(
         path,
@@ -187,6 +199,7 @@ def test_the_sample_csv_leaves_the_human_column_empty(tmp_path: Path) -> None:
                 question="q",
                 answer="a",
                 retrieved_doc_ids="doc-a doc-b",
+                sources_text="[1] (doc-a)\nbody a\n\n[2] (doc-b)\nbody b",
                 judge_label="supported",
                 judge_rationale="because",
             )
@@ -194,9 +207,53 @@ def test_the_sample_csv_leaves_the_human_column_empty(tmp_path: Path) -> None:
     )
 
     with path.open(encoding="utf-8", newline="") as handle:
-        (row,) = list(csv.DictReader(handle))
+        reader = csv.DictReader(handle)
+        assert tuple(reader.fieldnames or ()) == SAMPLE_COLUMNS
+        (row,) = list(reader)
+    assert row["human_notes"] == ""
     assert row["human_label"] == ""
     assert row["retrieved_doc_ids"] == "doc-a doc-b"
+    assert row["sources_text"].startswith("[1] (doc-a)\nbody a")
+
+
+def test_the_sample_columns_are_the_sample_row_fields() -> None:
+    """Two hand-kept lists would drift, and the drift would ship as an empty column.
+
+    ``write_sample`` reads the columns off ``SAMPLE_COLUMNS`` by name, so a column with no field
+    behind it fails at write time. This pins the other direction: a field nobody wrote into the
+    header would be data collected and then silently dropped.
+    """
+    assert tuple(field.name for field in dataclasses.fields(SampleRow)) == SAMPLE_COLUMNS
+    assert SAMPLE_COLUMNS[-1] == "human_label"
+    assert SAMPLE_COLUMNS.index("sources_text") == SAMPLE_COLUMNS.index("retrieved_doc_ids") + 1
+
+
+def test_the_sample_carries_the_evidence_block_the_judge_is_shown() -> None:
+    """One formatter, so the column cannot drift from what produced the verdict beside it."""
+    assert numbered_sources([("doc-a", "body a"), ("doc-b", "body b")]) == (
+        "[1] (doc-a)\nbody a\n\n[2] (doc-b)\nbody b"
+    )
+    assert numbered_sources([]) == ""
+
+
+def test_score_sample_reads_by_column_name_not_by_position(tmp_path: Path) -> None:
+    """The layout gained two columns; the scorer reads `judge_label` and `human_label` by name."""
+    path = tmp_path / "reordered.csv"
+    columns = list(reversed(SAMPLE_COLUMNS))
+    values = [("supported", "supported"), ("supported", "unsupported")]
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=columns)
+        writer.writeheader()
+        for judge_label, human_label in values:
+            writer.writerow(
+                dict.fromkeys(columns, "x")
+                | {"judge_label": judge_label, "human_label": human_label}
+            )
+
+    result = score_sample(path)
+
+    assert result.n == 2
+    assert result.raw_agreement == pytest.approx(0.5)
 
 
 def test_agreement_reports_kappa_not_only_raw_agreement() -> None:
@@ -222,8 +279,8 @@ def test_unlabelled_rows_are_skipped_rather_than_counted_as_disagreements(tmp_pa
     write_sample(
         path,
         [
-            SampleRow("a", "q", "x", "", "supported", "r", human_label="supported"),
-            SampleRow("b", "q", "x", "", "supported", "r"),
+            SampleRow("a", "q", "x", "", "s", "supported", "r", human_label="supported"),
+            SampleRow("b", "q", "x", "", "s", "supported", "r"),
         ],
     )
 
@@ -235,7 +292,7 @@ def test_unlabelled_rows_are_skipped_rather_than_counted_as_disagreements(tmp_pa
 
 def test_scoring_a_sample_nobody_labelled_says_so(tmp_path: Path) -> None:
     path = tmp_path / "sample.csv"
-    write_sample(path, [SampleRow("a", "q", "x", "", "supported", "r")])
+    write_sample(path, [SampleRow("a", "q", "x", "", "s", "supported", "r")])
 
     with pytest.raises(JudgeError, match="Fill in the last column"):
         score_sample(path)
@@ -244,6 +301,172 @@ def test_scoring_a_sample_nobody_labelled_says_so(tmp_path: Path) -> None:
 def test_scoring_a_missing_file_says_so(tmp_path: Path) -> None:
     with pytest.raises(JudgeError, match="cannot read the judge sample"):
         score_sample(tmp_path / "absent.csv")
+
+
+# --- drawing the human sample ---------------------------------------------------------------------
+
+#: One item-id block per golden category, which is what `--human-sample` stratifies over.
+_BLOCKS: dict[str, GoldenCategory] = {
+    "g-gh": "general_health",
+    "g-su": "symptom_urgency",
+    "g-cc": "condition_coding",
+    "g-ge": "guideline_evidence",
+    "g-md": "multi_dimensional",
+}
+
+_SUPPORTED = '{"claims": [{"claim": "a", "verdict": "supported", "source": 1}], \
+"supported": 2, "total": 2}'
+_PARTLY_SUPPORTED = '{"claims": [{"claim": "a", "verdict": "unsupported"}], \
+"supported": 1, "total": 2}'
+_NO_CLAIMS = '{"claims": [], "supported": 0, "total": 0}'
+
+
+def _judge_saying(payload: str, *, times: int = 60) -> Judge:
+    return Judge(MockProvider([ScriptedResponse(content=payload) for _ in range(times)]))
+
+
+async def _runs_across_every_block(
+    tmp_path: Path, *, per_block: int = 6
+) -> tuple[list[ItemRun], dict[str, Document]]:
+    """`per_block` items in each of the five id blocks, all carrying one real turn outcome.
+
+    The outcome comes from `run_golden_item` rather than being hand-built, so the rows the draw
+    judges hold an answer and a source list the production path actually produced. Only the item
+    identity varies across the list, because identity is the axis the stratification is about.
+    """
+    runtime = build_runtime(
+        _settings(),
+        provider=MockProvider([_plan("consultation"), ScriptedResponse(content="An answer.")]),
+        embedder="hash",
+        store="numpy",
+    )
+    template = await run_golden_item(runtime, _item("g-gh-000"), runs_dir=tmp_path, prefix="full")
+    assert template.outcome is not None
+    outcome = dataclasses.replace(
+        template.outcome,
+        answer="Blood pressure is persistently raised.",
+        sources=("condition-hypertension",),
+    )
+    runs = [
+        ItemRun(item=_item(f"{block}-{index:03d}", category), outcome=outcome)
+        for block, category in _BLOCKS.items()
+        for index in range(1, per_block + 1)
+    ]
+    return runs, dict(runtime.documents)
+
+
+async def test_the_human_sample_is_stratified_over_the_five_id_blocks(tmp_path: Path) -> None:
+    """`runs[:N]` over a set written in category blocks is one and a third categories."""
+    runs, documents = await _runs_across_every_block(tmp_path)
+
+    draw = await draw_human_sample(
+        _judge_saying(_SUPPORTED),
+        runs,
+        documents,
+        count=10,
+        config="full",
+    )
+
+    assert draw.per_block == 2
+    assert len(draw.rows) == 10
+    assert Counter(sample_block(row.item_id) for row in draw.rows) == dict.fromkeys(_BLOCKS, 2)
+    # The draw this replaces: the first ten runs in file order are two of the five blocks.
+    assert len({sample_block(run.item.id) for run in runs[:10]}) == 2
+
+
+async def test_the_same_seed_draws_the_same_rows(tmp_path: Path) -> None:
+    """A sampling method a reviewer cannot re-run is not a stated sampling method."""
+    runs, documents = await _runs_across_every_block(tmp_path)
+
+    first = await draw_human_sample(
+        _judge_saying(_SUPPORTED), runs, documents, count=10, config="full"
+    )
+    second = await draw_human_sample(
+        _judge_saying(_SUPPORTED), runs, documents, count=10, config="full"
+    )
+
+    assert [row.item_id for row in first.rows] == [row.item_id for row in second.rows]
+    assert first.seed == SAMPLE_SEED
+    assert f"random.Random({SAMPLE_SEED})" in first.method()
+    assert "stratified over 5 item-id blocks" in first.method()
+    assert "no row needed replacing" in first.method()
+
+
+async def test_every_shipped_row_carries_the_judge_label_and_the_judge_evidence(
+    tmp_path: Path,
+) -> None:
+    """The defect this replaces: a CSV whose judge columns were empty could not be scored at all."""
+    runs, documents = await _runs_across_every_block(tmp_path)
+
+    draw = await draw_human_sample(
+        _judge_saying(_SUPPORTED), runs, documents, count=5, config="full"
+    )
+
+    assert len(draw.rows) == 5
+    assert all(row.judge_label == "supported" for row in draw.rows)
+    assert all(row.judge_rationale for row in draw.rows)
+    body = documents["condition-hypertension"].body
+    expected = numbered_sources([("condition-hypertension", body)])
+    assert all(row.sources_text == expected for row in draw.rows)
+    assert all(row.retrieved_doc_ids == "condition-hypertension" for row in draw.rows)
+    assert all(row.human_label == "" and row.human_notes == "" for row in draw.rows)
+
+
+async def test_an_answer_the_judge_only_partly_supported_is_labelled_unsupported(
+    tmp_path: Path,
+) -> None:
+    """The person is asked the same all-or-nothing question, so the judge column has two values."""
+    runs, documents = await _runs_across_every_block(tmp_path)
+
+    draw = await draw_human_sample(
+        _judge_saying(_PARTLY_SUPPORTED),
+        runs,
+        documents,
+        count=5,
+        config="full",
+    )
+
+    assert {row.judge_label for row in draw.rows} == {"unsupported"}
+
+
+async def test_a_row_the_judge_cannot_score_is_replaced_from_its_own_block(
+    tmp_path: Path,
+) -> None:
+    """Both ways a row can come back unscorable, and neither may ship as a blank label.
+
+    An unparseable judge reply and an answer with no factual claim in it are different failures,
+    but the consequence is the same: nothing for the human's label to agree or disagree with. The
+    replacement is drawn from the same block so the strata stay equal rather than being levelled
+    by whichever block happened to survive.
+    """
+    runs, documents = await _runs_across_every_block(tmp_path)
+    judge = Judge(
+        MockProvider(
+            [
+                ScriptedResponse(content="I would rather not."),
+                ScriptedResponse(content=_NO_CLAIMS),
+                *[ScriptedResponse(content=_SUPPORTED) for _ in range(20)],
+            ]
+        )
+    )
+
+    draw = await draw_human_sample(judge, runs, documents, count=5, config="full")
+
+    assert len(draw.rows) == 5
+    assert Counter(sample_block(row.item_id) for row in draw.rows) == dict.fromkeys(_BLOCKS, 1)
+    # Blocks are drawn in sorted order, so the two refusals both landed in the first one.
+    assert len(draw.excluded) == 2
+    assert {sample_block(item_id) for item_id in draw.excluded} == {"g-cc"}
+    assert not set(draw.excluded) & {row.item_id for row in draw.rows}
+    assert all(row.judge_label for row in draw.rows)
+    assert "were excluded and replaced from within their own block" in draw.method()
+
+
+def test_the_block_of_an_item_id_is_its_prefix() -> None:
+    """The CSV carries the id and nothing else, so the id is what a reviewer can check."""
+    assert sample_block("g-gh-001") == "g-gh"
+    assert sample_block("m-021") == "m"
+    assert sample_block("solo") == "solo"
 
 
 # --- harness -------------------------------------------------------------------------------------
@@ -473,6 +696,34 @@ async def test_the_runner_refuses_an_unlabelled_golden_set(
     assert "labelled by hand" in capsys.readouterr().err
 
 
+async def test_a_human_sample_without_a_config_is_refused(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Otherwise the sample comes from the ablation set's first preset, which retrieves nothing."""
+    from eval.run import main
+
+    monkeypatch.setenv("CONSILIUM_PROVIDER", "mock")
+    code = await main(["--human-sample", "40"])
+
+    assert code == 2
+    err = capsys.readouterr().err
+    assert "baseline_llm" in err
+    assert "--config full --human-sample 40" in err
+
+
+async def test_a_human_sample_with_the_judge_switched_off_is_refused(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The sample exists to compare the judge against a person; there is nothing to compare."""
+    from eval.run import main
+
+    monkeypatch.setenv("CONSILIUM_PROVIDER", "mock")
+    code = await main(["--config", "full", "--human-sample", "40", "--no-judge"])
+
+    assert code == 2
+    assert "cannot be combined with --no-judge" in capsys.readouterr().err
+
+
 async def test_score_judge_reports_agreement_without_touching_a_provider(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -482,8 +733,8 @@ async def test_score_judge_reports_agreement_without_touching_a_provider(
     write_sample(
         sample,
         [
-            SampleRow("a", "q", "x", "", "supported", "r", human_label="supported"),
-            SampleRow("b", "q", "x", "", "supported", "r", human_label="unsupported"),
+            SampleRow("a", "q", "x", "", "s", "supported", "r", human_label="supported"),
+            SampleRow("b", "q", "x", "", "s", "supported", "r", human_label="unsupported"),
         ],
     )
 
@@ -502,7 +753,7 @@ async def test_score_judge_reports_an_unlabelled_sample_rather_than_a_number(
     from eval.run import main
 
     sample = tmp_path / "judge_sample.csv"
-    write_sample(sample, [SampleRow("a", "q", "x", "", "supported", "r")])
+    write_sample(sample, [SampleRow("a", "q", "x", "", "s", "supported", "r")])
 
     monkeypatch.setenv("CONSILIUM_PROVIDER", "mock")
     code = await main(["--score-judge", str(sample)])

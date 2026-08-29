@@ -13,8 +13,15 @@ Four commands, matching the brief:
 
 ``--config NAME``       run one preset instead of the ablation set.
 ``--limit N``           run the first N items.  For a smoke test before spending on the full sweep.
-``--human-sample N``    write ``judge_sample.csv`` for a person to label.
+``--human-sample N``    write ``judge_sample.csv`` for a person to label.  Requires ``--config``.
 ``--score-judge PATH``  read a completed sample and report agreement and Cohen's kappa.
+
+``--human-sample`` requires ``--config`` because the ablation set's first preset is
+``baseline_llm``, which retrieves nothing: a sample drawn from it would validate the judge on the
+one configuration whose answers are ungrounded by construction.  The draw is stratified over the
+five item-id blocks and seeded, and the seed and the method are written beside the CSV, because
+"sampling method" is one of the things ``docs/EVALUATION.md`` has to state and a method nobody can
+re-run is not a stated method.
 
 **The golden set must be labelled.**  ``load_golden`` refuses a draft, so this runner cannot be
 pointed at the file the system drafted for itself.  That is the point of the checkpoint: an eval set
@@ -33,9 +40,11 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import random
 import subprocess
 import sys
 from collections.abc import Sequence
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -60,6 +69,7 @@ from eval.judge import (
     Judge,
     JudgeError,
     SampleRow,
+    numbered_sources,
     score_sample,
     write_sample,
 )
@@ -89,6 +99,13 @@ DEFAULT_GOLDEN = ROOT / "eval" / "data" / "golden.jsonl"
 DEFAULT_MULTITURN = ROOT / "eval" / "data" / "multiturn.jsonl"
 RESULTS_DIR = ROOT / "eval" / "results"
 PRICING_PATH = ROOT / "eval" / "pricing.yaml"
+
+#: The seed the ``--human-sample`` draw shuffles with, and the file the method is recorded in.
+#: Fixed rather than drawn from the clock: a sampling method a reviewer cannot re-run is not a
+#: stated sampling method, and ``docs/EVALUATION.md`` has to state one.  It is printed to stderr
+#: and written into the sample directory so the sentence can be copied into the document verbatim.
+SAMPLE_SEED = 20260829
+SAMPLE_METHOD_FILENAME = "judge_sample_method.txt"
 
 #: How many of the labelled items the ``full_budget_6`` diagnostic runs on.  A stratified subset,
 #: reported separately with its n stated, because it exists to show the untruncated tool-call
@@ -296,23 +313,144 @@ async def judge_conversations(
     )
 
 
-def sample_rows(runs: Sequence[ItemRun], limit: int) -> list[SampleRow]:
-    """Rows for the human-labelling CSV, with the judge label left for the runner to fill."""
-    rows: list[SampleRow] = []
-    for run in runs[:limit]:
-        if not run.ok or run.outcome is None:
-            continue
-        rows.append(
-            SampleRow(
-                item_id=run.item.id,
-                question=run.item.question,
-                answer=run.outcome.answer,
-                retrieved_doc_ids=" ".join(run.outcome.sources),
-                judge_label="",
-                judge_rationale="",
+def sample_block(item_id: str) -> str:
+    """The id-prefix block an item belongs to: ``g-gh-001`` -> ``g-gh``.
+
+    The **id prefix** rather than ``item.category``: the two agree in the shipped file and
+    ``tests/test_eval_drafts.py`` keeps them agreeing, but the CSV a person labels carries the id
+    and nothing else, so the id is the only thing a reviewer checking the draw for balance can
+    actually check.
+    """
+    head, _, _ = item_id.rpartition("-")
+    return head or item_id
+
+
+@dataclass(frozen=True)
+class SampleDraw:
+    """A drawn judge-validation sample, and the description of how it was drawn."""
+
+    config: str
+    rows: tuple[SampleRow, ...]
+    seed: int
+    per_block: int
+    blocks: tuple[str, ...]
+    excluded: tuple[str, ...]
+
+    def method(self) -> str:
+        """One sentence for ``docs/EVALUATION.md``'s "sampling method" line."""
+        replaced = (
+            "no row needed replacing"
+            if not self.excluded
+            else (
+                f"{len(self.excluded)} row(s) the judge could not score "
+                f"({', '.join(self.excluded)}) were excluded and replaced from within their own "
+                "block"
             )
         )
-    return rows
+        return (
+            f"{len(self.rows)} rows from config `{self.config}`, stratified over "
+            f"{len(self.blocks)} item-id blocks ({', '.join(self.blocks)}) at {self.per_block} "
+            f"per block, shuffled with random.Random({self.seed}); {replaced}"
+        )
+
+
+async def draw_human_sample(
+    judge: Judge,
+    runs: Sequence[ItemRun],
+    documents: dict[str, Document],
+    *,
+    count: int,
+    config: str,
+    seed: int = SAMPLE_SEED,
+) -> SampleDraw:
+    """Draw the judge-validation sample and fill in the judge's half of every row.
+
+    Three properties, each of which the first version of this path did not have:
+
+    **The judge is actually run.**  The sample exists to compare the judge's label against a
+    person's, so a CSV shipped with an empty ``judge_label`` cannot be scored at all -- and
+    ``--score-judge`` would have compared hand-written labels against empty strings and reported a
+    kappa for the comparison.  Every sampled row is judged here, against the **same evidence**
+    :func:`judge_config` uses: the full bodies of the notes the turn cited, numbered by
+    ``numbered_sources`` so the CSV's ``sources_text`` is the string the verdict came from.
+
+    **The draw is stratified and seeded.**  ``runs[:N]`` over a set written in category blocks is
+    one and a third categories.  So the sample takes ``count // len(blocks)`` from each id-prefix
+    block, shuffled with a fixed seed, and the seed and the method travel with the CSV.
+
+    **Every shipped row is scorable.**  A judge that returns nothing, or that finds no factual
+    claim to grade, produces no label, and a row with no label is a row a person labels for
+    nothing.  Such a row is dropped and replaced from within its **own** block, so the strata stay
+    equal rather than being levelled by whichever block happened to survive.
+    """
+    by_block: dict[str, list[ItemRun]] = {}
+    for run in runs:
+        if run.ok and run.outcome is not None:
+            by_block.setdefault(sample_block(run.item.id), []).append(run)
+
+    blocks = tuple(sorted(by_block))
+    per_block = max(1, count // max(1, len(blocks)))
+    # Not cryptographic and not meant to be: the point of the seed is that the draw is reproducible.
+    rng = random.Random(seed)  # noqa: S311
+
+    rows: list[SampleRow] = []
+    excluded: list[str] = []
+    for block in blocks:
+        candidates = list(by_block[block])
+        rng.shuffle(candidates)
+        taken = 0
+        for run in candidates:
+            if taken == per_block:
+                break
+            row = await _judged_row(judge, run, documents)
+            if row is None:
+                excluded.append(run.item.id)
+                continue
+            rows.append(row)
+            taken += 1
+
+    return SampleDraw(
+        config=config,
+        rows=tuple(rows),
+        seed=seed,
+        per_block=per_block,
+        blocks=blocks,
+        excluded=tuple(excluded),
+    )
+
+
+async def _judged_row(
+    judge: Judge, run: ItemRun, documents: dict[str, Document]
+) -> SampleRow | None:
+    """One sample row, or ``None`` when the judge produced nothing to agree or disagree with.
+
+    The answer-level label is ``supported`` only when every claim the judge found was supported,
+    because that is the question the labelling instructions put to the person: a three-valued judge
+    column compared against a two-valued human one would lose kappa to a disagreement about the
+    label set rather than about the answers.  A verdict with ``total == 0`` -- an answer that is
+    only an escalation banner and a disclaimer -- is not a third value either.  There is nothing to
+    ground, :attr:`FaithfulnessVerdict.score` is ``None`` for the same reason, and the row is
+    dropped rather than labelled.
+    """
+    if run.outcome is None:  # pragma: no cover - the caller filters these out
+        return None
+    sources = [
+        (doc_id, documents[doc_id].body) for doc_id in run.outcome.sources if doc_id in documents
+    ]
+    verdict = await judge.faithfulness(
+        question=run.item.question, answer=run.outcome.answer, sources=sources
+    )
+    if verdict is None or verdict.total == 0:
+        return None
+    return SampleRow(
+        item_id=run.item.id,
+        question=run.item.question,
+        answer=run.outcome.answer,
+        retrieved_doc_ids=" ".join(run.outcome.sources),
+        sources_text=numbered_sources(sources),
+        judge_label="supported" if verdict.supported == verdict.total else "unsupported",
+        judge_rationale=verdict.rationale,
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -337,7 +475,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--human-sample",
         type=int,
         metavar="N",
-        help="Write judge_sample.csv with N rows for a person to label, then stop.",
+        help=(
+            "Write judge_sample.csv with N judged rows for a person to label, then stop. "
+            "Requires --config; the draw is stratified over the five item-id blocks."
+        ),
     )
     parser.add_argument(
         "--score-judge",
@@ -355,6 +496,25 @@ async def main(argv: Sequence[str] | None = None) -> int:
 
     if args.score_judge:
         return _score_judge(args.score_judge)
+
+    if args.human_sample and not args.config:
+        print(
+            "--human-sample needs --config. Without it the sample is drawn from the first preset "
+            "of the ablation set, which is baseline_llm -- it retrieves nothing, so every row "
+            "would carry empty evidence and the judge would be validated on the one configuration "
+            "whose answers are ungrounded by construction. Try: --config full --human-sample 40",
+            file=sys.stderr,
+        )
+        return 2
+
+    if args.human_sample and args.no_judge:
+        print(
+            "--human-sample cannot be combined with --no-judge. The sample exists to compare the "
+            "judge's label against a person's, and a CSV whose judge_label column is empty cannot "
+            "be scored at all.",
+            file=sys.stderr,
+        )
+        return 2
 
     if settings.provider == "mock":
         print(
@@ -397,9 +557,24 @@ async def main(argv: Sequence[str] | None = None) -> int:
         runs = await sweep(runtime, items, prefix=name, runs_dir=runs_dir)
 
         if args.human_sample:
+            if judge is None:  # pragma: no cover - refused at argument validation above
+                print("--human-sample needs the judge; drop --no-judge.", file=sys.stderr)
+                return 2
+            print(f"drawing a judge sample with seed {SAMPLE_SEED}", file=sys.stderr)
+            draw = await draw_human_sample(
+                judge, runs, documents, count=args.human_sample, config=name
+            )
             path = out / "judge_sample.csv"
-            write_sample(path, sample_rows(runs, args.human_sample))
-            print(f"wrote {path}; fill in the human_label column, then --score-judge it")
+            write_sample(path, draw.rows)
+            method_path = out / SAMPLE_METHOD_FILENAME
+            method_path.write_text(draw.method() + "\n", encoding="utf-8")
+            print(
+                f"wrote {path}\n"
+                f"  sampling method: {draw.method()}\n"
+                f"  recorded in {method_path}, for docs/EVALUATION.md\n"
+                "Hide judge_label and judge_rationale before you read a row, fill in human_label, "
+                "then --score-judge it."
+            )
             return 0
 
         result = score(name, runs, pricing=pricing)

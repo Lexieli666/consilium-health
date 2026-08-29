@@ -963,13 +963,34 @@ reporting faithfulness from it without saying so is the same error as writing an
 into the README. Validation is a two-command loop:
 
 ```bash
-python -m eval.run --human-sample 40      # writes eval/results/<ts>/judge_sample.csv
-python -m eval.run --score-judge <path>   # reports raw agreement and Cohen's kappa
+python -m eval.run --config full --human-sample 40   # writes eval/results/<ts>/judge_sample.csv
+python -m eval.run --score-judge <path>              # raw agreement and Cohen's kappa
 ```
 
-The CSV has columns `item_id, question, answer, retrieved_doc_ids, judge_label, judge_rationale,
-human_label`, with the last column blank. Rows left blank are skipped rather than counted as
-disagreements — otherwise the agreement number would depend on how far the labeller got.
+**`--config` is required with `--human-sample`.** Without it the runner sweeps the ablation set and
+the sample would come from its first preset, `baseline_llm`, which retrieves nothing — validating
+the judge on the one configuration whose answers are ungrounded by construction.
+
+**The draw is stratified over the five item-id blocks** — `N // 5` from each of `g-gh`, `g-su`,
+`g-cc`, `g-ge`, `g-md` — and shuffled with a fixed seed, which is printed to stderr and written to
+`judge_sample_method.txt` beside the CSV. The golden set is stored in category blocks, so the first
+N items would be one and a third categories; and a sampling method a reviewer cannot re-run is not
+a stated sampling method, which is why the seed travels with the sample rather than living only
+here.
+
+The CSV has columns `item_id, question, answer, retrieved_doc_ids, sources_text, judge_label,
+judge_rationale, human_notes, human_label`, with the last two blank. `sources_text` carries the
+numbered excerpts **the judge was shown**, not only their ids: a labeller working from ids alone is
+answering a harder question than the judge answered — theirs includes finding and opening the right
+note — and the disagreement that produces would be reported as unreliability of the judge. Rows
+left blank are skipped rather than counted as disagreements, otherwise the agreement number would
+depend on how far the labeller got.
+
+`judge_label` is the answer-level roll-up of the judge's claim-level verdict: `supported` only when
+every claim it found was supported, `unsupported` otherwise — the same two-valued question the
+labeller is asked. A row the judge could not score — an unparseable reply, or an answer that made
+no factual claim to ground — is **excluded and replaced from within its own block**, so every
+shipped row is scorable and the strata stay equal.
 
 Cohen's kappa is reported alongside raw agreement because the label distribution is skewed: two
 raters who both mostly say "supported" agree about 90% of the time by chance, and a raw number alone
