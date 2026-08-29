@@ -882,6 +882,33 @@ Checkpoint B — the labels, and what labelling them taught", and "Phase 8, clos
 - **`eval/judges/*.md` are versioned prompt files** and the judge model is recorded beside every
   number it produced. `--human-sample N` / `--score-judge CSV` is the validation loop; until it has
   run, `docs/EVALUATION.md` says the judge is unvalidated **in those words**.
+- **`--human-sample` draws a sample that can actually be scored, and the three things that means
+  are frozen.** As first shipped the command could not produce one: it wrote empty `judge_label`
+  and `judge_rationale` columns and returned before the judge was ever called, so `--score-judge`
+  would have compared hand-written labels against empty strings and reported a kappa for it.
+  - **The judge runs on every sampled row**, against the **same evidence `judge_config` uses** --
+    the full bodies of the notes the turn cited, formatted by `eval/judge.py`'s `numbered_sources`,
+    which is the one place that block is built so the CSV's `sources_text` is the string the
+    verdict beside it came from. `judge_label` is the answer-level roll-up: `supported` only when
+    every claim the judge found was supported. A row the judge could not score -- an unparseable
+    reply, or `total == 0`, an answer that made no factual claim -- is **excluded and replaced from
+    within its own block**, so no row ships with a blank label for a person to fill in for nothing.
+  - **`--config` is required with `--human-sample`.** Without it the runner sweeps the ablation set
+    and the sample comes from its first preset, `baseline_llm`, which retrieves nothing. The draw
+    is **stratified over the five item-id blocks** (`N // 5` each) and shuffled with a fixed
+    `SAMPLE_SEED`, printed to stderr and written to `judge_sample_method.txt` beside the CSV --
+    `docs/EVALUATION.md` has to state a sampling method, and one nobody can re-run is not one. The
+    block is read from the **item id**, not from `category`: the CSV carries the id and nothing
+    else, so the id is the only thing a reviewer checking the draw for balance can check.
+    `--human-sample` with `--no-judge` is refused for the same reason the empty column was a defect.
+  - **`SAMPLE_COLUMNS` is `item_id, question, answer, retrieved_doc_ids, sources_text, judge_label,
+    judge_rationale, human_notes, human_label`**, and `write_sample` reads the columns off it by
+    name, so a column with no field behind it fails at write time rather than shipping empty.
+    `sources_text` sits beside the ids because a labeller working from ids alone answers a harder
+    question than the judge did -- theirs includes finding and opening the note -- and kappa would
+    report that as unreliability of the judge. `human_label` stays **last**: it is the only column
+    `score_sample` reads, and `score_sample` reads every column **by name**, which is what makes
+    inserting two columns a no-op for it.
 - **`load_golden` refuses an unlabelled draft** unless `allow_draft=True`, which `eval/run.py`
   never passes. `labeled: true` is trusted *and* checked, so the flag cannot be a lie. This is
   Checkpoint B enforced in code. `load_multiturn` is the same gate over the other file, and **both

@@ -7,9 +7,15 @@ for measuring how far those scores can be trusted.
 
 The loop is two commands, both in ``eval/run.py``:
 
-1. ``--human-sample N`` writes ``judge_sample.csv`` with the judge's label and rationale and an
-   empty ``human_label`` column.
+1. ``--human-sample N`` writes ``judge_sample.csv``: the judge's label, the judge's rationale,
+   **the evidence the judge was shown**, and an empty ``human_label`` column.
 2. ``--score-judge <csv>`` reads the completed file and reports raw agreement and Cohen's kappa.
+
+The evidence column is not decoration.  A labeller given only a list of ``doc_id`` values is
+answering a harder question than the judge answered -- theirs includes "find and open the right
+note" -- and the disagreement that produces is disagreement about evidence access, which kappa
+would report as unreliability of the judge.  ``numbered_sources`` is therefore the one place the
+source block is formatted, and both the judge's prompt and the CSV read it.
 
 Until step 2 has been run, ``docs/EVALUATION.md`` says the judge is unvalidated **in those words**,
 and every faithfulness number carries that caveat.
@@ -38,14 +44,23 @@ JUDGE_DIR = Path(__file__).parent / "judges"
 FAITHFULNESS_PROMPT = "faithfulness_v1"
 MULTITURN_PROMPT = "multiturn_v1"
 
-#: Columns of ``judge_sample.csv``.  ``human_label`` is left empty for a person to fill in.
+#: Columns of ``judge_sample.csv``, in the order they are written.  ``human_notes`` and
+#: ``human_label`` are the two the person fills in, and ``human_label`` is **last** because it is
+#: the only one the scorer reads: a scratch column placed after it would invite a labeller to stop
+#: at the notes and leave the label blank, and a blank label is skipped rather than counted.
+#:
+#: ``sources_text`` sits next to ``retrieved_doc_ids`` and carries the same excerpts the judge was
+#: given, numbered the same way.  The ids stay because they are what the golden set labels and what
+#: a reviewer cross-references; the text is what makes the two raters answer the same question.
 SAMPLE_COLUMNS = (
     "item_id",
     "question",
     "answer",
     "retrieved_doc_ids",
+    "sources_text",
     "judge_label",
     "judge_rationale",
+    "human_notes",
     "human_label",
 )
 
@@ -90,6 +105,20 @@ def load_prompt(name: str) -> str:
         raise JudgeError(f"cannot read the judge prompt at {path}: {exc}") from exc
 
 
+def numbered_sources(sources: Sequence[tuple[str, str]]) -> str:
+    """The evidence block, formatted the one way the judge is ever shown it.
+
+    ``sources`` is ``(doc_id, text)`` in rank order.  This is a function rather than an expression
+    inside :meth:`Judge.faithfulness` because ``judge_sample.csv`` has to carry the **same** string
+    the row's verdict was produced from.  A second copy of the formatting would be free to drift,
+    and a human would then be grading evidence the judge never saw while the resulting kappa was
+    reported as agreement about identical items.
+    """
+    return "\n\n".join(
+        f"[{index}] ({doc_id})\n{text}" for index, (doc_id, text) in enumerate(sources, start=1)
+    )
+
+
 def _system_block(prompt: str) -> str:
     """The prompt body below its explanatory header.
 
@@ -116,9 +145,7 @@ class Judge:
         be parsed -- a judge failure is not a faithfulness failure, and scoring it zero would let a
         flaky judge look like an ungrounded system.
         """
-        numbered = "\n\n".join(
-            f"[{index}] ({doc_id})\n{text}" for index, (doc_id, text) in enumerate(sources, start=1)
-        )
+        numbered = numbered_sources(sources)
         payload = await self._ask(
             FAITHFULNESS_PROMPT,
             f"QUESTION:\n{question}\n\nSOURCES:\n{numbered or '(none)'}\n\nANSWER:\n{answer}",
@@ -207,14 +234,22 @@ class Judge:
 
 @dataclass(frozen=True)
 class SampleRow:
-    """One row of ``judge_sample.csv``."""
+    """One row of ``judge_sample.csv``.
+
+    The field order is the column order, and ``write_sample`` reads the columns off
+    :data:`SAMPLE_COLUMNS` by name, so the two cannot drift into disagreement silently: a column
+    with no matching field fails at write time rather than shipping an empty column a labeller
+    would dutifully leave empty.
+    """
 
     item_id: str
     question: str
     answer: str
     retrieved_doc_ids: str
+    sources_text: str
     judge_label: str
     judge_rationale: str
+    human_notes: str = ""
     human_label: str = ""
 
 
@@ -225,17 +260,7 @@ def write_sample(path: Path, rows: Sequence[SampleRow]) -> None:
         writer = csv.DictWriter(handle, fieldnames=list(SAMPLE_COLUMNS))
         writer.writeheader()
         for row in rows:
-            writer.writerow(
-                {
-                    "item_id": row.item_id,
-                    "question": row.question,
-                    "answer": row.answer,
-                    "retrieved_doc_ids": row.retrieved_doc_ids,
-                    "judge_label": row.judge_label,
-                    "judge_rationale": row.judge_rationale,
-                    "human_label": row.human_label,
-                }
-            )
+            writer.writerow({column: getattr(row, column) for column in SAMPLE_COLUMNS})
 
 
 @dataclass(frozen=True)
