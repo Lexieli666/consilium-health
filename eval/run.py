@@ -16,6 +16,17 @@ Four commands, matching the brief:
 ``--human-sample N``    write ``judge_sample.csv`` for a person to label.  Requires ``--config``.
 ``--score-judge PATH``  read a completed sample and report agreement and Cohen's kappa.
 
+and two that exist only so a **second** validation round can be drawn:
+
+``--sample-seed INT``      shuffle the draw with this seed instead of :data:`SAMPLE_SEED`.
+``--exclude-sample CSV``   drop the item ids a prior ``judge_sample.csv`` already used.  Repeatable.
+
+A judge prompt revised because a validation round failed must be re-scored on a **fresh** sample.
+Scoring it against the items it was revised on measures how well the revision was fitted to those
+items and nothing else, so the two flags are what make a re-validation round drawable at all: the
+seed moves the shuffle, and the exclusion guarantees no round-1 item can be drawn again even if it
+does.
+
 ``--human-sample`` requires ``--config`` because the ablation set's first preset is
 ``baseline_llm``, which retrieves nothing: a sample drawn from it would validate the judge on the
 one configuration whose answers are ungrounded by construction.  The draw is stratified over the
@@ -40,10 +51,11 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import csv
 import random
 import subprocess
 import sys
-from collections.abc import Sequence
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -106,6 +118,11 @@ PRICING_PATH = ROOT / "eval" / "pricing.yaml"
 #: and written into the sample directory so the sentence can be copied into the document verbatim.
 SAMPLE_SEED = 20260829
 SAMPLE_METHOD_FILENAME = "judge_sample_method.txt"
+
+#: The column ``--exclude-sample`` reads item ids out of.  It is the first column of
+#: ``SAMPLE_COLUMNS``, and it is the one thing a prior sample is guaranteed to carry whatever a
+#: labeller did to the rest of the file in a spreadsheet.
+SAMPLE_ID_COLUMN = "item_id"
 
 #: How many of the labelled items the ``full_budget_6`` diagnostic runs on.  A stratified subset,
 #: reported separately with its n stated, because it exists to show the untruncated tool-call
@@ -325,6 +342,83 @@ def sample_block(item_id: str) -> str:
     return head or item_id
 
 
+class SampleDrawError(RuntimeError):
+    """Raised when the requested judge sample cannot be drawn as specified.
+
+    Separate from :class:`eval.judge.JudgeError`, which is about a prompt that will not load or a
+    completed sample that will not score.  This one is about the draw: a prior sample that cannot
+    be read, or an exclusion that leaves a stratum unable to fill itself.  It is raised rather than
+    worked around, because every way of working around it -- widening the draw, taking fewer from
+    the short block, falling back to the full pool -- silently changes the sampling method, and the
+    method is one of the things ``docs/EVALUATION.md`` has to state.
+    """
+
+
+def excluded_item_ids(paths: Sequence[Path]) -> tuple[str, ...]:
+    """The item ids a prior ``judge_sample.csv`` already used, in order and deduplicated.
+
+    A judge prompt revised because a validation round failed is re-scored on a **fresh** sample.
+    Re-scoring it on the items it was revised against measures the fit of the revision to those
+    items, which is the one number a validation round must not produce.  Changing the seed is not
+    enough on its own -- a different shuffle of the same pool draws some of the same rows -- so the
+    ids come out of the prior CSV and are removed from the pool before the shuffle.
+
+    Read with ``utf-8-sig`` because by then the file has been round-tripped through a spreadsheet,
+    and Excel writes a BOM -- which would otherwise prefix the first column's name and make an
+    exclusion of forty items silently exclude none.
+    """
+    ids: list[str] = []
+    for path in paths:
+        try:
+            with Path(path).open(encoding="utf-8-sig", newline="") as handle:
+                rows = list(csv.DictReader(handle))
+        except OSError as exc:
+            raise SampleDrawError(f"cannot read the prior judge sample at {path}: {exc}") from exc
+        if not rows or SAMPLE_ID_COLUMN not in rows[0]:
+            raise SampleDrawError(
+                f"{path}: no rows with an {SAMPLE_ID_COLUMN!r} column, so it would exclude "
+                "nothing. --exclude-sample takes a judge_sample.csv from a previous round."
+            )
+        ids.extend(value for row in rows if (value := str(row.get(SAMPLE_ID_COLUMN) or "").strip()))
+    return tuple(dict.fromkeys(ids))
+
+
+def per_block_count(blocks: int, count: int) -> int:
+    """How many rows the draw takes from each id-prefix block."""
+    return max(1, count // max(1, blocks))
+
+
+def refuse_short_blocks(supply: Mapping[str, int], *, per_block: int, excluded: int) -> None:
+    """Refuse a draw whose exclusion has left some stratum unable to fill itself.
+
+    ``supply`` counts the candidates left in **every** block, including one exclusion emptied
+    completely -- which is why the blocks are enumerated before the exclusion is applied rather
+    than after.  A block that vanished from the pool would otherwise leave four strata behind, and
+    the draw would quietly restratify over them and report a method sentence saying so in a file
+    nobody re-reads.
+    """
+    short = [(block, supply[block]) for block in sorted(supply) if supply[block] < per_block]
+    if not short:
+        return
+    detail = ", ".join(f"{block} has {available}" for block, available in short)
+    raise SampleDrawError(
+        f"excluding {excluded} item id(s) leaves a block short: {detail}, against the "
+        f"{per_block} the draw needs from each of the {len(supply)} blocks. A re-validation "
+        "sample is drawn only from items the previous round did not use, and taking fewer from a "
+        "short block would change the stratification the earlier number was computed under. "
+        "Lower --human-sample, or exclude fewer prior samples."
+    )
+
+
+def block_supply(item_ids: Iterable[str], *, exclude: Collection[str] = ()) -> dict[str, int]:
+    """Candidates per id-prefix block after exclusion, keyed by every block the ids contain."""
+    supply = {sample_block(item_id): 0 for item_id in item_ids}
+    for item_id in item_ids:
+        if item_id not in exclude:
+            supply[sample_block(item_id)] += 1
+    return supply
+
+
 @dataclass(frozen=True)
 class SampleDraw:
     """A drawn judge-validation sample, and the description of how it was drawn."""
@@ -335,6 +429,11 @@ class SampleDraw:
     per_block: int
     blocks: tuple[str, ...]
     excluded: tuple[str, ...]
+    #: Item ids removed from the pool before the shuffle, and the files they were read from.
+    #: Both travel into :meth:`method`, because "a fresh sample" is a claim about the draw that a
+    #: reviewer can only check if the draw says which items it was forbidden to take.
+    prior_excluded_ids: tuple[str, ...] = ()
+    prior_sample_paths: tuple[str, ...] = ()
 
     def method(self) -> str:
         """One sentence for ``docs/EVALUATION.md``'s "sampling method" line."""
@@ -347,10 +446,18 @@ class SampleDraw:
                 "block"
             )
         )
+        prior = (
+            "no prior sample excluded"
+            if not self.prior_sample_paths
+            else (
+                f"excluding the {len(self.prior_excluded_ids)} item id(s) drawn by "
+                f"{', '.join(self.prior_sample_paths)}"
+            )
+        )
         return (
             f"{len(self.rows)} rows from config `{self.config}`, stratified over "
             f"{len(self.blocks)} item-id blocks ({', '.join(self.blocks)}) at {self.per_block} "
-            f"per block, shuffled with random.Random({self.seed}); {replaced}"
+            f"per block, shuffled with random.Random({self.seed}), {prior}; {replaced}"
         )
 
 
@@ -362,10 +469,12 @@ async def draw_human_sample(
     count: int,
     config: str,
     seed: int = SAMPLE_SEED,
+    exclude: Collection[str] = (),
+    exclude_sources: Sequence[str] = (),
 ) -> SampleDraw:
     """Draw the judge-validation sample and fill in the judge's half of every row.
 
-    Three properties, each of which the first version of this path did not have:
+    Four properties, each of which the first version of this path did not have:
 
     **The judge is actually run.**  The sample exists to compare the judge's label against a
     person's, so a CSV shipped with an empty ``judge_label`` cannot be scored at all -- and
@@ -382,6 +491,14 @@ async def draw_human_sample(
     claim to grade, produces no label, and a row with no label is a row a person labels for
     nothing.  Such a row is dropped and replaced from within its **own** block, so the strata stay
     equal rather than being levelled by whichever block happened to survive.
+
+    **A second round cannot redraw the first round's items.**  ``exclude`` is the id set a prior
+    sample used, and it is removed from each block's candidates **before** the shuffle rather than
+    filtered out of the result -- a post-hoc filter would return a short sample instead of a fresh
+    one.  If that leaves any block unable to fill its stratum the draw is refused
+    (:func:`refuse_short_blocks`); the blocks themselves are enumerated before the exclusion, so a
+    block emptied outright is reported as short rather than disappearing and letting the draw
+    quietly restratify over the four that survived.
     """
     by_block: dict[str, list[ItemRun]] = {}
     for run in runs:
@@ -389,14 +506,22 @@ async def draw_human_sample(
             by_block.setdefault(sample_block(run.item.id), []).append(run)
 
     blocks = tuple(sorted(by_block))
-    per_block = max(1, count // max(1, len(blocks)))
+    available = {
+        block: [run for run in by_block[block] if run.item.id not in exclude] for block in blocks
+    }
+    per_block = per_block_count(len(blocks), count)
+    refuse_short_blocks(
+        {block: len(pool) for block, pool in available.items()},
+        per_block=per_block,
+        excluded=len(exclude),
+    )
     # Not cryptographic and not meant to be: the point of the seed is that the draw is reproducible.
     rng = random.Random(seed)  # noqa: S311
 
     rows: list[SampleRow] = []
     excluded: list[str] = []
     for block in blocks:
-        candidates = list(by_block[block])
+        candidates = list(available[block])
         rng.shuffle(candidates)
         taken = 0
         for run in candidates:
@@ -416,6 +541,8 @@ async def draw_human_sample(
         per_block=per_block,
         blocks=blocks,
         excluded=tuple(excluded),
+        prior_excluded_ids=tuple(exclude),
+        prior_sample_paths=tuple(exclude_sources),
     )
 
 
@@ -481,6 +608,28 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--sample-seed",
+        type=int,
+        default=SAMPLE_SEED,
+        metavar="INT",
+        help=(
+            f"Seed the --human-sample shuffle with this instead of {SAMPLE_SEED}. A re-validation "
+            "round changes it so the draw is not the previous round's draw."
+        ),
+    )
+    parser.add_argument(
+        "--exclude-sample",
+        type=Path,
+        action="append",
+        metavar="CSV",
+        default=None,
+        help=(
+            "A prior judge_sample.csv whose item_ids are excluded from the --human-sample draw. "
+            "Repeatable, so a third round can exclude the first two. A revised judge prompt "
+            "scored against the sample it was revised on measures overfitting, not agreement."
+        ),
+    )
+    parser.add_argument(
         "--score-judge",
         type=Path,
         metavar="CSV",
@@ -516,6 +665,16 @@ async def main(argv: Sequence[str] | None = None) -> int:
         )
         return 2
 
+    exclude_paths = tuple(args.exclude_sample or ())
+    if exclude_paths and not args.human_sample:
+        print(
+            "--exclude-sample only applies to --human-sample: there is no draw to exclude anything "
+            "from. Passing it to a sweep would look like a fresh sample was being drawn while "
+            "nothing was excluded from anything.",
+            file=sys.stderr,
+        )
+        return 2
+
     if settings.provider == "mock":
         print(
             "CONSILIUM_PROVIDER is 'mock'. The evaluation harness needs a live provider: numbers "
@@ -533,6 +692,24 @@ async def main(argv: Sequence[str] | None = None) -> int:
 
     if args.limit:
         items = items[: args.limit]
+
+    # Read and checked *before* the sweep, which is the expensive half: an unreadable prior sample
+    # or an exclusion that cannot fill a stratum is a mistake in the command line, and finding it
+    # after 150 paid items have run costs money to learn nothing.  The same check runs again inside
+    # the draw, against the items that actually produced an outcome.
+    prior_ids: tuple[str, ...] = ()
+    if exclude_paths:
+        try:
+            prior_ids = excluded_item_ids(exclude_paths)
+            supply = block_supply([item.id for item in items], exclude=prior_ids)
+            refuse_short_blocks(
+                supply,
+                per_block=per_block_count(len(supply), args.human_sample),
+                excluded=len(prior_ids),
+            )
+        except SampleDrawError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
 
     presets = [args.config] if args.config else list(ABLATION_PRESETS)
     started = datetime.now(UTC)
@@ -560,10 +737,21 @@ async def main(argv: Sequence[str] | None = None) -> int:
             if judge is None:  # pragma: no cover - refused at argument validation above
                 print("--human-sample needs the judge; drop --no-judge.", file=sys.stderr)
                 return 2
-            print(f"drawing a judge sample with seed {SAMPLE_SEED}", file=sys.stderr)
-            draw = await draw_human_sample(
-                judge, runs, documents, count=args.human_sample, config=name
-            )
+            print(f"drawing a judge sample with seed {args.sample_seed}", file=sys.stderr)
+            try:
+                draw = await draw_human_sample(
+                    judge,
+                    runs,
+                    documents,
+                    count=args.human_sample,
+                    config=name,
+                    seed=args.sample_seed,
+                    exclude=prior_ids,
+                    exclude_sources=tuple(str(path) for path in exclude_paths),
+                )
+            except SampleDrawError as exc:
+                print(str(exc), file=sys.stderr)
+                return 2
             path = out / "judge_sample.csv"
             write_sample(path, draw.rows)
             method_path = out / SAMPLE_METHOD_FILENAME

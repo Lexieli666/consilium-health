@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import dataclasses
 import json
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -38,9 +39,14 @@ from eval.judge import (
 from eval.metrics import turn_event
 from eval.run import (
     SAMPLE_SEED,
+    SampleDrawError,
+    block_supply,
     draw_human_sample,
+    excluded_item_ids,
     git_commit,
     load_pricing,
+    per_block_count,
+    refuse_short_blocks,
     sample_block,
     stratified,
 )
@@ -82,8 +88,49 @@ def test_the_judge_prompts_are_versioned_files_on_disk(name: str) -> None:
     """A prompt change is a change to the measurement, and it belongs in a diff."""
     text = load_prompt(name)
     assert text.strip()
-    assert name.endswith("_v1")
+    assert re.fullmatch(r"[a-z_]+_v\d+", name)
     assert "unvalidated" in text or "not measured" in text
+
+
+def test_the_faithfulness_prompt_in_force_is_v2_and_v1_is_still_on_disk() -> None:
+    """Round 1 scored `v1` at kappa 0.350 and the prompt was revised; both versions stay readable.
+
+    `v1` produced a published number, so deleting it or editing it in place would leave
+    `docs/EVALUATION.md` §4.1 citing a file that no longer says what the judge was told. The
+    revision is a new file and the constant moves; the old one is never touched again.
+    """
+    assert FAITHFULNESS_PROMPT == "faithfulness_v2"
+    v1, v2 = load_prompt("faithfulness_v1"), load_prompt(FAITHFULNESS_PROMPT)
+    assert "faithfulness_v1" not in v1.replace("# Faithfulness judge, v1", "")
+    assert "Supersedes `faithfulness_v1.md`" in v2
+
+
+def test_v2_addresses_both_of_round_ones_failure_modes() -> None:
+    """The prompt is the fix, so the two things it had to fix are asserted of its text.
+
+    Not a style check: each half of round 1's disagreement had a named cause -- graded transition
+    sentences and refused paraphrase on one side, topical overlap accepted without checking the
+    attribute on the other -- and a later edit that dropped either rule would leave the version
+    number claiming a revision the file no longer carries.
+    """
+    body = load_prompt(FAITHFULNESS_PROMPT).partition("\n---\n")[2]
+
+    # Too strict: summary/transition sentences and hedges are not claims, and paraphrase is support.
+    assert "are **not claims**" in body
+    assert "transition sentences" in body
+    assert "**Paraphrase is support.**" in body
+
+    # Too loose: the attribute check, claims about the sources, and evidence for every `supported`.
+    assert "**Topical overlap is not support**" in body
+    assert "checked against the sources" in body
+    assert "at most 25 words" in body
+
+
+def test_v2_keeps_the_output_contract_eval_judge_parses() -> None:
+    """A prompt revision must not move the three keys the runner reads off the reply."""
+    body = load_prompt(FAITHFULNESS_PROMPT).partition("\n---\n")[2]
+    assert '"claims"' in body and '"supported": <int>' in body and '"total": <int>' in body
+    assert '{"claims": [], "supported": 0, "total": 0}' in body
 
 
 def test_a_missing_prompt_is_an_error_naming_the_path() -> None:
@@ -462,6 +509,143 @@ async def test_a_row_the_judge_cannot_score_is_replaced_from_its_own_block(
     assert "were excluded and replaced from within their own block" in draw.method()
 
 
+# --- redrawing for a second validation round ------------------------------------------------------
+
+
+async def test_a_different_seed_draws_different_rows(tmp_path: Path) -> None:
+    """Round 1 failed at kappa 0.350; round 2 must not be round 1's draw with a new prompt."""
+    runs, documents = await _runs_across_every_block(tmp_path)
+
+    first = await draw_human_sample(
+        _judge_saying(_SUPPORTED), runs, documents, count=10, config="full"
+    )
+    second = await draw_human_sample(
+        _judge_saying(_SUPPORTED), runs, documents, count=10, config="full", seed=SAMPLE_SEED + 1
+    )
+
+    assert [row.item_id for row in first.rows] != [row.item_id for row in second.rows]
+    assert second.seed == SAMPLE_SEED + 1
+    assert f"random.Random({SAMPLE_SEED + 1})" in second.method()
+
+
+async def test_an_excluded_prior_sample_cannot_be_drawn_again(tmp_path: Path) -> None:
+    """A new seed reshuffles the same pool, so some of round 1's rows come back without this.
+
+    Changing the seed alone is not a fresh sample: a different shuffle of thirty candidates still
+    draws two of the same six. The ids from the prior CSV leave the pool before the shuffle, which
+    is what makes "these are items round 1 did not use" a property of the draw rather than a hope.
+    """
+    runs, documents = await _runs_across_every_block(tmp_path)
+    first = await draw_human_sample(
+        _judge_saying(_SUPPORTED), runs, documents, count=10, config="full"
+    )
+    already = tuple(row.item_id for row in first.rows)
+
+    second = await draw_human_sample(
+        _judge_saying(_SUPPORTED),
+        runs,
+        documents,
+        count=10,
+        config="full",
+        seed=SAMPLE_SEED + 1,
+        exclude=already,
+        exclude_sources=("sample-1/judge_sample.csv",),
+    )
+
+    assert len(second.rows) == 10
+    assert not {row.item_id for row in second.rows} & set(already)
+    assert Counter(sample_block(row.item_id) for row in second.rows) == dict.fromkeys(_BLOCKS, 2)
+    assert "excluding the 10 item id(s) drawn by sample-1/judge_sample.csv" in second.method()
+    # The reason the exclusion is needed: reshuffling alone would have returned some of them.
+    reshuffled = await draw_human_sample(
+        _judge_saying(_SUPPORTED), runs, documents, count=10, config="full", seed=SAMPLE_SEED + 1
+    )
+    assert {row.item_id for row in reshuffled.rows} & set(already)
+
+
+async def test_an_exclusion_that_empties_a_stratum_is_refused_not_worked_around(
+    tmp_path: Path,
+) -> None:
+    """Every way of proceeding changes the sampling method the earlier number was computed under."""
+    runs, documents = await _runs_across_every_block(tmp_path, per_block=6)
+    drained = [run.item.id for run in runs if sample_block(run.item.id) == "g-cc"][:4]
+
+    with pytest.raises(SampleDrawError, match="leaves a block short"):
+        await draw_human_sample(
+            _judge_saying(_SUPPORTED),
+            runs,
+            documents,
+            count=15,
+            config="full",
+            exclude=drained,
+        )
+
+
+async def test_a_block_emptied_outright_is_short_rather_than_gone(tmp_path: Path) -> None:
+    """Otherwise the draw restratifies over the four survivors and says so where nobody looks."""
+    runs, documents = await _runs_across_every_block(tmp_path, per_block=6)
+    whole_block = [run.item.id for run in runs if sample_block(run.item.id) == "g-cc"]
+
+    with pytest.raises(SampleDrawError, match="g-cc has 0"):
+        await draw_human_sample(
+            _judge_saying(_SUPPORTED),
+            runs,
+            documents,
+            count=10,
+            config="full",
+            exclude=whole_block,
+        )
+
+
+def test_excluded_item_ids_reads_a_spreadsheet_round_tripped_csv(tmp_path: Path) -> None:
+    """The prior sample comes back from a labeller through Excel, which writes a BOM."""
+    path = tmp_path / "labelled.csv"
+    write_sample(
+        path,
+        [
+            SampleRow("g-gh-001", "q", "a", "", "s", "supported", "r", human_label="supported"),
+            SampleRow("g-su-002", "q", "a", "", "s", "unsupported", "r", human_label="supported"),
+        ],
+    )
+    path.write_text("\ufeff" + path.read_text(encoding="utf-8"), encoding="utf-8")
+
+    assert excluded_item_ids([path]) == ("g-gh-001", "g-su-002")
+
+
+def test_two_prior_samples_are_excluded_together(tmp_path: Path) -> None:
+    """A third round excludes the first two, and an id in both is counted once."""
+    first, second = tmp_path / "one.csv", tmp_path / "two.csv"
+    write_sample(first, [SampleRow("g-gh-001", "q", "a", "", "s", "supported", "r")])
+    write_sample(
+        second,
+        [
+            SampleRow("g-gh-001", "q", "a", "", "s", "supported", "r"),
+            SampleRow("g-su-002", "q", "a", "", "s", "supported", "r"),
+        ],
+    )
+
+    assert excluded_item_ids([first, second]) == ("g-gh-001", "g-su-002")
+
+
+def test_a_prior_sample_with_no_item_id_column_is_refused(tmp_path: Path) -> None:
+    """It would exclude nothing, and the round would silently redraw the items it must not."""
+    path = tmp_path / "wrong.csv"
+    path.write_text("question,answer\nq,a\n", encoding="utf-8")
+
+    with pytest.raises(SampleDrawError, match="no rows with an 'item_id' column"):
+        excluded_item_ids([path])
+
+    empty = tmp_path / "empty.csv"
+    empty.write_text("", encoding="utf-8")
+    with pytest.raises(SampleDrawError, match="no rows with an 'item_id' column"):
+        excluded_item_ids([empty])
+
+
+def test_a_prior_sample_that_does_not_exist_names_the_path(tmp_path: Path) -> None:
+    with pytest.raises(SampleDrawError, match="cannot read the prior judge sample"):
+        excluded_item_ids([tmp_path / "absent.csv"])
+
+
 def test_the_block_of_an_item_id_is_its_prefix() -> None:
     """The CSV carries the id and nothing else, so the id is what a reviewer can check."""
     assert sample_block("g-gh-001") == "g-gh"
@@ -722,6 +906,83 @@ async def test_a_human_sample_with_the_judge_switched_off_is_refused(
 
     assert code == 2
     assert "cannot be combined with --no-judge" in capsys.readouterr().err
+
+
+async def test_exclude_sample_without_a_human_sample_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """It would read as a fresh sample being drawn while nothing was excluded from anything."""
+    from eval.run import main
+
+    monkeypatch.setenv("CONSILIUM_PROVIDER", "mock")
+    code = await main(["--config", "full", "--exclude-sample", str(tmp_path / "prior.csv")])
+
+    assert code == 2
+    assert "--exclude-sample only applies to --human-sample" in capsys.readouterr().err
+
+
+async def test_an_unreadable_prior_sample_is_refused_before_the_paid_sweep(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A mistake in the command line must cost nothing to find; the sweep is the expensive half."""
+    from eval.run import main
+
+    monkeypatch.setenv("CONSILIUM_PROVIDER", "openai")
+    monkeypatch.setenv("OPENAI_API_KEY", "not-a-real-key")
+    code = await main(
+        [
+            "--config",
+            "full",
+            "--human-sample",
+            "40",
+            "--exclude-sample",
+            str(tmp_path / "absent.csv"),
+        ]
+    )
+
+    assert code == 2
+    assert "cannot read the prior judge sample" in capsys.readouterr().err
+
+
+async def test_an_exclusion_bigger_than_the_pool_is_refused_before_the_paid_sweep(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Checked against the golden set itself, before a single item has been run."""
+    from eval.items import load_golden
+    from eval.run import DEFAULT_GOLDEN, main
+
+    prior = tmp_path / "prior.csv"
+    write_sample(
+        prior,
+        [
+            SampleRow(item.id, "q", "a", "", "s", "supported", "r")
+            for item in load_golden(DEFAULT_GOLDEN)
+            if sample_block(item.id) == "g-cc"
+        ],
+    )
+
+    monkeypatch.setenv("CONSILIUM_PROVIDER", "openai")
+    monkeypatch.setenv("OPENAI_API_KEY", "not-a-real-key")
+    code = await main(["--config", "full", "--human-sample", "40", "--exclude-sample", str(prior)])
+
+    assert code == 2
+    err = capsys.readouterr().err
+    assert "leaves a block short: g-cc has 0" in err
+    assert "against the 8 the draw needs" in err
+
+
+def test_the_preflight_and_the_draw_share_one_stratum_rule() -> None:
+    """Two copies of "how many per block" would let the cheap check pass what the draw refuses."""
+    ids = [f"g-gh-{index:03d}" for index in range(10)] + [
+        f"g-su-{index:03d}" for index in range(10)
+    ]
+
+    assert per_block_count(5, 40) == 8
+    assert per_block_count(0, 40) == 40  # no blocks yet: never a division by zero
+    assert block_supply(ids, exclude={"g-gh-000"}) == {"g-gh": 9, "g-su": 10}
+    refuse_short_blocks({"g-gh": 9, "g-su": 10}, per_block=9, excluded=1)
+    with pytest.raises(SampleDrawError, match="g-gh has 9"):
+        refuse_short_blocks({"g-gh": 9, "g-su": 10}, per_block=10, excluded=1)
 
 
 async def test_score_judge_reports_agreement_without_touching_a_provider(
