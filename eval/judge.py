@@ -17,8 +17,13 @@ note" -- and the disagreement that produces is disagreement about evidence acces
 would report as unreliability of the judge.  ``numbered_sources`` is therefore the one place the
 source block is formatted, and both the judge's prompt and the CSV read it.
 
-Until step 2 has been run, ``docs/EVALUATION.md`` says the judge is unvalidated **in those words**,
-and every faithfulness number carries that caveat.
+Until step 2 has been run, ``docs/EVALUATION.md`` says the judge is unvalidated **in those words**.
+It has now been run twice (``docs/EVALUATION.md`` §4.1 and §4.2), so that is no longer what it says:
+round 2 measured the prompt in force at **Cohen's kappa 0.592 on a blind sample of 40**, which is
+0.008 below the 0.6 usability line, and the owner's decision of 2026-08-30 was to publish
+faithfulness with that number attached rather than revise a third time.  A measured instrument that
+fell short of the line is a different claim from an unvalidated one, and every faithfulness number
+carries the kappa instead of the word.
 
 Prompts are files in ``eval/judges/``, versioned by filename, and the version is recorded in
 ``summary.json`` beside every number it produced.  A prompt change is a change to the measurement,
@@ -44,9 +49,13 @@ JUDGE_DIR = Path(__file__).parent / "judges"
 #: The faithfulness prompt in force.  ``v1`` produced the round-1 validation numbers
 #: (``docs/EVALUATION.md`` §4.1: raw agreement 0.675, kappa 0.350, below the 0.4 line) and stays on
 #: disk unedited, because the version that produced a number has to remain readable beside it.
-#: ``v2`` is the revision written against round 1's two failure modes and is **unvalidated**:
-#: re-validation is pending on a fresh sample, drawn with ``--sample-seed`` and ``--exclude-sample``
-#: so that it cannot reuse the items the prompt was revised against.
+#: ``v2`` is the revision written against round 1's two failure modes, and it was re-validated on a
+#: **fresh, disjoint** sample -- drawn with ``--sample-seed`` and ``--exclude-sample`` so it could
+#: not reuse the items the prompt was revised against.  Round 2 (§4.2): raw agreement 0.800, kappa
+#: **0.592**, 0.008 short of the 0.6 usability line.  The owner invoked the procedure's low-kappa
+#: reporting clause on 2026-08-30, so ``v2`` stays exactly as it is and the kappa is published
+#: beside every faithfulness number instead.  Editing this file would make §4.2 cite a prompt that
+#: no longer says what the judge was told.
 FAITHFULNESS_PROMPT = "faithfulness_v2"
 MULTITURN_PROMPT = "multiturn_v1"
 

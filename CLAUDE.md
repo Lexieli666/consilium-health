@@ -881,7 +881,9 @@ Checkpoint B — the labels, and what labelling them taught", and "Phase 8, clos
   is never reported, because it reads as a complete one.
 - **`eval/judges/*.md` are versioned prompt files** and the judge model is recorded beside every
   number it produced. `--human-sample N` / `--score-judge CSV` is the validation loop; until a round
-  **passes**, `docs/EVALUATION.md` says the judge is unvalidated **in those words**.
+  has been scored at all, `docs/EVALUATION.md` says the judge is unvalidated **in those words**.
+  Two rounds have now been scored and that sentence no longer applies — see the round-2 entry below
+  for what replaced it.
 - **A superseded judge prompt is never edited, and the constant is what moves.** Round 1 of judge
   validation (2026-08-29, `gpt-4o-mini`, `faithfulness_v1`, n=40, drawn stratified with seed
   20260829 and labelled blind) measured raw agreement 0.675 and **Cohen's kappa 0.350** — below the
@@ -894,6 +896,24 @@ Checkpoint B — the labels, and what labelling them taught", and "Phase 8, clos
   readable beside it. The output contract `eval/judge.py` parses — `claims`, `supported`, `total` —
   is unchanged across the revision. The full record, with the confusion matrix, is
   `docs/EVALUATION.md` §4.1.
+- **Round 2 measured `faithfulness_v2` at kappa 0.592, and the owner invoked the low-kappa
+  reporting clause rather than revising again.** Owner's decision, 2026-08-30. Round 2 (`gpt-4o-mini`,
+  `faithfulness_v2`, n=40, seed 20260901 with round 1's forty ids excluded, one unscorable row
+  `g-cc-005` replaced from its own block, labelled blind) measured raw agreement **0.800** and
+  **Cohen's kappa 0.592** — up from 0.675/0.350 in round 1 and **0.008 below the 0.6 usability
+  line**. The validation procedure's rule for a weak-but-persistent kappa is to report faithfulness
+  with the caveat attached rather than drop the metric, and that is what was chosen: there is **no
+  third revision cycle**, `faithfulness_v2` **stays exactly as it is** (editing it would make
+  `docs/EVALUATION.md` §4.2 cite a prompt that no longer says what the judge was told), and **every
+  faithfulness number is published with `judge agreement kappa = 0.592 (n=40, blind, below the 0.6
+  usability line)`, or equivalent wording, beside it**. "Unvalidated" is retired as the description:
+  an unvalidated instrument has no measured agreement, and this one has two rounds of it — a
+  measured instrument short of the line is a different and more informative claim. The caveat is
+  **rendered from the measured kappa** against `KAPPA_USABILITY_THRESHOLD` in `eval/report.py`, not
+  written as a fixed string, so a later round that clears the line removes it with no code change.
+  The full record — both confusion matrices, the marginals, the failure-mode split (too-strict 9→3,
+  too-loose 4→5) and the attribution of the 0.350 → 0.592 gain to the `v1` → `v2` revision across
+  disjoint samples — is `docs/EVALUATION.md` §4.2.
 - **A revised judge prompt is re-validated on a fresh sample, and the draw enforces it.**
   `--sample-seed INT` (default `SAMPLE_SEED`) moves the shuffle and `--exclude-sample CSV`
   (repeatable) removes a prior sample's `item_id` values from each block's candidates **before** it
@@ -960,6 +980,32 @@ Checkpoint B — the labels, and what labelling them taught", and "Phase 8, clos
   deliberately not in `CATEGORY_SKILL` (it is reachable through both `analyze_symptoms` and the
   unfiltered `search_knowledge`, so it names no owning agent), and `search_knowledge` can never be
   in it, which is exactly why the check is a warning.
+- **`--max-cost USD` is the sweep's spend guard, and what it refuses is as frozen as what it does.**
+  02-PLAN.md's A3 checklist requires it before the first full sweep. Cost accumulates from the
+  sweep's `llm_call` **trace events**, priced through `eval/pricing.yaml` by `eval/metrics.py`'s
+  `rate_for` — the same lookup the results table uses, so the cap and the report cannot disagree
+  about which model counts as priced.
+  - **Enforced between items, never inside one.** A turn killed part-way leaves a trace file with no
+    `turn` event, and every metric in `eval/metrics.py` counts turns by that event — so a mid-item
+    abort would silently drop the item it aborted on out of every denominator. The overshoot is
+    therefore bounded by one item's cost, and that is accepted.
+  - **An abort is a result, and it is written down.** No further item starts, the partial
+    configuration is still scored but **not judged** (a run that ran out of budget must not spend
+    the rest of it grading), `summary.json` and `report.md` carry a `CostCap` record — cap, spend,
+    the config and item it stopped after, items completed of items planned — the same sentence goes
+    to stderr and sits **above** the ablation table, and the exit status is `EXIT_COST_CAP = 3`.
+    Three rather than the `2` every argument error uses: a CI job that sets a cap has to tell the
+    cap firing from a bad command line, and one nonzero code for both is unreadable from a job log.
+  - **An unpriceable run cannot be capped, so the flag is refused** — before `build_runtime`, so no
+    item is paid for to learn the guard could never have fired. `eval/pricing.yaml` ships empty
+    (§14, above), so on a fresh checkout `--max-cost` is refused until the operator fills in rates.
+    Treating an unpriced model as free was rejected: it leaves the cap unenforceable while the
+    operator believes a guard is in place, which is the failure a spend guard exists to prevent. The
+    same condition met mid-sweep aborts, for the same reason.
+  - **It bounds the sweep, not the bill.** The judge calls the provider directly and nothing traces
+    it, so no cost for those calls exists in the trace and this layer computes from the trace and
+    nothing else. `CostCap.sentence()` says so wherever the figure is published, so the number
+    cannot be read as a total.
 - **`eval/run.py` refuses a `mock` provider.** Numbers from a scripted mock are not measurements.
 - **The harness runs items through `run_turn`**, the same path the CLI and the API use, each item in
   **its own session** so working memory cannot carry item N-1 into item N. Multi-turn conversations
