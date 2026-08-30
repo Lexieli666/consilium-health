@@ -1,0 +1,341 @@
+{
+  "session_id": "full_no_memory-g-gh-004",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:02.367987Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 523,
+          "completion_tokens": 39,
+          "latency_ms": 812.0504579997032,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:02.369339Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the differences between COPD and asthma.",
+              "why": "This is a general health question about condition explanation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 813.4809999996833
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:02.369453Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:02.369531Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:03.276305Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 718,
+          "completion_tokens": 57,
+          "latency_ms": 903.2510840002033,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:03.321092Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "COPD",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.013157894736842105
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 0,
+              "rrf_score": 0.012987012987012988
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.01282051282051282
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.0125
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 44.35875000035594
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:03.321197Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "COPD",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 44.50108300034117,
+          "source_doc_ids": [
+            "condition-copd",
+            "condition-influenza",
+            "condition-asthma",
+            "condition-generalized-anxiety-disorder",
+            "condition-heart-failure"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:03.334478Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "asthma",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 0,
+              "rrf_score": 0.029571646010002173
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 2,
+              "rrf_score": 0.02938045560996381
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.012658227848101266
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 13.098749999699066
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:03.334542Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "asthma",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 13.175000000046566,
+          "source_doc_ids": [
+            "condition-asthma",
+            "condition-copd",
+            "condition-influenza",
+            "condition-upper-respiratory-infection",
+            "condition-hypertension"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:05.953316Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3018,
+          "completion_tokens": 220,
+          "latency_ms": 2618.5913330000403,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:05.953643Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:05.954860Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:05.956658Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:01:05.958164Z",
+          "trace_id": "84e1ae57a1164b809c0997c5c64beaa5",
+          "session_id": "full_no_memory-g-gh-004",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "How is COPD different from asthma?",
+          "answer": "Chronic Obstructive Pulmonary Disease (COPD) and asthma are both respiratory conditions but have distinct characteristics.\n\n**COPD** is marked by persistent airflow limitation due to long-term damage to the airways and lung tissue, primarily caused by factors like smoking. Symptoms, which include breathlessness on exertion, chronic cough, and sputum production, typically worsen gradually over time and are not reversible. The airflow limitation is consistent rather than variable (General clinical reference, COPD).\n\n**Asthma**, on the other hand, is characterized by inflammation of the airways, which can lead to variable airflow obstruction that is at least partially reversible. Symptoms such as wheezing, breathlessness, chest tightness, and coughing can fluctuate from day to day and may be triggered by specific factors. This variability is a defining feature that differentiates asthma from COPD (General clinical reference, asthma).\n\nIn summary, COPD involves a steady decline in lung function with persistent symptoms, while asthma features episodic symptoms that can improve or worsen over time. Both conditions may coexist, especially in older individuals with a history of smoking.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4397.914582999874,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "session_id": "full-g-su-016",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:32.557947Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 538,
+          "completion_tokens": 51,
+          "latency_ms": 821.1832500001037,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:32.559284Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently these symptoms need care and identify potential causes related to pregnancy.",
+              "why": "Spotting and associated pain could indicate a serious condition that requires urgent assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 822.5943749998805
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:32.559407Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:32.559484Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:33.367222Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 775,
+          "completion_tokens": 29,
+          "latency_ms": 806.2854170000264,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:33.421905Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "spotting with a sharp ache on one side and shoulder tip aches",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 53.83454200000415
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:33.422103Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "spotting with a sharp ache on one side and shoulder tip aches"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 54.479083999922295,
+          "source_doc_ids": [
+            "red-flag-acute-abdominal-pain",
+            "red-flag-stroke-symptoms",
+            "red-flag-meningitis-signs",
+            "red-flag-sudden-severe-headache",
+            "red-flag-suicidal-ideation"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:34.265092Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2135,
+          "completion_tokens": 29,
+          "latency_ms": 842.658209000092,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:34.292227Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "spotting with a sharp ache on one side and shoulder tip aches",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.030303030303030304
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.02946912242686891
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.029051670471052088
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.02667140825035562
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 25.97070799993162
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:34.292522Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "spotting with a sharp ache on one side and shoulder tip aches"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 27.001792000191926,
+          "source_doc_ids": [
+            "condition-migraine",
+            "condition-hypothyroidism",
+            "condition-upper-respiratory-infection",
+            "condition-heart-failure",
+            "condition-hypertension"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:36.035113Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3185,
+          "completion_tokens": 164,
+          "latency_ms": 1742.2064590000446,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:36.035440Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:36.036491Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:36.037303Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:36.038286Z",
+          "trace_id": "ded8e0cac67842bfb11f50a2df126f91",
+          "session_id": "full-g-su-016",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "im 7 weeks gone and ive started spotting with a sharp ache on one side and my shoulder tip aches too",
+          "answer": "You mentioned spotting, a sharp ache on one side, and shoulder tip pain while being 7 weeks pregnant. This collection of symptoms is classified as routine in urgency. However, it is important to keep in mind that while there is no immediate emergency indicated, you should seek medical advice, especially if the symptoms are severe, worsening, or new and unexplained.\n\nThese symptoms may involve different body systems and could be suggestive of various conditions. For instance, the shoulder tip pain may indicate irritation in the diaphragm or abdominal cavity, which can sometimes be related to pregnancy complications. The spotting and unilateral ache might also raise concerns about potential issues like ectopic pregnancy or miscarriage, both of which warrant clinical evaluation.\n\nYou should discuss these symptoms with your healthcare provider to determine their significance and to ensure proper monitoring and care during your pregnancy.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4298.8947920000555,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -296,6 +296,21 @@ was replaced by the following, on the owner's instruction:
    `eval/run.py` is written as `not measured`. The published run's `summary.json` is committed
    under `eval/results/published/`; a published number whose evidence is gitignored is a number no
    reviewer can check.
+
+   **Phase-10 refinement, owner's instruction of 2026-08-30: a *reconstruction* is a third
+   category, and it is named rather than either measured or `not measured`.** The A3 close-out the
+   sizing worksheet requires cannot be written under the rule as first stated: the judge talks to
+   the provider directly and nothing traces it, so the judge's half of the cost is a number
+   `eval/run.py` structurally cannot produce, and writing it `not measured` would close out the
+   worksheet by declining to answer it. So `docs/EVALUATION.md` §5.3 publishes two figures that are
+   **rebuilt from committed artifacts** — the published traces, the corpus, the golden set, the
+   judge prompt files — and the rule they are held to is the same one the original constraint
+   exists to serve: **a reviewer holding only this repository must be able to recompute them.**
+   Concretely: the computation ships as code (`eval/publish.py`, `--judge-volume` and
+   `--sizing-replay`), `tests/test_eval_publish.py` recomputes it and asserts the figures appear in
+   the document in both directions, and every place a reconstructed figure is published says the
+   word. Nothing in the README's results table and nothing in §6 is reconstructed; the metrics
+   remain `eval/run.py`'s and nothing else's.
 2. **Nothing is copied from `../medix-agent-swarm/`.** It is a reference implementation, read for
    requirements only. `../MediX-R1/` is unrelated and ignored entirely. Every line here is
    independently authored. The sole deliberate overlap is the seven skill names and three agent
@@ -879,6 +894,15 @@ Checkpoint B — the labels, and what labelling them taught", and "Phase 8, clos
 - **`eval/pricing.yaml` ships empty.** A rate card copied from a vendor page is not a measurement.
   An unpriced model makes cost `not measured` and is listed under `unpriced_models`; a partial cost
   is never reported, because it reads as a complete one.
+
+  **Phase 10 addition: the rates a published run used are *recovered*, never restated.** The
+  operator's filled-in copy of this file is not committed and `summary.json` records only that N
+  models were priced, so a reader has no rate card. It does not need one: each configuration
+  publishes prompt tokens per turn, completion tokens per turn and cost per turn, which is one
+  linear equation per configuration in two unknowns, and a solution that reproduces every
+  configuration to floating point is the card the run was priced with.
+  `eval/publish.py`'s `recover_rates` is that solve and is **the only place a dollar rate appears
+  in this repository**. Do not add one to a document; recover it and say where from.
 - **`eval/judges/*.md` are versioned prompt files** and the judge model is recorded beside every
   number it produced. `--human-sample N` / `--score-judge CSV` is the validation loop; until a round
   has been scored at all, `docs/EVALUATION.md` says the judge is unvalidated **in those words**.
@@ -1005,7 +1029,11 @@ Checkpoint B — the labels, and what labelling them taught", and "Phase 8, clos
   - **It bounds the sweep, not the bill.** The judge calls the provider directly and nothing traces
     it, so no cost for those calls exists in the trace and this layer computes from the trace and
     nothing else. `CostCap.sentence()` says so wherever the figure is published, so the number
-    cannot be read as a total.
+    cannot be read as a total. **The published run measured how much that matters and the answer is
+    "more than half":** the judge's reconstructed input alone is about 4.56M tokens against the
+    sweep's traced 2.94M, so the cap bounds the smaller half. That is a real limitation of computing
+    from the trace and nothing else, not a caveat about wording, and `docs/EVALUATION.md` §5.3 states
+    it as one. `--no-judge` is what bounds the other half.
 - **`eval/run.py` refuses a `mock` provider.** Numbers from a scripted mock are not measurements.
 - **The harness runs items through `run_turn`**, the same path the CLI and the API use, each item in
   **its own session** so working memory cannot carry item N-1 into item N. Multi-turn conversations
@@ -1128,7 +1156,105 @@ Rationale for each decision, with the rejected alternative, is in `docs/DESIGN.m
   does not depend on and §2 of the brief does not list; under `filterwarnings = ["error"]` that is
   a collection error. `httpx` is already the named dev dependency.
 
-## 16. Phase status
+## 16. Frozen: publication, and what the published run says (Phase 10)
+
+Rationale for each decision, with the rejected alternative, is in `docs/DESIGN.md` under
+"Phase 10 -- publishing the run, and the one number the trace cannot produce". The numbers are in
+`docs/EVALUATION.md` §5.2 (the transform), §5.3 (the cost close-out) and §6 (the results); the
+safety half is `docs/SAFETY.md`.
+
+- **`eval/publish.py` is the transform between a run and the published tree, and publication is not
+  a copy.** `summary.json` and `report.md` are copied **byte for byte and never regenerated**:
+  re-rendering a report from a summary at publication time would let a later change to
+  `eval/report.py` silently restate what a past run measured. The traces are refolded from
+  `runs/<session_id>/<turn_index>.jsonl` into **`traces/<session_id>.json`** — the whole session,
+  turns in **numeric** order, every event verbatim, nothing dropped or summarized. That is the path
+  `../human-annotation/phase10-failure-cases/TEMPLATE.md` cites and the only thing a failure-case
+  write-up has to link. Session ids stay `<config>-<item_id>` and `<config>-mt-<conversation_id>`.
+  `MANIFEST.json` carries the sha256 of every published file except itself and the directory's
+  `README.md`; `tests/test_eval_publish.py` recomputes it, so an edited trace fails the suite rather
+  than quietly changing what a published number refers to.
+- **The published run is `20260830T170133Z` at commit `c1436bd`**, `openai` / `gpt-4o-mini`, judged
+  by `gpt-4o-mini` with `faithfulness_v2`, 650 golden turns and 132 multi-turn turns, `--max-cost
+  6.00` finishing at **$0.5313** traced with the cap not fired. 679 traces, 9.6 MB, all committed.
+- **The headline finding is negative and it leads the README.** `full` reaches routing accuracy
+  0.867 at a 0.000 fallback rate and recall@5 0.857 against `single_agent_rag`'s 0.721 — and
+  **halves red-flag recall against the plain-LLM baseline, 0.500 against 0.893, 14 false negatives
+  against 3.** It is not a footnote, it is not softened, and the fix is listed as v0.2 roadmap in
+  both the README and `docs/SAFETY.md` §10 rather than as done. **No number anywhere in the
+  repository reflects an unimplemented fix.**
+- **The mechanism is established from the run's own numbers and is not to be restated as "the
+  synthesizer lost it".** `model_escalated_unaided` falls from 0.857/0.893 to 0.500, and red-flag
+  recall equals it exactly in both `full` configurations, so the input-side banner rescued **nothing**
+  there — one answer in 650 turns across the whole run. The banner could not do more: the matcher
+  hits 5 of 5 easy-phrasing items and 0 of 22 hard-phrasing ones, measured before the sweep. The two
+  configurations that lose recall are the two that call `assess_risk` (51 and 50 times; zero in
+  either baseline), and the diagnostic agent restates the skill's deliberately non-reassuring
+  non-match as a routine urgency finding, adopting its hedged closing sentence in place of the
+  unhedged instruction the same model wrote without the tool. **Eleven of the fourteen misses are
+  single-agent turns with no merge step**, so the synthesizer is not the mechanism.
+- **The part of the gap that is the detector's strictness is stated, not netted out.** Several of
+  the fourteen answers say "seek medical advice", conditionally, and `ESCALATION_PHRASES` excludes
+  that phrasing on purpose (§13). **`ESCALATION_PHRASES` is not loosened on the strength of the run
+  it was used to produce** — that would be changing what red-flag recall means after seeing the
+  results. `docs/SAFETY.md` §7 says so in those terms.
+- **`report.md`'s judge-validation paragraph says agreement "has not been measured", and it is left
+  exactly as it is.** It is true of the sweep, which does not read the validation file, and false of
+  the judge, which has two rounds. The file is published verbatim, so the correction lives in the
+  README, in `docs/EVALUATION.md` §6.1 and in `eval/results/published/README.md` instead. Every
+  faithfulness number carries **judge agreement kappa = 0.592 (n=40, blind, below the 0.6 usability
+  line)**, in the README's own text rather than inherited from a document it links to.
+- **The unverified-reference caveat is carried over exactly as `report.md` renders it**, marking
+  recall@5 and both faithfulness columns in the header and repeating it under the table. Routing
+  accuracy and red-flag recall stay unmarked, because nothing is wrong with them.
+- **The A3 close-out compares a total against a half, and says so.** Projected $2.85 (judge $2.53)
+  against traced $0.5313 is 81% below projection, and the two are not the same quantity: the traced
+  figure counts `llm_call` events and the judge's calls are not traced. Like for like the **sweep**
+  half was *under*-projected, $0.32 against $0.5313, and `--sizing-replay` reproduces the projection
+  out of the published run ($0.3117 against $0.4700 measured over the ablation, plus $0.0613 for the
+  `full_budget_6` the slice omitted). The cause is `--limit N` taking the **first** N items of a file
+  written in category blocks: the ten-item slice is ten `general_health` questions and the planner
+  routed all ten single, while the full set routes 31 of 150 parallel at 13,282 tokens against
+  5,003. The two configurations with no router were projected to within 12% and 0.4%. The judge half
+  was over-projected about **3×** — ~29,800 reconstructed tokens per item against the worksheet's
+  ~88,900 — for four reasons the reconstruction names, of which the load-bearing two are that the
+  oracle call sees `relevant_doc_ids` (mean 1.43 notes) rather than a retrieval-sized block, and
+  that the retrieved call sees `TurnOutcome.sources` (mean 8.0 in `full`) rather than
+  `docs_retrieved_per_turn` (15.3).
+- **The token rates are recovered from the published costs, never restated.** `eval/pricing.yaml`
+  ships empty (§14) and the operator's filled-in copy is not committed, so `summary.json` records
+  only that two models were priced. Each configuration's prompt tokens, completion tokens and cost
+  per turn is one equation in two unknowns; the solution reproduces all five configurations to
+  floating point and is $0.15/M input and $0.60/M output. `recover_rates` is that solve, and it is
+  the only place a dollar rate appears in this repository.
+- **The judge's volume is a *reconstruction* and the word is used everywhere it appears.** It is
+  rebuilt from committed artifacts only, its characters-per-token constant is **measured on this run**
+  (150 `baseline_llm` turns reconstruct to 265,039 characters against the 59,719 prompt tokens the
+  provider charged, = 4.438), and it covers the **input side only** — judge output cannot be rebuilt
+  from anything committed, so ≈$0.68 is a floor rather than an estimate. See §2 constraint 1 for the
+  refinement that permits it at all.
+- **The account-level cross-check is pending and is recorded as pending.** The provider dashboard
+  had not settled; until it does, the only cost figure the project stands behind is the traced
+  $0.5313, and every place it is published says what it excludes.
+- **The README's failure-case section ships as a marked stub.** The owner writes those by hand from
+  `TEMPLATE.md`; the stub says so, says what will go in it, and points at the published false-negative
+  item ids as the interim list. **A stub that pretends to be written is worse than an empty section
+  labelled empty.**
+- **`LICENSE` is MIT** and the README no longer promises it in a future phase. `[project.urls]` is
+  still absent, because it needs a repository URL and no repository has been created.
+- **Open item for the pre-push review (§2.5): the verbatim files carry the operator's local path.**
+  `summary.json`'s `golden_path` / `multiturn_path` and the two lines of `report.md` that echo them
+  contain `/Users/stephanienoe/Desktop/...`, which is a personal directory name. It is published
+  because those two files are published **byte for byte** and redacting them would break the one
+  property that makes them evidence. There are no credentials anywhere in the published tree and
+  the 679 traces are clean -- this is a name and a home directory, nothing more. **The owner decides
+  before the repository goes public.** The three options, none of them taken here: publish as is;
+  re-run the sweep from a path that reveals nothing and publish that run instead; or accept a
+  redacted publication and say in the directory's `README.md` that two fields were redacted and
+  that the digests therefore cover the redacted files. Editing the bytes without saying so is the
+  one option that is not available.
+
+## 17. Phase status
 
 | phase | state | commit |
 |---|---|---|
@@ -1141,4 +1267,4 @@ Rationale for each decision, with the rejected alternative, is in `docs/DESIGN.m
 | 7. Safety | done | `917b0b2` |
 | 8. Eval harness + golden set | **done — Checkpoint B cleared on both files.** Golden set hand-labelled blind and frozen; multi-turn set labelled, `m-017` dropped, 29 conversations frozen; provenance split from the gate; cross-file lint over both files. | `c2c7cf6` |
 | 9. API + SSE + CLI polish | **done.** `consilium chat`; `consilium/api/` with `/v1/ask`, `/v1/chat` (SSE), `/v1/sessions/{id}`, `/healthz`; banner-before-token, API-layer concurrency and session-leak tests. One departure from a frozen decision, §4 refinement 2. | `374f479` |
-| 10. Docs, published eval run, README numbers | not started -- `docs/SAFETY.md` still to be written | |
+| 10. Docs, published eval run, README numbers | **done, except the push.** Run published to `eval/results/published/` (summary + report byte-identical, 679 traces, manifest); `docs/SAFETY.md` written; README results with the negative headline; `docs/EVALUATION.md` §5.3 A3 close-out and §6 results; `LICENSE`. **`gh repo create` and the file-list review have not been done** -- §2.5 governs them and they are the owner's call. | |

@@ -1,0 +1,255 @@
+{
+  "session_id": "full_no_memory-g-su-009",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:27.869754Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 538,
+          "completion_tokens": 48,
+          "latency_ms": 820.5237080001098,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:27.871039Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently this severe headache needs care and identify any red-flag symptoms.",
+              "why": "The description indicates a concerning symptom that requires urgency assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 821.918167000149
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:27.871148Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:27.871196Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:28.581215Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 775,
+          "completion_tokens": 38,
+          "latency_ms": 708.986332999757,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:28.640994Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "worst headache I’ve ever had, came on like a bang while I was lifting, and the lights hurt",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03057889822595705
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 1,
+              "rrf_score": 0.030117753623188408
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.028404512489927477
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.027884615384615386
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.027443609022556388
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 0,
+              "rrf_score": 0.026153846153846153
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 59.01591699966957
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:28.641194Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "worst headache I’ve ever had, came on like a bang while I was lifting, and the lights hurt"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 59.69420900009936,
+          "source_doc_ids": [
+            "red-flag-sudden-severe-headache",
+            "red-flag-acute-abdominal-pain",
+            "condition-migraine",
+            "guideline-migraine-acute-and-preventive-treatment",
+            "red-flag-meningitis-signs"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:30.326460Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2200,
+          "completion_tokens": 165,
+          "latency_ms": 1685.110583000096,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:30.326797Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:30.327757Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:30.329038Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:03:30.330455Z",
+          "trace_id": "b6609e483fc5402f9b82076de5e1978f",
+          "session_id": "full_no_memory-g-su-009",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "worst hedache ive ever had, came on like a bang while i was lifting, and the lights hurt",
+          "answer": "Your headache sounds concerning, especially since it came on suddenly and is very severe. Although the assessment categorized this as routine, it's important to be cautious. There are several red-flag symptoms to be aware of:\n\n1. Headaches that come on suddenly and reach maximum intensity immediately (often described as a \"thunderclap headache\").\n2. Headache accompanied by fever, a stiff neck, confusion, drowsiness, or seizures.\n3. Headache following a head injury, especially if you experience vomiting, drowsiness, or worsening symptoms.\n\nThese patterns indicate that while this may not meet emergency criteria, it still could be serious. If your symptoms worsen or if you have any of the above red flags, you should seek medical advice promptly. Always err on the side of caution with sudden or severe headaches.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3278.054291999979,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

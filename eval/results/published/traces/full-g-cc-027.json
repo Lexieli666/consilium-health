@@ -1,0 +1,245 @@
+{
+  "session_id": "full-g-cc-027",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:05.437062Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 537,
+          "completion_tokens": 48,
+          "latency_ms": 714.8487499998737,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:05.438350Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain which chapter the raised blood pressure reading belongs to in the classification system.",
+              "why": "This is a classification question with no symptom or evidence component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 716.2091669997608
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:05.438473Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:05.438551Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:06.121431Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 739,
+          "completion_tokens": 18,
+          "latency_ms": 680.7022499997402,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:06.165598Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "raised blood pressure",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 3,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 1,
+              "rrf_score": 0.03131881575727918
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 3,
+              "rrf_score": 0.028381642512077296
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 2,
+              "rrf_score": 0.027809742999616416
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 3,
+              "rrf_score": 0.027071520029266508
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 3,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 3,
+              "rrf_score": 0.01282051282051282
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 43.76649999994697
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:06.165811Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "raised blood pressure"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 44.01237499996569,
+          "source_doc_ids": [
+            "coding-icd10-chapter-09-circulatory",
+            "coding-hypertension-i10",
+            "coding-icd10-chapter-18-symptoms",
+            "coding-icd10-chapter-03-blood",
+            "coding-icd10-chapter-04-endocrine"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:08.586222Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3331,
+          "completion_tokens": 142,
+          "latency_ms": 2420.1759170000514,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:08.586567Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:08.587426Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:08.588369Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:08.589307Z",
+          "trace_id": "e95e87e489ae4b659e5275fafe8b35da",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "If someone has a raised blood pressure reading but no diagnosis of hypertension, which chapter does that belong in?",
+          "answer": "In the ICD-10 classification system, a raised blood pressure reading without a diagnosis of hypertension falls under Chapter 18, which covers symptoms, signs, and abnormal findings (R00-R99). Specifically, the elevated blood pressure is considered an abnormal finding rather than a disease itself, and it remains in this chapter until a formal diagnosis is made (source: \"ICD-10-CM Chapter 18: symptoms, signs and abnormal findings\").\n\nWhen someone has a raised reading, it suggests a need for further evaluation, but the classification won't change to a disease code (like I10 for hypertension) until a diagnosis is documented (source: \"Coding hypertension: I10 and the hypertensive disease family\").\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3864.58308400006,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

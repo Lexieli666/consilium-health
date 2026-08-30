@@ -8,17 +8,24 @@ Every number this project publishes is produced by `eval/run.py` and computed fr
 in `consilium/trace.py`. Anything not produced that way is written **`not measured`**, and anything
 structurally undefined for a configuration is written **`n/a`**. Neither is ever filled in by hand.
 
-**Current state: the golden set is labelled and frozen; no sweep has been published, so no results
-number has been measured yet.** Every results number in this document and in the README reads
-`not measured` until a sweep has been run against the frozen set and its `summary.json` committed.
-The measurements that exist are the two judge-validation rounds (§4.1, §4.2): a `full` pass over the
-golden set fed a 40-item sample to a human labeller and the judge agreed with them at kappa 0.350;
-the prompt was revised and a second, disjoint 40-item sample scored kappa 0.592 — 0.008 below the
-0.6 usability line, which the owner decided on 2026-08-30 to report rather than revise again. Every
-faithfulness number therefore carries **judge agreement kappa = 0.592 (n=40, blind, below the 0.6
-usability line)** beside it. Two of the four label fields were written by hand and
-two were written by a model and knowingly left unverified — see §1.1.1 and §1.5, which are the
-parts of this document an interviewer should read first.
+**Current state: the golden set is labelled and frozen, and one sweep has been published.** It ran
+on 2026-08-30 at commit `c1436bd` against `openai` / `gpt-4o-mini`, and its `summary.json`,
+`report.md` and all 679 traces are committed under `eval/results/published/`. §6 is the results and
+§5.3 is the cost close-out. **The headline result is negative** — the full multi-agent configuration
+halves red-flag recall against a plain-LLM baseline — and it is in §6.3 rather than in a footnote.
+
+The judge was validated twice before that sweep (§4.1, §4.2): a `full` pass over the golden set fed
+a 40-item sample to a human labeller and the judge agreed with them at kappa 0.350; the prompt was
+revised and a second, disjoint 40-item sample scored kappa 0.592 — 0.008 below the 0.6 usability
+line, which the owner decided on 2026-08-30 to report rather than revise again. Every faithfulness
+number therefore carries **judge agreement kappa = 0.592 (n=40, blind, below the 0.6 usability
+line)** beside it. Two of the four label fields were written by hand and two were written by a model
+and knowingly left unverified — see §1.1.1 and §1.5, which are the parts of this document an
+interviewer should read first.
+
+**Two figures in §5.3 are reconstructions rather than measurements**, and are labelled as such
+wherever they appear: the judge's calls produce no trace event, so its token volume is rebuilt from
+committed artifacts by `eval/publish.py` rather than measured. Nothing in §6 is reconstructed.
 
 ---
 
@@ -1250,7 +1257,8 @@ provider calls**, before the judge.
 The judge adds up to two faithfulness calls per item per configuration — up to **1,200 calls** — plus
 one per annotated multi-turn turn, of which there are **83**. `--no-judge` skips them entirely.
 
-**Cost: `not measured`.** `eval/pricing.yaml` ships empty on purpose. A rate card copied from a
+**Cost was `not measured` until a run happened; §5.3 is the close-out for the one that has.**
+`eval/pricing.yaml` ships empty on purpose. A rate card copied from a
 vendor page at some past date is not a measurement: it looks measured, goes stale silently, and would
 put a fabricated dollar figure in the results table. Fill it in from your provider's current price
 list at the time of the run; `summary.json` records the rates that were used. When a model has no
@@ -1295,30 +1303,307 @@ path, the Python version and platform, and the pricing source, alongside every m
 was capped it also records `cost_cap`; when the cap fired, that record and the exit status are what
 say the run is partial and its numbers are not a sweep result.
 
+**Publication is a transform, not a copy, and `eval/publish.py` is it.** `summary.json` and
+`report.md` are copied **byte for byte** — re-rendering a report from a summary at publication time
+would let a later change to `eval/report.py` silently restate what a past run measured. The traces
+are refolded: the runner writes `runs/<session_id>/<turn_index>.jsonl`, which is right for appending
+during a turn and wrong for reading afterwards, so publication writes `traces/<session_id>.json`
+holding the whole session with its turns in numeric order and every event verbatim. That is the path
+the failure-case template cites, and it means chasing one golden item does not require knowing that
+a session is a directory. A `MANIFEST.json` carries the sha256 of every published file and
+`tests/test_eval_publish.py` recomputes it, so an edited trace fails the suite rather than quietly
+changing what a published number refers to.
+
+```bash
+python -m eval.publish --from eval/results/<timestamp>   # build the published directory
+python -m eval.publish --verify                          # recompute every digest
+python -m eval.publish --judge-volume                    # §5.3's judge reconstruction
+python -m eval.publish --sizing-replay                   # §5.3's sizing replay
+```
+
+### 5.3 The A3 close-out: projected against traced actual
+
+The sizing worksheet requires actual to be recorded against projected after the sweep, and requires
+a divergence of more than about 30% to be explained before anything is published. The divergence is
+larger than that and this section is the explanation. Two things are worth saying before the
+numbers: the projection and the traced figure **are not the same quantity**, and the reason they are
+not is the same reason `--max-cost` says what it says.
+
+| | projected, 2026-08-29 | actual |
+|---|---|---|
+| the sweep's traced `llm_call` events | $0.32 | **$0.5313** |
+| the judge's own calls | $2.53 | untraced — reconstructed below at **≈$0.68** of input |
+| total | **$2.85** | ≈$1.21, of which only $0.5313 is measured |
+
+Quoted the way the worksheet asks for it: **projected $2.85, traced actual $0.5313, 81% below
+projection.** That figure compares a total against a half, which is the first finding.
+
+#### The traced figure is the sweep only, by construction
+
+`--max-cost` accumulates from the sweep's `llm_call` trace events, because this layer computes from
+the trace and nothing else. `Judge` talks to the provider directly and nothing traces it, so **no
+cost for a judge call exists in the trace and the cap could never have covered them**.
+`CostCap.sentence()` says so wherever the figure is published, and `summary.json`'s spend note
+repeats it. So $0.5313 is not a small version of $2.85; it is one of the two halves $2.85 was the
+sum of.
+
+The traced half is exact. Summing `tokens_per_turn × n_turns` across the five configurations in
+`summary.json` gives **2,738,502 prompt tokens and 200,896 completion tokens**, and the rates that
+priced them are recoverable from the published per-configuration costs — one linear equation per
+configuration in two unknowns, five configurations, one solution that reproduces all five to
+floating point: **$0.15 per million input tokens and $0.60 per million output**. `eval/pricing.yaml`
+ships empty on purpose and the operator's filled-in copy is not committed, so this is how the rate
+card is recovered rather than asserted (`python -m eval.publish --sizing-replay` prints it).
+
+#### Like for like: the sweep half was under-projected, and the slice is why
+
+$0.32 projected against $0.5313 traced is **1.66×**. That is the wrong direction for a spend guard
+to be wrong in, so it is worth knowing why.
+
+The sizing runs were a separate, cheaper sweep and their traces were not retained, so the question
+cannot be answered from them. It can be answered from the published run, by replaying the same
+slice out of it — `python -m eval.publish --sizing-replay`, which prices the first ten golden items
+per configuration and extrapolates them to 150 exactly as the worksheet prescribed:
+
+| configuration | slice ×150 | measured over 150 | |
+|---|---|---|---|
+| `baseline_llm` | $0.0216 | $0.0193 | slice 12% high |
+| `single_agent_rag` | $0.0852 | $0.0855 | slice 0.4% low |
+| `full` | $0.1014 | $0.1805 | **slice 1.78× low** |
+| `full_no_memory` | $0.1035 | $0.1847 | **slice 1.78× low** |
+| ablation total | **$0.3117** | **$0.4700** | 1.51× |
+| `full_budget_6` | not projected | $0.0613 | omitted from the slice |
+| | | **$0.5313** | reconciles with `cost_cap.spent_usd` |
+
+That the replay lands on $0.3117 against the $0.32 the worksheet recorded is what makes the rest of
+this table worth reading: the replay reproduces what the sizing saw.
+
+**The error is entirely in the two configurations that route, and the cause is the slice.**
+`--limit N` takes the **first** N items of the golden set, and the golden set is written in category
+blocks — so a ten-item slice is ten `general_health` questions, and the planner routed **all ten of
+them single**. Over the full 150 it routed 31 turns in parallel. `summary.json`'s `tokens_by_mode`
+prices the difference: **13,282 tokens on a parallel turn against 5,003 on a single one**. The slice
+measured the cheap mode and nothing else. The two configurations with no router — the two whose cost
+does not depend on that decision — were projected to within 12% and 0.4%.
+
+Two smaller contributions: the slice omitted `full_budget_6` entirely, which the worksheet flagged
+as optional and which adds fifty more items at `full`'s per-turn cost; and a ten-item slice of one
+category block is not a sample of the golden set in any other respect either.
+
+**The lesson, and it is not "use a bigger slice".** `--limit` slices a file that is deliberately
+written in blocks, so it can never produce a representative slice at any N below one block. The
+harness already has the function that would fix this — `stratified()`, which is what
+`full_budget_6`'s 50-item subset is drawn with, for exactly this reason. A sizing slice should be
+drawn the same way.
+
+#### The judge half was over-projected by about a factor of three
+
+The worksheet's judge row was extrapolated at roughly **88.9K tokens per golden item** across the
+sweep's judged configurations — about 13.3M tokens over 150 items, which at $0.15/M input is the
+$2.53 it carried.
+
+**Nothing measured that number and nothing could have**, because judge calls produce no trace event.
+What can be done instead is to rebuild the prompts the judge was sent, from committed artifacts
+only: the published traces, the corpus, the golden set, the multi-turn set, and the two versioned
+prompt files. `python -m eval.publish --judge-volume` does that, and
+`tests/test_eval_publish.py` recomputes it and requires the figures below to appear in this
+section — in both directions, so neither the document nor the code can drift alone.
+
+| | calls | prompt characters |
+|---|---|---|
+| `baseline_llm` (oracle only — it retrieves nothing) | 149 | 1,683,888 |
+| `single_agent_rag` | 274 | 4,988,879 |
+| `full` | 295 | 6,602,201 |
+| `full_no_memory` | 293 | 6,578,710 |
+| `full` multi-turn | 83 | 389,296 |
+| **total** | **1,094** | **20,242,974** |
+
+Characters convert to tokens through a constant that is **measured on this run rather than assumed**:
+`baseline_llm` is the one configuration in the sweep whose prompt is reconstructible in full — one
+system prompt, one user message, no tool schema, no observation, no history — and its 150 turns
+reconstruct to **265,039 characters** against the **59,719 prompt tokens** the provider charged for
+them, which is **4.438 characters per token**. (59,719 is also `398.127 × 150` from `summary.json`,
+which is the check that the reconstruction is reconstructing the right thing.)
+
+So the judge's input was approximately **4,561,178 tokens ≈ $0.68**, against $2.53 projected. Per
+golden item across the four judged configurations that is about **29,800 tokens against the
+worksheet's 88,900** — the sizing over-counted the judge's evidence by roughly **3×**. Four things
+account for it, and all four are visible in the reconstruction:
+
+- **The oracle call is small and was priced like the retrieved one.** It is shown
+  `relevant_doc_ids`, which the drafting rule caps at three notes and which averages **1.43** —
+  about 4,400 characters of evidence, against roughly 25,000 for the retrieved call.
+- **The retrieved call sees fewer notes than `docs_retrieved_per_turn` suggests.** It is shown
+  `TurnOutcome.sources`, the deduplicated union of the `doc_id`s the turn actually cited, which
+  averages **8.0** notes per turn in `full`. `summary.json` reports `docs_retrieved_per_turn` as
+  **15.3**, and that is the figure a sizing estimate reaches for.
+- **`full_budget_6` is scored and never judged.** Fifty items' worth of judge calls that a
+  call-count estimate would include never happened.
+- **A retrieved call is skipped when the turn cited nothing.** `single_agent_rag` made 125 of them,
+  not 150.
+
+**This is a reconstruction, not a measurement, and it is labelled as one everywhere it appears.** It
+reconstructs the input side only: judge *output* tokens cannot be rebuilt from anything committed,
+so ≈$0.68 is a floor on the judge's cost rather than an estimate of it. What it is precise about is
+the two things that were actually wrong with the projection — the call count and the evidence per
+call — and both of those are exact counts over committed files rather than estimates.
+
+#### What this leaves
+
+**The untraced half of the run is larger than the traced half.** The judge's input alone,
+≈4.56M tokens, is about **1.55×** the entire sweep's traced 2.94M. A spend guard that computes from
+the trace therefore bounds the smaller half, which is why `--max-cost` says "it bounds the sweep,
+not the bill" and why `--no-judge` is documented as the thing that bounds the other half. That is a
+property of the design — computing from the trace and nothing else — and it is a real limitation of
+it, not a caveat about wording.
+
+**The account-level cross-check is pending.** The provider dashboard lags and had not settled when
+this was written, so the one comparison that would close the loop — the account total for the run
+window against $0.5313 plus the judge's untraced calls — has not been made. It is the only thing
+that can confirm the reconstruction above, and until it exists the reconstruction stands as
+arithmetic over committed files and nothing more. **The only cost figure this project stands behind
+is the traced $0.5313**, and every place it is published says what it does not include.
+
 ---
 
 ## 6. Results
 
-**`not measured`.** The golden set is labelled and frozen (§1.5) but no sweep has been run. This
-section is filled in from `eval/results/published/summary.json` when one has.
+One run, published in full at `eval/results/published/`: `summary.json` and `report.md` copied byte
+for byte from the run, all 679 traces, and a `MANIFEST.json` that `tests/test_eval_publish.py`
+recomputes. Every number in this section is read out of that `summary.json`.
 
-The column headers below are the ones `report.md` will carry. Two of them say what they are
-measured against, in the header rather than in a footnote, because `relevant_doc_ids` and
-`reference_answer` are model-proposed and unverified (§1.1.1) and the columns computed from them
-are not the same kind of number as the two beside them.
+- commit `c1436bd`, 2026-08-30, `openai` / `gpt-4o-mini`, judged by `gpt-4o-mini` with
+  `faithfulness_v2`, Python 3.13.9 on Darwin 25.6.0.
+- 650 golden turns (150 items × 4 ablation configurations, plus the 50-item `full_budget_6`
+  diagnostic) and 132 multi-turn turns across 29 conversations.
+- `--max-cost 6.00`, finishing at **$0.5313** of traced spend. The cap did not fire; §5.3 is the
+  close-out against the projection.
+- Episodic recall off, as in every measured run (§2). Its effect on answer quality stays
+  `not measured`.
 
-| configuration | routing acc | recall@5 (vs. unverified ref) | faithfulness (vs. unverified ref) | red-flag recall | p90 latency | tokens | cost |
-|---|---|---|---|---|---|---|---|
-| `baseline_llm` | n/a | n/a | n/a | not measured | not measured | not measured | not measured |
-| `single_agent_rag` | n/a | not measured | not measured | not measured | not measured | not measured | not measured |
-| `full` | not measured | not measured | not measured | not measured | not measured | not measured | not measured |
-| `full_no_memory` | not measured | not measured | not measured | not measured | not measured | not measured | not measured |
+### 6.1 The ablation
 
-**recall@5 and faithfulness are measured against a machine-constructed reference; routing accuracy
-and red-flag recall are not.** `relevant_doc_ids` and `reference_answer` were written by a model on
-148 of the 150 items and no person verified them. `expected_route` and `red_flag` were written by a
-person, by hand, blind. The two pairs of numbers are not equally trustworthy and the table says so
-in the header of every affected column.
+| configuration | routing acc | recall@5 (vs. unverified ref) | faithfulness retrieved (vs. unverified ref) | faithfulness oracle (vs. unverified ref) | red-flag recall | p90 latency | tokens/turn | cost/turn |
+|---|---|---|---|---|---|---|---|---|
+| `baseline_llm` | n/a | n/a | n/a | 0.630 | 0.893 | 1743 ms | 514 | $0.0001 |
+| `single_agent_rag` | n/a | 0.721 | 0.828 | 0.765 | 0.929 | 3341 ms | 3219 | $0.0006 |
+| `full` | 0.867 | 0.857 | 0.737 | 0.713 | 0.500 | 7369 ms | 6714 | $0.0012 |
+| `full_no_memory` | 0.853 | 0.885 | 0.763 | 0.715 | 0.536 | 7136 ms | 6892 | $0.0012 |
+
+**recall@5 and both faithfulness columns are measured against a machine-constructed reference;
+routing accuracy and red-flag recall are not.** `relevant_doc_ids` and `reference_answer` were
+written by a model on 144 and 148 of the 150 items and no person verified them (§1.1.1).
+`expected_route` and `red_flag` were written by a person, by hand, blind (§1.2). The two pairs of
+numbers are not equally trustworthy and the table says so in the header of every affected column.
+
+**Both faithfulness columns carry judge agreement kappa = 0.592 (n=40, blind, below the 0.6
+usability line)** (§4.2). `summary.json`'s `cohens_kappa` is `null` on every row because the sweep
+does not read the validation file, and `report.md` therefore renders "agreement with a human has
+**not been measured**". That sentence is true of the sweep and false of the judge, and it is the one
+place a reader of the published report alone would be misled — so the kappa is carried in this
+document, in the README, and in `eval/results/published/README.md` instead.
+
+### 6.2 What the ablation shows
+
+**Routing works and does not fall back.** `full` routes 0.867 of 150 items to the right mode and
+agent set, with a planner fallback rate of **0.000** — so the unconditional number and the
+fallback-excluded number are the same number, which is the only circumstance in which reporting one
+of them would have been honest. The confusion is symmetric and small: 3 parallel items routed
+single, 4 single items routed parallel. `consultation` is where the misses concentrate (49 of 58).
+
+**Retrieval improves with the architecture, and the union metric is not what does it.** recall@5
+rises from 0.721 (`single_agent_rag`) to 0.857 (`full`) — the miss rate falls from 0.279 to 0.143 —
+and the first-retrieval-event figure, which is comparable across configurations because it does not
+depend on how many retrievals a configuration makes, rises from 0.663 to 0.795. Both move, so the
+gain is not an artifact of `full` simply retrieving more: it retrieves 15.3 documents per turn
+against 9.8, and that is reported beside the recall figures for exactly this reason (§4 refinement
+4 of `CLAUDE.md`).
+
+**Faithfulness moves the other way.** `single_agent_rag` scores 0.828 against what it retrieved and
+`full` 0.737; oracle-grounded, 0.765 against 0.713. A configuration that retrieves more and answers
+from more agents makes more claims, and more of them are not in the sources it cited. Read those
+four numbers through the kappa above: at 0.592, an 0.09 difference is not a difference this
+instrument can resolve, and the direction of the judge's residual error is towards leniency.
+
+**The memory ablation is inconclusive and the reason is structural.** `full_no_memory` scores
+slightly *higher* than `full` on retrieval (0.885 against 0.857) and slightly higher on red-flag
+recall (0.536 against 0.500), which is not a result about memory. Inside the working-memory window
+the two configurations replay the same verbatim transcript, so only the **five** conversations whose
+dependencies reach past it can distinguish them on the compaction path at all (§1.7). Any effect
+size on that path rests on n=5. The single-turn golden set cannot distinguish them either — each
+item runs in its own session — so what the two rows differ by on 150 independent items is run-to-run
+variation in the provider, not an ablation.
+
+**Multi-turn resolution, `full` only, n=83 annotated turns:** resolved 0.627, unresolved 0.096,
+misresolved **0.277**. The misresolved share is the interesting one: more than a quarter of the
+turns committed to a reading of the reference and got it wrong, which is the bucket a reader of the
+answer alone cannot detect (§3.3).
+
+**Cost and latency are the price.** `full` costs 13× the baseline's tokens, 9× its cost per turn and
+4× its p90 latency. Split by mode, a parallel turn is 13,282 tokens against 5,003 for a single one,
+and p90 8,439 ms against 5,181 ms.
+
+### 6.3 The red-flag regression
+
+**This is the run's headline and it is negative.** Red-flag recall on 28 hand-labelled items:
+
+| configuration | red-flag recall | false negatives | model escalated unaided | recall − unaided | hard stratum (n=22) | easy stratum (n=5) |
+|---|---|---|---|---|---|---|
+| `baseline_llm` | 0.893 | 3 | 0.857 | 1 item | 0.864 | 1.000 |
+| `single_agent_rag` | 0.929 | 2 | 0.893 | 1 item | 0.909 | 1.000 |
+| `full` | **0.500** | **14** | 0.500 | **0** | 0.409 | 1.000 |
+| `full_no_memory` | 0.536 | 13 | 0.536 | **0** | 0.455 | 1.000 |
+
+The multi-agent system delivers a seek-care instruction on half the red-flag items, against 0.893
+for a plain LLM with no retrieval and no tools. Three things follow from the table and none of them
+is the guard failing:
+
+1. **`recall − unaided` is what the input-side banner contributed**: one item of 28 in the two
+   configurations where the model was already escalating, and **exactly zero** in both `full`
+   configurations. Across all 650 turns the pattern table rescued one answer.
+2. **The banner could not have done more**, because the matcher hits 5 of 5 easy-phrasing items and
+   0 of 22 hard-phrasing ones (§1.3). That was measured before the sweep and predicted exactly this:
+   on realistically-phrased input, red-flag recall *is* `model escalated unaided`.
+3. **The two configurations that lose recall are the two that call `assess_risk`** — 51 and 50 times
+   against zero in either baseline. §7 of `docs/SAFETY.md` traces the mechanism through the
+   published traces: the skill's deliberately non-reassuring non-match is restated by the diagnostic
+   agent as a routine urgency finding, and its hedged closing sentence replaces the unhedged
+   instruction the same model wrote without the tool.
+
+Part of the measured gap is the escalation detector's deliberate strictness rather than the
+system's behaviour — several of the fourteen answers do say "seek medical advice", conditionally,
+and `ESCALATION_PHRASES` excludes that phrasing. The detector is not being loosened on the strength
+of the run it was used to produce, and `docs/SAFETY.md` §7 states the point rather than netting it
+out.
+
+The negation guard changed the outcome on exactly one turn per ablation configuration and that turn
+is a false-positive probe, not a red-flag item. **It cost no recall in any configuration**, which is
+the measurement §3.2 said would settle the default policy: the guard stays on.
+
+### 6.4 The `full_budget_6` diagnostic
+
+**n = 50**, a stratified subset, reported separately because it is a diagnostic and not an ablation
+row. With `max_tool_calls` raised from 2 to 6: routing accuracy 0.860, recall@5 0.930, red-flag
+recall 0.400 over 10 red-flag items (all hard-phrasing), 6772 tokens per turn, $0.0012 per turn.
+
+The tool-call distribution is what it exists for, and it is not truncated at the cap it is being
+used to justify: **0 calls: 1, 1: 26, 2: 11, 3: 1, 4: 9, 5: 1, 6: 1.** Thirty-eight of fifty turns
+used two calls or fewer with six available. That is the evidence for `max_tool_calls = 2`, and the
+twelve turns that went beyond it are the cost of the cap, stated rather than hidden.
+
+Faithfulness is `not measured` for this configuration: it is scored and never judged, because a
+subset run to justify a budget is not a place to spend judge calls.
+
+### 6.5 Safety rates
+
+Violations and repairs are equal in every configuration — every violation this run produced was
+repaired — and both sit above 100 per 100 turns because the `disclaimer` rule fires on **every turn
+in every configuration**: the model never writes the required sentence and the repair always appends
+it. Read the rates through the rule breakdown, which `docs/SAFETY.md` §6 tabulates. The rules that
+describe generation are small: `dosing_instruction` 1, 3, 4 and 3 across the four configurations,
+`escalation_required` 3, 3, 2 and 2, and `definitive_diagnosis`, `prescription_advice` and
+`false_reassurance` never fired in 650 turns. `post_stream_repairs` is 0 everywhere, as §4
+refinement 2 of `CLAUDE.md` says it must be.
 
 ---
 

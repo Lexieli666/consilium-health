@@ -1,0 +1,359 @@
+{
+  "session_id": "full_no_memory-g-su-030",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:29.615324Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 534,
+          "completion_tokens": 52,
+          "latency_ms": 1223.153750000165,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:29.616441Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently this symptom of shortness of breath needs care and interpret its significance.",
+              "why": "This is a symptom description that may indicate an urgency assessment is required."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1224.3365000003905
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:29.616549Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:29.616620Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:30.320440Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 773,
+          "completion_tokens": 30,
+          "latency_ms": 702.1032500006186,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:30.379122Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "shortness of breath climbing two flights of stairs but completely fine at rest",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.030536130536130537
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.028404512489927477
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.027884615384615386
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 57.89174999972602
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:30.379321Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "shortness of breath climbing two flights of stairs but completely fine at rest"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 58.63037500057544,
+          "source_doc_ids": [
+            "lifestyle-copd-activity",
+            "red-flag-severe-breathing-difficulty",
+            "lifestyle-hypertension-activity",
+            "coding-icd10-chapter-18-symptoms",
+            "coding-asthma-j45"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:31.130534Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2193,
+          "completion_tokens": 30,
+          "latency_ms": 750.8994169993457,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:31.157433Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "shortness of breath climbing two flights of stairs but completely fine at rest",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.031054405392392875
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.031024531024531024
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.02964426877470356
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 3,
+              "rrf_score": 0.02857142857142857
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.02844551282051282
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.02804284323271665
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.025657894736842105
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 25.665207999736595
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:31.157652Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "shortness of breath climbing two flights of stairs but completely fine at rest"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 26.71699999973498,
+          "source_doc_ids": [
+            "condition-copd",
+            "condition-coronary-artery-disease",
+            "condition-osteoarthritis",
+            "condition-heart-failure",
+            "condition-asthma"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:33.276631Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3298,
+          "completion_tokens": 255,
+          "latency_ms": 2118.681459000072,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:33.276936Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:33.278298Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:33.279472Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:04:33.280289Z",
+          "trace_id": "55604b95ca6f47e7969617c75cb2182e",
+          "session_id": "full_no_memory-g-su-030",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I get short of breath climbing two flights of stairs but I am completely fine at rest.",
+          "answer": "The symptom of shortness of breath while climbing two flights of stairs but not at rest is considered **routine** in urgency. This means it does not indicate an immediate emergency, but it is important to monitor the situation closely. If the shortness of breath worsens, or if you experience any new or unexplained symptoms, it's a good idea to seek medical advice.\n\nThis symptom is related to the **respiratory** system. While it may not be alarming in this context, it’s worth discussing with a clinician. Possible conditions that might be explored include:\n\n- **Chronic obstructive pulmonary disease (COPD)**: This involves difficulty breathing and is often related to long-term smoking or exposure to lung irritants.\n- **Coronary artery disease**: Shortness of breath can be a symptom of heart issues, especially if accompanied by chest pain.\n- **Asthma**: This condition may cause periodic breathing difficulties, especially during exertion.\n- **Heart failure**: Associated with fluid build-up and may lead to breathlessness, especially during physical activity.\n\nKeep in mind that isolated symptoms can sometimes signal serious conditions, but not every case indicates an urgent problem. Consulting with a healthcare provider can help you understand your symptoms better and guide on the next steps.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4884.985332999349,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,638 @@
+{
+  "session_id": "full-mt-m-018",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:46.028360Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 531,
+          "completion_tokens": 51,
+          "latency_ms": 703.3687500002088,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:46.029541Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of potential heart-related symptoms or risk factors based on family history.",
+              "why": "The question implies a concern about possible urgent heart issues due to family history."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 704.6174170000086
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:46.029657Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:46.029740Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:46.753566Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 769,
+          "completion_tokens": 28,
+          "latency_ms": 721.9478330002858,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:46.816078Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "52 years old, father had a heart attack at 55",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 2,
+              "rrf_score": 0.031099324975891997
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.02904040404040404
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.028577260665441927
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.027205882352941177
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 3,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 61.438208000254235
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:46.816323Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "52 years old, father had a heart attack at 55"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 62.35049999986586,
+          "source_doc_ids": [
+            "red-flag-chest-pain",
+            "red-flag-stroke-symptoms",
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-acute-abdominal-pain",
+            "red-flag-sepsis"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:48.187017Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2112,
+          "completion_tokens": 117,
+          "latency_ms": 1370.4202919998352,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:48.187301Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:48.188057Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:48.188175Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:48.188360Z",
+          "trace_id": "70b096fa4105455eadc607dc464734bb",
+          "session_id": "full-mt-m-018",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I am 52 and my father had a heart attack at 55.",
+          "answer": "Call emergency services now. Chest discomfort can indicate a heart attack, and treatment works best in the first minutes. Do not drive yourself.\n\nYou mentioned you are 52, and your father had a heart attack at 55. These factors are important because a family history of heart disease is a risk factor for similar conditions. Signs that should be taken seriously include pressure, tightness, or discomfort in the chest, especially if they last for more than a few minutes or come back after subsiding. \n\nIf you are currently experiencing any such symptoms or chest discomfort, seek immediate help.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "emergency",
+          "wall_ms": 2862.5219590003326,
+          "red_flag_matched": true,
+          "red_flag_matched_raw": true,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:49.108861Z",
+          "trace_id": "c75646873ae349a6b79519be58d87dc1",
+          "session_id": "full-mt-m-018",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 526,
+          "completion_tokens": 38,
+          "latency_ms": 919.6154999999635,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:49.109879Z",
+          "trace_id": "c75646873ae349a6b79519be58d87dc1",
+          "session_id": "full-mt-m-018",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what screenings might be recommended based on different health conditions.",
+              "why": "This question pertains to general health guidance regarding screenings."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 920.7161670001369
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:49.109991Z",
+          "trace_id": "c75646873ae349a6b79519be58d87dc1",
+          "session_id": "full-mt-m-018",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:49.110066Z",
+          "trace_id": "c75646873ae349a6b79519be58d87dc1",
+          "session_id": "full-mt-m-018",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:51.667559Z",
+          "trace_id": "c75646873ae349a6b79519be58d87dc1",
+          "session_id": "full-mt-m-018",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 940,
+          "completion_tokens": 261,
+          "latency_ms": 2555.3954169999997,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:51.667826Z",
+          "trace_id": "c75646873ae349a6b79519be58d87dc1",
+          "session_id": "full-mt-m-018",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:51.669176Z",
+          "trace_id": "c75646873ae349a6b79519be58d87dc1",
+          "session_id": "full-mt-m-018",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:51.670268Z",
+          "trace_id": "c75646873ae349a6b79519be58d87dc1",
+          "session_id": "full-mt-m-018",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:51.671412Z",
+          "trace_id": "c75646873ae349a6b79519be58d87dc1",
+          "session_id": "full-mt-m-018",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "Does that change what I should be screened for?",
+          "answer": "Screenings often depend on individual health conditions and risk factors, including family history. While I cannot suggest specific screenings for you, I can explain common practices based on health conditions.\n\n1. **Cardiovascular Disease**: If there is a family history of heart disease, screenings like cholesterol tests and blood pressure checks are often recommended. A healthcare provider might also suggest an electrocardiogram (ECG) or stress test based on risk factors.\n\n2. **Diabetes**: Screenings for diabetes would typically involve fasting blood glucose or HbA1c tests, especially if you have obesity, high blood pressure, or high cholesterol.\n\n3. **Cancer**: Depending on risk factors and age, screenings such as mammograms for breast cancer, colonoscopies for colorectal cancer, and prostate exams might be recommended.\n\n4. **Hypertension**: Regular blood pressure checks are standard, especially if you have risk factors for heart disease.\n\n5. **Lipid Disorders**: Cholesterol screenings are commonly recommended, particularly if there is a family history of heart disease.\n\nIt’s best to have a discussion with your healthcare provider, who can recommend screenings based on your personal health profile and family history.  \nIf you have a specific health condition in mind, I can provide more detailed information about associated screenings.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3478.8019580000764,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:52.335995Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 520,
+          "completion_tokens": 40,
+          "latency_ms": 663.8990420001392,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:52.337022Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain from what age various health guidelines apply.",
+              "why": "This is a general health question regarding age criteria."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 665.0024580003446
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:52.337136Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:52.337215Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:52.999545Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 1238,
+          "completion_tokens": 24,
+          "latency_ms": 660.2281249997759,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:53.040791Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "age guidelines for health screenings",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 1,
+              "rrf_score": 0.029877369007803793
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 1,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 3,
+              "rrf_score": 0.028531243721117136
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 2,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 0,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 40.84483299993735
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:53.040900Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "age guidelines for health screenings",
+            "category": "guideline"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 40.990625000176806,
+          "source_doc_ids": [
+            "guideline-type-2-diabetes-screening",
+            "guideline-influenza-vaccination-and-antivirals",
+            "guideline-lipid-screening-and-statin-initiation",
+            "guideline-hypothyroidism-testing-and-monitoring",
+            "guideline-gerd-initial-management-and-alarm-features"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:55.558805Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2643,
+          "completion_tokens": 270,
+          "latency_ms": 2517.6743330002864,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:55.559071Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:55.560047Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:55.561116Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:53:55.562257Z",
+          "trace_id": "8e7c455eadcc443ea253ad531f04b18e",
+          "session_id": "full-mt-m-018",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "From what age?",
+          "answer": "Here are age guidelines for various health screenings and vaccinations based on common healthcare guidelines:\n\n1. **Type 2 Diabetes**: Screening is recommended for all adults starting at age **35**. Younger adults who are overweight or obese with additional risk factors should also be screened. (Source: National diabetes association standards)\n\n2. **Influenza Vaccination**: Annual vaccinations are especially important for adults aged **65 and over**, as they benefit most from higher-dose formulations. (Source: National immunization advisory committee)\n\n3. **Lipid Screening**: Adults aged **40 to 75** should be screened for cholesterol, with risk factors influencing the frequency and type of screening. (Source: Major cardiology society consensus)\n\n4. **Thyroid Testing**: Although not strictly age-related, many guidelines emphasize monitoring thyroid function in older adults, particularly if they exhibit symptoms. There is variability on treatment thresholds based on age. (Source: Endocrinology and thyroid association)\n\n5. **Gastroesophageal Reflux Disease (GERD)**: There are no specific age guidelines mentioned here, but new symptoms that arise at an older age should be evaluated carefully. (Source: Gastroenterology society clinical guideline)\n\nThese guidelines can vary based on individual health and risk factors, so it's advisable to consult with a healthcare provider for personalized recommendations.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3887.181083000087,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

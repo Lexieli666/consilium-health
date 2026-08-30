@@ -1,0 +1,255 @@
+{
+  "session_id": "full-g-cc-016",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:28.367493Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 531,
+          "completion_tokens": 48,
+          "latency_ms": 873.1497079998007,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:28.368712Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain if I10 is a complete code and what a fourth character might signify.",
+              "why": "A classification question with no symptom and no evidence component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 874.4462919999023
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:28.368799Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:28.368853Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:29.066291Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 734,
+          "completion_tokens": 17,
+          "latency_ms": 695.9670000001097,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:29.111077Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "I10",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 0,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 0,
+              "rrf_score": 0.029709507042253523
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-icd10-chapter-06-nervous",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 0,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 44.347375000143074
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:29.111292Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "I10"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 44.597708999845054,
+          "source_doc_ids": [
+            "coding-hypertension-i10",
+            "coding-icd10-chapter-09-circulatory",
+            "coding-icd10-cm-code-structure-and-conventions",
+            "coding-icd10-cm-versus-who-icd10",
+            "coding-icd10-chapter-04-endocrine"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:30.676518Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3678,
+          "completion_tokens": 130,
+          "latency_ms": 1565.0195419998454,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:30.676744Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:30.677205Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:30.677745Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:30.678449Z",
+          "trace_id": "d68015fe09b340a89a5a88666adc0f25",
+          "session_id": "full-g-cc-016",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Is I10 a complete code, or does it need a fourth character?",
+          "answer": "The ICD-10 code I10 is indeed a complete code. It is used to represent essential or primary hypertension. Unlike most ICD-10 codes, which need a fourth, fifth, or even sixth character to provide additional details, I10 requires none. This means you cannot add more specificity to I10; it covers high blood pressure described in various ways, such as arterial or systemic, broadly without needing further classification.\n\nThis information comes from the document titled \"Coding hypertension: I10 and the hypertensive disease family,\" which states that this three-character code is unique in being complete without further characters (source: coding-hypertension-i10).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3182.5891250000495,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

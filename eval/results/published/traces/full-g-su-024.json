@@ -1,0 +1,339 @@
+{
+  "session_id": "full-g-su-024",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:55.421082Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 531,
+          "completion_tokens": 43,
+          "latency_ms": 720.6116249999468,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:55.422263Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently these urinary symptoms need care and group them by body system.",
+              "why": "A symptom description indicating potential urgency."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 721.8944169999304
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:55.422368Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:55.422426Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:56.512679Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 767,
+          "completion_tokens": 78,
+          "latency_ms": 1088.938374999998,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:56.570022Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Burning when I pee and going more often since yesterday, no temperature.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 3,
+              "rrf_score": 0.030798389007344232
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.029726775956284153
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.029437229437229435
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.029411764705882353
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 56.50791700008995
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:56.570227Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Burning when I pee and going more often since yesterday, no temperature."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 57.20620800002507,
+          "source_doc_ids": [
+            "red-flag-sepsis",
+            "condition-urinary-tract-infection",
+            "condition-gerd",
+            "lifestyle-heart-failure-diet",
+            "red-flag-chest-pain"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:56.588619Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "Burning when I pee and going more often since yesterday, no temperature.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.030117753623188408
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.03007688828584351
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 1,
+              "rrf_score": 0.027777777777777776
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.026856524873828405
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.025833333333333333
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 17.942375000075117
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:56.588726Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "Burning when I pee and going more often since yesterday, no temperature."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 18.235416000152327,
+          "source_doc_ids": [
+            "condition-urinary-tract-infection",
+            "condition-gerd",
+            "condition-insomnia",
+            "condition-migraine",
+            "condition-hypertension"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:58.060456Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3400,
+          "completion_tokens": 143,
+          "latency_ms": 1471.524208000119,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:58.060752Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:58.061367Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:58.062152Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:58.062950Z",
+          "trace_id": "da72d76ef0f942ee99e0022c217abef4",
+          "session_id": "full-g-su-024",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Burning when I pee and going more often since yesterday, no temperature.",
+          "answer": "Your urinary symptoms of burning during urination and increased frequency since yesterday are categorized as needing **routine care**. While there is no emergency pattern associated with this description, you should contact a clinician if your symptoms are severe, worsening, or new and unexplained.\n\nThese symptoms primarily involve the **urinary system**. A common condition that might be related to your symptoms is a **urinary tract infection** (UTI), which often presents with burning during urination and increased frequency (source: \"Urinary tract infection\", General clinical reference).\n\nFor a complete understanding and to rule out any other potential issues, it's advisable to consult a healthcare provider. They can help determine the underlying cause and necessary steps for treatment.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3360.503124999923,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "session_id": "full_no_memory-g-cc-030",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:48.525488Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 536,
+          "completion_tokens": 45,
+          "latency_ms": 679.1821659999187,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:48.526758Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain which chapter an underlying bleeding ulcer would be coded from.",
+              "why": "It is a classification question without any symptom or evidence component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 680.5237079997823
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:48.526873Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:48.526948Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:49.188337Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 735,
+          "completion_tokens": 18,
+          "latency_ms": 655.5000839998684,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:49.232689Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "bleeding ulcer",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 1,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 3,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 3,
+              "rrf_score": 0.029910714285714284
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 2,
+              "rrf_score": 0.029877369007803793
+            },
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 2,
+              "rrf_score": 0.02844551282051282
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 3,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 1,
+              "rrf_score": 0.013157894736842105
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 43.94158300056006
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:49.232871Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "bleeding ulcer"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 44.159332999697654,
+          "source_doc_ids": [
+            "coding-gerd-k21",
+            "coding-icd10-chapter-03-blood",
+            "coding-icd10-chapter-11-digestive",
+            "coding-icd10-chapter-09-circulatory",
+            "coding-type-2-diabetes-e11"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:50.334064Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2937,
+          "completion_tokens": 101,
+          "latency_ms": 1101.002082999912,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:50.334280Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:50.334748Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:50.335289Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:06:50.335739Z",
+          "trace_id": "475538af328c415da10a3868ca97f60f",
+          "session_id": "full_no_memory-g-cc-030",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Iron deficiency anemia sits in the blood chapter. Which chapter would an underlying bleeding ulcer be coded from?",
+          "answer": "An underlying bleeding ulcer would be coded from Chapter 11 of the ICD-10, which covers diseases of the digestive system (K00-K95). This chapter includes categories related to gastrointestinal bleeding, such as hematemesis (vomiting blood) and melena (black, tarry stools), as well as unspecified gastrointestinal hemorrhage.\n\nThis information comes from the summary on coding in Chapter 11 of the ICD-10 coding guidelines, which states that certain bleeding presentations are categorized within this chapter.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 2488.184041999375,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

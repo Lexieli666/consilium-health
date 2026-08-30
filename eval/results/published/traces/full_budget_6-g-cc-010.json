@@ -1,0 +1,255 @@
+{
+  "session_id": "full_budget_6-g-cc-010",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:07.864301Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 536,
+          "completion_tokens": 49,
+          "latency_ms": 827.941374999682,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:07.865664Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain how asthma exacerbations are coded, including if additional codes are needed.",
+              "why": "This is a classification question related to a condition and its coding."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 829.3769590000011
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:07.865791Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:07.865855Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:08.581958Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 738,
+          "completion_tokens": 23,
+          "latency_ms": 714.5273749993066,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:08.633417Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "asthma with an acute exacerbation",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 2,
+              "rrf_score": 0.0315136476426799
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 1,
+              "rrf_score": 0.03055037313432836
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 1,
+              "rrf_score": 0.027222222222222224
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 3,
+              "rrf_score": 0.026709401709401708
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 2,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 3,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 0,
+              "rrf_score": 0.013157894736842105
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 51.08370800007833
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:08.633735Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "asthma with an acute exacerbation"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 51.43458299971826,
+          "source_doc_ids": [
+            "coding-asthma-j45",
+            "coding-copd-j44",
+            "coding-icd10-chapter-10-respiratory",
+            "coding-heart-failure-i50",
+            "coding-gerd-k21"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:10.526458Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3161,
+          "completion_tokens": 177,
+          "latency_ms": 1892.4333340000885,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:10.526732Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:10.527657Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:10.528598Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:10.529717Z",
+          "trace_id": "2d8f2f6f9c164768bd47bfd7a79d32d7",
+          "session_id": "full_budget_6-g-cc-010",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Asthma with an acute exacerbation: is that one code, or a code plus something else?",
+          "answer": "When coding for asthma with an acute exacerbation, it generally requires one main code. According to the **US clinical modification of ICD-10** guidelines, asthma codes fall under the category **J45**. However, it's important to note that if there are additional respiratory-related conditions or complications present, separate codes may also be necessary.\n\nIn situations of \"status asthmaticus,\" which indicates a severe attack that has not responded to treatment, a different code is used (one for status asthmaticus), and this would replace the acute exacerbation code rather than being an addition.\n\nIf any additional respiratory conditions are documented in conjunction with asthma, those would need their own codes as well. This specificity ensures accurate representation of a patient's health status.\n\nFor asthma with an acute exacerbation, verify the documentation to determine if any additional codes apply, particularly for associated conditions or complications.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3490.6441249995623,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}
