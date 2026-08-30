@@ -14,6 +14,7 @@ from eval.metrics import (
     UsageReport,
 )
 from eval.report import (
+    KAPPA_USABILITY_THRESHOLD,
     NOT_APPLICABLE,
     NOT_MEASURED,
     ConfigResult,
@@ -160,7 +161,30 @@ def test_the_report_says_the_judge_is_unvalidated_until_it_is_measured() -> None
     validated = _result(
         "full", judge=JudgeReport(human_agreement=0.9, cohens_kappa=0.72, n_human_labeled=40)
     )
-    assert "Cohen's kappa 0.720" in render_markdown(_summary(validated))
+    rendered = render_markdown(_summary(validated))
+    assert "Cohen's kappa 0.720" in rendered
+    # Above the line, so the number stands on its own with nothing attached to it.
+    assert "usability line" not in rendered
+
+
+def test_a_kappa_below_the_usability_line_is_caveated_beside_the_faithfulness_numbers() -> None:
+    """The state this project is in, and it is not the same claim as "unvalidated".
+
+    Round 2 measured `faithfulness_v2` at kappa 0.592 (docs/EVALUATION.md section 4.2), 0.008 short
+    of the line, and the owner's decision was to publish faithfulness with that attached rather than
+    revise a third time. The caveat is rendered from the measured kappa rather than written as a
+    fixed string, so a later round that clears the line removes it with no edit here.
+    """
+    measured = _result(
+        "full", judge=JudgeReport(human_agreement=0.8, cohens_kappa=0.592, n_human_labeled=40)
+    )
+
+    text = render_markdown(_summary(measured))
+
+    assert "Cohen's kappa 0.592" in text
+    assert f"(n=40, blind, below the {KAPPA_USABILITY_THRESHOLD} usability line)" in text
+    assert "has **not been measured**" not in text
+    assert "unvalidated" not in text
 
 
 def test_the_report_explains_why_cost_is_not_measured() -> None:

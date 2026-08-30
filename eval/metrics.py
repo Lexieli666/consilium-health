@@ -37,7 +37,7 @@ Definitions that are easy to get subtly wrong, and are therefore stated here:
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from statistics import median
 
@@ -510,7 +510,7 @@ class UsageReport:
 def usage_report(
     scored: Sequence[tuple[GoldenItem, Sequence[TraceEvent]]],
     *,
-    pricing: dict[str, dict[str, float]] | None = None,
+    pricing: Mapping[str, Mapping[str, float]] | None = None,
 ) -> UsageReport:
     """Tokens and tool calls per turn, and cost when every model used has a published rate.
 
@@ -543,13 +543,10 @@ def usage_report(
 
         for call in llm_calls:
             by_caller[call.caller] += call.prompt_tokens + call.completion_tokens
-            rate = _rate(pricing, call.provider, call.model)
-            if rate is None:
-                unpriced.setdefault(f"{call.provider}/{call.model}", None)
-            else:
-                cost_total += (
-                    call.prompt_tokens * rate["input"] + call.completion_tokens * rate["output"]
-                ) / 1_000_000
+        spent, missing = llm_call_cost(llm_calls, pricing=pricing)
+        cost_total += spent
+        for name in missing:
+            unpriced.setdefault(name, None)
 
         route = route_event(events)
         if route is not None:
@@ -584,15 +581,49 @@ def usage_report(
 # --------------------------------------------------------------------------------------------
 
 
-def _rate(
-    pricing: dict[str, dict[str, float]] | None, provider: str, model: str
-) -> dict[str, float] | None:
+def rate_for(
+    pricing: Mapping[str, Mapping[str, float]] | None, provider: str, model: str
+) -> Mapping[str, float] | None:
+    """The token rate for one model, or ``None`` when ``eval/pricing.yaml`` does not carry it.
+
+    Public because two callers need the same answer to the same question: ``usage_report`` prices
+    a finished sweep, and ``--max-cost`` has to refuse a cap before the sweep starts, since a run
+    whose model has no rate cannot be capped.  Two lookups would be free to disagree about which
+    key form counts as priced, and the cap would then be enforced against a model the report
+    lists under ``unpriced_models``.
+    """
     if not pricing:
         return None
     entry = pricing.get(f"{provider}/{model}") or pricing.get(model)
     if not entry or "input" not in entry or "output" not in entry:
         return None
     return entry
+
+
+def llm_call_cost(
+    events: Iterable[TraceEvent], *, pricing: Mapping[str, Mapping[str, float]] | None = None
+) -> tuple[float, tuple[str, ...]]:
+    """Dollars spent by the ``llm_call`` events, and the models that had no rate to price.
+
+    The two halves are returned together on purpose.  An unpriced model contributes **nothing** to
+    the total, so a caller that took the float alone would be handed an undercount that reads as a
+    complete figure -- which is the same error ``unpriced_models`` exists to prevent in the report.
+
+    Computed from the trace and nothing else, like every other number in this module: the tokens
+    are the ones the provider reported and the tracer recorded, not a re-tokenization of the
+    prompts.
+    """
+    total = 0.0
+    unpriced: dict[str, None] = {}
+    for call in of_type(events, LLMCallEvent):
+        rate = rate_for(pricing, call.provider, call.model)
+        if rate is None:
+            unpriced.setdefault(f"{call.provider}/{call.model}", None)
+            continue
+        total += (
+            call.prompt_tokens * rate["input"] + call.completion_tokens * rate["output"]
+        ) / 1_000_000
+    return total, tuple(unpriced)
 
 
 def _mean(values: Iterable[float]) -> float | None:

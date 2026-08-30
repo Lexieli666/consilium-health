@@ -11,9 +11,12 @@ structurally undefined for a configuration is written **`n/a`**. Neither is ever
 **Current state: the golden set is labelled and frozen; no sweep has been published, so no results
 number has been measured yet.** Every results number in this document and in the README reads
 `not measured` until a sweep has been run against the frozen set and its `summary.json` committed.
-The one measurement that exists is judge validation round 1 (§4.1): a `full` pass over the golden
-set fed a 40-item sample to a human labeller, the judge agreed with them at kappa 0.350, and the
-judge prompt was revised as a consequence. Two of the four label fields were written by hand and
+The measurements that exist are the two judge-validation rounds (§4.1, §4.2): a `full` pass over the
+golden set fed a 40-item sample to a human labeller and the judge agreed with them at kappa 0.350;
+the prompt was revised and a second, disjoint 40-item sample scored kappa 0.592 — 0.008 below the
+0.6 usability line, which the owner decided on 2026-08-30 to report rather than revise again. Every
+faithfulness number therefore carries **judge agreement kappa = 0.592 (n=40, blind, below the 0.6
+usability line)** beside it. Two of the four label fields were written by hand and
 two were written by a model and knowingly left unverified — see §1.1.1 and §1.5, which are the
 parts of this document an interviewer should read first.
 
@@ -537,9 +540,10 @@ commit. Editing a question is a larger act than that: the labels are attached to
 wording, so a rewritten question carries a label written about a different question.
 
 **Not frozen, and still to do:** nothing in the data. **No sweep has been published against either
-file**, so every results number in §6 and in the README reads `not measured`, and the judge is
-unvalidated — measured once, at kappa 0.350, which is why the prompt was revised and why the word
-still applies (§4.1).
+file**, so every results number in §6 and in the README reads `not measured`. The judge has been
+validated twice — kappa 0.350 on `faithfulness_v1` and 0.592 on the revised `faithfulness_v2`, the
+second 0.008 below the usability line and reported with that caveat attached rather than revised
+again (§4.1, §4.2).
 
 **A frozen file can still be edited; it cannot be edited silently.** Every post-freeze change to
 either file is logged in §1.6 with the item id, what changed, why, and the digest on both sides of
@@ -1000,8 +1004,18 @@ Cohen's kappa is reported alongside raw agreement because the label distribution
 raters who both mostly say "supported" agree about 90% of the time by chance, and a raw number alone
 would read as a validated judge.
 
-**Judge agreement: measured once, and it failed.** Round 1 is recorded in §4.1. The judge remains
-an unvalidated instrument, and every faithfulness number carries that caveat until a round passes.
+**Judge agreement: measured twice.** Round 1 (§4.1) scored `faithfulness_v1` at kappa 0.350 and
+failed. The prompt was revised and round 2 (§4.2) scored `faithfulness_v2` at **kappa 0.592 on a
+fresh, disjoint sample** — an improvement of 0.242, and 0.008 short of the 0.6 usability line. The
+owner's decision of 2026-08-30 was to stop revising and invoke the validation procedure's low-kappa
+reporting clause, so **the judge is a measured instrument that did not reach the usability line**,
+and every faithfulness number is published with
+
+> judge agreement kappa = 0.592 (n=40, blind, below the 0.6 usability line)
+
+beside it, in those words or equivalent. That is a different claim from "unvalidated", which is what
+this document said between round 1 and round 2 and no longer says: an unvalidated instrument has no
+measured agreement at all, and this one has two.
 
 ### 4.1 Round 1 — 2026-08-29, `faithfulness_v1`: raw agreement 0.675, kappa 0.350
 
@@ -1016,7 +1030,7 @@ an unvalidated instrument, and every faithfulness number carries that caveat unt
 | raw agreement | **0.675** (27 of 40) |
 | Cohen's kappa | **0.350** |
 | decision rule | below the 0.4 line: the instrument is not measuring what it is supposed to measure |
-| consequence | the prompt was revised to `faithfulness_v2`; re-validation is **pending on a fresh sample** |
+| consequence | the prompt was revised to `faithfulness_v2` and re-validated on a fresh sample: §4.2 |
 
 The sentence in the sampling-method row is the one `eval/run.py` wrote to `judge_sample_method.txt`
 beside the CSV, copied verbatim rather than re-described: the seed is what lets a reviewer re-run the
@@ -1103,9 +1117,99 @@ restratifying over the survivors, would change the sampling method the first rou
 computed under. With 40 items excluded from 150 each block still holds 22, so a second 40-item round
 is drawable.
 
-**Until a round passes, the caveat stays.** `faithfulness_v2` is unvalidated in exactly the sense
-`v1` was before round 1: it has produced no measured agreement with a human at all. Faithfulness is
-reported with that stated, in those words, wherever it is reported.
+### 4.2 Round 2 — 2026-08-30, `faithfulness_v2`: raw agreement 0.800, kappa 0.592
+
+| | |
+|---|---|
+| judge model | `gpt-4o-mini` |
+| judge prompt | `eval/judges/faithfulness_v2.md` |
+| configuration sampled | `full` |
+| n | 40 |
+| sampling method | 40 rows from config `full`, stratified over 5 item-id blocks (g-cc, g-ge, g-gh, g-md, g-su) at 8 per block, shuffled with random.Random(20260901), excluding the 40 item id(s) drawn by eval/results/20260829T202140Z/judge_sample.csv; 1 row(s) the judge could not score (g-cc-005) were excluded and replaced from within their own block |
+| labelled | by hand, **blind** |
+| raw agreement | **0.800** (32 of 40) |
+| Cohen's kappa | **0.592** |
+| decision rule | 0.008 below the 0.6 usability line — weak, not usable as stated |
+| consequence | the owner invoked the low-kappa reporting clause, 2026-08-30. No third revision cycle; `faithfulness_v2` stays as it is, and every faithfulness number is published with the kappa beside it |
+
+The sampling-method row is the sentence `eval/run.py` wrote to `judge_sample_method.txt` beside the
+CSV, copied verbatim rather than re-described.
+
+**The sample is disjoint from round 1's by construction, not by luck.** `--exclude-sample` removed
+round 1's forty `item_id` values from each block's candidates **before** the shuffle, and
+`--sample-seed 20260901` moved the shuffle as well; both are recorded in the sentence above. This is
+the property that makes the number mean anything: `v2` was written against round 1's thirteen
+disagreements, so scoring it on those items would have measured how well the revision was fitted to
+them. One row — `g-cc-005` — came back with nothing the judge could score and was replaced from
+within its own block, so the strata stayed at eight each.
+
+**The sample was labelled blind**, in those words, by the same procedure as round 1: `judge_label`
+and `judge_rationale` hidden in the spreadsheet before the first row was read, and the labeller
+working from `sources_text`, the numbered excerpts the judge itself was shown.
+
+**The confusion matrix**, rows = judge, columns = human:
+
+| | human `supported` | human `unsupported` | judge total |
+|---|---|---|---|
+| **judge `supported`** | 13 | 5 | 18 |
+| **judge `unsupported`** | 3 | 19 | 22 |
+| **human total** | 16 | 24 | 40 |
+
+**No rare class.** Judge 18/22, human 16/24; the smallest cell margin is 16 of 40, well clear of the
+10% line at which `kappa.py` warns that the chance correction has nothing to correct against. The
+chance-agreement term is (18/40)(16/40) + (22/40)(24/40) = 0.510, and kappa is
+(0.800 − 0.510) / (1 − 0.510) = 0.592. The stratified redraw the procedure prescribes for a
+degenerate marginal is not needed here, and reporting kappa alone is not misleading in the way it
+would be on a skewed sample.
+
+**The decision: below the line by 0.008, and reported rather than re-revised.** The validation
+procedure's rule puts 0.4–0.6 at "weak: revise the judge prompt, re-validate on a fresh sample", and
+carries a clause for an instrument that stays low — report faithfulness with the kappa caveat
+attached rather than dropping the metric. The owner invoked that clause on 2026-08-30 rather than
+running a third revision cycle. `faithfulness_v2` is left exactly as it is, and the consequence is
+carried in the reporting: **every faithfulness number this project publishes carries
+"judge agreement kappa = 0.592 (n=40, blind, below the 0.6 usability line)", or equivalent wording,
+beside it.** `eval/report.py` renders that sentence into `report.md`'s judge paragraph from the
+measured kappa itself, against `KAPPA_USABILITY_THRESHOLD`, so a future round that clears the line
+removes the caveat with no edit to the renderer.
+
+**0.008 is not a rounding artifact and is not treated as one.** 0.592 is `(0.800 − 0.510) / 0.490`
+to six figures, and a number that misses a threshold by a hundredth is still a number that misses
+it. Rounding 0.592 up to "about 0.6" would be the one move this record exists to make impossible.
+What the margin does mean is that the 0.6 line is a convention, not a measurement, and that at n=40
+neither 0.592 nor the line has anything like that much precision — which is a reason to publish the
+n and the matrix alongside, not a reason to publish the number as a pass.
+
+**The improvement is attributable to the revision.** 0.350 → 0.592, +0.242, across two samples that
+share no item. The judge model, the sampled configuration, the golden set, the blind procedure, the
+labeller and the rubric were the same in both rounds; the prompt is the only thing that changed, and
+the second sample is not the one the prompt was written against. That is as clean an attribution as
+this design can produce. It is still two single samples of 40, so the *size* of the gain is not
+estimated to better than a wide interval — the claim being made is about the direction and its
+cause, not about 0.242 as a quantity.
+
+**What is still disagreeing, and how the failure modes moved.** Eight items of 40, against round 1's
+thirteen:
+
+| | round 1 (`v1`) | round 2 (`v2`) |
+|---|---|---|
+| judge too strict (judge `unsupported`, human `supported`) | 9 | 3 |
+| judge too loose (judge `supported`, human `unsupported`) | 4 | 5 |
+| total disagreements | 13 | 8 |
+
+`v2`'s changes were aimed at both halves, and the strict half is where they landed: 9 → 3, which is
+most of the improvement. The loose half did not move (4 → 5, one item on a sample of 40, which is
+noise). So the residual disagreement is now mostly the judge accepting a claim a person would not,
+and a third revision cycle would have to be aimed there — at the specific-attribute check rather
+than at what counts as a claim. That is written down because it is the starting point for any later
+round, not because a later round is planned.
+
+**One note about the prompt file.** `eval/judges/faithfulness_v2.md`'s header still describes itself
+as unvalidated with re-validation pending, which is what was true when it was written and is
+superseded by this section. It is left unedited deliberately: it is the file that produced the
+0.592, the header sits above the `---` separator and is never sent to the model, and the numbers a
+prompt produced have to stay readable beside the prompt exactly as it stood. This section is the
+record; the header is provenance.
 
 ---
 
@@ -1117,7 +1221,8 @@ this repository that costs money.
 ```bash
 python -m eval.run --help
 python -m eval.run --config full --limit 10      # smoke test before spending on the sweep
-python -m eval.run                                # the full ablation
+python -m eval.run --max-cost 30                  # the full ablation, under a spend cap
+python -m eval.run                                # the full ablation, uncapped
 consilium eval --config full --limit 10           # the same thing through the CLI
 ```
 
@@ -1152,6 +1257,32 @@ list at the time of the run; `summary.json` records the rates that were used. Wh
 entry, cost is reported as `not measured` and the model is listed under `unpriced_models` — never as
 a partial total, which reads as a complete one.
 
+**`--max-cost USD` is the spend guard, and it is a different tool from `--limit`.** `--limit` sizes
+a run by items, which is what the `--limit 10` smoke test is for: nobody knows what an item costs
+until one has run. `--max-cost` bounds the run **after** that one by money.
+
+- It accumulates the sweep's cost from `llm_call` trace events, priced through `eval/pricing.yaml`
+  by the same lookup the results table uses. Computed from the trace and nothing else, like every
+  other number here.
+- It is enforced **between** items: when the cumulative cost passes the cap, no further item starts.
+  Nothing kills a turn part-way, because a trace file whose `turn` event never arrived is an item
+  every metric in `eval/metrics.py` would silently drop — so the overshoot is bounded by one item's
+  cost, and the item it overshot on is a complete item.
+- On abort the run still writes `summary.json` and `report.md`. They carry a `cost_cap` record —
+  the cap, the spend, the configuration and item it stopped after, and how many of the planned items
+  completed — the same sentence goes to stderr and into the report **above the ablation table**, and
+  the exit status is **3**, distinct from the `2` every argument error uses so a CI job can tell the
+  cap firing from a bad command line. A partial sweep's ablation row looks exactly like a complete
+  one, which is why the marker reaches the reader before the numbers do.
+- **A run whose model has no `eval/pricing.yaml` entry cannot be capped, and the flag is refused**
+  rather than defaulting to free — refused before the runtime is built, so no item is paid for to
+  discover that the guard could never have fired. Since the file ships empty, `--max-cost` is
+  refused on a fresh checkout until the operator fills in the rates. The same condition met
+  mid-sweep, in a model that appears in the trace with no rate, aborts for the same reason.
+- **It bounds the sweep, not the bill.** The judge talks to the provider directly and nothing traces
+  it, so no cost for its calls exists in the trace and the cap cannot cover them. Every place the
+  figure is published says so. `--no-judge` is what bounds that half.
+
 ### 5.2 Results
 
 `eval/run.py` writes `eval/results/<timestamp>/{report.md, summary.json}` plus the full traces under
@@ -1160,7 +1291,9 @@ the timestamped directories are not**. A published number whose evidence is giti
 no reviewer can check.
 
 `summary.json` records the commit, the date, the provider and model, the judge model, the golden-set
-path, the Python version and platform, and the pricing source, alongside every metric.
+path, the Python version and platform, and the pricing source, alongside every metric. When the run
+was capped it also records `cost_cap`; when the cap fired, that record and the exit status are what
+say the run is partial and its numbers are not a sweep result.
 
 ---
 
@@ -1208,12 +1341,17 @@ share vocabulary because the same person chose both. `scripts/ingest_medquad.py`
 can be pointed at an external corpus, and any run against one should be reported separately.
 
 **The judge is the same family of model as the system.** Self-preference in LLM judging is
-documented and real. This is what the human-agreement loop in §4 exists to bound. It has now been
-run once: `faithfulness_v1` scored kappa 0.350 against a hand-labelled blind sample of 40 (§4.1),
-below the line at which the instrument measures what it is supposed to. The prompt was revised to
-`faithfulness_v2` and re-validation on a fresh sample is pending, so the faithfulness numbers still
-come from an unvalidated instrument — now with a measured reason to think so rather than an
-unexamined one.
+documented and real. This is what the human-agreement loop in §4 exists to bound, and it has now
+been run twice. `faithfulness_v1` scored kappa 0.350 against a hand-labelled blind sample of 40
+(§4.1), below the line at which the instrument measures what it is supposed to; the revised
+`faithfulness_v2` scored **0.592 on a fresh, disjoint sample of 40** (§4.2), which is 0.008 short of
+the 0.6 usability line. The owner decided on 2026-08-30 to report faithfulness with that kappa
+attached rather than run a third revision cycle, so **every faithfulness number in this document and
+in the README carries "judge agreement kappa = 0.592 (n=40, blind, below the 0.6 usability line)"**.
+Read those numbers as coming from an instrument whose agreement with a person has been measured and
+is short of usable — not as unvalidated, and not as validated. The residual disagreement is now
+mostly the judge being too loose (5 of the 8, §4.2), so the direction of the remaining error is
+towards flattering the system.
 
 **The coding block is narrower than it looks.** Seven of sixteen conditions have a per-condition
 code-selection note; the rest are covered at chapter level (`docs/CORPUS.md`). The 30

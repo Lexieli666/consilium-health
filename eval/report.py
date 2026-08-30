@@ -46,6 +46,12 @@ from eval.metrics import (
 #: What a metric renders as when it has no value.
 NOT_MEASURED = "not measured"
 
+#: The Cohen's kappa at which a judge counts as a usable instrument, from the A2 validation
+#: procedure's decision rule.  Below it the faithfulness numbers are still published -- the
+#: procedure's low-kappa clause says to report them with the caveat attached rather than to drop
+#: the metric -- but the caveat is rendered beside them rather than left in `docs/EVALUATION.md`.
+KAPPA_USABILITY_THRESHOLD = 0.6
+
 #: What a cell renders as when the metric is structurally undefined for that configuration.
 NOT_APPLICABLE = "n/a"
 
@@ -134,11 +140,66 @@ class JudgeReport:
     multiturn_unresolved: float | None = None
     multiturn_misresolved: float | None = None
     n_conversations: int = 0
-    #: Raw agreement and Cohen's kappa against a human sample.  ``None`` until
-    #: ``--score-judge`` has been run; until then docs/EVALUATION.md says the judge is unvalidated.
+    #: Raw agreement and Cohen's kappa against a human sample.  ``None`` when no validation round
+    #: has been scored, and the report then says the judge is unvalidated in those words.  Two
+    #: rounds have been scored (``docs/EVALUATION.md`` §4.1 and §4.2); the second measured
+    #: ``faithfulness_v2`` at kappa 0.592, below :data:`KAPPA_USABILITY_THRESHOLD`, so a populated
+    #: value here still renders a caveat beside every faithfulness number.
     human_agreement: float | None = None
     cohens_kappa: float | None = None
     n_human_labeled: int = 0
+
+
+@dataclass(frozen=True)
+class CostCap:
+    """The spend cap a sweep ran under, and where it stopped if it hit one.
+
+    Recorded whenever ``--max-cost`` was passed, not only when it fired: a run that finished under
+    its cap and a run that had no cap are different runs, and a reader comparing two
+    ``summary.json`` files has to be able to tell which one the numbers came from.
+
+    ``spent_usd`` is the sweep's traced ``llm_call`` cost.  It is **not** the run's whole bill: the
+    judge's own calls go straight to the provider and are never traced, so nothing in this
+    repository can price them from the trace, and a cap computed from the trace cannot cover them.
+    :meth:`sentence` says so rather than letting the figure read as a total.
+    """
+
+    cap_usd: float
+    spent_usd: float
+    #: Traced ``llm_call`` cost was over the cap, so the sweep stopped and no further item started.
+    aborted: bool = False
+    aborted_at_config: str | None = None
+    aborted_after_item: str | None = None
+    items_completed: int = 0
+    items_planned: int = 0
+    #: Models seen in the trace with no ``eval/pricing.yaml`` entry.  Non-empty means the cap
+    #: stopped being enforceable partway through, which is itself an abort reason.
+    unpriced_models: tuple[str, ...] = ()
+
+    def sentence(self) -> str:
+        """The one line ``report.md`` and ``summary.json`` both carry."""
+        scope = (
+            "the sweep's traced llm_call events only; the judge's own calls are not traced and "
+            "are not counted"
+        )
+        if not self.aborted:
+            return (
+                f"**Spend cap.** Ran under `--max-cost {self.cap_usd:.2f}` and finished at "
+                f"${self.spent_usd:.4f} over {self.items_completed} item(s) ({scope})."
+            )
+        reason = (
+            f"a model with no entry in `eval/pricing.yaml` appeared in the trace "
+            f"({', '.join(self.unpriced_models)}), so the cap could no longer be enforced"
+            if self.unpriced_models
+            else f"cumulative cost passed the ${self.cap_usd:.2f} cap"
+        )
+        return (
+            f"**ABORTED ON THE SPEND CAP.** {reason}. The sweep stopped after "
+            f"`{self.aborted_after_item}` in config `{self.aborted_at_config}`, having completed "
+            f"{self.items_completed} of {self.items_planned} planned item(s) at "
+            f"${self.spent_usd:.4f} ({scope}). **This run is partial and its numbers are not a "
+            "sweep result.**"
+        )
 
 
 @dataclass(frozen=True)
@@ -174,6 +235,9 @@ class RunSummary:
     pricing_source: str
     #: Provenance of the reference the retrieval and faithfulness numbers were computed against.
     unverified_labels: UnverifiedLabels = field(default_factory=UnverifiedLabels)
+    #: ``None`` when the run was uncapped.  Present -- and possibly ``aborted`` -- when
+    #: ``--max-cost`` was passed.
+    cost_cap: CostCap | None = None
     results: list[ConfigResult] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
@@ -254,6 +318,12 @@ def render_markdown(summary: RunSummary) -> str:
         "`not measured` means the number was not produced by this run. `n/a` means the cell is",
         "structurally undefined for that configuration. Neither is ever filled in by hand.",
         "",
+    ]
+    # Above the table rather than below it.  A partial sweep's ablation row looks exactly like a
+    # complete one, so a reader who meets the table first has already read the numbers as a result.
+    if summary.cost_cap is not None:
+        lines += [summary.cost_cap.sentence(), ""]
+    lines += [
         "## Ablation",
         "",
         f"| configuration | routing acc | recall@5{caveat} | faithfulness retrieved{caveat} |"
@@ -427,14 +497,7 @@ def _config_section(result: ConfigResult, unverified: UnverifiedLabels) -> list[
         f"(prompt `{judge.prompt_version or NOT_MEASURED}`)."
         + _reference_caveat(unverified, "reference_answer", "relevant_doc_ids"),
         "",
-        "**Judge validation.** "
-        + (
-            f"raw agreement {fmt(judge.human_agreement)}, Cohen's kappa "
-            f"{fmt(judge.cohens_kappa)}, over n={judge.n_human_labeled} human-labelled items."
-            if judge.human_agreement is not None
-            else "Agreement with a human has **not been measured**. The faithfulness numbers"
-            " above therefore come from an unvalidated instrument, and must be read that way."
-        ),
+        "**Judge validation.** " + _judge_validation_sentence(judge),
         "",
         "**Multi-turn.** "
         f"resolved {fmt(judge.multiturn_resolved)}; unresolved {fmt(judge.multiturn_unresolved)}; "
@@ -442,6 +505,34 @@ def _config_section(result: ConfigResult, unverified: UnverifiedLabels) -> list[
         "",
     ]
     return lines
+
+
+def _judge_validation_sentence(judge: JudgeReport) -> str:
+    """What the faithfulness numbers above this line may be read as.
+
+    Three states, and the middle one is the one this project is in.  Unmeasured agreement is an
+    unvalidated instrument.  Agreement measured **below** :data:`KAPPA_USABILITY_THRESHOLD` is a
+    measured instrument that did not reach the usability line, which is a different and more
+    informative claim -- and the caveat then travels in the paragraph that reports the number,
+    for the same reason the unverified-reference disclosure sits in the table rather than in a
+    footnote.  Agreement at or above the line needs no caveat.
+    """
+    if judge.human_agreement is None or judge.cohens_kappa is None:
+        return (
+            "Agreement with a human has **not been measured**. The faithfulness numbers above "
+            "therefore come from an unvalidated instrument, and must be read that way."
+        )
+    measured = (
+        f"raw agreement {fmt(judge.human_agreement)}, Cohen's kappa {fmt(judge.cohens_kappa)}, "
+        f"over n={judge.n_human_labeled} human-labelled items."
+    )
+    if judge.cohens_kappa >= KAPPA_USABILITY_THRESHOLD:
+        return measured
+    return (
+        f"{measured} **Judge agreement kappa = {judge.cohens_kappa:.3f} "
+        f"(n={judge.n_human_labeled}, blind, below the {KAPPA_USABILITY_THRESHOLD} usability "
+        "line).** Every faithfulness number above carries that, in those words or equivalent."
+    )
 
 
 def _reference_caveat(unverified: UnverifiedLabels, *fields: str) -> str:

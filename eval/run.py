@@ -16,6 +16,20 @@ Four commands, matching the brief:
 ``--human-sample N``    write ``judge_sample.csv`` for a person to label.  Requires ``--config``.
 ``--score-judge PATH``  read a completed sample and report agreement and Cohen's kappa.
 
+one that bounds what a sweep may spend:
+
+``--max-cost USD``      stop once the traced ``llm_call`` cost passes the cap.
+
+``--limit`` sizes a run by items and ``--max-cost`` bounds it by money, and the two are not
+interchangeable: the point of the sweep is that nobody knows in advance what an item costs, which
+is what ``--limit 10`` is run to find out.  The cap is the guard for the run after that one.  It is
+enforced **between** items, from the events the tracer wrote -- so no turn is killed part-way
+(a trace file with no ``turn`` event is an item every metric in ``eval/metrics.py`` would drop),
+and the overshoot is bounded by one item.  It counts the sweep's traced calls only; the judge talks
+to the provider directly and nothing traces it, so the cap bounds the sweep rather than the bill and
+every place the figure is published says which.  A model with no ``eval/pricing.yaml`` rate cannot
+be capped at all, and the flag is refused rather than defaulting to free.
+
 and two that exist only so a **second** validation round can be drawn:
 
 ``--sample-seed INT``      shuffle the draw with this seed instead of :data:`SAMPLE_SEED`.
@@ -66,6 +80,7 @@ from consilium.config import ABLATION_PRESETS, PRESETS, Settings, get_preset
 from consilium.log import configure_logging, get_logger
 from consilium.retrieval.corpus import Document
 from consilium.runtime import Runtime, build_runtime
+from consilium.trace import TraceEvent
 from eval.harness import ConversationRun, ItemRun, run_conversation, run_golden_item
 from eval.items import (
     EvalDataError,
@@ -87,6 +102,8 @@ from eval.judge import (
 )
 from eval.metrics import (
     latency_report,
+    llm_call_cost,
+    rate_for,
     retrieval_outcome,
     retrieval_report,
     routing_outcome,
@@ -96,6 +113,7 @@ from eval.metrics import (
 )
 from eval.report import (
     ConfigResult,
+    CostCap,
     JudgeReport,
     RunSummary,
     UnverifiedLabels,
@@ -123,6 +141,12 @@ SAMPLE_METHOD_FILENAME = "judge_sample_method.txt"
 #: ``SAMPLE_COLUMNS``, and it is the one thing a prior sample is guaranteed to carry whatever a
 #: labeller did to the rest of the file in a spreadsheet.
 SAMPLE_ID_COLUMN = "item_id"
+
+#: Exit status when a sweep stopped because it reached ``--max-cost``.  Distinct from the ``2``
+#: every argument error uses: a CI job that sets a cap needs to tell "the cap fired" from "the
+#: command line was wrong", and one nonzero code for both would make the guard unreadable from a
+#: job log.
+EXIT_COST_CAP = 3
 
 #: How many of the labelled items the ``full_budget_6`` diagnostic runs on.  A stratified subset,
 #: reported separately with its n stated, because it exists to show the untruncated tool-call
@@ -174,14 +198,126 @@ def stratified(items: Sequence[GoldenItem], count: int) -> list[GoldenItem]:
     return sorted(chosen[:count], key=lambda item: order[item.id])
 
 
+class UnpriceableCapError(RuntimeError):
+    """Raised when ``--max-cost`` is asked to cap a run whose model has no published rate.
+
+    Refused rather than defaulted, in either direction.  Treating an unpriced model as free would
+    make the cap silently unenforceable while the operator believed a guard was in place -- the
+    failure mode a spend guard exists to prevent.  Treating it as infinitely expensive would abort
+    every run on a repository whose ``eval/pricing.yaml`` ships empty on purpose, which is the
+    normal state of this one.
+    """
+
+
+@dataclass
+class CostMeter:
+    """Running spend for a capped sweep, priced from ``llm_call`` trace events.
+
+    **What it counts.**  The ``llm_call`` events of every item that has finished: planner,
+    synthesizer, forced answers and each agent's calls, priced through ``eval/pricing.yaml`` by the
+    same :func:`eval.metrics.rate_for` the results table uses.  It is charged **after** an item
+    completes, because that is when the item's events exist -- so the cap stops new work rather
+    than killing a turn, and the overshoot is bounded by one item's cost.  Killing a turn
+    part-way would leave a trace file whose ``turn`` event never arrived, and every metric in
+    ``eval/metrics.py`` counts turns by that event.
+
+    **What it does not count.**  The judge's calls.  ``Judge`` talks to the provider directly and
+    nothing traces it, so no cost for it exists in the trace, and this module computes from the
+    trace and nothing else.  The cap therefore bounds the sweep, not the bill, and
+    :meth:`eval.report.CostCap.sentence` says so wherever the figure is published rather than
+    letting it read as a total.
+
+    **An unpriced model mid-run is an abort, not a zero.**  If a call arrives naming a model
+    ``pricing.yaml`` has no rate for, its tokens cannot be priced, the running total silently stops
+    tracking the real spend, and the cap stops being a cap.  That is the same condition
+    :func:`refuse_unpriceable_cap` refuses up front, met later, so it gets the same answer.
+    """
+
+    pricing: dict[str, dict[str, float]]
+    cap_usd: float
+    spent_usd: float = 0.0
+    items_completed: int = 0
+    unpriced_models: tuple[str, ...] = ()
+    aborted_at_config: str | None = None
+    aborted_after_item: str | None = None
+
+    @property
+    def aborted(self) -> bool:
+        return self.aborted_at_config is not None
+
+    def charge(self, events: Sequence[TraceEvent], *, config: str, item_id: str) -> None:
+        """Price one finished item and decide whether the sweep may start another."""
+        spent, missing = llm_call_cost(events, pricing=self.pricing)
+        self.spent_usd += spent
+        self.items_completed += 1
+        for name in missing:
+            if name not in self.unpriced_models:
+                self.unpriced_models += (name,)
+        # The **first** item that passed the cap, not the last one charged: the sweep stops there,
+        # and a later charge (a caller other than :func:`sweep`, or a second config) must not move
+        # the marker onto an item that ran before the cap was reached.
+        if not self.aborted and (self.unpriced_models or self.spent_usd > self.cap_usd):
+            self.aborted_at_config = config
+            self.aborted_after_item = item_id
+
+    def reason(self) -> str:
+        """Why the sweep stopped, for stderr.
+
+        ``report.md`` renders its own from :class:`eval.report.CostCap`.
+        """
+        if self.unpriced_models:
+            return (
+                f"a model with no eval/pricing.yaml entry appeared in the trace "
+                f"({', '.join(self.unpriced_models)}), so the cap could no longer be enforced"
+            )
+        return (
+            f"cumulative traced cost ${self.spent_usd:.4f} passed the --max-cost "
+            f"${self.cap_usd:.2f} cap"
+        )
+
+    def to_cap(self, *, items_planned: int) -> CostCap:
+        return CostCap(
+            cap_usd=self.cap_usd,
+            spent_usd=self.spent_usd,
+            aborted=self.aborted,
+            aborted_at_config=self.aborted_at_config,
+            aborted_after_item=self.aborted_after_item,
+            items_completed=self.items_completed,
+            items_planned=items_planned,
+            unpriced_models=self.unpriced_models,
+        )
+
+
+def refuse_unpriceable_cap(
+    pricing: dict[str, dict[str, float]], *, provider: str, model: str | None
+) -> None:
+    """Refuse ``--max-cost`` before the sweep starts when the active model has no rate.
+
+    Checked here rather than discovered on the first item: the point of a spend guard is that it is
+    in place before any money is spent, and a cap that turns out to be unenforceable after ten paid
+    items has already failed at the only job it had.
+    """
+    if model and rate_for(pricing, provider, model) is not None:
+        return
+    named = f"{provider}/{model}" if model else f"{provider} (CONSILIUM_MODEL is unset)"
+    raise UnpriceableCapError(
+        f"--max-cost cannot cap this run: {named} has no entry in {PRICING_PATH.name}, so its "
+        "tokens cannot be priced and a cumulative cost cannot be compared against a cap. An "
+        "unpriceable run cannot be capped. Add the model's input and output rates under `rates:` "
+        f"in {PRICING_PATH}, keyed '<provider>/<model>' or on the bare model name, from your "
+        "provider's current price list -- or drop --max-cost and run uncapped."
+    )
+
+
 async def sweep(
     runtime: Runtime,
     items: Sequence[GoldenItem],
     *,
     prefix: str,
     runs_dir: Path,
+    meter: CostMeter | None = None,
 ) -> list[ItemRun]:
-    """Run every item, sequentially.
+    """Run every item, sequentially, stopping early if a spend cap is reached.
 
     Sequential on purpose.  Concurrency against a rate-limited endpoint turns a measured latency
     into a measurement of the queue, and p90 latency is a reported number.
@@ -192,6 +328,21 @@ async def sweep(
         if not run.ok:
             log.warning("eval.item_failed", item=item.id, error=run.error)
         runs.append(run)
+        if meter is not None:
+            meter.charge(run.events, config=prefix, item_id=item.id)
+            if meter.aborted:
+                log.warning(
+                    "eval.cost_cap_reached",
+                    config=prefix,
+                    item=item.id,
+                    spent_usd=meter.spent_usd,
+                    cap_usd=meter.cap_usd,
+                )
+                print(
+                    f"  {prefix}: stopping after {index}/{len(items)} -- {meter.reason()}",
+                    file=sys.stderr,
+                )
+                break
         if index % 10 == 0:
             print(f"  {prefix}: {index}/{len(items)}", file=sys.stderr)
     return runs
@@ -630,6 +781,19 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--max-cost",
+        type=float,
+        metavar="USD",
+        default=None,
+        help=(
+            "Stop the sweep once the traced llm_call cost passes this many US dollars: no further "
+            "item starts, summary.json records where it stopped and what it spent, and the exit "
+            f"status is {EXIT_COST_CAP}. Refused when the active model has no eval/pricing.yaml "
+            "entry, since an unpriceable run cannot be capped. Counts the sweep's traced calls "
+            "only -- the judge's calls are not traced and are not counted."
+        ),
+    )
+    parser.add_argument(
         "--score-judge",
         type=Path,
         metavar="CSV",
@@ -661,6 +825,14 @@ async def main(argv: Sequence[str] | None = None) -> int:
             "--human-sample cannot be combined with --no-judge. The sample exists to compare the "
             "judge's label against a person's, and a CSV whose judge_label column is empty cannot "
             "be scored at all.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if args.max_cost is not None and args.max_cost <= 0:
+        print(
+            "--max-cost takes a positive number of US dollars. A cap of zero or less would abort "
+            "after the first item every time, which is not a spend guard.",
             file=sys.stderr,
         )
         return 2
@@ -711,12 +883,24 @@ async def main(argv: Sequence[str] | None = None) -> int:
             print(str(exc), file=sys.stderr)
             return 2
 
+    # Before the sweep, for the same reason the exclusion is checked before the sweep: a guard that
+    # is only discovered to be unenforceable after paid items have run has already failed.
+    pricing = load_pricing()
+    meter: CostMeter | None = None
+    if args.max_cost is not None:
+        try:
+            refuse_unpriceable_cap(pricing, provider=settings.provider, model=settings.model)
+        except UnpriceableCapError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+        meter = CostMeter(pricing=pricing, cap_usd=args.max_cost)
+        print(f"spend cap: ${args.max_cost:.2f} over the sweep's traced calls", file=sys.stderr)
+
     presets = [args.config] if args.config else list(ABLATION_PRESETS)
     started = datetime.now(UTC)
     stamp = started.strftime("%Y%m%dT%H%M%SZ")
     out = args.out or (RESULTS_DIR / stamp)
     runs_dir = out / "runs"
-    pricing = load_pricing()
 
     results: list[ConfigResult] = []
     judge: Judge | None = None
@@ -731,7 +915,14 @@ async def main(argv: Sequence[str] | None = None) -> int:
             judge = Judge(runtime.provider)
 
         print(f"running {name} over {len(items)} items", file=sys.stderr)
-        runs = await sweep(runtime, items, prefix=name, runs_dir=runs_dir)
+        runs = await sweep(runtime, items, prefix=name, runs_dir=runs_dir, meter=meter)
+
+        if meter is not None and meter.aborted:
+            # Scored, so the partial run is on the record, but not judged: judging is the second
+            # paid half of a configuration, and a run that stopped because it ran out of budget
+            # must not spend the rest of it grading the items it did manage.
+            results.append(score(name, runs, pricing=pricing))
+            break
 
         if args.human_sample:
             if judge is None:  # pragma: no cover - refused at argument validation above
@@ -785,7 +976,7 @@ async def main(argv: Sequence[str] | None = None) -> int:
             )
         results.append(result)
 
-    if "full_budget_6" in PRESETS and not args.config:
+    if "full_budget_6" in PRESETS and not args.config and not (meter and meter.aborted):
         diagnostic = stratified(items, BUDGET_DIAGNOSTIC_ITEMS)
         runtime = build_runtime(
             settings,
@@ -794,7 +985,12 @@ async def main(argv: Sequence[str] | None = None) -> int:
             store=args.store,
         )
         print(f"running full_budget_6 diagnostic over {len(diagnostic)} items", file=sys.stderr)
-        runs = await sweep(runtime, diagnostic, prefix="full_budget_6", runs_dir=runs_dir)
+        # Metered too.  The diagnostic is 50 more paid items at the widest tool budget in the
+        # preset set, so a cap that stopped counting once the ablation finished would be a cap
+        # over most of the run rather than over the run.
+        runs = await sweep(
+            runtime, diagnostic, prefix="full_budget_6", runs_dir=runs_dir, meter=meter
+        )
         results.append(score("full_budget_6", runs, pricing=pricing))
 
     environment = environment_notes()
@@ -803,6 +999,13 @@ async def main(argv: Sequence[str] | None = None) -> int:
         n_items=unverified_item_count(items),
         fields=unverified_label_counts(items),
     )
+    # Every item the run intended to pay for: the ablation, plus the stratified diagnostic when the
+    # sweep is the whole ablation set.  "108 of 600" says how far a capped run got; a denominator
+    # that left out the diagnostic would overstate that.
+    planned = len(items) * len(presets)
+    if "full_budget_6" in PRESETS and not args.config:
+        planned += min(BUDGET_DIAGNOSTIC_ITEMS, len(items))
+    cost_cap = meter.to_cap(items_planned=planned) if meter else None
     summary = RunSummary(
         commit=git_commit(),
         started_at=started.isoformat(),
@@ -822,6 +1025,7 @@ async def main(argv: Sequence[str] | None = None) -> int:
             else f"{PRICING_PATH.name} is empty, so cost is reported as not measured"
         ),
         unverified_labels=unverified,
+        cost_cap=cost_cap,
         results=results,
         notes=[
             "full_budget_6 is a diagnostic on a stratified subset, not an ablation row; its n is "
@@ -830,10 +1034,23 @@ async def main(argv: Sequence[str] | None = None) -> int:
             "golden items would let item N answer from item N-1.",
         ]
         + [_compaction_note(conversations)]
-        + ([unverified.sentence()] if unverified.present else []),
+        + ([unverified.sentence()] if unverified.present else [])
+        + ([cost_cap.sentence()] if cost_cap is not None else []),
     )
     summary_path, report_path = write_results(out, summary)
     print(f"wrote {summary_path}\nwrote {report_path}")
+    if cost_cap is not None and cost_cap.aborted:
+        print(
+            f"ABORTED ON THE SPEND CAP: {meter.reason() if meter else ''}.\n"
+            f"  stopped after {cost_cap.aborted_after_item} in config "
+            f"{cost_cap.aborted_at_config}, {cost_cap.items_completed} of "
+            f"{cost_cap.items_planned} planned item(s) completed, "
+            f"${cost_cap.spent_usd:.4f} spent on the sweep's traced calls.\n"
+            f"  {summary_path} records it. This run is partial: its numbers are not a sweep "
+            "result and must not be published as one.",
+            file=sys.stderr,
+        )
+        return EXIT_COST_CAP
     return 0
 
 
