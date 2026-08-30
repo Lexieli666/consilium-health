@@ -1,0 +1,255 @@
+{
+  "session_id": "full-g-cc-011",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:07.991510Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 535,
+          "completion_tokens": 48,
+          "latency_ms": 815.4175829999986,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:07.992539Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain which conditions require a second code and whether the order matters.",
+              "why": "This is a classification and explanation question without any symptom or evidence components."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 816.5187500003412
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:07.992621Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:07.992666Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:08.706183Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 735,
+          "completion_tokens": 21,
+          "latency_ms": 712.2859169999174,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:08.752330Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "conditions require a second code order matters",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 2,
+              "rrf_score": 0.03125763125763126
+            },
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 2,
+              "rrf_score": 0.031099324975891997
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 1,
+              "rrf_score": 0.025478740668614087
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 2,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 45.74183299973811
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:08.752440Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "conditions require a second code order matters"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 45.88895799997772,
+          "source_doc_ids": [
+            "coding-icd10-cm-code-structure-and-conventions",
+            "coding-hypertension-i10",
+            "coding-type-2-diabetes-e11",
+            "coding-copd-j44",
+            "coding-icd10-cm-versus-who-icd10"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:11.266498Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2193,
+          "completion_tokens": 282,
+          "latency_ms": 2513.818666000134,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:11.266803Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:11.268337Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:11.269314Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:11.270383Z",
+          "trace_id": "1c761a55df1d4ee88f437e9d5a6f7c65",
+          "session_id": "full-g-cc-011",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Which conditions here require a second code, and does the order the two are listed in matter?",
+          "answer": "Certain conditions require a second code in ICD-10 to provide a complete picture of a patient's health situation. Here is a summary based on the retrieved information:\n\n1. **Code First and Use Additional Code**: These instructions direct the coder to list an underlying condition before its manifestations. For example, if there is underlying hypertension causing heart disease, the code for hypertension (I10) must come before the code for the heart condition (I11).\n\n2. **Combination Codes**: Some conditions are represented by combination codes that include both the main condition and a related condition or complication. When available, these codes replace the need for separate codes.\n\n3. **Codes Linked by \"With\"**: If two conditions are linked in the coding index with \"with,\" such connections imply a presumption of relationship. In such cases, the coding reflects an association, often without needing to explicitly demonstrate a causal link in the records.\n\n4. **Non-mutually Exclusive Codes**: Certain conditions can coexist and both can be reported. For instance, a patient with chronic obstructive pulmonary disease (COPD) can have both an exacerbation and an infection coded separately.\n\nThe order of codes does matter in specific cases, particularly when dictated by \"Code first\" or \"Use additional code.\" This affects how the relationship between the conditions is interpreted. The information comes from the document on ICD-10 coding structure and conventions.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4090.94045799975,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1763,3 +1763,109 @@ The page reads the stream from `fetch()` rather than through `EventSource`, whic
 requests and so cannot carry a question body. Parsing SSE by hand is about fifteen lines; the
 alternative was a client library from a CDN, which would put a network fetch into a project whose
 test rule is that it needs none.
+
+---
+
+## Phase 10 — publishing the run, and the one number the trace cannot produce
+
+### Publication is a transform, not `cp -r`
+
+**Chosen.** `eval/publish.py` copies `summary.json` and `report.md` byte for byte, refolds
+`runs/<session_id>/<turn_index>.jsonl` into `traces/<session_id>.json`, and writes a
+`MANIFEST.json` of sha256 digests that `tests/test_eval_publish.py` recomputes.
+
+**Rejected — copy the run directory as it stands.** One command, no module, no tests, no coverage
+to maintain.
+
+**Why.** Three separate reasons, and the third is the one that decided it.
+
+First, `report.md` must never be regenerated from `summary.json` at publication time. A published
+report is a statement about what a past run measured; re-rendering it later would let a change to
+`eval/report.py` silently restate that. Copying bytes is the only way to make "never regenerated" a
+property rather than an intention, and a digest is the only way to make it checkable.
+
+Second, the directory-per-session layout is right for a process appending to a file during a turn
+and wrong for a person reading afterwards. `../human-annotation/phase10-failure-cases/TEMPLATE.md`
+asks each failure case to cite `eval/results/published/traces/<id>.json`, and a template asking for
+a path that does not exist is a template nobody follows. Refolding costs nothing: `turn_index`
+survives as a field instead of as a filename, the events are the same objects, and turns are sorted
+by **integer** index so that a ten-turn conversation does not come back with turn 10 before turn 2.
+
+Third, the timestamped run directory is gitignored, so nobody can ever check the published tree
+against its source. The manifest is what replaces that check: it is computed at publication time
+from the files that were written, and recomputing it later says whether anything moved. An edited
+trace now fails the test suite rather than quietly changing what a published number refers to.
+
+### The rates are recovered from the published costs, not written down
+
+**Chosen.** `recover_rates` solves for the two token rates from the per-configuration prompt tokens,
+completion tokens and cost that `summary.json` publishes — one linear equation per configuration in
+two unknowns, five configurations, one solution that reproduces all five to floating point.
+
+**Rejected — commit the filled-in `eval/pricing.yaml`, or write "$0.15/M input" into the document.**
+Both are one line.
+
+**Why.** `eval/pricing.yaml` ships empty because a rate card copied from a vendor page is not a
+measurement: it looks measured and goes stale silently. Committing the operator's filled-in copy
+would reintroduce exactly that file under a different name, and writing the numbers into a document
+would put a rate card in the repository with no date on it and nothing that fails when it is wrong.
+Recovering them keeps the property the empty file was protecting: the only rates that exist here
+are the ones a published run was actually priced with, and they are derived from that run. It also
+happens to be a stronger claim — a solution that reproduces five independently published costs is
+not a rate somebody typed.
+
+### A reconstruction is a third category, next to measured and `not measured`
+
+**Chosen.** `docs/EVALUATION.md` §5.3 publishes the judge's call count and prompt volume, rebuilt
+from committed artifacts by `eval/publish.py --judge-volume`, labelled a reconstruction everywhere
+it appears, recomputed by a test that also asserts the figures appear in the document.
+
+**Rejected — write `not measured` and leave the A3 worksheet's close-out unanswered.** It is what
+the hard constraint says as first written.
+
+**Also rejected — add `tiktoken` and count the tokens exactly.** One dependency, and the number
+stops being an estimate.
+
+**Why.** The constraint exists so that a reviewer can check a published number, and `not measured`
+is the honest answer when nothing can. Here something can: the judge's prompts are deterministic
+functions of things this repository commits — the traces, the corpus, the golden set, the two
+versioned prompt files — so the prompts can be rebuilt exactly and their characters counted exactly.
+What cannot be rebuilt is the tokenizer's view of them and the judge's output, and both of those are
+said rather than papered over: the character counts and call counts are exact, the token figure is a
+conversion, and the dollar figure is a floor on the input side only.
+
+`tiktoken` was rejected because §2 of the brief does not list it and adding a dependency to make one
+paragraph of one document more precise is the wrong trade — but mostly because the conversion is not
+where the interesting error was. The projection was wrong by a factor of three about *how much
+evidence the judge is shown per call*, which is a fact about `judge_config`'s two call sites and not
+about tokenization. A tokenizer would have made the wrong number precise.
+
+The characters-per-token constant is measured rather than assumed, which is the part that makes the
+conversion defensible at all: `baseline_llm` is the one configuration whose prompt is reconstructible
+in full — one system prompt, one user message, no tool schema, no observation, no history — and its
+150 turns reconstruct to 265,039 characters against the 59,719 prompt tokens the provider charged.
+That 59,719 is also `398.127 × 150` straight out of `summary.json`, which is the check that the
+reconstruction is reconstructing the right thing.
+
+### The negative result leads the README
+
+**Chosen.** The regression — red-flag recall 0.500 in `full` against 0.893 in `baseline_llm` — is
+the first thing in the Results section, above the ablation table, with the mechanism traced through
+the run's own numbers and the fix listed as roadmap.
+
+**Rejected — report the ablation table and let the column speak.** Everything is in the table
+already; nothing is hidden.
+
+**Why.** A number in a column is not a finding. The table reports red-flag recall in the same
+typeface as p90 latency, and a reader comparing configurations left to right sees the multi-agent
+row winning on retrieval and routing before they reach it. The whole reason this project measures
+red-flag recall on the delivered answer, with three trace fields and a strict detector, is that it
+is the number that must not be flattered — and burying a regression in a wide table is a way of
+flattering it that requires nobody to write anything false.
+
+The same reasoning decides two smaller things. The escalation detector is **not** loosened to
+accept "seek medical advice", even though several of the fourteen misses say it: changing what
+red-flag recall means after seeing the run it was used to produce is the one move that would make
+every number in this document unfalsifiable. And the failure-case section ships as a **marked
+stub** rather than as a paragraph of plausible prose, because a section that looks written is worse
+than an empty one labelled empty.

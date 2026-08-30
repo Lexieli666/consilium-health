@@ -1,0 +1,339 @@
+{
+  "session_id": "full-g-cc-021",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:43.831362Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 539,
+          "completion_tokens": 50,
+          "latency_ms": 833.620083000369,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:43.832346Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the difference between E11 and E11.9 and when to use each.",
+              "why": "This is a classification question with no symptom or evidence components."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 834.6481250000579
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:43.832458Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:43.832516Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:44.649259Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 743,
+          "completion_tokens": 52,
+          "latency_ms": 815.4756250000901,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:44.701121Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "E11",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-icd10-chapter-06-nervous",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 3,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 0,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 0,
+              "rrf_score": 0.013157894736842105
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 2,
+              "rrf_score": 0.01282051282051282
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 51.43766700030028
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:44.701335Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "E11"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 51.68516699995962,
+          "source_doc_ids": [
+            "coding-type-2-diabetes-e11",
+            "coding-icd10-chapter-04-endocrine",
+            "coding-icd10-chapter-11-digestive",
+            "coding-asthma-j45",
+            "coding-hypertension-i10"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:44.713317Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "E11.9",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 0,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 2,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 0,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 3,
+              "rrf_score": 0.013333333333333334
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 11.792709000019386
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:44.713490Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "E11.9"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 11.9764999999461,
+          "source_doc_ids": [
+            "coding-type-2-diabetes-e11",
+            "coding-icd10-cm-code-structure-and-conventions",
+            "coding-icd10-chapter-04-endocrine",
+            "coding-asthma-j45",
+            "coding-icd10-chapter-13-musculoskeletal"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:46.800662Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 6613,
+          "completion_tokens": 211,
+          "latency_ms": 2086.9845829997757,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:46.800971Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:46.802078Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:46.803654Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:31:46.805683Z",
+          "trace_id": "c76bc74107f841f8aca7a919ecd1926b",
+          "session_id": "full-g-cc-021",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What is the difference between E11 and E11.9, and when is each the right thing to quote?",
+          "answer": "E11 and E11.9 are codes from the ICD-10-CM system that pertain to type 2 diabetes mellitus. \n\n- **E11** refers to type 2 diabetes mellitus in general. It is a broader category that encompasses various complications associated with the condition. This code is never used alone; it is followed by additional characters that specify the type of complication. These complications can include issues related to the kidneys, eyes, nerves, and more.\n\n- **E11.9**, on the other hand, specifically denotes \"type 2 diabetes mellitus without complications.\" This code is used when there are no recorded complications of diabetes. \n\nIn clinical coding, the appropriate code to use depends on the presence of diabetic complications. If complications exist, you would use E11 followed by the specific complication code. If no complications are documented, then E11.9 would be the correct choice. This distinction is important for accurate billing and medical record-keeping (source: \"Coding type 2 diabetes: E11 and its complication subcategories\").\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3803.405084000133,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

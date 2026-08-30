@@ -1,0 +1,255 @@
+{
+  "session_id": "full_budget_6-g-su-002",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:50.405923Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 544,
+          "completion_tokens": 45,
+          "latency_ms": 853.992833999655,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:50.407119Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently these symptoms indicate a need for care.",
+              "why": "The symptoms suggest a potential urgent medical issue that needs immediate attention."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 855.2640000007159
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:50.407238Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:50.407317Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:51.057963Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 777,
+          "completion_tokens": 30,
+          "latency_ms": 648.8865419996728,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:51.114452Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "left arm achy, gone grey, sweaty, 62 years old",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.031746031746031744
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.028782894736842105
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 0,
+              "rrf_score": 0.02871794871794872
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.02862400327131466
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 0,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 55.67499999961001
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:51.114626Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "left arm achy, gone grey, sweaty, 62 years old"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 56.279874999745516,
+          "source_doc_ids": [
+            "red-flag-stroke-symptoms",
+            "red-flag-severe-breathing-difficulty",
+            "coding-icd10-chapter-13-musculoskeletal",
+            "red-flag-chest-pain",
+            "condition-heart-failure"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:52.906151Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2152,
+          "completion_tokens": 152,
+          "latency_ms": 1791.2713330006227,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:52.906361Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:52.906985Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:52.907726Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:26:52.908486Z",
+          "trace_id": "5e03b47b0e424163bdd5806f92a76304",
+          "session_id": "full_budget_6-g-su-002",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "my dads left arm has gone all achy n hes gone grey and sweaty, hes 62, is that somethin to worry about",
+          "answer": "The urgency level for the symptoms described is **routine**. However, it's important to note that there is no matching pattern in the red-flag table for these symptoms, which suggests that while immediate care may not be needed, the situation should still be taken seriously. If these symptoms are severe, worsening, or new and unexplained, it is advisable to seek medical advice.\n\nThe symptoms involve the cardiovascular system, given the mention of an achy arm and changes in color and sweat. This could raise concerns about potential conditions like heart issues or circulation problems. While I cannot diagnose, discussing symptoms like chest discomfort or related signs with a healthcare provider would be appropriate. Please monitor your father's symptoms closely and consider consulting a doctor if there are any developments or concerns.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3354.6356250008103,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

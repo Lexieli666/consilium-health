@@ -1,0 +1,255 @@
+{
+  "session_id": "full-g-su-018",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:40.335048Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 546,
+          "completion_tokens": 46,
+          "latency_ms": 816.3553329995921,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:40.336475Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Evaluate the urgency of the symptoms described and determine the need for immediate care.",
+              "why": "The situation involves concerning symptoms that require urgent assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 817.8614160001416
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:40.336604Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:40.336681Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:41.153619Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 783,
+          "completion_tokens": 46,
+          "latency_ms": 815.7776670000203,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:41.214271Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "my 8 month old is breathing really fast, you can see her ribs pulling in under her vest, and shes gone quiet and a bit floppy",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.03076923076923077
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.03055037313432836
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.028381642512077296
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 59.50904199971774
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:41.214466Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "my 8 month old is breathing really fast, you can see her ribs pulling in under her vest, and shes gone quiet and a bit floppy"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 60.488208000151644,
+          "source_doc_ids": [
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-sepsis",
+            "condition-influenza",
+            "lifestyle-copd-activity",
+            "guideline-type-2-diabetes-glycemic-targets"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:42.689134Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2143,
+          "completion_tokens": 124,
+          "latency_ms": 1474.3575829998008,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:42.689470Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:42.690359Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:42.690430Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:42.690595Z",
+          "trace_id": "ebe3cc1f3fca4bfb8e15c2d4b8aa9d3d",
+          "session_id": "full-g-su-018",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "my 8 month old is breathing really fast, you can see her ribs pulling in under her vest, and shes gone quiet and a bit floppy",
+          "answer": "Your child's symptoms are concerning, and I urge you to seek immediate care. Although the fixed guidelines suggest a \"routine\" urgency, the description of fast breathing, rib retraction, and her being quiet and floppy could indicate a serious situation. This combination could signal severe difficulty in breathing or a potential infection affecting her.\n\nThe guidelines for severe breathing difficulties highlight the need to call emergency services for symptoms like fast breathing, rib pulling, or any changes in consciousness, such as drowsiness or becoming floppy (Emergency medicine and respiratory society guidance). \n\nPlease take your child to a healthcare provider right away for a proper assessment.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3171.0729159999573,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

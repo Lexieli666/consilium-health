@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-ge-009",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:56.324526Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 534,
+          "completion_tokens": 43,
+          "latency_ms": 751.5692080000917,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:56.325669Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Look up the treatment threshold TSH range for subclinical hypothyroidism.",
+              "why": "This question is explicitly about treatment guidelines."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 752.7882079998562
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:56.325738Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:56.325780Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:57.012543Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 794,
+          "completion_tokens": 23,
+          "latency_ms": 685.4586249996828,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:57.058117Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "hypothyroidism treatment threshold",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 3,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 3,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.030798389007344232
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.030776515151515152
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 1,
+              "rrf_score": 0.02967032967032967
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.029418126757516764
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.02638888888888889
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 2,
+              "rrf_score": 0.026356857985087564
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 1,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 45.21675000023606
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:57.058235Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "hypothyroidism",
+            "aspect": "treatment threshold"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 45.368541999778245,
+          "source_doc_ids": [
+            "guideline-hypothyroidism-testing-and-monitoring",
+            "guideline-hypertension-diagnosis-and-bp-targets",
+            "guideline-anxiety-screening-and-first-line-care",
+            "guideline-migraine-acute-and-preventive-treatment",
+            "guideline-type-2-diabetes-screening"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:58.714846Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2433,
+          "completion_tokens": 144,
+          "latency_ms": 1656.4000839998698,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:58.715152Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:58.716058Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:58.717237Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:58.718721Z",
+          "trace_id": "67b1875205ff449795cf49408a363f0a",
+          "session_id": "full-g-ge-009",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What TSH range does guidance describe as the treatment threshold in subclinical hypothyroidism?",
+          "answer": "Guidance on treating subclinical hypothyroidism shows a notable area of difference among authorities. Broad consensus is present around starting treatment when thyroid-stimulating hormone (TSH) levels are persistently above about 10 mIU/L. However, there is disagreement on managing levels that fall between the upper reference limit and 10 mIU/L. \n\nSome guidelines suggest treatment in this middle range if there are symptoms, positive antibodies, or cardiovascular risks, while others advocate monitoring only, especially in older adults where treatment trials showed no symptomatic benefits. These insights come from the \"Hypothyroidism: which test comes first, and the monitoring interval after a change\" document by the Endocrinology and Thyroid Association.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3142.4383329999728,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

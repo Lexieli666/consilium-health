@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-ge-030",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:32.284126Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 531,
+          "completion_tokens": 45,
+          "latency_ms": 921.6249169999173,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:32.284993Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Look up the recommended follow-up interval after initiating a new blood pressure medication.",
+              "why": "This is a guideline question that requires evidence synthesis."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 922.5847079997038
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:32.285072Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:32.285122Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:32.995573Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 791,
+          "completion_tokens": 22,
+          "latency_ms": 709.2126249999637,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:33.049736Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "hypertension follow-up interval",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 3,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.029957522915269395
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 1,
+              "rrf_score": 0.02886002886002886
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.028484848484848488
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 2,
+              "rrf_score": 0.027777777777777776
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 0,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 53.87658400013606
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:33.049938Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "hypertension",
+            "aspect": "follow-up interval"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 54.10550000033254,
+          "source_doc_ids": [
+            "guideline-hypertension-diagnosis-and-bp-targets",
+            "guideline-hypertension-first-line-treatment",
+            "guideline-heart-failure-reduced-ef-therapy",
+            "guideline-hypothyroidism-testing-and-monitoring",
+            "guideline-lipid-screening-and-statin-initiation"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:34.475912Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2465,
+          "completion_tokens": 91,
+          "latency_ms": 1425.664959000187,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:34.476207Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:34.476871Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:34.477711Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:34:34.478385Z",
+          "trace_id": "ab8335adaae04124acc91853fcc4bb38",
+          "session_id": "full-g-ge-030",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What follow-up interval does guidance describe after starting a new blood pressure medicine?",
+          "answer": "After starting a new blood pressure medication, the guidance recommends reassessment at roughly monthly intervals until blood pressure targets are reached. Once the readings become stable, reviews should occur every three to six months.\n\nThis information comes from two sources: the \"Hypertension: diagnostic thresholds and blood-pressure targets\" and \"Hypertension: when treatment starts and which options are first-line\" guidelines. They both emphasize the importance of regular follow-up during the initial treatment phase.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3113.9271670003836,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

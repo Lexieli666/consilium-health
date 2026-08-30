@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-gh-001",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:39.119114Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 532,
+          "completion_tokens": 47,
+          "latency_ms": 998.3814580000399,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:39.123587Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what high blood pressure is and how it differs from a single high reading.",
+              "why": "This is a general health question about condition explanation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1002.869832999977
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:39.123703Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:39.123744Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:39.776506Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 735,
+          "completion_tokens": 21,
+          "latency_ms": 650.682125000003,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:39.849684Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "high blood pressure",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.03057889822595705
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.03055037313432836
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.026013513513513515
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.013333333333333334
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 72.85700000011275
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:39.849794Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "high blood pressure",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 72.99520900005518,
+          "source_doc_ids": [
+            "condition-hypertension",
+            "condition-type-2-diabetes",
+            "condition-coronary-artery-disease",
+            "condition-heart-failure",
+            "condition-iron-deficiency-anemia"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:41.828017Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2013,
+          "completion_tokens": 192,
+          "latency_ms": 1978.062375000036,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:41.828148Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:41.831339Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:41.832375Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:26:41.836259Z",
+          "trace_id": "a8d41f88939a40ba83af49c56b21a6db",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What is high blood pressure, and how is it different from one high reading?",
+          "answer": "High blood pressure, also known as hypertension, is a condition where the force of blood against the walls of the arteries is consistently too high. It often develops over many years and can lead to serious health problems, such as heart disease and stroke. Many people with high blood pressure may not feel any symptoms, which is why regular screening is important. The key issue is that having high blood pressure is defined by consistent measurements over time, not just one single reading.\n\nA single high reading might not indicate hypertension. Blood pressure can fluctuate due to various factors such as stress, physical activity, or even the time of day. A diagnosis of high blood pressure typically requires multiple readings taken at different times to confirm the condition. This distinction is crucial because treating a temporary spike in blood pressure is different from managing a chronic condition like hypertension. \n\nIf you're concerned about your blood pressure, discussing your measurements and any symptoms with a healthcare provider is important for proper assessment and guidance.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3707.553292000057,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

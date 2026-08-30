@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-ge-007",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:48.854789Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 530,
+          "completion_tokens": 44,
+          "latency_ms": 819.0063329998338,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:48.855964Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Look up and report the first-line drug therapy recommendations for type 2 diabetes.",
+              "why": "This is an evidence-based guideline question."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 820.2492500004155
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:48.856079Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:48.856159Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:49.572012Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 791,
+          "completion_tokens": 24,
+          "latency_ms": 713.7617919997865,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:49.632747Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "type 2 diabetes first-line treatment",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.032018442622950824
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.03131881575727918
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.031054405392392875
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.028404512489927477
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 0,
+              "rrf_score": 0.027046783625730993
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 2,
+              "rrf_score": 0.02658450704225352
+            },
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 60.341999999764084
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:49.632955Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "type 2 diabetes",
+            "aspect": "first-line treatment"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 60.586125000099855,
+          "source_doc_ids": [
+            "guideline-hypertension-first-line-treatment",
+            "guideline-type-2-diabetes-first-line-therapy",
+            "guideline-anxiety-screening-and-first-line-care",
+            "guideline-heart-failure-reduced-ef-therapy",
+            "guideline-type-2-diabetes-glycemic-targets"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:52.253033Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2363,
+          "completion_tokens": 138,
+          "latency_ms": 2619.798790999994,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:52.253318Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:52.254220Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:52.255313Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:52.255968Z",
+          "trace_id": "06ca9c3f7d0f4e308b8c24d961f76efb",
+          "session_id": "full-g-ge-007",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What is described as first-line drug therapy for type 2 diabetes?",
+          "answer": "The first-line drug therapy for type 2 diabetes is typically **metformin**, which is often used in conjunction with structured lifestyle interventions. This recommendation is based on its long-term use, low cost, weight neutrality, and minimal risk of causing low blood sugar on its own. Kidney function is assessed before starting metformin and checked periodically, as its use is constrained by specific thresholds of kidney function.\n\nThis guidance comes from the \"Type 2 diabetes: first-line pharmacologic management\" document provided by the National Diabetes Association Standards of Care. Importantly, the choice of first-line therapy may depend on the presence of other health conditions, not solely on the level of HbA1c.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4217.781291999927,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

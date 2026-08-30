@@ -1,0 +1,331 @@
+{
+  "session_id": "full-g-cc-003",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:34.539308Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 541,
+          "completion_tokens": 47,
+          "latency_ms": 1216.244290999839,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:34.539777Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the classification of hypertension and chronic kidney disease and their relationship.",
+              "why": "This involves clarifying condition explanations without an urgency or evidence component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1216.761666000366
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:34.539819Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:34.539848Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:35.631515Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 741,
+          "completion_tokens": 60,
+          "latency_ms": 1090.855333000036,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:35.685076Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "classification of hypertension",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.013157894736842105
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.012987012987012988
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.01282051282051282
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.0125
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 53.20637500017256
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:35.685280Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "classification of hypertension",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 53.442249999989144,
+          "source_doc_ids": [
+            "condition-hypertension",
+            "condition-type-2-diabetes",
+            "condition-heart-failure",
+            "condition-coronary-artery-disease",
+            "condition-generalized-anxiety-disorder"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:35.701483Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "classification of chronic kidney disease",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 2,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.029386529386529386
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 0,
+              "rrf_score": 0.02877846790890269
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.02803921568627451
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 0,
+              "rrf_score": 0.027912386121341344
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 15.912165999907302
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:35.701592Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "classification of chronic kidney disease",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 16.040333000091778,
+          "source_doc_ids": [
+            "condition-heart-failure",
+            "condition-hypertension",
+            "condition-type-2-diabetes",
+            "condition-coronary-artery-disease",
+            "condition-urinary-tract-infection"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:37.982311Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3073,
+          "completion_tokens": 282,
+          "latency_ms": 2280.5052080002497,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:37.982620Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:37.984182Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:37.986058Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:30:37.987003Z",
+          "trace_id": "a01ba3acb10144c8b0305f33c044435f",
+          "session_id": "full-g-cc-003",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "A note says hypertension and chronic kidney disease. Does the classification assume a relationship between them, and what changes if it does?",
+          "answer": "Hypertension, or high blood pressure, is classified based on the persistent elevation of arterial pressure. It is measured using two numbers: systolic pressure over diastolic pressure. Diagnosis requires multiple readings over time, as a single reading is insufficient (sourced from the document \"Hypertension (high blood pressure)\"). \n\nChronic kidney disease (CKD), on the other hand, is typically classified based on the level of kidney function and the presence of damage. The stages of CKD are determined by measuring glomerular filtration rate (GFR). CKD can result from various causes, including hypertension, diabetes, and other underlying health issues (though the specific classification of CKD wasn’t directly found in the retrieved documents).\n\nThe relationship between hypertension and chronic kidney disease is significant. Long-standing high blood pressure can damage the kidneys over time, and CKD can also result in higher blood pressure levels. This creates a bidirectional relationship where each condition can exacerbate the other (as indicated in \"Hypertension (high blood pressure)\" and \"Heart failure\" documents). \n\nIn terms of classification, recognizing a co-occurrence of hypertension and CKD may lead to both conditions being managed together in treatment plans. This approach helps reduce the risk of complications such as heart disease and stroke that are influenced by both conditions. Discussions with a healthcare provider about lifestyle changes and management strategies may be warranted if both conditions are present.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4659.726083999885,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}
