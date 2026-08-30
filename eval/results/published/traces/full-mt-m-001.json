@@ -1,0 +1,482 @@
+{
+  "session_id": "full-mt-m-001",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:56.209171Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 525,
+          "completion_tokens": 46,
+          "latency_ms": 1061.0354579998784,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:56.213542Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what high blood pressure is and provide lifestyle guidance for management.",
+              "why": "This is a general health question and requires explanation and advice."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1065.7018749998315
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:56.213678Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:56.213744Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:57.076173Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 725,
+          "completion_tokens": 55,
+          "latency_ms": 860.3195000000596,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:57.214218Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "high blood pressure",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.03057889822595705
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.03055037313432836
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.026013513513513515
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.013333333333333334
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 137.50345900007233
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:57.214358Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "high blood pressure",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 137.7632909998283,
+          "source_doc_ids": [
+            "condition-hypertension",
+            "condition-type-2-diabetes",
+            "condition-coronary-artery-disease",
+            "condition-heart-failure",
+            "condition-iron-deficiency-anemia"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:57.226265Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "high blood pressure",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.030621785881252923
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.028404512489927477
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.02761904761904762
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 3,
+              "rrf_score": 0.027242401779095628
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.012987012987012988
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.012658227848101266
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.0125
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 11.729332999948383
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:57.226325Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "high blood pressure"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 11.813915999937308,
+          "source_doc_ids": [
+            "lifestyle-heart-failure-diet",
+            "lifestyle-hypertension-diet",
+            "lifestyle-hypertension-activity",
+            "lifestyle-type-2-diabetes-activity",
+            "lifestyle-type-2-diabetes-diet"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:59.941982Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3012,
+          "completion_tokens": 332,
+          "latency_ms": 2715.4887079996115,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:59.942310Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:59.944313Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:59.947317Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:50:59.949975Z",
+          "trace_id": "6d28d15c9a8c405ab6c9d221aee4c0e6",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have been diagnosed with high blood pressure.",
+          "answer": "High blood pressure, also known as hypertension, is a condition where the force of blood against the walls of the arteries is consistently too high. Most cases of high blood pressure do not have a single identifiable cause. However, several factors can contribute, including age, genetic predisposition, excess body weight, high sodium intake, low potassium intake, physical inactivity, and chronic stress (source: \"Hypertension (high blood pressure)\"). It often does not cause symptoms, which is why it's important to have regular screenings.\n\nFor managing high blood pressure, lifestyle changes are essential. Here are some general recommendations:\n\n1. **Diet:** \n   - Reduce sodium intake, as high sodium can contribute to increased blood pressure. Focus on reading food labels, as much sodium comes from processed and packaged foods.\n   - Increase potassium-rich foods like fruits, vegetables, and dairy, as they may help lower blood pressure (source: \"Diet for high blood pressure\").\n   - Limit alcohol consumption, as it can raise blood pressure. Recommended limits are up to two drinks per day for men and one for women (source: \"Diet for high blood pressure\").\n\n2. **Physical Activity:**\n   - Aim for at least 150 minutes of moderate-intensity aerobic activity weekly, such as brisk walking or cycling. This can help lower blood pressure as effectively as some medications (source: \"Physical activity for high blood pressure\").\n\n3. **Weight Management:**\n   - Maintaining a healthy weight through diet and exercise is crucial, as excess weight can increase blood pressure.\n\nThese changes are part of a broader approach for overall health management and may also be discussed with your healthcare provider for personalized guidance.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4794.7262080001565,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:00.662352Z",
+          "trace_id": "8350c18dd8be400198748ccdf7d03bee",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 520,
+          "completion_tokens": 43,
+          "latency_ms": 711.7314579995764,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:00.663432Z",
+          "trace_id": "8350c18dd8be400198748ccdf7d03bee",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Provide general advice on diet and its importance for health.",
+              "why": "This is a general health question related to lifestyle guidance."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 712.8832919997876
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:00.663549Z",
+          "trace_id": "8350c18dd8be400198748ccdf7d03bee",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:00.663624Z",
+          "trace_id": "8350c18dd8be400198748ccdf7d03bee",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:03.703397Z",
+          "trace_id": "8350c18dd8be400198748ccdf7d03bee",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 1173,
+          "completion_tokens": 356,
+          "latency_ms": 3038.216917000227,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:03.703687Z",
+          "trace_id": "8350c18dd8be400198748ccdf7d03bee",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:03.705588Z",
+          "trace_id": "8350c18dd8be400198748ccdf7d03bee",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:03.708873Z",
+          "trace_id": "8350c18dd8be400198748ccdf7d03bee",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:03.712042Z",
+          "trace_id": "8350c18dd8be400198748ccdf7d03bee",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "What about diet?",
+          "answer": "Diet plays a crucial role in overall health and well-being. It affects not only physical health but also mental and emotional health. Here are some key points highlighting the importance of a healthy diet:\n\n1. **Nutritional Balance:** A balanced diet provides essential nutrients—vitamins, minerals, proteins, carbohydrates, and fats—that the body needs to function properly. Each nutrient has specific roles, such as supporting immune function, building tissues, and providing energy.\n\n2. **Weight Management:** A healthy diet helps to maintain an appropriate body weight. Consuming more calories than needed leads to weight gain, while a balanced diet with controlled portions can help maintain or lose weight.\n\n3. **Disease Prevention:** A nutritious diet can lower the risk of developing chronic diseases, such as heart disease, diabetes, and certain cancers. Foods rich in fiber, whole grains, lean proteins, healthy fats, and antioxidants contribute to better health and longevity.\n\n4. **Mental Health:** Recent research suggests that what we eat can impact mental health. Diets high in processed foods may be linked to higher rates of depression and anxiety, while a diet rich in fruits, vegetables, whole grains, and healthy fats may support mood and cognitive function.\n\n5. **Digestive Health:** A diet rich in fiber from fruits, vegetables, and whole grains helps maintain digestive health and regular bowel movements, preventing issues like constipation.\n\nTo improve diet, consider including more whole foods, such as fruits, vegetables, whole grains, lean proteins, and healthy fats while reducing processed foods high in added sugars, unhealthy fats, and sodium. \n\nOverall, adopting healthier dietary patterns can lead to improved health outcomes and enhance quality of life. Working with a healthcare provider or nutritionist can offer personalized guidance based on individual health needs and goals.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3753.271833999861,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

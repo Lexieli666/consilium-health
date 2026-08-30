@@ -1,0 +1,343 @@
+{
+  "session_id": "full_budget_6-g-su-008",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:15.332266Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 542,
+          "completion_tokens": 45,
+          "latency_ms": 710.583625000254,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:15.333619Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of the breathing difficulties and analyze the symptoms.",
+              "why": "The symptoms describe a potential respiratory issue that needs urgent evaluation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 712.0172920003824
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:15.333749Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:15.333827Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:16.765820Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 776,
+          "completion_tokens": 100,
+          "latency_ms": 1430.6023340004685,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:16.823571Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I can only get a few words out before I have to stop for air, and my rescue puffer isn't doing anything tonight.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 0,
+              "rrf_score": 0.03007688828584351
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.029386529386529386
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.02758751902587519
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.027071520029266508
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 56.68699999932869
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:16.823783Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I can only get a few words out before I have to stop for air, and my rescue puffer isn't doing anything tonight."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 57.66104099984659,
+          "source_doc_ids": [
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-suicidal-ideation",
+            "condition-asthma",
+            "red-flag-stroke-symptoms",
+            "lifestyle-hypertension-activity"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:16.843756Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "I can only get a few words out before I have to stop for air, and my rescue puffer isn't doing anything tonight.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.02946912242686891
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.013333333333333334
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 19.398583000111103
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:16.843879Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "I can only get a few words out before I have to stop for air, and my rescue puffer isn't doing anything tonight."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 19.82266699997126,
+          "source_doc_ids": [
+            "condition-asthma",
+            "condition-generalized-anxiety-disorder",
+            "condition-insomnia",
+            "condition-copd",
+            "condition-hypertension"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:19.121138Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3714,
+          "completion_tokens": 256,
+          "latency_ms": 2277.0437919998585,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:19.121351Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:19.122451Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:19.123301Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:27:19.124358Z",
+          "trace_id": "065c5a8e17e14faf9b14d2fea1460816",
+          "session_id": "full_budget_6-g-su-008",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I can only get a few words out before I have to stop for air, and my rescue puffer isn't doing anything tonight.",
+          "answer": "Your symptoms describe significant breathing difficulties, which are concerning. The urgency assessment indicates this situation is **routine**, but you should still be cautious. If your symptoms worsen, are severe, or are new and unexplained, it's advisable to seek medical advice. Remember, the absence of an emergency in the assessment doesn't rule out the potential for serious issues.\n\nAnalyzing your symptoms shows they relate to the **respiratory system**, but the pattern is described as **unrecognized**, meaning it does not fit a specific known condition yet. Conditions to discuss with a clinician include:\n\n1. **Asthma**: Typically characterized by difficulty breathing and may not respond to usual bronchodilators.\n2. **Generalized Anxiety Disorder**: This can manifest physically as breathlessness.\n3. **Insomnia**: While primarily a sleep disorder, it can contribute to daytime symptoms including anxiety and breathlessness.\n4. **Chronic Obstructive Pulmonary Disease (COPD)**: This often develops from long-term exposure to substances that irritate the lungs.\n5. **Hypertension**: Though usually asymptomatic, severe cases can lead to breathing difficulties.\n\nFor detailed information on each condition, you may want to review guidelines on asthma, anxiety disorders, insomnia, COPD, and hypertension.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4499.884082999415,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

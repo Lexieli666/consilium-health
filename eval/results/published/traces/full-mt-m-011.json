@@ -1,0 +1,620 @@
+{
+  "session_id": "full-mt-m-011",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:47.871481Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 527,
+          "completion_tokens": 44,
+          "latency_ms": 832.4155000000246,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:47.872836Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of the sleeping trouble and identify potential red flags.",
+              "why": "This is a symptom description that requires urgency evaluation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 833.8688750000074
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:47.872947Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:47.873023Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:48.997686Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 762,
+          "completion_tokens": 23,
+          "latency_ms": 1122.8226250000262,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:49.040682Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "trouble sleeping for about three months",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 0,
+              "rrf_score": 0.03131881575727918
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 0,
+              "rrf_score": 0.031024531024531024
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 3,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.02803921568627451
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 42.08937499970489
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:49.040800Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "trouble sleeping for about three months"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 42.709624999588414,
+          "source_doc_ids": [
+            "condition-insomnia",
+            "guideline-insomnia-cbt-first-line",
+            "coding-insomnia-g47",
+            "lifestyle-migraine-sleep",
+            "guideline-asthma-diagnosis-and-stepwise-therapy"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:51.045550Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2044,
+          "completion_tokens": 183,
+          "latency_ms": 2004.5172079999247,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:51.045857Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:51.046980Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:51.048512Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:51.050359Z",
+          "trace_id": "da1643a8e86749baadddf3cfe32842af",
+          "session_id": "full-mt-m-011",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have been having trouble sleeping for about three months.",
+          "answer": "The urgency assessment indicates that your sleeping trouble is classified as **routine**. This means that there is no immediate danger, but it is still important to address the issue. You should seek medical advice if your symptoms are severe, worsening, or new and unexplained.\n\nRegarding potential red flags, your symptoms align with chronic insomnia, which is defined as difficulty falling asleep, staying asleep, or waking too early, occurring at least three times per week for at least three months, and accompanied by daytime consequences such as fatigue or mood disturbances. \n\nIt's advisable to keep a sleep diary and discuss factors that might influence your sleep, such as lifestyle habits, stress, or underlying conditions like anxiety or depression, with a clinician. It would also be worthwhile to ask about common sleep disorders such as obstructive sleep apnea or restless legs syndrome during your consultation (source: \"Chronic insomnia: cognitive behavioral therapy as first-line treatment\").\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4007.049041999835,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:51.722471Z",
+          "trace_id": "b2f2cca34908497991c735292f983a37",
+          "session_id": "full-mt-m-011",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 522,
+          "completion_tokens": 43,
+          "latency_ms": 671.4260409999042,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:51.722998Z",
+          "trace_id": "b2f2cca34908497991c735292f983a37",
+          "session_id": "full-mt-m-011",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain if medication is typically the usual answer for health conditions.",
+              "why": "This is a general health question about treatment approaches."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 671.9977079997079
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:51.723052Z",
+          "trace_id": "b2f2cca34908497991c735292f983a37",
+          "session_id": "full-mt-m-011",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:51.723086Z",
+          "trace_id": "b2f2cca34908497991c735292f983a37",
+          "session_id": "full-mt-m-011",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:53.400872Z",
+          "trace_id": "b2f2cca34908497991c735292f983a37",
+          "session_id": "full-mt-m-011",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 992,
+          "completion_tokens": 166,
+          "latency_ms": 1676.869207999971,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:53.401121Z",
+          "trace_id": "b2f2cca34908497991c735292f983a37",
+          "session_id": "full-mt-m-011",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:53.402178Z",
+          "trace_id": "b2f2cca34908497991c735292f983a37",
+          "session_id": "full-mt-m-011",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:53.403703Z",
+          "trace_id": "b2f2cca34908497991c735292f983a37",
+          "session_id": "full-mt-m-011",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:53.404919Z",
+          "trace_id": "b2f2cca34908497991c735292f983a37",
+          "session_id": "full-mt-m-011",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "Is medication the usual answer?",
+          "answer": "Medication is one of several options for managing health conditions, but it is not always the first or only approach. Treatment often depends on the specific condition, its severity, and individual patient needs.\n\nFor many conditions, especially chronic ones (like hypertension or diabetes), lifestyle changes such as diet, exercise, and stress management are often recommended alongside medications. In some situations, medications may be used to control symptoms or manage a condition effectively. However, non-pharmacological approaches like therapy, physical therapy, or other interventions may be preferred or necessary.\n\nMany health conditions benefit from a combination of therapies. It is essential to have a thorough discussion with a clinician about the most appropriate treatment plan tailored to individual circumstances (source: general health management guidelines). \n\nUltimately, the choice of treatment is a collaborative decision between a patient and their healthcare provider.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 2350.2486249999492,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:54.117993Z",
+          "trace_id": "15498177ee3d4836b220ce2f23061c3c",
+          "session_id": "full-mt-m-011",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 521,
+          "completion_tokens": 36,
+          "latency_ms": 712.3600840000108,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:54.118622Z",
+          "trace_id": "15498177ee3d4836b220ce2f23061c3c",
+          "session_id": "full-mt-m-011",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the alternative options available.",
+              "why": "This is a general health question requiring explanation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 713.0442080001558
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:54.118694Z",
+          "trace_id": "15498177ee3d4836b220ce2f23061c3c",
+          "session_id": "full-mt-m-011",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:54.118738Z",
+          "trace_id": "15498177ee3d4836b220ce2f23061c3c",
+          "session_id": "full-mt-m-011",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:54.694929Z",
+          "trace_id": "15498177ee3d4836b220ce2f23061c3c",
+          "session_id": "full-mt-m-011",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 1193,
+          "completion_tokens": 23,
+          "latency_ms": 574.0230420001353,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:54.745497Z",
+          "trace_id": "15498177ee3d4836b220ce2f23061c3c",
+          "session_id": "full-mt-m-011",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "alternative options for sleep management",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 3,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.031024531024531024
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.030309988518943745
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 3,
+              "rrf_score": 0.03021353930031804
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 2,
+              "rrf_score": 0.030090497737556562
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 3,
+              "rrf_score": 0.026356857985087564
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 50.16662500020175
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:54.745646Z",
+          "trace_id": "15498177ee3d4836b220ce2f23061c3c",
+          "session_id": "full-mt-m-011",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "alternative options for sleep management",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 50.34816699981093,
+          "source_doc_ids": [
+            "condition-insomnia",
+            "condition-generalized-anxiety-disorder",
+            "condition-type-2-diabetes",
+            "condition-osteoarthritis",
+            "condition-gerd"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:56.984799Z",
+          "trace_id": "15498177ee3d4836b220ce2f23061c3c",
+          "session_id": "full-mt-m-011",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2436,
+          "completion_tokens": 268,
+          "latency_ms": 2238.8426669999717,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:56.985084Z",
+          "trace_id": "15498177ee3d4836b220ce2f23061c3c",
+          "session_id": "full-mt-m-011",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:52:56.991015Z",
+          "trace_id": "15498177ee3d4836b220ce2f23061c3c",
+          "session_id": "full-mt-m-011",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "What is offered instead?",
+          "answer": "For managing sleep difficulties, particularly insomnia, several alternative options can be considered. Here are some commonly offered approaches:\n\n1. **Cognitive Behavioral Therapy (CBT)**: This is often the first-line treatment for insomnia. It helps individuals identify and change thoughts and behaviors that contribute to sleep difficulties, providing strategies to improve sleep patterns.\n\n2. **Sleep Hygiene**: While not sufficient alone, good sleep hygiene practices can support better sleep. This includes maintaining a consistent sleep schedule, creating a comfortable sleep environment, and limiting stimulant intake (like caffeine).\n\n3. **Relaxation Techniques**: Methods such as mindfulness, meditation, and guided relaxation can help reduce anxiety and promote better sleep.\n\n4. **Structured Exercise**: Regular physical activity can improve sleep quality. It may also address issues like anxiety, which can impact sleep.\n\n5. **Other Therapies**: Options like acupuncture or music therapy may also be helpful for some people.\n\nMedications are generally considered a secondary option and are often time-limited, used when non-drug treatments alone are not effective enough (source: \"Insomnia\"). It's important to discuss these alternatives with a healthcare provider to determine the best approach for your situation.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3579.6328330002325,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

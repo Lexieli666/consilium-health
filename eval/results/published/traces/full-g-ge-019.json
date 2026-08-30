@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-ge-019",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:43.804864Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 530,
+          "completion_tokens": 47,
+          "latency_ms": 974.8532089997752,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:43.806137Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Look up and report the drug classes recommended for heart failure with reduced ejection fraction.",
+              "why": "This is specifically a guideline question about pharmacotherapy."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 976.2060409998412
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:43.806207Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:43.806246Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:44.458505Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 792,
+          "completion_tokens": 21,
+          "latency_ms": 651.083292000294,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:44.503581Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "heart failure drug classes",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.03076923076923077
+            },
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.025645240835114255
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 2,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 2,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 44.65650000020105
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:44.503687Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "heart failure",
+            "aspect": "drug classes"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 44.79850000006991,
+          "source_doc_ids": [
+            "guideline-heart-failure-reduced-ef-therapy",
+            "guideline-hypertension-first-line-treatment",
+            "guideline-migraine-acute-and-preventive-treatment",
+            "guideline-type-2-diabetes-first-line-therapy",
+            "guideline-uti-uncomplicated-treatment"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:46.506562Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2434,
+          "completion_tokens": 179,
+          "latency_ms": 2002.659417000359,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:46.506891Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:46.507697Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:46.508534Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:33:46.509541Z",
+          "trace_id": "aab7591ce99444cda94477e663e13440",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Which drug classes does heart failure guidance describe for reduced ejection fraction?",
+          "answer": "The guidance for heart failure with reduced ejection fraction describes four foundational drug classes that are recommended for treatment. These classes should ideally be started together or in rapid succession rather than one at a time. The specific classes mentioned include:\n\n1. **Angiotensin-converting enzyme (ACE) inhibitors**\n2. **Angiotensin receptor blockers (ARBs)**\n3. **Beta-blockers**\n4. **Mineralocorticoid receptor antagonists (MRAs)**\n\nRecently, the SGLT-2 inhibitors have also been recognized as beneficial, but it is important to apply these treatments specifically to the reduced ejection fraction group, as the benefits may not be the same in those with preserved ejection fraction. This information comes from the consensus guidance of major cardiology societies on heart failure with reduced ejection fraction (guideline-heart-failure-reduced-ef-therapy).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3677.1565829999417,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

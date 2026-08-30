@@ -1,0 +1,616 @@
+{
+  "session_id": "full_budget_6-g-md-010",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:53.542973Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 545,
+          "completion_tokens": 86,
+          "latency_ms": 1020.7290839998677,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:53.544041Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "parallel",
+          "agents": [
+            "diagnostic",
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently these symptoms need care and group them by body system.",
+              "why": "This involves urgent symptom assessment due to potential infection."
+            },
+            {
+              "subtask_id": "2-research",
+              "agent": "research",
+              "objective": "Look up treatment guidelines for urinary symptoms in the context of fever and back pain.",
+              "why": "The second part requires a review of treatment guidelines."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1021.860666000066
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:53.544137Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:53.544183Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "2-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:53.544293Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:53.547182Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "2-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:54.771577Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 780,
+          "completion_tokens": 80,
+          "latency_ms": 1226.00679199968,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:54.777743Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 805,
+          "completion_tokens": 62,
+          "latency_ms": 1229.6092920005322,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:54.838449Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "burning when passing urine, fever, back pain",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.030776515151515152
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.029877369007803793
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 2,
+              "rrf_score": 0.029571646010002173
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.02919863597612958
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.02871794871794872
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.028665028665028666
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 60.39062499985448
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:54.838555Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "burning when passing urine, fever, back pain"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 60.519208000187064,
+          "source_doc_ids": [
+            "condition-urinary-tract-infection",
+            "red-flag-sepsis",
+            "red-flag-acute-abdominal-pain",
+            "coding-icd10-chapter-18-symptoms",
+            "red-flag-chest-pain"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:54.841579Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Burning when I pass urine, plus a temperature and back pain since yesterday.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.030834914611005692
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.030798389007344232
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.029138513513513514
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 3,
+              "rrf_score": 0.027692895339954164
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 69.03270899965719
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:54.841670Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Burning when I pass urine, plus a temperature and back pain since yesterday."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 69.7098749997167,
+          "source_doc_ids": [
+            "condition-urinary-tract-infection",
+            "red-flag-acute-abdominal-pain",
+            "red-flag-chest-pain",
+            "red-flag-sepsis",
+            "condition-gerd"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:54.860052Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "urinary symptoms treatment",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 0,
+              "rrf_score": 0.032018442622950824
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 2,
+              "rrf_score": 0.02964426877470356
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 2,
+              "rrf_score": 0.02844551282051282
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 2,
+              "rrf_score": 0.027272727272727275
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.027222222222222224
+            },
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 3,
+              "rrf_score": 0.02658450704225352
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 21.31774999998015
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:54.860654Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "urinary symptoms",
+            "aspect": "treatment"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 21.931499999482185,
+          "source_doc_ids": [
+            "guideline-uti-uncomplicated-treatment",
+            "guideline-influenza-vaccination-and-antivirals",
+            "guideline-anxiety-screening-and-first-line-care",
+            "guideline-gerd-initial-management-and-alarm-features",
+            "guideline-hypertension-first-line-treatment"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:54.860579Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "Burning when I pass urine, plus a temperature and back pain since yesterday.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 3,
+              "rrf_score": 0.028790389395194696
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.028283227848101264
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.027692895339954164
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.027402402402402402
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.02649122807017544
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 18.54391599954397
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:54.860781Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "Burning when I pass urine, plus a temperature and back pain since yesterday."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 18.93449999988661,
+          "source_doc_ids": [
+            "condition-urinary-tract-infection",
+            "condition-gerd",
+            "condition-type-2-diabetes",
+            "condition-upper-respiratory-infection",
+            "condition-osteoarthritis"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:57.124415Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3794,
+          "completion_tokens": 234,
+          "latency_ms": 2262.447500000235,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:57.124703Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:57.368917Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3984,
+          "completion_tokens": 271,
+          "latency_ms": 2508.008583999981,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:57.369183Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "2-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:59.479884Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "synthesizer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 977,
+          "completion_tokens": 195,
+          "latency_ms": 2110.336999999163,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:59.481017Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": null,
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:59.481684Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": null,
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:29:59.482849Z",
+          "trace_id": "76552e45d3ed4c18bf01e03acdf49ee2",
+          "session_id": "full_budget_6-g-md-010",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Burning when I pass urine, plus a temperature and back pain since yesterday. How urgent is this, and what does guidance describe for treatment?",
+          "answer": "Your symptoms of burning during urination, fever, and back pain suggest that you should seek medical attention. While they fall into the routine urgency category, the combination of fever and back pain raises the concern for a potential upper urinary tract infection, such as pyelonephritis, which may require more urgent evaluation and treatment.\n\nThese symptoms primarily indicate an issue with the urinary system, particularly a possible urinary tract infection (UTI). The presence of fever alongside back pain may indicate a progression of infection and could potentially lead to more serious conditions. Although gastrointestinal concerns are mentioned, they are less likely based on your symptoms.\n\nFor treatment, guidelines recommend that typical symptoms of uncomplicated UTIs may allow for starting empiric treatment without confirming with a urine culture. However, in the presence of complicating factors like fever and back pain, further evaluation and possibly different antibiotic regimens may be required. Consulting with a healthcare provider is essential for a thorough assessment and tailored advice based on your condition.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 6958.003125000687,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,703 @@
+{
+  "session_id": "full-mt-m-003",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:17.348580Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 525,
+          "completion_tokens": 40,
+          "latency_ms": 707.86387499993,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:17.352267Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Provide information on migraine management and lifestyle adjustments.",
+              "why": "This is a general health question about a condition."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 711.6220839998277
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:17.352351Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:17.352398Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:18.272102Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 721,
+          "completion_tokens": 50,
+          "latency_ms": 918.423291000181,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:18.314940Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "migraine management",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.030798389007344232
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 3,
+              "rrf_score": 0.030536130536130537
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 1,
+              "rrf_score": 0.026992753623188405
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.02684684684684685
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.025807525807525808
+            },
+            {
+              "doc_id": "coding-icd10-chapter-06-nervous",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.014084507042253521
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 42.44537499971557
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:18.315067Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "migraine management"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 42.60787500015795,
+          "source_doc_ids": [
+            "guideline-migraine-acute-and-preventive-treatment",
+            "condition-migraine",
+            "red-flag-sudden-severe-headache",
+            "lifestyle-migraine-sleep",
+            "guideline-osteoarthritis-management"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:18.328901Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "migraine",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 3,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.013157894736842105
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.012987012987012988
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 13.610167000024376
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:18.328980Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "migraine"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 13.703334000183531,
+          "source_doc_ids": [
+            "lifestyle-migraine-sleep",
+            "lifestyle-type-2-diabetes-adherence",
+            "lifestyle-type-2-diabetes-activity",
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-generalized-anxiety-disorder-activity"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:21.343841Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2890,
+          "completion_tokens": 387,
+          "latency_ms": 3014.6692089997487,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:21.344187Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:21.346265Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:21.349876Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:21.353209Z",
+          "trace_id": "7ee860e28684481d9fea3893e9086571",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I get migraines maybe six times a month.",
+          "answer": "Migraine is a recurrent neurological disorder characterized by headaches that often involve nausea, sensitivity to light and sound, and sometimes transient neurological symptoms. Most typically, a migraine attack is one-sided and can last from several hours to three days (source: General clinical reference).\n\n**Management of Migraines:**\n1. **Medication Management**: The management includes acute treatments taken during a migraine attack and preventive treatments for individuals who experience frequent attacks. It's important to adhere to recommended medication guidelines, as overusing certain medications can transform episodic migraines into chronic headaches (source: National headache society guidance).\n   \n2. **Avoiding Medication Overuse**: It is crucial to avoid several treatment days per month with acute medications such as triptans or analgesics, as frequent use can lead to a condition known as medication-overuse headache (source: National headache society guidance).\n\n**Lifestyle Adjustments**:\n1. **Sleep Patterns**: Establishing a regular sleep schedule is vital. Inconsistent sleep can trigger migraines. It is beneficial to avoid sudden changes in sleep patterns (source: General clinical reference).\n\n2. **Dietary Considerations**: Some individuals find that certain foods or eating patterns can trigger migraines. Keeping a food diary to identify personal triggers may be helpful. Regular meal timing can also support stability and decrease withdrawal headaches related to abrupt changes.\n\n3. **Hydration and Caffeine Consumption**: Staying hydrated and being mindful of caffeine intake can also play a significant role in managing migraines. Too much or too little caffeine could potentially trigger an attack.\n\n4. **Physical Activity**: Regular physical activity might help reduce the frequency and severity of migraines, as it promotes overall well-being. However, it’s important to avoid overstressing the body, which might act as a trigger (source: General clinical reference).\n\nIn discussing these strategies, it might be helpful to bring them up with a clinician to see what could work best for your specific case.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4703.670542000054,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:22.264036Z",
+          "trace_id": "f6e9cee0a2bd4b4e88364c83470dda72",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 524,
+          "completion_tokens": 43,
+          "latency_ms": 910.189249999803,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:22.265179Z",
+          "trace_id": "f6e9cee0a2bd4b4e88364c83470dda72",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Determine if preventive measures are recommended based on the provided context.",
+              "why": "This is a general health question regarding preventive care."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 911.391624999851
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:22.265293Z",
+          "trace_id": "f6e9cee0a2bd4b4e88364c83470dda72",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:22.265369Z",
+          "trace_id": "f6e9cee0a2bd4b4e88364c83470dda72",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:23.495313Z",
+          "trace_id": "f6e9cee0a2bd4b4e88364c83470dda72",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 1238,
+          "completion_tokens": 131,
+          "latency_ms": 1226.1208330000954,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:23.495587Z",
+          "trace_id": "f6e9cee0a2bd4b4e88364c83470dda72",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:23.496503Z",
+          "trace_id": "f6e9cee0a2bd4b4e88364c83470dda72",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:23.497692Z",
+          "trace_id": "f6e9cee0a2bd4b4e88364c83470dda72",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:23.499017Z",
+          "trace_id": "f6e9cee0a2bd4b4e88364c83470dda72",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "Is that enough to need something preventive?",
+          "answer": "Preventive measures for migraines are typically recommended if a person experiences frequent attacks. While the exact threshold can vary, many clinicians consider preventive treatment if a person has migraines on 4 or more days per month, or if the attacks are particularly severe or disabling (source: National headache society guidance).\n\nSince you mentioned experiencing migraines six times a month, it would be reasonable to discuss the option of preventive measures with a clinician. They can help assess the frequency, severity, and impact of your migraines and determine if preventive treatment might be beneficial for you.\n\nBe sure to address any concerns about your migraine patterns during your discussion so that you can explore suitable preventive options.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 2141.950166999777,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:24.312517Z",
+          "trace_id": "2e2727830ac44305a0ebd27e28e2f63d",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 523,
+          "completion_tokens": 39,
+          "latency_ms": 812.8609999998844,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:24.313366Z",
+          "trace_id": "2e2727830ac44305a0ebd27e28e2f63d",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the options available for the topic at hand.",
+              "why": "A general health question asking for options."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 813.7698749997071
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:24.313448Z",
+          "trace_id": "2e2727830ac44305a0ebd27e28e2f63d",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:24.313499Z",
+          "trace_id": "2e2727830ac44305a0ebd27e28e2f63d",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:25.028688Z",
+          "trace_id": "2e2727830ac44305a0ebd27e28e2f63d",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 1410,
+          "completion_tokens": 18,
+          "latency_ms": 713.8524580000194,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:25.081035Z",
+          "trace_id": "2e2727830ac44305a0ebd27e28e2f63d",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "migraine prevention options",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 3,
+              "rrf_score": 0.030776515151515152
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 3,
+              "rrf_score": 0.03057889822595705
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.027777777777777776
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 1,
+              "rrf_score": 0.025833333333333333
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 51.939041999958135
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:25.081205Z",
+          "trace_id": "2e2727830ac44305a0ebd27e28e2f63d",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "migraine prevention options"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 52.14399999977104,
+          "source_doc_ids": [
+            "guideline-migraine-acute-and-preventive-treatment",
+            "red-flag-sudden-severe-headache",
+            "condition-migraine",
+            "lifestyle-migraine-sleep",
+            "lifestyle-type-2-diabetes-activity"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:28.305317Z",
+          "trace_id": "2e2727830ac44305a0ebd27e28e2f63d",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2566,
+          "completion_tokens": 357,
+          "latency_ms": 3223.7977499999033,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:28.305638Z",
+          "trace_id": "2e2727830ac44305a0ebd27e28e2f63d",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:28.309942Z",
+          "trace_id": "2e2727830ac44305a0ebd27e28e2f63d",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "What are the options for that?",
+          "answer": "Preventive treatment for migraines is considered when attacks are frequent or cause significant disability. Here are the main options and considerations for migraine prevention:\n\n1. **Medication**: Preventive medications are typically prescribed to help reduce the frequency and severity of migraine attacks. The goal is not to eliminate migraines entirely but to achieve a significant reduction, often defined as a 50% decrease in migraine days (source: National headache society guidance).\n\n2. **Criteria for Initiation**: Preventive treatment may be considered if you experience four or more migraine days per month with some level of disability. It can also be initiated if acute treatments are ineffective, if you prefer preventive therapy, or if you have fewer migraine attacks but they are particularly severe (source: National headache society guidance).\n\n3. **Types of Preventive Medications**: Common classes of preventive medications may include:\n   - Beta-blockers\n   - Antidepressants (such as amitriptyline)\n   - Anticonvulsants (like topiramate)\n   - Calcitonin gene-related peptide (CGRP) inhibitors\n\n4. **Lifestyle Modifications**: In addition to medication, certain lifestyle changes can also play a crucial role in prevention. This includes maintaining a consistent sleep schedule, managing stress, and identifying dietary triggers (source: General clinical reference).\n\n5. **Monitoring Treatment Response**: It’s important to monitor the effectiveness of any preventive treatment over a few migraine attacks to determine if it is working (source: National headache society guidance).\n\nDiscussing these options with a healthcare provider can help tailor an effective prevention plan based on your individual needs and preferences.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4806.202209000276,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

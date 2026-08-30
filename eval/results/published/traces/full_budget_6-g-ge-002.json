@@ -1,0 +1,256 @@
+{
+  "session_id": "full_budget_6-g-ge-002",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:16.337343Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 527,
+          "completion_tokens": 47,
+          "latency_ms": 685.0977080002849,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:16.338846Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Look up and report the recommended blood pressure target for most adults according to current guidelines.",
+              "why": "This is a guideline question regarding blood pressure targets."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 686.6934999998193
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:16.338951Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:16.339002Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:17.081824Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 789,
+          "completion_tokens": 22,
+          "latency_ms": 741.4112080004998,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:17.132418Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "blood pressure blood pressure targets",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 3,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 0,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 1,
+              "rrf_score": 0.031024531024531024
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.029957522915269395
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 3,
+              "rrf_score": 0.028404512489927477
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 0,
+              "rrf_score": 0.028258706467661692
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.028205128205128206
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.02668564312399929
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 2,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 1,
+              "rrf_score": 0.01282051282051282
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 50.13137500009179
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:17.132646Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "blood pressure",
+            "aspect": "blood pressure targets"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 50.391834000038216,
+          "source_doc_ids": [
+            "guideline-type-2-diabetes-glycemic-targets",
+            "guideline-hypertension-diagnosis-and-bp-targets",
+            "guideline-coronary-artery-disease-secondary-prevention",
+            "guideline-hypertension-first-line-treatment",
+            "guideline-lipid-screening-and-statin-initiation"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:18.263944Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2357,
+          "completion_tokens": 91,
+          "latency_ms": 1130.977583999993,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:18.264319Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:18.265042Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:18.265615Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T18:28:18.266273Z",
+          "trace_id": "e43537f768984cb588e7e37ecec6fa77",
+          "session_id": "full_budget_6-g-ge-002",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What blood pressure target does guidance describe for most adults?",
+          "answer": "Current guidelines recommend a blood pressure target of below 130/80 mm Hg for most adults. This target is supported by major cardiology society consensus guidance. \n\nHowever, there is some variability in recommendations among authorities. The American Society of Hypertension and other organizations may emphasize different thresholds or considerations based on individual circumstances, such as comorbidities.\n\nFor detailed information, you can refer to the major cardiology society consensus guidance regarding hypertension treatment targets.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 2612.376250000125,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

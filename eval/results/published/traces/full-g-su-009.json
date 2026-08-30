@@ -1,0 +1,359 @@
+{
+  "session_id": "full-g-su-009",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:02.343249Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 538,
+          "completion_tokens": 53,
+          "latency_ms": 944.8943749998762,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:02.343980Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently this headache needs care and identify potential red flags.",
+              "why": "The description of a severe headache with sudden onset and light sensitivity indicates an urgency assessment is required."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 945.7010829999035
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:02.344049Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:02.344086Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:03.158931Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 772,
+          "completion_tokens": 37,
+          "latency_ms": 813.8766249999208,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:03.214436Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "worst headache I've ever had, came on like a bang while I was lifting, and the lights hurt",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03057889822595705
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 1,
+              "rrf_score": 0.030117753623188408
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.028404512489927477
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.027884615384615386
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.027443609022556388
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 0,
+              "rrf_score": 0.02564102564102564
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 54.22529099996609
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:03.214648Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "worst headache I've ever had, came on like a bang while I was lifting, and the lights hurt"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 55.360750000090775,
+          "source_doc_ids": [
+            "red-flag-sudden-severe-headache",
+            "red-flag-acute-abdominal-pain",
+            "condition-migraine",
+            "guideline-migraine-acute-and-preventive-treatment",
+            "red-flag-meningitis-signs"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:04.044925Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2196,
+          "completion_tokens": 37,
+          "latency_ms": 829.9480840000797,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:04.073858Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "worst headache I've ever had, came on like a bang while I was lifting, and the lights hurt",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 1,
+              "rrf_score": 0.02967032967032967
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.02919863597612958
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.027783137179239824
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.014084507042253521
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 27.461041999913505
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:04.074098Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "worst headache I've ever had, came on like a bang while I was lifting, and the lights hurt"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 28.760790999967867,
+          "source_doc_ids": [
+            "condition-migraine",
+            "condition-hypertension",
+            "condition-upper-respiratory-infection",
+            "condition-iron-deficiency-anemia",
+            "condition-generalized-anxiety-disorder"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:05.620211Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3353,
+          "completion_tokens": 153,
+          "latency_ms": 1545.815457999879,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:05.620495Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:05.621121Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:05.621880Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:05.622610Z",
+          "trace_id": "a99bbcdad9294566a889ef3aa1edff5e",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "worst hedache ive ever had, came on like a bang while i was lifting, and the lights hurt",
+          "answer": "Your headache requires immediate medical care. Although the urgency assessment categorized it as routine, your description matches several red flags associated with serious conditions. \n\nIt’s important to note that a severe headache that comes on suddenly (\"like a bang\") could indicate a possible thunderclap headache, which is a medical emergency. This could be a sign of serious issues like a migraine, bleeding in the brain, or other neurological concerns. \n\nYou should discuss symptoms such as the intensity of the headache, its sudden onset during lifting, and sensitivity to light with a clinician. They may want to rule out conditions like migraine or other neurological issues. \n\nIf you feel that your symptoms are severe, worsening, or if you experience new and unexplained symptoms, seeking medical attention promptly is advised.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4222.308790999932,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

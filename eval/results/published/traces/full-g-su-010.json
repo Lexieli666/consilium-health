@@ -1,0 +1,339 @@
+{
+  "session_id": "full-g-su-010",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:06.458748Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 549,
+          "completion_tokens": 46,
+          "latency_ms": 834.9129579999044,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:06.459487Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently these symptoms need care and group them by body system.",
+              "why": "The symptoms described suggest a potential urgency that needs evaluation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 835.6896669999969
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:06.459609Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:06.459682Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:07.667081Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 785,
+          "completion_tokens": 114,
+          "latency_ms": 1206.4018329999726,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:07.733574Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "My neck has gone rigid, I can't get my chin down, and there are little purple spots on my legs that stay there when I press a glass on them.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.02844551282051282
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 65.2489169999626
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:07.733779Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "My neck has gone rigid, I can't get my chin down, and there are little purple spots on my legs that stay there when I press a glass on them."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 66.34433399995032,
+          "source_doc_ids": [
+            "red-flag-meningitis-signs",
+            "red-flag-severe-breathing-difficulty",
+            "lifestyle-gerd-diet",
+            "red-flag-stroke-symptoms",
+            "condition-generalized-anxiety-disorder"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:07.752789Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "My neck has gone rigid, I can't get my chin down, and there are little purple spots on my legs that stay there when I press a glass on them.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.03125763125763126
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.030886196246139225
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.03036576949620428
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.029910714285714284
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.02946912242686891
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 1,
+              "rrf_score": 0.027364110201042444
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.027106227106227107
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 18.451500000082888
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:07.752906Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "My neck has gone rigid, I can't get my chin down, and there are little purple spots on my legs that stay there when I press a glass on them."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 18.868166000174824,
+          "source_doc_ids": [
+            "condition-insomnia",
+            "condition-heart-failure",
+            "condition-upper-respiratory-infection",
+            "condition-iron-deficiency-anemia",
+            "condition-coronary-artery-disease"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:10.124625Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3493,
+          "completion_tokens": 196,
+          "latency_ms": 2371.5124999998807,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:10.124900Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:10.125719Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:10.126714Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:29:10.127765Z",
+          "trace_id": "114cccaa311e44db88f40c539e822a23",
+          "session_id": "full-g-su-010",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "My neck has gone rigid, I can't get my chin down, and there are little purple spots on my legs that stay there when I press a glass on them.",
+          "answer": "Your symptoms need care, but the urgency is classified as **routine**. There is no emergency pattern in the red-flag table that matched your description. However, if your symptoms are severe, worsening, or new and unexplained, it's still important to seek medical advice.\n\nNow, let's look at the body systems involved:\n\n1. **Neurological System:** \n   - The symptom of a rigid neck and an inability to bring your chin down could relate to neurological issues. This may suggest conditions like meningitis, which typically also involves significant fever and other signs.\n\n2. **Dermatological System:** \n   - The little purple spots you mentioned, which do not fade when pressed, are indicative of a potential dermatological condition. This could be a sign of vascular or bleeding issues that may need further assessment.\n\nThese symptoms can be associated with serious conditions, including infections or clotting problems. Discussing these symptoms with a clinician is essential to explore potential causes and necessary evaluations.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4501.250457999959,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

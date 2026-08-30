@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-gh-016",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:31.439887Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 529,
+          "completion_tokens": 45,
+          "latency_ms": 843.7785420001092,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:31.441141Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what coronary artery disease is and describe its development over time.",
+              "why": "This is a general health question about a condition explanation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 845.1148330000251
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:31.441266Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:31.441329Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:32.126582Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 729,
+          "completion_tokens": 26,
+          "latency_ms": 683.6003329999585,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:32.179398Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "coronary artery disease development over time",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 1,
+              "rrf_score": 0.030309988518943745
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.029957522915269395
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.02964254577157803
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 1,
+              "rrf_score": 0.028404512489927477
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.027272727272727275
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.027242401779095628
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 2,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 52.35095900002307
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:32.179598Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "coronary artery disease development over time",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 52.589707999914026,
+          "source_doc_ids": [
+            "condition-coronary-artery-disease",
+            "condition-hypertension",
+            "condition-heart-failure",
+            "condition-hypothyroidism",
+            "condition-type-2-diabetes"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:34.054064Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2025,
+          "completion_tokens": 206,
+          "latency_ms": 1874.0256250000584,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:34.054368Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:34.055201Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:34.056230Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:27:34.057121Z",
+          "trace_id": "1a0f50cd5e2a466fac2443b87e674387",
+          "session_id": "full-g-gh-016",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What is coronary artery disease and how does it develop over time?",
+          "answer": "Coronary artery disease (CAD) involves the build-up of atherosclerotic plaque in the arteries that supply blood to the heart muscle. This process begins with damage to the lining of the arteries, leading to the accumulation of cholesterol-rich materials beneath it. Over time, this plaque could either cause gradual narrowing of the arteries, which limits blood flow and may lead to stable angina (chest discomfort during exertion) or result in plaque rupture. The latter can trigger the formation of blood clots that might block the artery suddenly, causing an acute coronary syndrome, which can occur even if there were no previous symptoms.\n\nCAD develops over decades, starting from a young age with risk factors influencing its progression. Important factors include high cholesterol, smoking, hypertension, diabetes, and a sedentary lifestyle. Understanding these elements is crucial for discussing prevention and management strategies with a healthcare provider.\n\nIf you have additional questions or concerns related to coronary artery disease, or if you are experiencing symptoms, it is advisable to consult a healthcare professional.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3458.2995419998497,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

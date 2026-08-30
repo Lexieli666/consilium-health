@@ -1,0 +1,724 @@
+{
+  "session_id": "full-mt-m-005",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:38.035768Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 525,
+          "completion_tokens": 44,
+          "latency_ms": 813.2849999997234,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:38.037033Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently the heartburn symptoms need care and explore potential causes.",
+              "why": "A symptom description, which involves urgency assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 814.6334590001061
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:38.037141Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:38.037215Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:38.752097Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 761,
+          "completion_tokens": 20,
+          "latency_ms": 712.9879580002125,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:38.818012Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "heartburn most evenings",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.03131881575727918
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 0,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.03021353930031804
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 2,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 65.16670800010615
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:38.818235Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "heartburn most evenings"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 65.78200000012657,
+          "source_doc_ids": [
+            "condition-gerd",
+            "guideline-gerd-initial-management-and-alarm-features",
+            "red-flag-chest-pain",
+            "coding-gerd-k21",
+            "lifestyle-gerd-diet"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:39.571254Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2186,
+          "completion_tokens": 20,
+          "latency_ms": 752.6980830002685,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:39.598565Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "heartburn most evenings",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 26.384666000012658
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:39.598869Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "heartburn most evenings"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 27.237499999955617,
+          "source_doc_ids": [
+            "condition-gerd",
+            "condition-migraine",
+            "condition-generalized-anxiety-disorder",
+            "condition-insomnia",
+            "condition-copd"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:41.617807Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3309,
+          "completion_tokens": 184,
+          "latency_ms": 2018.5492909999994,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:41.618069Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:41.619136Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:41.620724Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:41.622706Z",
+          "trace_id": "4d71b7bf45184e5989bf50e97b0d1eae",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have been getting heartburn most evenings.",
+          "answer": "Your symptoms of heartburn experienced most evenings are classified as needing **routine** care. This means you should seek medical advice, especially if the symptoms worsen or are new and unexplained.\n\nHeartburn is commonly associated with gastroesophageal reflux disease (GERD). The typical presentation includes a burning sensation behind the breastbone and may involve regurgitation of acid or food. Factors that can contribute to heartburn include excess body weight, large or late meals, smoking, alcohol consumption, pregnancy, and certain medications (General clinical reference on GERD).\n\nSince your symptoms are occurring regularly, it could be helpful to discuss this pattern with a healthcare provider. They might want to investigate lifestyle factors or consider treatment options for GERD. Other potential causes of heartburn can include anxiety or dietary triggers, which could also be worth exploring with a clinician.\n\nIf you notice any severe symptoms or changes, do not hesitate to seek care sooner.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4395.795750000161,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:42.438307Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 523,
+          "completion_tokens": 46,
+          "latency_ms": 814.6266250000735,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:42.439304Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain how changing meal timing can influence health and well-being.",
+              "why": "This is a lifestyle guidance question without a symptom or evidence component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 815.6839589996707
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:42.439416Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:42.439492Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:43.155883Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 1013,
+          "completion_tokens": 26,
+          "latency_ms": 714.8412909996296,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:43.199819Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "meal timing influence health and well-being",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.03125763125763126
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.030330882352941176
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.02761904761904762
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.02690501986276634
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 43.51004099999045
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:43.199921Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "meal timing influence health and well-being",
+            "category": "lifestyle"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 43.680207999841514,
+          "source_doc_ids": [
+            "lifestyle-gerd-diet",
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-insomnia-sleep",
+            "lifestyle-type-2-diabetes-adherence",
+            "lifestyle-hypertension-diet"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:45.342285Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 2236,
+          "completion_tokens": 210,
+          "latency_ms": 2142.140582999673,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:45.342584Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:45.343781Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:45.345470Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:45.347418Z",
+          "trace_id": "17cf8e40a88548f6915dcefecae17055",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "Would changing when I eat help?",
+          "answer": "Changing meal timing can have a notable impact on health and well-being. Research indicates that both the size of meals and the timing at which they are consumed can influence symptoms such as heartburn. Larger meals can distend the stomach, increasing pressure against the esophagus, which may lead to reflux symptoms. Eating smaller meals can help mitigate this effect (source: lifestyle-gerd-diet).\n\nAdditionally, timing can matter greatly, especially when aligning meals with activities. For instance, leaving a gap of several hours between the last meal and going to bed can help prevent nocturnal heartburn. This is because lying down can exacerbate the effects of a full stomach (source: lifestyle-gerd-diet).\n\nOther conditions, such as diabetes, also emphasize the importance of meal timing, particularly for those on medications with fixed dosing schedules (source: lifestyle-type-2-diabetes-diet). \n\nIf you are considering changing when you eat, it may be helpful to discuss this with a healthcare provider, particularly to tailor any changes to your specific needs and symptoms.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3719.1295000002356,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:46.022657Z",
+          "trace_id": "f2b72cb77f8e4761803a2de015239a97",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 526,
+          "completion_tokens": 41,
+          "latency_ms": 674.3943750002472,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:46.023656Z",
+          "trace_id": "f2b72cb77f8e4761803a2de015239a97",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain if this condition can indicate more severe issues.",
+              "why": "This concerns a general health question about the condition."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 675.4574999999932
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:46.023766Z",
+          "trace_id": "f2b72cb77f8e4761803a2de015239a97",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:46.023843Z",
+          "trace_id": "f2b72cb77f8e4761803a2de015239a97",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:48.298212Z",
+          "trace_id": "f2b72cb77f8e4761803a2de015239a97",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 1307,
+          "completion_tokens": 249,
+          "latency_ms": 2272.3538330001247,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:48.298502Z",
+          "trace_id": "f2b72cb77f8e4761803a2de015239a97",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:51:48.301292Z",
+          "trace_id": "f2b72cb77f8e4761803a2de015239a97",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "And is it ever a sign of something worse?",
+          "answer": "Heartburn, while common, can sometimes indicate more serious conditions. In most cases, it is related to gastroesophageal reflux disease (GERD), which can be managed with lifestyle changes and, if necessary, medications. However, there are circumstances when heartburn may signal more severe issues.\n\nIf heartburn occurs frequently and is accompanied by other symptoms, such as difficulty swallowing, unexplained weight loss, persistent nausea, vomiting, or black or bloody stools, these could be signs of complications or other serious conditions (source: guideline-gerd-initial-management-and-alarm-features).\n\nFor instance, chronic GERD can lead to complications such as esophagitis, Barrett’s esophagus, or even esophageal cancer in more severe cases. These conditions are more likely to develop in individuals who experience persistent and untreated symptoms over time (source: condition-gerd-ald).\n\nIt's essential to discuss any concerning symptoms with a healthcare provider, as they can determine if further evaluation or management is necessary.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: guideline-gerd-initial-management-and-alarm-features, condition-gerd-ald]",
+          "risk_level": "routine",
+          "wall_ms": 2950.448958999914,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

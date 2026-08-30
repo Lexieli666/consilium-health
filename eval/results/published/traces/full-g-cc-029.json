@@ -1,0 +1,255 @@
+{
+  "session_id": "full-g-cc-029",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:13.015169Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 541,
+          "completion_tokens": 51,
+          "latency_ms": 815.131208999901,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:13.016543Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the purpose of the symptoms and abnormal findings chapter and when to use its codes over disease codes.",
+              "why": "This is a general health question related to classification."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 816.5769580000415
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:13.016661Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:13.016738Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:13.839285Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 748,
+          "completion_tokens": 21,
+          "latency_ms": 821.2075419996836,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:13.887855Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "symptoms and abnormal findings chapter",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 2,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 2,
+              "rrf_score": 0.030117753623188408
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 3,
+              "rrf_score": 0.03007688828584351
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 3,
+              "rrf_score": 0.029571646010002173
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 3,
+              "rrf_score": 0.02946912242686891
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 3,
+              "rrf_score": 0.028484848484848488
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 3,
+              "rrf_score": 0.028258706467661692
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 3,
+              "rrf_score": 0.02821939586645469
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 2,
+              "rrf_score": 0.027692895339954164
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 2,
+              "rrf_score": 0.027046783625730993
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 48.13358399997014
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:13.888059Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "symptoms and abnormal findings chapter"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 48.37274999999863,
+          "source_doc_ids": [
+            "coding-icd10-chapter-18-symptoms",
+            "coding-icd10-chapter-04-endocrine",
+            "coding-icd10-chapter-09-circulatory",
+            "coding-icd10-chapter-11-digestive",
+            "coding-icd10-chapter-10-respiratory"
+          ]
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:15.780818Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "openai",
+          "model": "gpt-4o-mini-2024-07-18",
+          "prompt_tokens": 3508,
+          "completion_tokens": 181,
+          "latency_ms": 1892.5300840001,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:15.781125Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:15.782213Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:15.783721Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-08-30T17:32:15.785575Z",
+          "trace_id": "8c4d6572097c4a65ba2447355bf94cbd",
+          "session_id": "full-g-cc-029",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What is the symptoms and abnormal findings chapter for, and when should a code from it be used instead of a disease code?",
+          "answer": "The Symptoms and Abnormal Findings chapter in the ICD-10 (International Classification of Diseases, 10th Revision) is designed to categorize symptoms, signs, and abnormal findings that may not yet be linked to a specific disease diagnosis. This chapter includes a wide range of conditions, such as abnormal laboratory results, unexplained symptoms, and other clinical signs (codes R00-R99). \n\nCodes from this chapter are typically used when a patient presents symptoms that have not yet been diagnosed. For example, if someone has chest pain or abnormal laboratory findings but no definitive diagnosis, the appropriate code would be from this chapter. When a specific disease or condition has been diagnosed, the corresponding disease code should be used instead.\n\nIn summary, use an R code from the Symptoms and Abnormal Findings chapter when dealing with symptoms or signs without a confirmed diagnosis. Once a definitive diagnosis exists, switch to the appropriate disease code.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3581.3217499999155,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}
