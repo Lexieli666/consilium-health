@@ -1236,23 +1236,41 @@ safety half is `docs/SAFETY.md`.
 - **The account-level cross-check is pending and is recorded as pending.** The provider dashboard
   had not settled; until it does, the only cost figure the project stands behind is the traced
   $0.5313, and every place it is published says what it excludes.
-- **The README's failure-case section ships as a marked stub.** The owner writes those by hand from
-  `TEMPLATE.md`; the stub says so, says what will go in it, and points at the published false-negative
-  item ids as the interim list. **A stub that pretends to be written is worse than an empty section
+- **The failure cases are written, and the stub is closed.** Four cases, hand-written by the owner
+  from `TEMPLATE.md` and verified against the published tree before they landed. They live in
+  **`docs/FAILURE_CASES.md`** in full; the README carries **Case 1 in full** -- it is the mechanism
+  behind the headline red-flag finding, so summarizing it there would summarize the headline -- plus
+  a one-line pointer to each of the other three. The rule the stub was written under still holds and
+  is why the section waited: **a stub that pretends to be written is worse than an empty section
   labelled empty.**
+- **The four cases are owner-authored text and the repository holds them verbatim.** The only edits
+  made when they landed were mechanical -- heading level, the §2.6 disclaimer prepended to the new
+  document, trailing whitespace. **Every quoted string in them was re-verified byte for byte against
+  `eval/results/published/` and the corpus notes they cite** before the commit, and that check is
+  the gate on any future edit to them: a case whose quote no longer matches the trace is a case that
+  has stopped being evidence. The one discrepancy the check found -- Case 2 originally counted 7
+  consultation-to-research routing errors where the run has **8** -- was **returned to the owner and
+  fixed at the source**, not patched here. The amended sentence also carries the 4-of-8 split
+  (`g-gh-017`, `-018`, `-020` under `find_guideline`'s guideline filter and `g-cc-019` under
+  `search_knowledge`'s condition filter lose the document; the other four reach an unfiltered skill
+  and recover it), because the misroute alone does not cause the miss -- **the miss is the
+  conjunction of the wrong agent and a filtered skill**, and Case 2's title claim only holds for the
+  four.
 - **`LICENSE` is MIT** and the README no longer promises it in a future phase. `[project.urls]` is
   still absent, because it needs a repository URL and no repository has been created.
-- **Open item for the pre-push review (§2.5): the verbatim files carry the operator's local path.**
-  `summary.json`'s `golden_path` / `multiturn_path` and the two lines of `report.md` that echo them
-  contain `/Users/stephanienoe/Desktop/...`, which is a personal directory name. It is published
-  because those two files are published **byte for byte** and redacting them would break the one
-  property that makes them evidence. There are no credentials anywhere in the published tree and
-  the 679 traces are clean -- this is a name and a home directory, nothing more. **The owner decides
-  before the repository goes public.** The three options, none of them taken here: publish as is;
-  re-run the sweep from a path that reveals nothing and publish that run instead; or accept a
-  redacted publication and say in the directory's `README.md` that two fields were redacted and
-  that the digests therefore cover the redacted files. Editing the bytes without saying so is the
-  one option that is not available.
+- **Decided: the operator's local path is published as is, on written consent.** `summary.json`'s
+  `golden_path` / `multiturn_path` and the two lines of `report.md` that echo them contain
+  `/Users/stephanienoe/Desktop/...`, a personal directory name. **The operator consented in writing
+  (email, 2026-08-30) to publishing it unchanged**, and that is the resolution: option one of the
+  three, taken deliberately rather than by default. The reason it was the option worth consenting
+  to is that those two files are published **byte for byte**, and redacting them would break the one
+  property that makes them evidence. There are no credentials anywhere in the published tree and the
+  679 traces are clean -- this is a name and a home directory, nothing more. The two options not
+  taken, recorded because a decision is only readable beside what it rejected: re-run the sweep from
+  a path that reveals nothing and publish that run instead; or redact and say in the directory's
+  `README.md` that two fields were redacted and that the digests therefore cover the redacted files.
+  **Editing the bytes without saying so was never available**, and consent does not make it so --
+  what was consented to is publication of the bytes as they stand.
 
 ## 17. Phase status
 
@@ -1267,4 +1285,4 @@ safety half is `docs/SAFETY.md`.
 | 7. Safety | done | `917b0b2` |
 | 8. Eval harness + golden set | **done — Checkpoint B cleared on both files.** Golden set hand-labelled blind and frozen; multi-turn set labelled, `m-017` dropped, 29 conversations frozen; provenance split from the gate; cross-file lint over both files. | `c2c7cf6` |
 | 9. API + SSE + CLI polish | **done.** `consilium chat`; `consilium/api/` with `/v1/ask`, `/v1/chat` (SSE), `/v1/sessions/{id}`, `/healthz`; banner-before-token, API-layer concurrency and session-leak tests. One departure from a frozen decision, §4 refinement 2. | `374f479` |
-| 10. Docs, published eval run, README numbers | **done, except the push.** Run published to `eval/results/published/` (summary + report byte-identical, 679 traces, manifest); `docs/SAFETY.md` written; README results with the negative headline; `docs/EVALUATION.md` §5.3 A3 close-out and §6 results; `LICENSE`. **`gh repo create` and the file-list review have not been done** -- §2.5 governs them and they are the owner's call. | |
+| 10. Docs, published eval run, README numbers | **done, except the push.** Run published to `eval/results/published/` (summary + report byte-identical, 679 traces, manifest); `docs/SAFETY.md` written; README results with the negative headline; `docs/EVALUATION.md` §5.3 A3 close-out and §6 results; `LICENSE`. **Failure cases written and landed** -- `docs/FAILURE_CASES.md` holds all four, the README carries Case 1 in full, every quote re-verified against the published tree. **The operator's local path is decided: published as is, on written consent.** **`gh repo create` and the file-list review have not been done** -- §2.5 governs them and they are the owner's call. | |
