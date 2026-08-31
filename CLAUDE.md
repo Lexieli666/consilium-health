@@ -1233,9 +1233,42 @@ safety half is `docs/SAFETY.md`.
   provider charged, = 4.438), and it covers the **input side only** — judge output cannot be rebuilt
   from anything committed, so ≈$0.68 is a floor rather than an estimate. See §2 constraint 1 for the
   refinement that permits it at all.
-- **The account-level cross-check is pending and is recorded as pending.** The provider dashboard
-  had not settled; until it does, the only cost figure the project stands behind is the traced
-  $0.5313, and every place it is published says what it excludes.
+- **The account-level cross-check is closed, 2026-08-30, and it did not corroborate the judge
+  reconstruction.** The operator's dashboard settled and the four figures are on the record in
+  `docs/EVALUATION.md` §5.3: account lifetime total **$0.63** before the sweep, **$1.03** settled
+  after, so a **$0.40** account-side delta against the traced **$0.5313**. The entry this replaces
+  read "**The account-level cross-check is pending and is recorded as pending.** The provider
+  dashboard had not settled; until it does, the only cost figure the project stands behind is the
+  traced $0.5313, and every place it is published says what it excludes." Its last clause survives
+  the closure unchanged, and that is the point of the entry: **closing the cross-check did not move
+  the figure the project stands behind.**
+  - **The traced figure sits *above* the billed delta, and the direction is expected.** The trace
+    prices every prompt token at the full input rate — the only rate `eval/metrics.py` applies —
+    while the provider bills cached input at a discount. That is published as **a consistent
+    explanation and never as a verified attribution**: the dashboard reports totals and does not
+    itemize cache hits, so nothing establishes that caching accounts for the $0.13 or for how much
+    of it. **No discounted rate is named**, for the same reason §14 recovers rates rather than
+    restating them.
+  - **The delta is $0.40 against a traced-plus-reconstructed ≈$1.21, so it corroborates the traced
+    figure's order of magnitude and not the ≈$0.68 judge reconstruction.** Reconciling them would
+    take a discount erasing about two thirds of the combined full-rate figure. ≈$0.68 therefore
+    stays exactly as it was labelled — input-side arithmetic over committed files, a floor rather
+    than an estimate — and **it is not softened into agreement with the account figure**, nor the
+    account figure into agreement with it. A lifetime-total delta is not an itemization either: it
+    covers everything charged in the window and attributes nothing to a call, which is why it can be
+    a cross-check and never a measurement.
+  - **An operator-attested figure is a fourth kind of number, named as such wherever it appears.**
+    §2 constraint 1 separates measured, `not measured`, and *reconstructed*, and holds a
+    reconstruction to "a reviewer holding only this repository must be able to recompute it". These
+    four figures fail that test by construction — they come off a dashboard nobody but the operator
+    can open — so they are published as **attested**, with their provenance named, and they may
+    never displace a measured figure. They are recorded because a cross-check nobody wrote down is
+    indistinguishable from one that was never made.
+  - **It waited for settlement, and the wait is why the finding is the direction it is.** The
+    operator's first same-day reading was **$1.22**, giving a $0.59 delta, which sits *above*
+    $0.5313; settlement to $1.03 reversed the direction. That is recorded in §5.3 rather than
+    dropped, because a cross-check read before provider totals settle is a coin flip presented as
+    evidence.
 - **The failure cases are written, and the stub is closed.** Four cases, hand-written by the owner
   from `TEMPLATE.md` and verified against the published tree before they landed. They live in
   **`docs/FAILURE_CASES.md`** in full; the README carries **Case 1 in full** -- it is the mechanism
