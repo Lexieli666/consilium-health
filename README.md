@@ -357,4 +357,4 @@ are needed for real retrieval quality numbers and are deliberately absent from C
 
 ## License
 
-MIT. See `LICENSE`.
+Apache 2.0. See `LICENSE`.

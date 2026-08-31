@@ -1256,8 +1256,30 @@ safety half is `docs/SAFETY.md`.
   and recover it), because the misroute alone does not cause the miss -- **the miss is the
   conjunction of the wrong agent and a filtered skill**, and Case 2's title claim only holds for the
   four.
-- **`LICENSE` is MIT** and the README no longer promises it in a future phase. `[project.urls]` is
-  still absent, because it needs a repository URL and no repository has been created.
+- **`LICENSE` is Apache-2.0. Owner's decision, 2026-08-30, replacing the MIT license Phase 10
+  shipped.** The basis is the owner's and is recorded rather than re-argued: the repository has zero
+  forks and no outside contributors, so the copyright holder is the only party whose permission a
+  relicense needs and the change is made unilaterally. The file is the **verbatim** Apache License
+  2.0 text -- byte-identical to the canonical copy except for the single line the license's own
+  appendix reserves for it, `Copyright [yyyy] [name of copyright owner]`, filled in as
+  `Copyright 2026 Lexieli666`. Nothing else in the text is touched, because a license with an
+  edited term is no longer the license it names. `pyproject.toml` carries the SPDX expression
+  `license = "Apache-2.0"`; there is no trove `License ::` classifier to update and none is added,
+  PEP 639 having deprecated them in the SPDX expression's favour. The README's license line names
+  Apache 2.0 and still points at `LICENSE` rather than restating terms.
+  **No per-file license headers were added.** The appendix recommends them, the LICENSE file
+  governs without them, and adding one to every module would be a diff across the whole repository
+  that changes nothing about what is licensed -- while touching the corpus notes, whose byte-level
+  conventions §7 freezes, and the published traces, which are evidence and are not edited for
+  cosmetics.
+- **The MIT record is kept as history, not erased.** `LICENSE` was added as MIT in `57ac66d` and
+  every commit from there through `c2a0777` was published under it. A relicense is not retroactive:
+  a copy taken in that window is held under MIT and stays so, and the sentence this entry replaced
+  -- "**`LICENSE` is MIT** and the README no longer promises it in a future phase" -- was true of
+  each of those commits. It is quoted here rather than overwritten for the same reason
+  `faithfulness_v1.md` stays on disk unedited (§14): the terms a shipped artifact was published
+  under have to remain readable beside the ones that replaced them. `[project.urls]` is still
+  absent, because it needs a repository URL and no repository has been created.
 - **Decided: the operator's local path is published as is, on written consent.** `summary.json`'s
   `golden_path` / `multiturn_path` and the two lines of `report.md` that echo them contain
   `/Users/stephanienoe/Desktop/...`, a personal directory name. **The operator consented in writing
