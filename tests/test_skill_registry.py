@@ -139,6 +139,30 @@ def test_successful_call_is_timed_and_traced(
     assert event.source_doc_ids == ["doc-a"]
 
 
+def test_the_transport_travels_from_the_context_onto_the_event(
+    toy: SkillRegistry, tracer: Tracer, memory_sink: MemorySink
+) -> None:
+    """The registry is the one emitter, so it is the one place the transport can be recorded.
+
+    Carried on the context beside ``agent`` rather than passed per call: both are properties of the
+    caller, fixed for a whole unit of work, and a per-call argument is one a call site can forget.
+    """
+    toy.run("echo", {"value": 1}, SkillContext(tracer=tracer, agent="mcp", transport="mcp"))
+
+    (event,) = memory_sink.of_type(ToolCallEvent)
+    assert event.transport == "mcp"
+    assert event.agent == "mcp"
+
+
+def test_the_transport_defaults_to_internal_for_a_loop_call(
+    toy: SkillRegistry, tracer: Tracer, memory_sink: MemorySink
+) -> None:
+    toy.run("echo", {"value": 1}, SkillContext(tracer=tracer, agent="diagnostic"))
+
+    (event,) = memory_sink.of_type(ToolCallEvent)
+    assert event.transport == "internal"
+
+
 def test_unknown_skill_returns_a_failure_and_still_traces(
     toy: SkillRegistry, tracer: Tracer, memory_sink: MemorySink
 ) -> None:

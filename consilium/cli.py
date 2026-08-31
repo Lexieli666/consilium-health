@@ -1,8 +1,8 @@
 """Interface: the terminal entry point.
 
 Phase 2 landed ``ingest``; Phase 4 added ``ask`` and ``trace``; Phase 8 added ``eval``; Phase 9
-adds ``chat``.  Each arrived with the layer it drives, because a command that shells out to a module
-that does not exist yet is worse than a missing command.
+added ``chat``; Phase 11 adds ``mcp-serve``.  Each arrived with the layer it drives, because a
+command that shells out to a module that does not exist yet is worse than a missing command.
 
 Output here goes through ``typer.echo`` rather than the logger.  The two are not interchangeable and
 the distinction is the same one ``consilium/log.py`` draws: structlog writes operational records for
@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import shutil
+import sys
 import uuid
 from pathlib import Path
 from typing import Annotated
@@ -24,6 +25,14 @@ from consilium.agents import AGENT_TYPES
 from consilium.config import Settings, get_preset
 from consilium.llm.factory import ProviderError
 from consilium.log import bind_turn, configure_logging, get_logger
+from consilium.mcp_server import (
+    DEFAULT_HOST,
+    DEFAULT_PATH,
+    DEFAULT_PORT,
+    build_server,
+    http_app,
+    serve_stdio,
+)
 from consilium.retrieval.corpus import CorpusError
 from consilium.retrieval.index import EmbedderName, StoreName, ingest, make_embedder, make_store
 from consilium.runtime import Runtime, TurnOutcome, build_runtime, run_turn
@@ -343,6 +352,89 @@ def _first_free_turn(runs_dir: Path, session_id: str) -> int:
         return 0
     used = {int(path.stem) for path in directory.glob("*.jsonl") if path.stem.isdigit()}
     return max(used) + 1 if used else 0
+
+
+@app.command(name="mcp-serve")
+def mcp_serve(
+    transport: Annotated[
+        str,
+        typer.Option("--transport", help="stdio (desktop hosts) or http (streamable HTTP)."),
+    ] = "stdio",
+    host: Annotated[
+        str, typer.Option("--host", help="Bind address for --transport http.")
+    ] = DEFAULT_HOST,
+    port: Annotated[int, typer.Option("--port", help="Port for --transport http.")] = DEFAULT_PORT,
+    path: Annotated[
+        str, typer.Option("--path", help="URL path the streamable-HTTP endpoint is mounted at.")
+    ] = DEFAULT_PATH,
+    session: Annotated[
+        str | None,
+        typer.Option("--session", help="Trace session id for this server. Random if omitted."),
+    ] = None,
+    config_name: Annotated[
+        str, typer.Option("--config", help="Run configuration preset. Retrieval must be on.")
+    ] = "full",
+    store: Annotated[
+        str, typer.Option("--store", help="Vector store: chroma (persistent) or numpy (memory).")
+    ] = "chroma",
+    embedder: Annotated[
+        str, typer.Option("--embedder", help="Embedder: bge (real) or hash (offline, no download).")
+    ] = "bge",
+) -> None:
+    """Serve the seven skills to an MCP host.
+
+    The same registry the internal ReAct loop calls and the HTTP API answers from, offered over the
+    Model Context Protocol. Every invocation is traced as a `tool_call` with `transport: mcp` and
+    every result is wrapped by the same safety policy an internal answer is.
+
+    No provider is contacted on this path: an MCP host brings its own model, and this process only
+    runs skills. That is why `--config` matters here for exactly one thing -- retrieval has to be
+    on -- and why no key is needed to serve.
+
+    **On stdio, stdout belongs to the protocol.** Logging is redirected to stderr before the server
+    starts and this command prints nothing, because a single line of anything else in that stream is
+    a JSON-RPC parse error at the host.
+    """
+    if transport not in ("stdio", "http"):
+        raise typer.BadParameter(f"--transport must be 'stdio' or 'http'; got {transport!r}")
+
+    settings = Settings.from_env()
+    # stderr on stdio, and stderr on http too: the two differ in whether stdout is *reserved*, not
+    # in where operational records belong, and one destination means a host's logs read the same
+    # whichever transport it launched.
+    configure_logging(settings.log_level, settings.log_format, stream=sys.stderr)
+    store_name, embedder_name = _pipeline_names(store, embedder)
+
+    try:
+        runtime = build_runtime(
+            settings,
+            config=get_preset(config_name),
+            embedder=embedder_name,
+            store=store_name,
+        )
+        server = build_server(runtime, session_id=session)
+    except (CorpusError, ProviderError, KeyError, ValueError) as exc:
+        log.error("mcp.setup_failed", error=str(exc))  # noqa: TRY400
+        raise typer.Exit(code=1) from exc
+    except ImportError as exc:  # the [embeddings] extra is not installed
+        raise typer.BadParameter(
+            f"{exc}. Install the optional extra with `uv sync --extra embeddings`, or run "
+            "`--embedder hash --store numpy` for the offline pipeline."
+        ) from exc
+
+    log.info(
+        "mcp.serving",
+        transport=transport,
+        skills=list(runtime.registry.names),
+        documents=len(runtime.documents),
+    )
+    if transport == "stdio":
+        asyncio.run(serve_stdio(server))
+        return
+
+    import uvicorn
+
+    uvicorn.run(http_app(server, host=host, path=path), host=host, port=port)
 
 
 @app.command(name="trace")

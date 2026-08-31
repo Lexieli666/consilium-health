@@ -13,8 +13,9 @@ Keep this file current. When a phase freezes a new decision — a schema, a file
 
 ## 1. Build protocol
 
-Ten phases (§9 of the brief). The original protocol stopped at a checkpoint after every phase. That
-was replaced by the following, on the owner's instruction:
+Ten phases (§9 of the brief), plus the production phases in `../02-PLAN.md` Part B onwards, of which
+**Phase 11 (MCP) is built** -- see §17. The original protocol stopped at a checkpoint after every
+phase. That was replaced by the following, on the owner's instruction:
 
 - **Run autonomously through the phases.** At each phase boundary run `ruff check`,
   `ruff format --check`, `mypy`, `pytest`. If they pass, commit with a conventional-commit message
@@ -349,7 +350,7 @@ Seven event types:
 |---|---|
 | `route` | `mode` (`single`\|`parallel`), `agents[]`, `subtasks[]` (`PlannedSubtask`), `fallback`, `latency_ms` |
 | `llm_call` | `caller`, `provider`, `model`, `prompt_tokens`, `completion_tokens`, `latency_ms`, `tools_offered[]`, `stop_reason` |
-| `tool_call` | `agent`, `skill`, `args`, `ok`, `error`, `latency_ms`, `source_doc_ids[]` |
+| `tool_call` | `agent`, `skill`, `args`, `ok`, `error`, `latency_ms`, `source_doc_ids[]`, `transport` |
 | `retrieval` | `skill`, `query`, `category_filter`, `fused_topk[]` (`FusedHit`), `returned_k`, `latency_ms` |
 | `safety` | `event` (`violation`\|`repair`), `rule`, `scope` (`tool_call`\|`output`), `agent`, `detail`, `post_stream` |
 | `blackboard` | `event` (`assigned`\|`started`\|`completed`\|`failed`\|`timeout`), `subtask_id`, `agent` |
@@ -380,6 +381,18 @@ Frozen details that are easy to break by accident:
   measured numbers in `docs/EVALUATION.md`, not by an argument. **If the guard costs any recall on
   the labelled set, the default reverts to raw matching and `docs/DESIGN.md` says so with the
   data.**
+- **`tool_call.transport` is `internal | mcp`, defaults to `internal`, and did **not** bump
+  `SCHEMA_VERSION`.** Added in Phase 11 when the skill registry acquired a second caller. The
+  version moves when an event's *required* fields change; this one is optional, and the reason that
+  is safe rather than merely legal is that the default is a **true statement about every
+  `tool_call` written before the field existed** -- there was no MCP server, so every call was the
+  loop calling its own registry. Version 1's `red_flag_matched` could not be defaulted honestly,
+  which is exactly why that change bumped the version and this one does not: a version-2 trace from
+  either side of this commit means the same thing and the two pool without translation. It is a
+  closed `Literal` for the reason `CALLER_PATTERN` exists -- tool calls are reported split by it, so
+  a free-form string would open a third bucket on a typo. It is carried on `SkillContext` beside
+  `agent` rather than passed to `SkillRegistry.run`, because both are properties of the caller that
+  are fixed for a whole unit of work, and a per-call argument is one a call site can forget.
 - **`safety.post_stream`** marks a repair applied after tokens were already delivered to the
   client. Only the SSE path can set it. `docs/SAFETY.md` must state this plainly. **Phase 9 built
   the SSE path and it does not set the flag** -- it repairs before the first byte of the body -- so
@@ -455,7 +468,16 @@ These were decided by the owner after the Phase-0 critique and **override the br
 - **`[embeddings]` extra** (`sentence-transformers`, `chromadb`) is **never installed in CI**.
 - **Adding any dependency not listed in §2 of the brief requires asking first.** `numpy` was added
   in Phase 1 as a core dependency because the `NumpyStore` seam the offline rule mandates cannot
-  exist without it.
+  exist without it. **`mcp>=2.1,<3` was added in Phase 11 as a *core* dependency, on the owner's
+  authorization**, and the placement is the decision rather than the addition. The one extra this
+  project has is never installed in CI because it drags in multi-GB torch wheels and the offline
+  seams exist so CI never needs it; neither half applies here. `mcp` is pure Python and every
+  transitive dependency it needs -- starlette, uvicorn, sse-starlette, pydantic, httpx -- was
+  already resolved for the HTTP API. Decisively: Part B's acceptance criterion is a contract test
+  that runs offline in pytest, and **a test skipped on the machine running the PR gate is not a
+  gate**. The MCP server is also a shipped interface like `consilium/api/` (§6), and `consilium
+  mcp-serve` is a console-script command -- a command that raises `ImportError` on an installed
+  wheel is the trap that keeps `eval` *out* of the wheel, not a pattern to copy.
 - **The offline rule**: `pytest -m "not network"` passes with no API key, no model download and no
   network, and that is the CI command. It is satisfied by the `Embedder` and `VectorStore` protocol
   seams — **never** by mocking `sentence_transformers` or `chromadb`.
@@ -464,8 +486,13 @@ These were decided by the owner after the Phase-0 critique and **override the br
 
 ## 6. Frozen: layout and naming
 
-- Five layers, strict boundaries: Interface (`cli.py`, `api/`) → Router → Agents (incl. `loop.py`)
-  → Skills → Substrate (`retrieval`, `memory`, `safety`, `llm`, `trace`, `config`).
+- Five layers, strict boundaries: Interface (`cli.py`, `api/`, `mcp_server.py`) → Router → Agents
+  (incl. `loop.py`) → Skills → Substrate (`retrieval`, `memory`, `safety`, `llm`, `trace`,
+  `config`). **The boundary rule is that nothing imports from a layer above it; it does not require
+  an interface to enter at the top.** `cli.py` and `api/` go through the router because their unit
+  of work is a question; `mcp_server.py` goes straight to the skills because MCP's unit of work is
+  a tool, and the layer it skips is the one that decides *which* tools to call -- a decision the
+  MCP host is making instead. See §18.
 - **The API lives at `consilium/api/`, with no root-level `api/` shim.** The brief says `api/main.py`;
   a top-level package outside `consilium/` would sit outside `--cov=consilium` and its request
   validation would go uncovered. Import path: `consilium.api.main:app`.
@@ -1327,7 +1354,97 @@ safety half is `docs/SAFETY.md`.
   **Editing the bytes without saying so was never available**, and consent does not make it so --
   what was consented to is publication of the bytes as they stand.
 
-## 17. Phase status
+## 17. Frozen: the MCP server (Phase 11)
+
+The frozen spec is Part B of `../02-PLAN.md`, outside the repository, read on the owner's explicit
+authorization. **B1 and the B2/README scaffolding are built; B3 -- consuming an external MCP server
+through `deep_research` -- is declared optional there and was skipped on the owner's instruction, so
+nothing in this repository consumes MCP.** Rationale for each decision, with the rejected
+alternative, is in `docs/DESIGN.md` under "Phase 11 -- the skill registry over MCP".
+
+- **`consilium/mcp_server.py` is an Interface-layer module that enters at the Skills layer.** See
+  §6. It owns no retrieval, no rule table and no rendering: it maps one protocol onto
+  `SkillRegistry` and stops. The claim the phase exists to earn is that **the same skill registry
+  has three consumers -- the internal ReAct loop, the HTTP API, and any MCP host** -- and a consumer
+  that reimplemented half of what it consumed would not support it.
+- **The SDK is `mcp` 2.x and the server object is `mcp.server.lowlevel.Server`, not FastMCP.**
+  Part B names "the FastMCP server API"; in mcp 2.x that class was renamed `MCPServer`, and it is
+  **not** what this uses. Three reasons, and the first two are disqualifying rather than
+  preferences:
+  1. **It derives a tool's schema from a Python function signature.** Serving seven schemas the
+     project already holds would mean synthesizing seven signatures for it to read back, and the
+     read-back is **lossy** -- measured, not assumed: it drops `description`, `minLength` and, since
+     every skill argument model is `extra="forbid"`, `additionalProperties: false`. Publishing a
+     schema that says an unknown key is refused while the code silently ignores it is precisely the
+     drift the "derive, never restate" rule exists to prevent, and MCP callers are untrusted.
+  2. **It validates arguments before the handler runs**, so a malformed call would be refused
+     *before* `SkillRegistry` saw it and therefore **before any `tool_call` event was written** --
+     an MCP invocation invisible to the traces, which is the one thing this integration must not
+     produce.
+  3. The low-level `Server` takes `on_list_tools`/`on_call_tool` as constructor callbacks, publishes
+     a `types.Tool` list verbatim, hands the handler the raw `(name, arguments)`, and carries **both
+     transports itself** -- `run()` over the streams `stdio_server()` yields, and
+     `streamable_http_app()` for the remote one. It is the API for tools whose schemas you already
+     have, which is what this project has.
+- **Every tool's `inputSchema` is `Skill.parameters_schema()`, the same call
+  `SkillRegistry.to_tool_schemas` makes.** One derivation, published verbatim. A test asserts
+  equality per tool *through an SDK client*, and a second test asserts the three properties a
+  regenerated schema would have lost -- because equality alone would pass if both sides were
+  regenerated the same lossy way.
+- **The safety layer wraps every result, and it is the same two objects the turn boundary uses.**
+  `PolicyValidator.check_output` then `OutputRepair.apply`, against the red-flag assessment of the
+  **caller's arguments** -- input-side, as everywhere else. So every result carries the disclaimer,
+  a red-flag argument gets the banner first **including when the call failed** (the case where
+  nothing in the payload could have escalated on its own), and a forbidden sentence is redacted.
+  `post_stream` stays `False`: nothing is delivered before the guard runs (§4 refinement 2, §13).
+- **The delivered text is `SkillResult.to_observation()` inside that envelope -- one renderer, not
+  two.** The consequence is that a wrapped result is not a bare JSON document, and that is the right
+  way round: a host that needed the payload without the envelope would be asking for the guard to be
+  optional. A second presentation of a skill result would be a surface nothing else exercises.
+- **The red-flag assessment reads every string argument, not a per-skill field.** Which argument
+  carries the symptom differs across seven models (`symptoms`, `query`, `condition`, `question` plus
+  `sub_queries`), and a mapping would be a second table to keep in step. Order cannot change the
+  outcome: the values are joined by a newline and the matcher searches the whole block.
+- **A tool call is a tool call, not a turn: no `turn` event is written.** The host owns the
+  conversation; this process sees one skill invocation with no question and no delivered answer.
+  `eval/metrics.py` counts turns by that event, so a fabricated one would walk into the denominators
+  of published numbers. What is written is the real thing: a `tool_call` with `transport="mcp"`,
+  the skill's `retrieval` events, and the `safety` events. **One trace file per call**, at
+  `runs/<mcp-session>/<n>.jsonl`, so `consilium trace` reads an MCP call the same way it reads a
+  turn; the counter is guarded by a lock because the HTTP transport can have calls in flight.
+- **No `mcp` agent is added to `data/policy.yaml`, and that is load-bearing.** `eval/validate.py`
+  derives the *exclusive* skill grants by reading that file -- a skill is exclusive when no other
+  agent holds it. An eighth agent holding all seven would make every grant non-exclusive and
+  **silently empty the route-document check that guards the golden set's labels**: a published check
+  turned off by a change to an unrelated feature. The permitted set here is therefore the tool list
+  itself -- an unpublished skill cannot be called, and an unknown name comes back from the registry
+  as `ok=False` **with** a `tool_call` event, which is what the loop does with the same input.
+  `tool_call.agent` is `"mcp"`, deliberately not one of the three specialists: the caller is the
+  host's model, and labelling it `consultation` would put its calls in that agent's bucket.
+- **The server refuses a runtime with `retrieval=False`**, mirroring `create_app`'s refusal of
+  `memory=False` and for the same kind of reason: five of the seven skills are declared
+  `requires_retrieval=True` and would fail on every call, so the host would be offered a tool list
+  most of which errors -- a broken server rather than a smaller one. It needs **no** provider call and **no**
+  working memory, which is the same fact as "a tool call is not a turn" seen from the other side.
+- **On stdio, stdout belongs to the protocol.** `consilium mcp-serve` points structlog at stderr
+  before starting (`configure_logging(..., stream=sys.stderr)`, added for this one caller) and the
+  command prints nothing: a single line of anything else in that stream is a JSON-RPC parse error at
+  the host. The same destination is used on the HTTP transport, so a host's logs read the same
+  either way.
+- **The contract test speaks the protocol, twice.** `mcp.Client(server)` over the SDK's in-memory
+  streams is the "mock transport" the acceptance criterion names; a second test launches
+  `consilium mcp-serve` as a **subprocess** and talks over real pipes, because an in-process client
+  cannot show that the console command wires a transport up at all. Both are offline and neither
+  needs a key -- an MCP host brings its own model, so nothing on this path calls a provider.
+- **The demo GIF is not recorded and the README says so in those words.** `docs/assets/mcp-demo.gif`
+  is referenced and absent. Same rule as the Phase-10 failure-case stub: a placeholder that pretends
+  to be a recording is worse than an empty one labelled empty, and nothing in the README's MCP
+  section claims anything about a host that has not been run.
+- **No measured number changed.** The MCP server adds a consumer for skills the published run
+  already measured; it is not in any configuration `eval/run.py` sweeps, and
+  `eval/results/published/` is untouched.
+
+## 18. Phase status
 
 | phase | state | commit |
 |---|---|---|
@@ -1341,3 +1458,4 @@ safety half is `docs/SAFETY.md`.
 | 8. Eval harness + golden set | **done — Checkpoint B cleared on both files.** Golden set hand-labelled blind and frozen; multi-turn set labelled, `m-017` dropped, 29 conversations frozen; provenance split from the gate; cross-file lint over both files. | `c2c7cf6` |
 | 9. API + SSE + CLI polish | **done.** `consilium chat`; `consilium/api/` with `/v1/ask`, `/v1/chat` (SSE), `/v1/sessions/{id}`, `/healthz`; banner-before-token, API-layer concurrency and session-leak tests. One departure from a frozen decision, §4 refinement 2. | `374f479` |
 | 10. Docs, published eval run, README numbers | **done, except the push.** Run published to `eval/results/published/` (summary + report byte-identical, 679 traces, manifest); `docs/SAFETY.md` written; README results with the negative headline; `docs/EVALUATION.md` §5.3 A3 close-out and §6 results; `LICENSE`. **Failure cases written and landed** -- `docs/FAILURE_CASES.md` holds all four, the README carries Case 1 in full, every quote re-verified against the published tree. **The operator's local path is decided: published as is, on written consent.** **`gh repo create` and the file-list review have not been done** -- §2.5 governs them and they are the owner's call. | |
+| 11. MCP server (`../02-PLAN.md` Part B) | **B1 done, B2 partly, B3 skipped.** `consilium/mcp_server.py` over `mcp.server.lowlevel.Server`; `consilium mcp-serve` with stdio and streamable HTTP; schemas published verbatim from the registry; every result through the validator and the repair; `tool_call.transport = "mcp"`; contract tests over an in-memory transport and a real subprocess. README MCP section written **with the GIF marked not recorded** -- B2's host demo is the owner's to record. B3 (consuming an external MCP server) skipped on the owner's instruction. `CHANGELOG.md` written for the v0.1.0 tag. | |
