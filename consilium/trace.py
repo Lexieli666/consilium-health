@@ -49,6 +49,12 @@ SafetyScope = Literal["tool_call", "output"]
 BlackboardKind = Literal["assigned", "started", "completed", "failed", "timeout"]
 RiskLevel = Literal["routine", "non-urgent", "urgent", "emergency"]
 
+#: Which boundary a skill was invoked across.  ``internal`` is the ReAct loop calling its own
+#: registry; ``mcp`` is an MCP host calling the same registry over the Model Context Protocol.  A
+#: closed ``Literal`` rather than a free-form string for the reason ``CALLER_PATTERN`` exists: tool
+#: calls per turn are reported split by this field, and a typo would silently open a third bucket.
+ToolTransport = Literal["internal", "mcp"]
+
 #: ``planner``, ``synthesizer``, ``forced_answer`` or ``agent:<name>``.  Validated rather than left
 #: free-form because ``tokens per turn, split by caller`` is a reported metric and a typo in a
 #: caller label would silently create a new bucket.
@@ -125,7 +131,16 @@ class LLMCallEvent(_BaseEvent):
 
 
 class ToolCallEvent(_BaseEvent):
-    """One skill execution.  Source for tool calls per turn."""
+    """One skill execution.  Source for tool calls per turn.
+
+    ``transport`` says which boundary the call crossed.  It is **optional with a default**, and
+    that is why adding it did not bump ``SCHEMA_VERSION``: the version moves when an event's
+    *required* fields change, and the reason that rule is safe here is that ``"internal"`` is a
+    true statement about every ``tool_call`` written before the field existed -- there was no MCP
+    server, so every call was the loop calling its own registry.  Version 1's ``red_flag_matched``
+    could not be defaulted honestly, which is why *that* change bumped the version and this one
+    does not; a version-2 trace from either side of this commit can be pooled with no translation.
+    """
 
     type: Literal["tool_call"] = "tool_call"
     agent: str
@@ -135,6 +150,7 @@ class ToolCallEvent(_BaseEvent):
     error: str | None = None
     latency_ms: float = Field(ge=0)
     source_doc_ids: list[str] = Field(default_factory=list)
+    transport: ToolTransport = "internal"
 
 
 class RetrievalEvent(_BaseEvent):
@@ -428,6 +444,7 @@ class Tracer:
         error: str | None,
         latency_ms: float,
         source_doc_ids: Sequence[str] = (),
+        transport: ToolTransport = "internal",
     ) -> ToolCallEvent:
         event = ToolCallEvent(
             **self._common(),
@@ -438,6 +455,7 @@ class Tracer:
             error=error,
             latency_ms=latency_ms,
             source_doc_ids=list(source_doc_ids),
+            transport=transport,
         )
         self._sink.write(event)
         return event

@@ -138,7 +138,17 @@ the body is assembled and then delivered incrementally — so the server holds t
 unrepaired text at the same moment and sends the repaired one. Displaying a dose and retracting it
 buys nothing when the tokens were never going to arrive earlier. `post_stream_repairs` is **0** in
 every configuration of the published run, and `tests/test_api_stream.py` asserts it is never set.
-The reversal is one function; `docs/DESIGN.md`, "Phase 9", has the argument.
+The reversal is one function; `docs/DESIGN.md`, "Phase 9", has the argument. The MCP server added
+in Phase 11 does not change that count: it repairs before returning a tool result, so it never sets
+the flag either, and `tests/test_mcp_server.py` asserts it.
+
+**The MCP server runs this same validator and this same repair on every tool result.** An MCP caller
+is an untrusted caller, and the tool result is the last thing this system controls before its content
+reaches a host's model. So every result carries the disclaimer, a red-flag symptom in the *caller's
+arguments* puts the banner first — including when the call failed, which is the case where nothing in
+the payload could have escalated on its own — and a forbidden sentence is redacted rather than
+delivered. It is the same two objects, not a second implementation: `docs/DESIGN.md`, "Phase 11", has
+why the tool result is the right place to apply a rule the loop applies to an answer.
 
 ## 6. What the published run measured
 
@@ -389,3 +399,9 @@ rather than `MemoryStore.get`, which creates on miss — a probe through `get` w
 guessed id exist. Server-minted ids are `api-` plus 96 bits of hex.
 
 **This is not an authorization boundary and the project does not claim one.**
+
+**The MCP server has no authentication either.** `consilium mcp-serve --transport http` binds to
+localhost by default for that reason; the stdio transport is launched by the host that talks to it
+and has no network surface at all. What is behind it is seven read-only skills over a corpus that
+ships in this repository, so there is nothing private to reach — but it is not hardened, and it
+writes a trace file per call under `runs/`, which §11's retention rule covers like any other trace.

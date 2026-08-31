@@ -9,24 +9,32 @@ grounds the answer in a retrieval corpus, enforces a safety policy on every outp
 structured trace of the whole turn so that every reported number can be recomputed from evidence in
 this repository.
 
-**Status: all ten phases built and one evaluation run published.** The numbers below come from
-`eval/results/published/summary.json` and nowhere else, and the run that produced them — all 679
-traces — is committed beside it. The headline result is a **negative** one and it is in the Results
-section rather than in a footnote.
+**Status: all ten build phases done, one evaluation run published, and the skill registry now also
+served over MCP.** The numbers below come from `eval/results/published/summary.json` and nowhere
+else, and the run that produced them — all 679 traces — is committed beside it. The headline result
+is a **negative** one and it is in the Results section rather than in a footnote. The MCP server
+(Phase 11) changed no measured number: it adds a third consumer for the skills the run already
+measured, and it is described under MCP below.
 
 ## Architecture
 
 ```
-Interface       cli.py · consilium/api/  HTTP and terminal entry points
+Interface       cli.py · consilium/api/ · mcp_server.py   terminal, HTTP and MCP entry points
     │
 Router          planner · blackboard · synthesizer
     │
 Agents          Consultation · Diagnostic · Research · loop.py (the shared ReAct engine)
     │
-Skills          7 atomic, self-describing tools · registry
+Skills          7 atomic, self-describing tools · registry  (all three interfaces consume this)
     │
 Substrate       retrieval · memory · safety · llm · trace · config · log
 ```
+
+The three interfaces do not all enter at the top. `cli.py` and `consilium/api/` go through the
+router, because their unit of work is a question. `mcp_server.py` goes straight to the skills,
+because MCP's unit of work is a *tool* and the layer it skips is the one that decides which tools to
+call — a decision the MCP host is making instead. Serving the router over MCP would publish one tool
+called "ask", which is what the HTTP API already is.
 
 It is planner–worker orchestration with a shared blackboard, not a swarm: a central planner
 decomposes the question, assigns each subtask to a named worker, the workers run in parallel and
@@ -272,6 +280,7 @@ uv run consilium ingest      # load, chunk, embed and index data/corpus/ into da
 uv run consilium ask "what does guidance say about starting a statin?"
 uv run consilium chat        # multi-turn REPL; one session id, one memory path
 uv run uvicorn consilium.api.main:app     # POST /v1/ask, POST /v1/chat (SSE), GET /healthz
+uv run consilium mcp-serve   # the seven skills as MCP tools over stdio (see MCP, below)
 ```
 
 Then open <http://127.0.0.1:8000/> for the single-file demo page: it holds one session, streams a
@@ -314,6 +323,61 @@ uv run pytest                # -m "not network" is the default via addopts
 `uv sync --extra embeddings` additionally installs `sentence-transformers` and `chromadb`, which
 are needed for real retrieval quality numbers and are deliberately absent from CI.
 
+## MCP
+
+**The same skill registry has three consumers: the internal ReAct loop, the HTTP API, and any MCP
+host.** That is the point of this integration and it is a statement about the code rather than a
+description of it — `consilium/mcp_server.py` is an adapter with no retrieval, no rule table and no
+rendering of its own. Every tool it publishes is a skill the agents already call, every
+schema it publishes is `Skill.parameters_schema()` — the same call that builds the OpenAI tool
+definitions offered to a model inside the loop — and every result it returns has been through the
+same `PolicyValidator` and `OutputRepair` a turn's answer goes through.
+
+```bash
+uv run consilium mcp-serve                          # stdio, for a desktop host
+uv run consilium mcp-serve --transport http --port 8001   # streamable HTTP, for a remote client
+```
+
+No API key is needed to serve: an MCP host brings its own model, so nothing on this path calls a
+provider. Point a host at it with:
+
+```json
+{
+  "mcpServers": {
+    "consilium-health": {
+      "command": "uv",
+      "args": ["run", "consilium", "mcp-serve"],
+      "cwd": "/path/to/consilium-health"
+    }
+  }
+}
+```
+
+Four things are true of an MCP call that are worth stating, because each one is a place this could
+have been a demo instead:
+
+- **Schemas are generated, never restated.** The `inputSchema` on the wire is byte-identical to the
+  registry's own, `additionalProperties: false` and field constraints included. The contract test
+  asserts that per tool *through an SDK client* rather than in-process, over both the SDK's
+  in-memory transport and a real subprocess launched as `consilium mcp-serve`.
+- **MCP callers are untrusted callers, so the safety layer runs.** Every result carries the
+  disclaimer. A red-flag symptom in the *arguments* gets the escalation banner first — including
+  when the call failed, which is the case where nothing in the payload could have escalated on its
+  own. A forbidden sentence is redacted rather than delivered.
+- **Every invocation is in the trace.** A `tool_call` event with `transport: "mcp"`, beside the
+  `retrieval` and `safety` events it produced, in `runs/<session>/<n>.jsonl` — readable with
+  `consilium trace`. A malformed call is traced too, as `ok=false`, which is why argument validation
+  is left to the registry instead of to the transport.
+- **A tool call is not a turn, so no `turn` event is written.** The host owns the conversation;
+  this process saw one skill invocation. `eval/metrics.py` counts turns by that event, so inventing
+  one would put MCP traffic into the denominators of published numbers.
+
+**Demo GIF: not yet recorded.** The path is `docs/assets/mcp-demo.gif` and the file is not in the
+repository. It will show a host connected to the stdio server running two interactions — a
+retrieval query with its citations, and a red-flag question showing the escalation output. Nothing
+in this section is a claim about a host that has not been run: what is asserted above is asserted by
+`tests/test_mcp_server.py`, which speaks the protocol but is not a host.
+
 ## Limitations
 
 - The corpus is educational summary content written for this project. It is not a clinical
@@ -341,6 +405,10 @@ are needed for real retrieval quality numbers and are deliberately absent from C
 - **The input-side red-flag matcher does not generalize.** It is a literal phrase table: it matched
   5 of 5 plainly-phrased red-flag questions and 0 of 22 realistically-phrased ones. Anything it
   covers, it covers exactly; anything phrased around it, it misses entirely.
+- **The MCP server has no authentication either, and `--transport http` binds to localhost by
+  default for that reason.** It exposes seven read-only skills over a corpus that ships in this
+  repository, so there is nothing private behind it, but it is not hardened and it writes a trace
+  file per call under `runs/`.
 - Coverage, latency, cost and quality numbers are stated with their measurement conditions or
   marked `not measured`. Two numbers in `docs/EVALUATION.md` §5.3 are **reconstructions** rather
   than measurements — the judge's calls were never traced — and are labelled as such where they
@@ -354,6 +422,7 @@ are needed for real retrieval quality numbers and are deliberately absent from C
   published run measured, and §7: why the full configuration halves red-flag recall.
 - `docs/FAILURE_CASES.md` — four worked failures from the published run, each traced to the file it
   came from. Case 1 is reproduced in full above.
+- `CHANGELOG.md` — what landed in each phase, with the commit and date it landed in.
 
 ## License
 

@@ -53,7 +53,7 @@ from consilium.safety.validator import PolicyValidator
 from consilium.skills.base import SkillContext, SkillResult
 from consilium.skills.registry import SkillRegistry
 from consilium.skills.symptom_map import SymptomSystemMap
-from consilium.trace import RiskLevel, RouteMode, Tracer, TurnEvent, stopwatch
+from consilium.trace import RiskLevel, RouteMode, ToolTransport, Tracer, TurnEvent, stopwatch
 
 
 @dataclass(frozen=True)
@@ -80,8 +80,20 @@ class Runtime:
     #: see ``consilium/memory/episodic.py`` for why, and docs/EVALUATION.md for the consequence.
     episodic: EpisodicMemory | None = None
 
-    def context(self, *, agent: str, tracer: Tracer | None = None) -> SkillContext:
-        """A per-turn skill context labelled for one agent."""
+    def context(
+        self,
+        *,
+        agent: str,
+        tracer: Tracer | None = None,
+        transport: ToolTransport = "internal",
+    ) -> SkillContext:
+        """A per-turn skill context labelled for one agent.
+
+        ``transport`` defaults to ``internal`` because that is what a turn is.  ``consilium
+        mcp_server`` passes ``mcp``, which is the only thing separating an MCP host's tool call
+        from the loop's in the trace -- the skill, the registry and the substrate underneath are
+        the same objects.
+        """
         return SkillContext(
             retriever=self.retriever,
             red_flags=self.red_flags,
@@ -89,6 +101,7 @@ class Runtime:
             documents=self.documents,
             tracer=tracer,
             agent=agent,
+            transport=transport,
         )
 
     def agent(self, name: str) -> BaseAgent:
