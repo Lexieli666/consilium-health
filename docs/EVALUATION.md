@@ -1457,12 +1457,58 @@ not the bill" and why `--no-judge` is documented as the thing that bounds the ot
 property of the design — computing from the trace and nothing else — and it is a real limitation of
 it, not a caveat about wording.
 
-**The account-level cross-check is pending.** The provider dashboard lags and had not settled when
-this was written, so the one comparison that would close the loop — the account total for the run
-window against $0.5313 plus the judge's untraced calls — has not been made. It is the only thing
-that can confirm the reconstruction above, and until it exists the reconstruction stands as
-arithmetic over committed files and nothing more. **The only cost figure this project stands behind
-is the traced $0.5313**, and every place it is published says what it does not include.
+**The account-level cross-check is closed, and the account was billed less than the trace priced.**
+The operator read the provider dashboard once it had settled and reported the figures by email
+(2026-08-30):
+
+| | |
+|---|---|
+| account lifetime total, before the sweep | $0.63 |
+| account lifetime total, settled after | $1.03 |
+| **account-side delta across the run window** | **$0.40** |
+| the sweep's traced `llm_call` events | **$0.5313** |
+
+**Those four are operator-attested figures — not measurements and not reconstructions — and that
+is a category of its own, beside the measurement and the reconstruction this section already
+separates.** A measurement comes out of `eval/run.py`; a reconstruction is arithmetic a reviewer
+holding this repository can redo over committed files; this comes off a dashboard nobody but the
+operator can open. It is recorded because
+a cross-check that is never written down is indistinguishable from one that was never made, not
+because anything here can check it.
+
+**The traced figure sits above the billed delta — 1.33× it, $0.5313 against $0.40 — and that
+direction is the expected one.** The trace prices every prompt token at the full input rate, because
+that is the only rate `eval/metrics.py` applies; the provider bills a cached input token at a
+discount. A sweep of 782 turns over a fixed set of system prompts and tool schemas is the shape that
+caches well, so a bill below the trace's full-rate arithmetic is what a reader should expect.
+**That is a consistent explanation and not a verified attribution.** The dashboard reports totals
+and does not itemize cache hits, so nothing here establishes that caching accounts for the $0.13,
+or for how much of it. Naming a discounted rate would not settle it either — it would mean
+restating a rate card, which this section recovers rather than asserts everywhere else.
+
+**It does not corroborate the judge reconstruction, and that is the larger result.** The comparison
+this section posed before it could be made was the account delta against $0.5313 *plus the judge's
+untraced calls* — ≈$1.21 once the reconstruction's ≈$0.68 of judge input is included, and more than
+that once judge output is counted at all. The delta is $0.40. Reconciling those would take a
+discount erasing about two thirds of the combined full-rate figure, a far larger correction than the
+traced half needs and one nothing available here supports. So the cross-check corroborates the
+traced figure's order of magnitude and leaves ≈$0.68 exactly as it was already labelled: input-side
+arithmetic over committed files, a floor rather than an estimate — and now a floor that the one
+external number in this section does not sit above. The delta is also not an itemization: it is the
+difference of two lifetime totals, so it covers everything charged to that account in the window and
+attributes nothing to a particular call. That is why it can be a cross-check and never a
+measurement.
+
+**Why it waited for settlement.** The operator's first same-day reading was **$1.22**, which settled
+to **$1.03**. The unsettled reading gives a $0.59 delta rather than a $0.40 one, and $0.59 sits
+*above* $0.5313 — so a cross-check run against it would have recorded the opposite direction and the
+paragraph above would have been written backwards. Provider totals lag, and one read before they
+settle is a coin flip presented as evidence.
+
+**The only cost figure this project stands behind is still the traced $0.5313**, and every place it
+is published still says what it does not include. The cross-check does not replace it and was never
+going to: it is not reproducible from this repository, it is not itemized, and it does not cover the
+same quantity.
 
 ---
 
