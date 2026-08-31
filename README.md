@@ -372,11 +372,11 @@ have been a demo instead:
   this process saw one skill invocation. `eval/metrics.py` counts turns by that event, so inventing
   one would put MCP traffic into the denominators of published numbers.
 
-**Demo GIF: not yet recorded.** The path is `docs/assets/mcp-demo.gif` and the file is not in the
-repository. It will show a host connected to the stdio server running two interactions — a
-retrieval query with its citations, and a red-flag question showing the escalation output. Nothing
-in this section is a claim about a host that has not been run: what is asserted above is asserted by
-`tests/test_mcp_server.py`, which speaks the protocol but is not a host.
+![Claude Desktop connected to the consilium stdio server: a retrieval query with citations, then a red-flag question showing the escalation output](docs/assets/mcp-demo.gif)
+
+Recorded 2026-08-30 against Claude Desktop over stdio, with the offline retrieval pipeline
+(`--embedder hash --store numpy`); no provider key is involved on this path — the host brings its
+own model and this process only runs skills.
 
 ## Limitations
 
