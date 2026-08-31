@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sqlite3
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
@@ -16,8 +18,17 @@ from consilium.retrieval import HashEmbedder
 
 
 @pytest.fixture
-def store(tmp_path: Path) -> SqliteEpisodicStore:
-    return SqliteEpisodicStore(tmp_path / "episodic.db")
+def store(tmp_path: Path) -> Iterator[SqliteEpisodicStore]:
+    """A store that is closed on teardown, however the test ended.
+
+    Not a detail of tidiness. The connection is the only OS resource this module holds, and one
+    that is merely collected raises `ResourceWarning` whenever the collector next runs -- which
+    under `filterwarnings = ["error"]` fails whatever unrelated test is executing at that moment.
+    That is what it did on Python 3.13: nine connections leaked by this fixture surfaced as a
+    failure in `tests/test_eval_cost_cap.py`.
+    """
+    with SqliteEpisodicStore(tmp_path / "episodic.db") as instance:
+        yield instance
 
 
 @pytest.fixture
@@ -101,15 +112,34 @@ def test_a_wrong_sized_embedding_is_refused(store: SqliteEpisodicStore) -> None:
 
 def test_episodes_survive_reopening_the_database(tmp_path: Path) -> None:
     path = tmp_path / "episodic.db"
-    first = EpisodicMemory(SqliteEpisodicStore(path), HashEmbedder(), recall_enabled=True)
-    first.remember(session_id="s1", question="asthma inhaler", key_findings="stepwise therapy")
-    first.close()
+    with EpisodicMemory(SqliteEpisodicStore(path), HashEmbedder(), recall_enabled=True) as first:
+        first.remember(session_id="s1", question="asthma inhaler", key_findings="stepwise therapy")
 
-    second = EpisodicMemory(SqliteEpisodicStore(path), HashEmbedder(), recall_enabled=True)
-    (recalled,) = second.recall("asthma inhaler", k=1)
+    with EpisodicMemory(SqliteEpisodicStore(path), HashEmbedder(), recall_enabled=True) as second:
+        (recalled,) = second.recall("asthma inhaler", k=1)
 
     assert recalled.episode.key_findings == "stepwise therapy"
-    second.close()
+
+
+def test_leaving_the_context_actually_closes_the_connection(tmp_path: Path) -> None:
+    """Asserted against the connection, not against the call.
+
+    A test that only checked `close()` had been reached would pass against a `close()` that did
+    nothing. Using a closed `sqlite3` connection raises `ProgrammingError`, so that is the evidence
+    the resource is gone -- which is the property the `ResourceWarning` was complaining about.
+    """
+    with SqliteEpisodicStore(tmp_path / "episodic.db") as store:
+        assert store.count() == 0
+
+    with pytest.raises(sqlite3.ProgrammingError):
+        store.count()
+
+
+def test_closing_twice_is_not_an_error(tmp_path: Path) -> None:
+    """So a caller may close explicitly inside a `with` block without a second failure mode."""
+    store = SqliteEpisodicStore(tmp_path / "episodic.db")
+    store.close()
+    store.close()
 
 
 def test_clearing_the_store_empties_it(episodic: EpisodicMemory) -> None:
