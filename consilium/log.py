@@ -12,7 +12,7 @@ Named ``log`` rather than ``logging`` so that no reader has to reason about whet
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, TextIO
 
 import structlog
 from structlog.contextvars import bind_contextvars, clear_contextvars
@@ -34,12 +34,18 @@ def ensure_turn_fields(_logger: WrappedLogger, _method: str, event_dict: EventDi
     return event_dict
 
 
-def configure_logging(level: str = "INFO", fmt: str = "json") -> None:
+def configure_logging(level: str = "INFO", fmt: str = "json", stream: TextIO | None = None) -> None:
     """Configure structlog process-wide.
 
     ``cache_logger_on_first_use`` is off so that a test or a CLI flag can reconfigure logging after
     a logger has already been created; at this scale the per-call cost is irrelevant next to an
     LLM round trip.
+
+    ``stream`` defaults to ``None``, which is structlog's own default of ``sys.stdout``.  It exists
+    for one caller: the MCP server's stdio transport, where stdout carries JSON-RPC frames and a
+    log line written into it is a protocol error rather than a cosmetic problem.  A flag on the
+    logging setup rather than a redirect at the entry point, because the entry point would have to
+    redirect *around* every library that might log, and this is the one place that decision is made.
     """
     renderer: Any = (
         structlog.processors.JSONRenderer()
@@ -59,7 +65,7 @@ def configure_logging(level: str = "INFO", fmt: str = "json") -> None:
         wrapper_class=structlog.make_filtering_bound_logger(
             logging.getLevelNamesMapping().get(level.upper(), logging.INFO)
         ),
-        logger_factory=structlog.WriteLoggerFactory(),
+        logger_factory=structlog.WriteLoggerFactory(file=stream),
         cache_logger_on_first_use=False,
     )
 

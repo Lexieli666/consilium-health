@@ -1869,3 +1869,237 @@ red-flag recall means after seeing the run it was used to produce is the one mov
 every number in this document unfalsifiable. And the failure-case section ships as a **marked
 stub** rather than as a paragraph of plausible prose, because a section that looks written is worse
 than an empty one labelled empty.
+
+---
+
+## Phase 11 — the skill registry over MCP
+
+Part B of the plan asks for MCP "as architecture, not as a resume keyword". The concrete form that
+takes here: **the same `SkillRegistry` the ReAct loop calls acquires a second caller, and nothing
+about it is duplicated to make that possible.** `consilium/mcp_server.py` is an adapter with no
+retrieval, no rule table and no rendering of its own. Everything below is a decision about keeping
+it that way.
+
+### The server enters at the Skills layer, not at the top
+
+**Chosen.** `mcp_server.py` is an Interface-layer module that consumes the Skills layer directly,
+skipping the Router and the Agents.
+
+**Rejected — serve the router, so that MCP enters where the CLI and the API enter.** One tool,
+`ask`, taking a question and returning a routed answer. It would keep every interface on one path.
+
+**Why.** MCP's unit of work is a tool, and the layer being skipped is the one that decides *which*
+tools to call — a decision the MCP host is making instead. An MCP server that published a single
+`ask` tool would be the HTTP API with a different envelope, and it would deliver exactly none of
+what Part B is for: the host would get one opaque capability rather than seven inspectable ones, and
+the sentence the phase exists to earn ("the same skill registry has three consumers") would be false
+because the third consumer would be consuming the router.
+
+This is a *skip*, not an inversion. The layering rule in CLAUDE.md §6 is that nothing imports from a
+layer above it, and that still holds: `mcp_server.py` imports `Runtime` and the skills, and nothing
+in the Skills layer knows it exists.
+
+### The low-level `Server`, not the FastMCP decorator API
+
+**Chosen.** `mcp.server.lowlevel.Server`, constructed with `on_list_tools` and `on_call_tool`
+callbacks.
+
+**Rejected — `MCPServer` (what `FastMCP` was renamed to in mcp 2.x), which the plan names.**
+
+**Why.** Two of the three reasons are disqualifying rather than preferences.
+
+First, the decorator API derives a tool's `inputSchema` from a Python function signature. The
+project already holds the schemas — `Skill.parameters_schema()`, derived from the same Pydantic
+argument model the loop's OpenAI tool definitions come from — so using it would mean synthesizing
+seven function signatures for the SDK to read a schema back out of. That read-back was measured
+before the decision, not assumed, and it is lossy: it drops `description`, it drops `minLength`, and
+because every skill argument model is `extra="forbid"` it drops `additionalProperties: false`.
+Publishing a schema that promises unknown keys are refused while the code silently ignores them is
+the drift that "derive, never restate" exists to prevent — and it is worse here than internally,
+because MCP callers are untrusted callers and the promise is being made to one of them.
+
+Second, the decorator API validates arguments *before* the handler runs. A malformed call would be
+refused before `SkillRegistry` ever saw it, and therefore before any `tool_call` event was written.
+The point of Part B's tracing requirement is that MCP usage shows up in the same traces as internal
+usage; a class of MCP invocation that produces no trace record at all is the one outcome this
+integration must not have. Leaving argument validation to the registry is not laxity — the registry
+validates against the *stricter* model, the one that actually refuses unknown keys — it is what puts
+the refusal on the record.
+
+Third, and merely convenient: the low-level `Server` takes a `types.Tool` list verbatim, hands the
+handler the raw `(name, arguments)`, and carries both transports itself — `run()` over the streams
+`stdio_server()` yields, and `streamable_http_app()` for the remote one. It is the API for tools
+whose schemas you already have.
+
+### The safety layer wraps the tool result, because the tool result is what is delivered
+
+**Chosen.** `PolicyValidator.check_output` then `OutputRepair.apply` on the rendered result, against
+the red-flag assessment of the caller's arguments, with the same two objects the turn boundary uses.
+
+**Rejected — run only the tool-call half of the validator, on the grounds that a tool result is an
+observation rather than an answer, and the loop does not validate observations either.**
+
+**Why.** The loop does not validate observations because in the loop an observation is not
+delivered to anybody: it goes back to a model that will produce an answer, and *that* is what gets
+checked before delivery. Over MCP there is no later answer inside this process. The tool result is
+the last thing this system controls before its content reaches a host's model and, through it, a
+person. Applying the output policy there is not an analogy to what the loop does — it is the same
+rule applied at the same point, which is the boundary where content leaves.
+
+What that buys, concretely: every result carries the disclaimer; a red-flag symptom in the arguments
+puts the escalation banner first; a forbidden sentence is redacted rather than delivered. The
+assessment is input-side, as everywhere else in this project, because escalation is owed for what
+was asked — a result that never names the symptom would otherwise pass the check by saying nothing.
+And it applies to failures too: the sharpest case is a call that failed argument validation with a
+red flag in its arguments, where nothing in the payload could have escalated on its own, so the
+seek-care instruction can only have come from the guard.
+
+### One renderer, and the consequence of keeping it
+
+**Chosen.** The delivered text is `SkillResult.to_observation()` — the same string the loop feeds
+the model — inside the safety envelope.
+
+**Rejected — a plain-text rendering of the result for MCP, so that the envelope wraps prose and the
+whole block stays parseable.**
+
+**Why.** A second presentation of a skill result is a surface nothing else in the repository
+exercises, and it would drift from the one the evaluation numbers were produced against. The cost of
+not writing it is that a wrapped result is no longer a bare JSON document, since a banner has to be
+readable first and a disclaimer has to be present. That is the right way round: a host that needed
+the payload without the envelope would be asking for the guard to be optional.
+
+The red-flag assessment reads **every string argument** rather than a named field per skill, for a
+smaller version of the same reason. Which argument carries the symptom differs across seven models
+(`symptoms`, `query`, `condition`, `question` plus `sub_queries`), so a mapping would be a second
+table to keep in step with them. Order cannot change the outcome: the values are joined with a
+newline and the matcher searches the whole block, so no pattern can span two of them.
+
+### A tool call is not a turn
+
+**Chosen.** No `turn` event. One `tool_call` carrying `transport="mcp"`, the skill's own `retrieval`
+events, the `safety` events for what the guard found and did — one trace file per call, under the
+MCP session's id.
+
+**Rejected — synthesize a turn, so that MCP traffic is shaped like everything else in `runs/` and
+`consilium trace` has a `turn` line to print.**
+
+**Why.** A `turn` event carries a question and a delivered answer, and this process has neither: the
+host owns the conversation and this is one skill invocation inside it. Inventing them would be
+writing down two things that did not happen — and the cost is not cosmetic, because every metric in
+`eval/metrics.py` counts turns by that event. A fabricated `turn` would walk straight into the
+denominators of numbers this project publishes.
+
+The trace layout follows from the same fact. One file per call rather than one per session keeps
+`trace_id` meaning "one unit of work", keeps `consilium trace <session> --turn <n>` working with no
+special case, and keeps the per-call counter — guarded by a lock, because the streamable-HTTP
+transport can have calls in flight — as the only piece of shared state the server holds.
+
+### `tool_call.transport` did not bump `SCHEMA_VERSION`
+
+**Chosen.** `transport: Literal["internal", "mcp"] = "internal"`, and `SCHEMA_VERSION` stays 2.
+
+**Rejected — bump to 3, on the grounds that the event has a field it did not have before.**
+
+**Why.** The rule in CLAUDE.md §3 is that the version moves when an event's *required* fields
+change, and the reason that rule is safe rather than merely legal is visible in the contrast with
+the version it already carries. Version 2 added `red_flag_matched_raw` to `turn`, and a version-1
+`red_flag_matched` genuinely means something different from a version-2 one — the two cannot be
+pooled without translation, which is why the version had to move. Here the default is a **true
+statement about every `tool_call` written before the field existed**: there was no MCP server, so
+every call was the loop calling its own registry. A version-2 record from either side of this commit
+means the same thing, and pooling them is correct. Bumping would have made the 679 published traces
+look stale against a change that does not affect them.
+
+It is a closed `Literal` rather than a free-form string for the reason `llm_call.caller` is
+pattern-validated: tool calls are reported split by this field, so a typo would silently open a
+third bucket. And it is carried on `SkillContext` beside `agent` rather than passed to
+`SkillRegistry.run`, because both are properties of the caller that are fixed for a whole unit of
+work — a per-call argument is one a call site can forget, and the registry is the only emitter.
+
+### No `mcp` agent in `data/policy.yaml`
+
+**Chosen.** The permitted set is the published tool list. `tool_call.agent` is the literal `"mcp"`.
+
+**Rejected — add an eighth agent to the policy file holding all seven skills, so that
+`PolicyValidator.check_tool_call` runs on the MCP path exactly as it runs in the loop.**
+
+**Why.** `eval/validate.py` derives the *exclusive* skill grants by reading that file — a skill is
+exclusive to an agent when no other agent holds it — and uses them to check that a golden item's
+route can actually reach the documents labelled beside it. An agent holding all seven skills would
+make every grant non-exclusive, which would empty that check without failing anything: a published
+check silently turned off by a change to an unrelated feature. That is a worse outcome than the
+thing the eighth agent was for, because the thing it was for is already achieved structurally. A
+skill that is not published cannot be called, and a name that is not a skill comes back from the
+registry as `ok=False` **with** a `tool_call` event — which is precisely what the loop does with the
+same input.
+
+`"mcp"` rather than one of the three specialists because the caller is the host's model. Labelling
+its calls `consultation` would put them in the bucket the per-agent tool-use breakdown reports as
+that agent's work.
+
+### stdout belongs to the protocol
+
+**Chosen.** `consilium mcp-serve` calls `configure_logging(..., stream=sys.stderr)` before starting
+either transport, and prints nothing itself.
+
+**Rejected — redirect stdout at the entry point, around the server call.**
+
+**Why.** structlog's default logger factory writes to `sys.stdout`, which on the stdio transport
+carries JSON-RPC frames: one log line there is a parse error at the host, not a cosmetic problem. A
+redirect at the entry point would have to wrap every library that might log rather than the one
+place the destination is decided, and it would leave the decision invisible to anyone reading the
+logging setup. stderr is used on the HTTP transport too — the two differ in whether stdout is
+*reserved*, not in where operational records belong — so a host's logs read the same whichever
+transport it launched.
+
+### The contract test speaks the protocol, twice
+
+**Chosen.** `mcp.Client(server)` over the SDK's in-memory streams for the per-tool assertions, plus
+one test that launches `consilium mcp-serve` as a subprocess and talks to it over real pipes.
+
+**Rejected — call `build_server` and read the tool list off the returned object.** Faster, no
+transport involved, and it would assert the same equality.
+
+**Why.** It would assert the equality against an object this module built, which is a test of a
+local variable. Part B's acceptance criterion says the schema round-trips *through an SDK client*,
+and the failure it is guarding against — a schema that is correct in the process and wrong on the
+wire — is exactly the one an in-process read cannot see. The subprocess adds the half the in-memory
+client still cannot show: that the console command starts, wires a transport up, and keeps its logs
+out of the stream it shares with the protocol.
+
+One further assertion exists because equality alone is not enough. `tool.input_schema ==
+skill.parameters_schema()` would pass if both sides had been regenerated the same lossy way, since
+the comparison would be a schema against itself. So a second test names the three properties a
+signature-derived schema loses — `additionalProperties: false`, `minLength`, and the field
+description — and checks them on the wire.
+
+### `mcp` is a core dependency
+
+**Chosen.** `mcp>=2.1,<3` in `[project] dependencies`.
+
+**Rejected — an optional extra, following the `[embeddings]` precedent.**
+
+**Why.** The `embeddings` extra is not a general pattern for "optional-looking" dependencies; it
+exists because `sentence-transformers` drags in multi-GB torch wheels and because the
+`Embedder`/`VectorStore` protocol seams mean CI genuinely never needs it. Neither half applies.
+`mcp` is pure Python and every transitive dependency it needs is already resolved for the HTTP API.
+More decisively: Part B's acceptance criterion is a contract test that runs offline in pytest, and
+an extra that CI does not install turns that test into a skip. **A test skipped on the machine
+running the PR gate is not a gate.** The MCP server is also a shipped interface, like
+`consilium/api/`, and `consilium mcp-serve` is a console-script command — a command that raises
+`ImportError` on an installed wheel is the trap that keeps `eval` out of the wheel, not a pattern to
+copy.
+
+### What was not built
+
+**B3 — consuming an external MCP server through `deep_research` — is skipped.** The plan declares it
+optional and the owner's instruction for this phase excluded it, so nothing in this repository is an
+MCP client outside the test suite. It is recorded here rather than left unmentioned because "I both
+serve and consume MCP" is a different claim from the one this repository supports, and the
+difference should be visible without reading the code.
+
+**B2's host demo is not recorded.** The README's MCP section references `docs/assets/mcp-demo.gif`
+and says in those words that the file is not in the repository. Same rule as the Phase-10
+failure-case stub: a placeholder that pretends to be a recording is worse than an empty one labelled
+empty, and nothing in that section claims anything about a host that has not been run — what it
+asserts is asserted by `tests/test_mcp_server.py`, which speaks the protocol but is not a host.

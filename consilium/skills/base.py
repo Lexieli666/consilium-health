@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar, get_type_hint
 from pydantic import BaseModel, ConfigDict, Field
 
 from consilium.retrieval.types import ScoredChunk
+from consilium.trace import ToolTransport
 
 if TYPE_CHECKING:  # pragma: no cover - imports for typing only, and one of them is a layer peer
     from consilium.retrieval.corpus import Document
@@ -137,6 +138,13 @@ class SkillContext:
     #: Which agent is making the call.  Recorded on the ``tool_call`` event; the per-agent tool-use
     #: breakdown in docs/EVALUATION.md is computed from it.
     agent: str = "unknown"
+    #: Which boundary the call crossed.  Recorded on the ``tool_call`` event beside ``agent``, and
+    #: carried here rather than passed to :meth:`SkillRegistry.run` for the same reason ``agent``
+    #: is: it is a property of the caller, fixed for the whole of one unit of work, and a per-call
+    #: argument is one a call site can forget.  It says something ``agent`` does not -- ``agent``
+    #: names *who* asked, ``transport`` names *across what*, and an MCP host is not one of the
+    #: three specialists.
+    transport: ToolTransport = "internal"
 
 
 class SkillCallable(Protocol):

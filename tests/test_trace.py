@@ -19,6 +19,7 @@ from consilium.trace import (
     MemorySink,
     PlannedSubtask,
     RetrievalEvent,
+    ToolCallEvent,
     TraceError,
     Tracer,
     TurnEvent,
@@ -174,6 +175,68 @@ def test_turn_event_records_both_negation_policies(tracer: Tracer, memory_sink: 
     assert payload["red_flag_matched_raw"] is True
     assert payload["red_flag_negation_suppressed"] is True
     assert memory_sink.of_type(TurnEvent) == [event]
+
+
+def test_tool_call_transport_defaults_to_internal(tracer: Tracer, memory_sink: MemorySink) -> None:
+    """The default is what makes this an additive change rather than a schema version.
+
+    ``SCHEMA_VERSION`` moves when an event's *required* fields change.  ``transport`` has a default,
+    and the default is a true statement about every ``tool_call`` written before the field existed:
+    there was no MCP server, so every call was the loop calling its own registry.  A record from
+    either side of that commit therefore means the same thing and the two can be pooled -- which is
+    exactly what was *not* true of version 1's ``red_flag_matched``.
+    """
+    event = tracer.tool_call(
+        agent="consultation",
+        skill="search_knowledge",
+        args={"query": "hypertension"},
+        ok=True,
+        error=None,
+        latency_ms=4.0,
+    )
+
+    assert event.transport == "internal"
+    assert event.schema_version == 2
+    assert memory_sink.of_type(ToolCallEvent) == [event]
+
+
+def test_a_tool_call_written_before_the_transport_field_still_parses(tracer: Tracer) -> None:
+    """A version-2 record from an older commit reads back as ``internal``, which is what it was."""
+    payload = json.loads(
+        tracer.tool_call(
+            agent="research",
+            skill="find_guideline",
+            args={"topic": "hypertension"},
+            ok=True,
+            error=None,
+            latency_ms=1.0,
+        ).model_dump_json()
+    )
+    del payload["transport"]
+
+    reparsed = parse_event(json.dumps(payload))
+
+    assert isinstance(reparsed, ToolCallEvent)
+    assert reparsed.transport == "internal"
+
+
+def test_an_unknown_transport_is_rejected(tracer: Tracer) -> None:
+    """A closed literal, for the reason ``caller`` is pattern-validated: no silent third bucket."""
+    payload = json.loads(
+        tracer.tool_call(
+            agent="mcp",
+            skill="assess_risk",
+            args={"symptoms": "chest pain"},
+            ok=True,
+            error=None,
+            latency_ms=1.0,
+            transport="mcp",
+        ).model_dump_json()
+    )
+    payload["transport"] = "grpc"
+
+    with pytest.raises(ValidationError):
+        parse_event(json.dumps(payload))
 
 
 def test_retrieval_event_keeps_the_full_fused_ranking(

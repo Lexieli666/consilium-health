@@ -119,6 +119,7 @@ class SkillRegistry:
                 error=result.error,
                 latency_ms=result.latency_ms,
                 source_doc_ids=list(result.sources),
+                transport=ctx.transport,
             )
         return result
 
