@@ -853,6 +853,20 @@ Rationale in `docs/DESIGN.md` under "Phase 6 — memory".
   across a golden set of independent items would let item N answer from item N−1. The effect of
   episodic memory on answer quality is therefore reported as `not measured` in
   `docs/EVALUATION.md` — a deliberate measurement decision, not an omission.
+- **`SqliteEpisodicStore` closes its connection deterministically, and `with` on the *store* is
+  what does it.** The connection is the only OS resource the memory layer holds, and one that is
+  merely garbage-collected raises `ResourceWarning` whenever the collector next runs -- which under
+  `filterwarnings = ["error"]` fails whatever unrelated test is executing at that moment. It did
+  exactly that on Python 3.13, where nine connections leaked by the `store` fixture surfaced as a
+  failure in `tests/test_eval_cost_cap.py`. `with` on the store is deliberately **not** `with` on
+  the connection: `sqlite3.Connection`'s own context manager commits or rolls back a transaction
+  and leaves the connection **open**, which is the trap this exists to keep a caller out of.
+  `EpisodicMemory` carries the same two methods so a caller holding it need not reach for the store.
+  The `EpisodicStore` **protocol still names only `close()`** -- a hosted implementation should not
+  have to implement two spellings of one idea. `close()` is idempotent, and
+  `tests/test_episodic_memory.py` asserts the close against the **connection** (a closed one raises
+  `sqlite3.ProgrammingError`) rather than against the call, because a test that only checked
+  `close()` was reached would pass against a `close()` that did nothing.
 - **`Settings.data_dir` / `Runtime.memory` / `Runtime.episodic`.** `build_runtime(episodic=True)`
   opts in; the default is `None`.
 
