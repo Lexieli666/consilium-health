@@ -126,6 +126,11 @@ skills. Everything below is in `main` and none of it is a plan.
   round 2 measured 0.592. `faithfulness_v1.md` stays on disk unedited, because the version that
   produced a published number has to remain readable beside it, and every faithfulness number is
   published with the kappa beside it. (`f655785`, `c1436bd`, 2026-08-29)
+- **`SqliteEpisodicStore` leaked its SQLite connection**, which failed the suite on Python 3.13.
+  A connection that is only garbage-collected raises `ResourceWarning`, and under
+  `filterwarnings = ["error"]` that fails whichever unrelated test is running when the collector
+  fires — it landed on `tests/test_eval_cost_cap.py`. The store and `EpisodicMemory` are now context
+  managers and the tests close what they open. No behaviour changed. (this release)
 - **Four golden-set route labels disagreed with the documents labelled beside them**, found by a
   check that derives the exclusive skill grants from `data/policy.yaml` rather than restating them.
   All four were corrected at the source and logged with the digest on both sides; `g-gh-001` moved

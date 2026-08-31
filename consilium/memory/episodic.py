@@ -18,6 +18,17 @@ shrug.
 downloads, two dimensions to keep in step, and a second thing to explain; and ``HashEmbedder`` keeps
 the whole module runnable offline for free.
 
+**The connection is closed deterministically, and ``with`` on the store is what does it.**
+``SqliteEpisodicStore`` holds one ``sqlite3.Connection`` for its lifetime, and a connection that is
+only ever collected raises ``ResourceWarning`` at whatever unrelated moment the garbage collector
+happens to run.  Under ``filterwarnings = ["error"]`` that surfaces as a failure in a test that has
+nothing to do with this module, which is exactly what it did on Python 3.13.  So the store is a
+context manager, and ``with`` on **the store** is deliberately not ``with`` on the connection:
+``sqlite3.Connection``'s own context manager commits or rolls back a transaction and leaves the
+connection open, which is the trap this exists to keep a caller out of.  ``EpisodicStore`` -- the
+protocol -- still names only ``close()``, because a hosted implementation should not have to
+implement two spellings of one idea.
+
 **Recall is off in every measured run.**  ``docs/EVALUATION.md`` states this and why: the golden
 set's items are independent questions, so cross-session recall would let item N answer from item
 N-1's stored summary, contaminating faithfulness, recall@5 and the ablation together.  The effect of
@@ -32,6 +43,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from types import TracebackType
 from typing import Protocol, cast, get_args
 
 import numpy as np
@@ -166,7 +178,19 @@ class SqliteEpisodicStore:
         self._connection.commit()
 
     def close(self) -> None:
+        """Close the connection.  Safe to call twice; ``sqlite3.Connection.close`` is idempotent."""
         self._connection.close()
+
+    def __enter__(self) -> SqliteEpisodicStore:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
+        self.close()
 
 
 class EpisodicMemory:
@@ -208,6 +232,17 @@ class EpisodicMemory:
 
     def close(self) -> None:
         self.store.close()
+
+    def __enter__(self) -> EpisodicMemory:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
+        self.close()
 
 
 def _row_to_episode(row: tuple[object, ...]) -> Episode:

@@ -315,7 +315,9 @@ async def test_episodic_memory_records_one_row_per_session_and_recalls_nothing_b
     await run_turn(runtime, "a question worth remembering", tracer=tracer)
 
     assert runtime.episodic is not None
-    assert runtime.episodic.store.count() == 1
-    assert runtime.episodic.recall_enabled is False
-    assert runtime.episodic.recall("a question worth remembering") == []
-    runtime.episodic.close()
+    # `with` rather than a trailing `close()`: a failed assertion would otherwise leak the SQLite
+    # connection, and a leaked connection fails an unrelated test whenever the collector next runs.
+    with runtime.episodic as episodic:
+        assert episodic.store.count() == 1
+        assert episodic.recall_enabled is False
+        assert episodic.recall("a question worth remembering") == []
