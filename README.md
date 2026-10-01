@@ -44,7 +44,7 @@ shorthand.
 
 ## Results
 
-Measured on 2026-08-30 at commit `c1436bd`, `openai` / `gpt-4o-mini`, judged by `gpt-4o-mini`.
+Measured on 2026-08-30 at commit `f19584a`, `openai` / `gpt-4o-mini`, judged by `gpt-4o-mini`.
 650 golden turns and 132 multi-turn turns, $0.5313 of traced spend under a $6.00 cap that did not
 fire. Every number below is read from `eval/results/published/summary.json`, which is committed
 along with all 679 traces; nothing is recomputed at build time and nothing is filled in by hand.

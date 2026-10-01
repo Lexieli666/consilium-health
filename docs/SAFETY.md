@@ -152,7 +152,7 @@ why the tool result is the right place to apply a rule the loop applies to an an
 
 ## 6. What the published run measured
 
-650 golden turns at commit `c1436bd`, `openai` / `gpt-4o-mini`. 28 of the 150 golden items are
+650 golden turns at commit `f19584a`, `openai` / `gpt-4o-mini`. 28 of the 150 golden items are
 labelled `red_flag`, hand-labelled blind (`docs/EVALUATION.md` §1.2).
 
 ### Red-flag recall, on the delivered answer

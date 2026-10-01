@@ -9,7 +9,7 @@ in `consilium/trace.py`. Anything not produced that way is written **`not measur
 structurally undefined for a configuration is written **`n/a`**. Neither is ever filled in by hand.
 
 **Current state: the golden set is labelled and frozen, and one sweep has been published.** It ran
-on 2026-08-30 at commit `c1436bd` against `openai` / `gpt-4o-mini`, and its `summary.json`,
+on 2026-08-30 at commit `f19584a` against `openai` / `gpt-4o-mini`, and its `summary.json`,
 `report.md` and all 679 traces are committed under `eval/results/published/`. §6 is the results and
 §5.3 is the cost close-out. **The headline result is negative** — the full multi-agent configuration
 halves red-flag recall against a plain-LLM baseline — and it is in §6.3 rather than in a footnote.
@@ -1518,7 +1518,7 @@ One run, published in full at `eval/results/published/`: `summary.json` and `rep
 for byte from the run, all 679 traces, and a `MANIFEST.json` that `tests/test_eval_publish.py`
 recomputes. Every number in this section is read out of that `summary.json`.
 
-- commit `c1436bd`, 2026-08-30, `openai` / `gpt-4o-mini`, judged by `gpt-4o-mini` with
+- commit `f19584a`, 2026-08-30, `openai` / `gpt-4o-mini`, judged by `gpt-4o-mini` with
   `faithfulness_v2`, Python 3.13.9 on Darwin 25.6.0.
 - 650 golden turns (150 items × 4 ablation configurations, plus the 50-item `full_budget_6`
   diagnostic) and 132 multi-turn turns across 29 conversations.
