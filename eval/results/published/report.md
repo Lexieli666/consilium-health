@@ -2,7 +2,7 @@
 
 > **Not medical advice.** This is an educational software project. It does not diagnose, treat, or provide clinical guidance, and it must not be used for real medical decisions. No patient data of any kind may be used with it.
 
-- commit: `c1436bdc2fb5`
+- commit: `f19584a21cee`
 - started: 2026-08-30T17:01:33.114774+00:00
 - finished: 2026-08-30T18:29:59.560809+00:00
 - provider / model: `openai` / `gpt-4o-mini`

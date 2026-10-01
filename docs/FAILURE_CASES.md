@@ -4,7 +4,7 @@
 > provide clinical guidance, and it must not be used for real medical decisions. No patient data of
 > any kind may be used with it.
 
-All four cases are from the published run (commit `c1436bd`, results `20260830T170133Z`); every
+All four cases are from the published run (commit `f19584a`, results `20260830T170133Z`); every
 quote below is verbatim from `eval/results/published/`. Cases were chosen for diversity of
 mechanism, not severity. No case below has been fixed: fixing one and writing about the fixed
 version would require publishing a new run and choosing new failures from it.
