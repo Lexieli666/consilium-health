@@ -50,7 +50,9 @@ holding this repository and nothing else.
 
 - 650 golden turns and 132 multi-turn turns at commit `f19584a`, `openai` / `gpt-4o-mini`, judged by
   `gpt-4o-mini` with `faithfulness_v2`, under `--max-cost 6.00`, finishing at $0.5313 of traced
-  spend. The cap did not fire.
+  spend. The cap did not fire. History rewritten on 2026-10-01 to remove build-tool artifacts;
+  the commit id recorded here was remapped from the original `c1436bd` to its rewritten
+  equivalent. No measured value changed.
 - `recall@5`, `hit@5`, `MRR@10` and both faithfulness columns are measured **against a
   machine-constructed reference**: `relevant_doc_ids` and `reference_answer` were written by a model
   and no person verified them (144 and 148 of the 150 items). Routing accuracy and red-flag recall
