@@ -272,6 +272,15 @@ Each of these changes what red-flag recall measures or what the system does, so 
 run. Publishing a repaired system against numbers measured on the broken one would be worse than
 publishing the broken one.
 
+### Retrieval on Snowflake Cortex Search
+
+The retriever was ported to Snowflake Cortex Search and replayed on the same 149 labelled golden
+questions, the same corpus and the same chunker. Like for like (raw question, no category filter),
+Cortex Search scores recall@5 **0.950** (arctic-embed-m-v1.5) and **0.957** (arctic-embed-l-v2.0)
+against **0.918** for the self-hosted BM25 + bge-small + RRF hybrid; the published 0.721 above is
+the same hybrid measured inside agent turns, which is a different experiment. `eval/cortex/` has
+the table, the per-item disagreements and the mechanisms.
+
 ## Quickstart
 
 ```bash

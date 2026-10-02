@@ -56,6 +56,12 @@ embeddings = [
     "sentence-transformers>=5,<6",
     "chromadb>=1.0,<2",
 ]
+cortex = [
+    "pandas>=3.0.6",
+    "pyarrow>=25.0.1",
+    "snowflake>=1.0",
+    "snowflake-snowpark-python>=1.55.0",
+]
 
 [dependency-groups]
 dev = [
@@ -134,6 +140,7 @@ ignore = [
 "tests/*" = ["S101", "ARG001", "ARG002"]  # assert is the point; fixtures are injected unused
 "eval/run.py" = ["T20"]  # a report generator writes to stdout; that is its output, not a log
 "eval/publish.py" = ["T20"]  # same: the publication tool reports what it published
+"eval/cortex/*.py" = ["T20"]  # the Cortex Search replay prints the summary it wrote
 
 [tool.ruff.lint.isort]
 known-first-party = ["consilium", "eval"]
@@ -153,5 +160,5 @@ files = ["consilium", "eval", "tests"]
 [[tool.mypy.overrides]]
 # `redis` is deliberately not a dependency: it is supported as an optional backend and is
 # imported inside `RedisBackend.__init__`, so the package must import cleanly without it.
-module = ["rank_bm25.*", "chromadb.*", "sentence_transformers.*", "redis.*"]
+module = ["rank_bm25.*", "chromadb.*", "sentence_transformers.*", "redis.*", "pandas.*", "pyarrow.*"]
 ignore_missing_imports = true
