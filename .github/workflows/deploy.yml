@@ -1,9 +1,11 @@
 name: deploy
 
 # Build the service image on every push to main and smoke-test it with the mock provider.
-# When the repository variable AWS_DEPLOY_ROLE_ARN is set (see deploy/aws/README.md), also push
-# the image to ECR and roll the ECS Fargate service to it.  No long-lived AWS keys: the job
-# assumes an IAM role through GitHub's OIDC provider, and only from this repository's main branch.
+# When AWS credentials are configured (see deploy/aws/README.md), also push the image to ECR
+# and roll the ECS Fargate service to it.  Preferred: the repository variable
+# AWS_DEPLOY_ROLE_ARN, a role the job assumes through GitHub's OIDC provider with no stored
+# keys.  Fallback for accounts that cannot create an OIDC provider: the secrets
+# AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY for the stack's deploy user.
 
 on:
   push:
@@ -20,6 +22,7 @@ concurrency:
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  DEPLOY: ${{ vars.AWS_DEPLOY_ROLE_ARN != '' || secrets.AWS_ACCESS_KEY_ID != '' }}
   ECR_REPOSITORY: consilium-health
   ECS_CLUSTER: consilium-health
   ECS_SERVICE: consilium-health
@@ -61,20 +64,28 @@ jobs:
         run: docker rm -f smoke >/dev/null 2>&1 || true
 
       # ---------------------------------------------------------------- AWS, only when configured
-      - name: Configure AWS credentials (OIDC)
-        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+      - name: Configure AWS credentials (OIDC role)
+        if: env.DEPLOY == 'true' && vars.AWS_DEPLOY_ROLE_ARN != ''
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Configure AWS credentials (access key)
+        if: env.DEPLOY == 'true' && vars.AWS_DEPLOY_ROLE_ARN == ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Log in to Amazon ECR
-        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        if: env.DEPLOY == 'true'
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Push the image
-        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        if: env.DEPLOY == 'true'
         id: push
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
@@ -87,13 +98,13 @@ jobs:
           echo "image=$IMAGE:${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
       - name: Fetch the current task definition
-        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        if: env.DEPLOY == 'true'
         run: |
           aws ecs describe-task-definition --task-definition "$TASK_FAMILY" \
             --query taskDefinition > task-definition.json
 
       - name: Point the task definition at the new image
-        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        if: env.DEPLOY == 'true'
         id: render
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
@@ -102,7 +113,7 @@ jobs:
           image: ${{ steps.push.outputs.image }}
 
       - name: Deploy to ECS Fargate and wait for the service to stabilise
-        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        if: env.DEPLOY == 'true'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.render.outputs.task-definition }}
@@ -112,7 +123,7 @@ jobs:
           wait-for-minutes: 15
 
       - name: Report the service address
-        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        if: env.DEPLOY == 'true'
         run: |
           TASK=$(aws ecs list-tasks --cluster "$ECS_CLUSTER" --service-name "$ECS_SERVICE" \
                    --desired-status RUNNING --query 'taskArns[0]' --output text)
