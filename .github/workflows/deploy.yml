@@ -28,6 +28,7 @@ env:
   ECS_SERVICE: consilium-health
   TASK_FAMILY: consilium-health
   CONTAINER_NAME: api
+  DESIRED_COUNT: ${{ vars.ECS_DESIRED_COUNT || '1' }}
 
 jobs:
   build-and-deploy:
@@ -119,6 +120,7 @@ jobs:
           task-definition: ${{ steps.render.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
+          desired-count: ${{ env.DESIRED_COUNT }}
           wait-for-service-stability: true
           wait-for-minutes: 15
 

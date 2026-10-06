@@ -57,8 +57,8 @@ policy forbids creating an IAM OIDC provider, which is what the `access-key` aut
    names, then **Submit**. It takes three to five minutes.
 5. Open the stack's **Outputs** tab: copy `DeployRoleArn` and note `ProviderKeySecretArn`.
 
-The service exists at this point but has no image to run yet; its tasks will fail to start until
-the first deploy in step 4. That is expected.
+The service exists at this point with `DesiredCount` 0: there is no image to run until the first
+deploy in step 4, and the workflow scales the service to one task once the image is in ECR.
 
 If the stack fails with *"Provider with url https://token.actions.githubusercontent.com already
 exists"*, the account already has the GitHub OIDC provider: delete the failed stack and create it
@@ -81,6 +81,7 @@ With `GitHubAuthMode` = `oidc` (the default), add a **variable**:
 |---|---|
 | `AWS_DEPLOY_ROLE_ARN` | the `DeployRoleArn` output from step 2 |
 | `AWS_REGION` | the region, if not `us-east-1` |
+| `ECS_DESIRED_COUNT` | tasks to run after a deploy; defaults to `1`, set `0` to park the service |
 
 With `GitHubAuthMode` = `access-key` (needed on the AWS free plan, whose service control policy
 forbids creating an OIDC provider): IAM console → Users → `consilium-health-github-deploy` →
@@ -102,9 +103,10 @@ limited to this one ECR repository and ECS service.
 ## Day to day
 
 - **Deploy a change**: push to `main`. The workflow is the deployment.
-- **Stop paying for compute**: CloudFormation → the stack → **Update** → *Use existing template*
-  → `DesiredCount` = 0. Set it back to 1 to start again; the EFS volume keeps the index, memory
-  and traces across stop/start.
+- **Stop paying for compute**: set the repository variable `ECS_DESIRED_COUNT` to `0` and run the
+  deploy workflow (or, immediately, `aws ecs update-service --cluster consilium-health --service
+  consilium-health --desired-count 0` in CloudShell). Set it back to `1` and run the workflow to
+  start again; the EFS volume keeps the index, memory and traces across stop/start.
 - **Logs**: CloudWatch → Log groups → `/ecs/consilium-health`. The app logs JSON lines.
 - **Rebuild the index**: delete `/data/chroma` on the volume, or simply change nothing — the app
   re-ingests `data/corpus/` on start when the store's chunk count does not match the corpus.
