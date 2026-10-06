@@ -41,7 +41,9 @@ the task is replaced; the deploy job prints the current one in its summary.
 
 Create an account at <https://aws.amazon.com/free> (a card is required; nothing below is charged
 until a task actually runs). Pick a region and keep it for everything: **us-east-1** is the
-default the workflow assumes; set the repository variable `AWS_REGION` for any other.
+default the workflow assumes; set the repository variable `AWS_REGION` for any other. A free-plan
+account may be limited to one region (this project's was `us-east-2`) and its service control
+policy forbids creating an IAM OIDC provider, which is what the `access-key` auth mode below is for.
 
 ### 2. Create the stack
 
@@ -71,22 +73,31 @@ in the repository, the template, or the GitHub Actions logs.
 
 ### 4. Let GitHub Actions deploy
 
-GitHub → the repository → **Settings → Secrets and variables → Actions → Variables** → **New
-repository variable**:
+GitHub → the repository → **Settings → Secrets and variables → Actions**.
+
+With `GitHubAuthMode` = `oidc` (the default), add a **variable**:
 
 | name | value |
 |---|---|
 | `AWS_DEPLOY_ROLE_ARN` | the `DeployRoleArn` output from step 2 |
-| `AWS_REGION` | only if not `us-east-1` |
+| `AWS_REGION` | the region, if not `us-east-1` |
+
+With `GitHubAuthMode` = `access-key` (needed on the AWS free plan, whose service control policy
+forbids creating an OIDC provider): IAM console → Users → `consilium-health-github-deploy` →
+**Security credentials → Create access key** → *Application running outside AWS* → copy both
+values once, then add them as repository **secrets** `AWS_ACCESS_KEY_ID` and
+`AWS_SECRET_ACCESS_KEY`, plus the `AWS_REGION` variable. The user holds only the deploy policy
+(one ECR repository, one ECS service), so a leaked key could redeploy the demo and nothing else;
+rotate it from the same console page.
 
 Then **Actions → deploy → Run workflow** (or push to `main`). The job builds the image, runs it
 with the mock provider until `/healthz` answers, pushes it to ECR, registers a new task
 definition revision and waits for the service to stabilise — about ten minutes the first time,
 mostly the image build. The job summary ends with the demo page URL, `http://<ip>:8000/`.
 
-The deploy role's trust policy only accepts tokens from this repository's `main` branch
-(`repo:Lexieli666/consilium-health:ref:refs/heads/main`), and its permissions are limited to this
-one ECR repository and ECS service.
+With OIDC, the deploy role's trust policy only accepts tokens from this repository's `main`
+branch (`repo:Lexieli666/consilium-health:ref:refs/heads/main`); either way the permissions are
+limited to this one ECR repository and ECS service.
 
 ## Day to day
 

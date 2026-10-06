@@ -44,16 +44,29 @@ Parameters:
     Type: String
     Default: ""
     Description: CONSILIUM_MODEL; empty uses the provider's default.
+  GitHubAuthMode:
+    Type: String
+    Default: oidc
+    AllowedValues: [oidc, access-key]
+    Description: >-
+      How GitHub Actions authenticates.  "oidc" creates a role GitHub assumes with a short-lived
+      token (preferred).  "access-key" creates an IAM user instead, for accounts whose service
+      control policy forbids iam:CreateOpenIDConnectProvider (the AWS free plan does); you then
+      create one access key for that user in the console and store it as GitHub secrets.
   CreateGitHubOidcProvider:
     Type: String
     Default: "true"
     AllowedValues: ["true", "false"]
     Description: >-
-      Create the token.actions.githubusercontent.com OIDC provider.  An account can hold only
-      one; choose "false" if this account already has it.
+      With GitHubAuthMode=oidc: create the token.actions.githubusercontent.com OIDC provider.
+      An account can hold only one; choose "false" if this account already has it.
 
 Conditions:
-  MakeOidcProvider: !Equals [!Ref CreateGitHubOidcProvider, "true"]
+  UseOidc: !Equals [!Ref GitHubAuthMode, oidc]
+  UseAccessKey: !Equals [!Ref GitHubAuthMode, access-key]
+  MakeOidcProvider: !And
+    - !Condition UseOidc
+    - !Equals [!Ref CreateGitHubOidcProvider, "true"]
   HasModelId: !Not [!Equals [!Ref ModelId, ""]]
   UsesAnthropic: !Equals [!Ref Provider, anthropic]
   UsesOpenAI: !Equals [!Ref Provider, openai]
@@ -306,6 +319,7 @@ Resources:
 
   DeployRole:
     Type: AWS::IAM::Role
+    Condition: UseOidc
     Properties:
       RoleName: consilium-health-github-deploy
       AssumeRolePolicyDocument:
@@ -323,61 +337,73 @@ Resources:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
               StringLike:
                 token.actions.githubusercontent.com:sub: !Sub repo:${GitHubRepository}:ref:refs/heads/main
-      Policies:
-        - PolicyName: build-push-deploy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Sid: EcrLogin
-                Effect: Allow
-                Action: ecr:GetAuthorizationToken
-                Resource: "*"
-              - Sid: EcrPush
-                Effect: Allow
-                Action:
-                  - ecr:BatchCheckLayerAvailability
-                  - ecr:BatchGetImage
-                  - ecr:CompleteLayerUpload
-                  - ecr:DescribeImages
-                  - ecr:GetDownloadUrlForLayer
-                  - ecr:InitiateLayerUpload
-                  - ecr:PutImage
-                  - ecr:UploadLayerPart
-                Resource: !GetAtt Repository.Arn
-              - Sid: EcsTaskDefinitions
-                Effect: Allow
-                Action:
-                  - ecs:DescribeTaskDefinition
-                  - ecs:RegisterTaskDefinition
-                Resource: "*"
-              - Sid: EcsService
-                Effect: Allow
-                Action:
-                  - ecs:DescribeServices
-                  - ecs:UpdateService
-                Resource: !Ref Service
-              - Sid: EcsReadTasks
-                Effect: Allow
-                Action:
-                  - ecs:ListTasks
-                  - ecs:DescribeTasks
-                Resource: "*"
-                Condition:
-                  ArnEquals:
-                    ecs:cluster: !GetAtt Cluster.Arn
-              - Sid: ReadTaskNetworking
-                Effect: Allow
-                Action: ec2:DescribeNetworkInterfaces
-                Resource: "*"
-              - Sid: PassTaskRoles
-                Effect: Allow
-                Action: iam:PassRole
-                Resource:
-                  - !GetAtt TaskExecutionRole.Arn
-                  - !GetAtt TaskRole.Arn
-                Condition:
-                  StringEquals:
-                    iam:PassedToService: ecs-tasks.amazonaws.com
+
+  DeployUser:
+    Type: AWS::IAM::User
+    Condition: UseAccessKey
+    Properties:
+      UserName: consilium-health-github-deploy
+
+  DeployPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: consilium-health-github-deploy
+      Description: Build, push and deploy consilium-health from GitHub Actions; nothing else.
+      Roles: !If [UseOidc, [!Ref DeployRole], !Ref AWS::NoValue]
+      Users: !If [UseAccessKey, [!Ref DeployUser], !Ref AWS::NoValue]
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: EcrLogin
+            Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: "*"
+          - Sid: EcrPush
+            Effect: Allow
+            Action:
+              - ecr:BatchCheckLayerAvailability
+              - ecr:BatchGetImage
+              - ecr:CompleteLayerUpload
+              - ecr:DescribeImages
+              - ecr:GetDownloadUrlForLayer
+              - ecr:InitiateLayerUpload
+              - ecr:PutImage
+              - ecr:UploadLayerPart
+            Resource: !GetAtt Repository.Arn
+          - Sid: EcsTaskDefinitions
+            Effect: Allow
+            Action:
+              - ecs:DescribeTaskDefinition
+              - ecs:RegisterTaskDefinition
+            Resource: "*"
+          - Sid: EcsService
+            Effect: Allow
+            Action:
+              - ecs:DescribeServices
+              - ecs:UpdateService
+            Resource: !Ref Service
+          - Sid: EcsReadTasks
+            Effect: Allow
+            Action:
+              - ecs:ListTasks
+              - ecs:DescribeTasks
+            Resource: "*"
+            Condition:
+              ArnEquals:
+                ecs:cluster: !GetAtt Cluster.Arn
+          - Sid: ReadTaskNetworking
+            Effect: Allow
+            Action: ec2:DescribeNetworkInterfaces
+            Resource: "*"
+          - Sid: PassTaskRoles
+            Effect: Allow
+            Action: iam:PassRole
+            Resource:
+              - !GetAtt TaskExecutionRole.Arn
+              - !GetAtt TaskRole.Arn
+            Condition:
+              StringEquals:
+                iam:PassedToService: ecs-tasks.amazonaws.com
 
 Outputs:
   RepositoryUri:
@@ -389,8 +415,15 @@ Outputs:
   TaskFamily:
     Value: consilium-health
   DeployRoleArn:
+    Condition: UseOidc
     Description: Store this as the GitHub repository variable AWS_DEPLOY_ROLE_ARN.
     Value: !GetAtt DeployRole.Arn
+  DeployUserName:
+    Condition: UseAccessKey
+    Description: >-
+      Create one access key for this user (IAM console) and store it as the GitHub secrets
+      AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
+    Value: !Ref DeployUser
   ProviderKeySecretArn:
     Description: Set the real key on this secret in the Secrets Manager console.
     Value: !Ref ProviderKeySecret
