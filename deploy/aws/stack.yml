@@ -31,10 +31,14 @@ Parameters:
     Description: Fargate memory in MiB.  bge-small plus torch on CPU wants about 1 GiB.
   DesiredCount:
     Type: Number
-    Default: 1
+    Default: 0
     MinValue: 0
     MaxValue: 2
-    Description: Running tasks.  Set to 0 to stop paying for compute between demos.
+    Description: >-
+      Tasks to run when the stack is created.  0 on purpose: the image does not exist until the
+      first deploy, and a service that cannot start its task would roll the stack back.  The
+      deploy workflow scales the service to its ECS_DESIRED_COUNT variable (default 1) after
+      each successful push.
   Provider:
     Type: String
     Default: anthropic
