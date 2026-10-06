@@ -1,0 +1,21 @@
+# Local run of the service image.  `docker compose up --build`, then open http://127.0.0.1:8000/.
+#
+# Copy .env.example to .env and set CONSILIUM_PROVIDER plus the matching key for real answers;
+# without a .env the container runs the mock provider: wiring, retrieval, safety layer and SSE are
+# real, the answer text is a placeholder.
+services:
+  api:
+    build:
+      context: .
+    image: consilium-health:local
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - consilium-data:/data
+    restart: unless-stopped
+
+volumes:
+  consilium-data:
