@@ -332,6 +332,18 @@ uv run pytest                # -m "not network" is the default via addopts
 `uv sync --extra embeddings` additionally installs `sentence-transformers` and `chromadb`, which
 are needed for real retrieval quality numbers and are deliberately absent from CI.
 
+## Deployment
+
+The API ships as a container: `Dockerfile` builds the FastAPI service with the self-hosted
+retriever and the embedding model baked in, `docker compose up --build` runs it locally, and
+`.github/workflows/deploy.yml` builds, smoke-tests, pushes to Amazon ECR and rolls an ECS Fargate
+service on every push to `main`, assuming an IAM role through GitHub's OIDC provider rather than
+holding AWS keys. The ChromaDB index, episodic memory and per-turn traces live on an EFS volume
+mounted at `/data`; the provider key comes from Secrets Manager. One CloudFormation template,
+`deploy/aws/stack.yml`, creates all of it, and `deploy/aws/README.md` walks through the one-time
+setup, the running cost (about $0.70 a day while a task runs, nothing when `DesiredCount` is 0)
+and the teardown.
+
 ## MCP
 
 **The same skill registry has three consumers: the internal ReAct loop, the HTTP API, and any MCP

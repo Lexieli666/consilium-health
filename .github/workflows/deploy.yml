@@ -1,0 +1,134 @@
+name: deploy
+
+# Build the service image on every push to main and smoke-test it with the mock provider.
+# When the repository variable AWS_DEPLOY_ROLE_ARN is set (see deploy/aws/README.md), also push
+# the image to ECR and roll the ECS Fargate service to it.  No long-lived AWS keys: the job
+# assumes an IAM role through GitHub's OIDC provider, and only from this repository's main branch.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  ECR_REPOSITORY: consilium-health
+  ECS_CLUSTER: consilium-health
+  ECS_SERVICE: consilium-health
+  TASK_FAMILY: consilium-health
+  CONTAINER_NAME: api
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build the image (linux/amd64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: consilium-health:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test — the container serves /healthz with the mock provider
+        run: |
+          docker run -d --name smoke -p 8000:8000 -e CONSILIUM_PROVIDER=mock consilium-health:${{ github.sha }}
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8000/healthz >/dev/null 2>&1; then
+              echo "healthy after ~$((i * 3))s"; curl -sS http://127.0.0.1:8000/healthz; echo
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "::error::the container never became healthy"; docker logs smoke; exit 1
+
+      - name: Stop the smoke container
+        if: always()
+        run: docker rm -f smoke >/dev/null 2>&1 || true
+
+      # ---------------------------------------------------------------- AWS, only when configured
+      - name: Configure AWS credentials (OIDC)
+        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Push the image
+        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        id: push
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+        run: |
+          IMAGE="$REGISTRY/$ECR_REPOSITORY"
+          docker tag consilium-health:${{ github.sha }} "$IMAGE:${{ github.sha }}"
+          docker tag consilium-health:${{ github.sha }} "$IMAGE:latest"
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+          echo "image=$IMAGE:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch the current task definition
+        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        run: |
+          aws ecs describe-task-definition --task-definition "$TASK_FAMILY" \
+            --query taskDefinition > task-definition.json
+
+      - name: Point the task definition at the new image
+        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        id: render
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.push.outputs.image }}
+
+      - name: Deploy to ECS Fargate and wait for the service to stabilise
+        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          wait-for-service-stability: true
+          wait-for-minutes: 15
+
+      - name: Report the service address
+        if: vars.AWS_DEPLOY_ROLE_ARN != ''
+        run: |
+          TASK=$(aws ecs list-tasks --cluster "$ECS_CLUSTER" --service-name "$ECS_SERVICE" \
+                   --desired-status RUNNING --query 'taskArns[0]' --output text)
+          if [ "$TASK" = "None" ] || [ -z "$TASK" ]; then
+            echo "No running task (DesiredCount may be 0)." | tee -a "$GITHUB_STEP_SUMMARY"; exit 0
+          fi
+          ENI=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$TASK" \
+                  --query "tasks[0].attachments[0].details[?name=='networkInterfaceId'].value" --output text)
+          IP=$(aws ec2 describe-network-interfaces --network-interface-ids "$ENI" \
+                 --query 'NetworkInterfaces[0].Association.PublicIp' --output text)
+          {
+            echo "## Deployed"
+            echo
+            echo "- image: \`${{ steps.push.outputs.image }}\`"
+            echo "- demo page: http://$IP:8000/"
+            echo "- health: http://$IP:8000/healthz"
+            echo
+            echo "The public IP changes when the task is replaced; there is no load balancer by design."
+          } | tee -a "$GITHUB_STEP_SUMMARY"

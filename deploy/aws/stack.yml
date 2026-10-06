@@ -1,0 +1,398 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Consilium-Health on ECS Fargate: ECR repository, ECS cluster and service, EFS for the
+  ChromaDB index and per-turn traces, Secrets Manager for the provider key, CloudWatch logs,
+  and an IAM role GitHub Actions assumes through OIDC to build, push and deploy.  One stack,
+  no load balancer (the task gets a public IP; see deploy/aws/README.md for why).
+
+Parameters:
+  GitHubRepository:
+    Type: String
+    Default: Lexieli666/consilium-health
+    Description: owner/name of the GitHub repository whose main branch may deploy.
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: The VPC to run in (the account's default VPC is fine).
+  SubnetA:
+    Type: AWS::EC2::Subnet::Id
+    Description: A public subnet in VpcId (default-VPC subnets are public).
+  SubnetB:
+    Type: AWS::EC2::Subnet::Id
+    Description: A second public subnet in VpcId, in a different availability zone.
+  Cpu:
+    Type: Number
+    Default: 512
+    AllowedValues: [256, 512, 1024, 2048]
+    Description: Fargate CPU units for the task (512 = 0.5 vCPU).
+  Memory:
+    Type: Number
+    Default: 2048
+    AllowedValues: [1024, 2048, 3072, 4096]
+    Description: Fargate memory in MiB.  bge-small plus torch on CPU wants about 1 GiB.
+  DesiredCount:
+    Type: Number
+    Default: 1
+    MinValue: 0
+    MaxValue: 2
+    Description: Running tasks.  Set to 0 to stop paying for compute between demos.
+  Provider:
+    Type: String
+    Default: anthropic
+    AllowedValues: [anthropic, openai, mock]
+    Description: CONSILIUM_PROVIDER for the service.
+  ModelId:
+    Type: String
+    Default: ""
+    Description: CONSILIUM_MODEL; empty uses the provider's default.
+  CreateGitHubOidcProvider:
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
+    Description: >-
+      Create the token.actions.githubusercontent.com OIDC provider.  An account can hold only
+      one; choose "false" if this account already has it.
+
+Conditions:
+  MakeOidcProvider: !Equals [!Ref CreateGitHubOidcProvider, "true"]
+  HasModelId: !Not [!Equals [!Ref ModelId, ""]]
+  UsesAnthropic: !Equals [!Ref Provider, anthropic]
+  UsesOpenAI: !Equals [!Ref Provider, openai]
+
+Resources:
+  # ------------------------------------------------------------------ image registry and logs
+  Repository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: consilium-health
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      ImageTagMutability: MUTABLE
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {"rules": [{"rulePriority": 1, "description": "keep the last 5 images",
+            "selection": {"tagStatus": "any", "countType": "imageCountMoreThan", "countNumber": 5},
+            "action": {"type": "expire"}}]}
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/consilium-health
+      RetentionInDays: 14
+
+  # ------------------------------------------------------------------ the provider key
+  ProviderKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: consilium/provider-api-key
+      Description: >-
+        The LLM provider API key the service reads (ANTHROPIC_API_KEY or OPENAI_API_KEY).
+        Created with a placeholder; set the real value in the console, never in a template.
+      SecretString: REPLACE_ME_IN_THE_CONSOLE
+
+  # ------------------------------------------------------------------ network
+  ServiceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Consilium-Health service tasks
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          CidrIp: 0.0.0.0/0
+          Description: HTTP to the API (demo; narrow this CIDR for anything else)
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+
+  FileSystemSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Consilium-Health EFS mount targets
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          SourceSecurityGroupId: !Ref ServiceSecurityGroup
+          Description: NFS from the service tasks only
+
+  # ------------------------------------------------------------------ persistent /data
+  FileSystem:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      Encrypted: true
+      PerformanceMode: generalPurpose
+      ThroughputMode: elastic
+      LifecyclePolicies:
+        - TransitionToIA: AFTER_30_DAYS
+      FileSystemTags:
+        - Key: Name
+          Value: consilium-health-data
+
+  MountTargetA:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref FileSystem
+      SubnetId: !Ref SubnetA
+      SecurityGroups: [!Ref FileSystemSecurityGroup]
+
+  MountTargetB:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref FileSystem
+      SubnetId: !Ref SubnetB
+      SecurityGroups: [!Ref FileSystemSecurityGroup]
+
+  DataAccessPoint:
+    Type: AWS::EFS::AccessPoint
+    Properties:
+      FileSystemId: !Ref FileSystem
+      PosixUser:
+        Uid: "1000"
+        Gid: "1000"
+      RootDirectory:
+        Path: /consilium
+        CreationInfo:
+          OwnerUid: "1000"
+          OwnerGid: "1000"
+          Permissions: "0755"
+
+  # ------------------------------------------------------------------ IAM for the task
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: ecs-tasks.amazonaws.com}
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: read-provider-key
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref ProviderKeySecret
+
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: ecs-tasks.amazonaws.com}
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: mount-data-volume
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - elasticfilesystem:ClientMount
+                  - elasticfilesystem:ClientWrite
+                Resource: !GetAtt FileSystem.Arn
+                Condition:
+                  StringEquals:
+                    elasticfilesystem:AccessPointArn: !GetAtt DataAccessPoint.Arn
+
+  # ------------------------------------------------------------------ ECS
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: consilium-health
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: consilium-health
+      RequiresCompatibilities: [FARGATE]
+      NetworkMode: awsvpc
+      Cpu: !Ref Cpu
+      Memory: !Ref Memory
+      ExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt TaskRole.Arn
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: X86_64
+      Volumes:
+        - Name: data
+          EFSVolumeConfiguration:
+            FilesystemId: !Ref FileSystem
+            TransitEncryption: ENABLED
+            AuthorizationConfig:
+              AccessPointId: !Ref DataAccessPoint
+              IAM: ENABLED
+      ContainerDefinitions:
+        - Name: api
+          Image: !Sub "${Repository.RepositoryUri}:latest"
+          Essential: true
+          PortMappings:
+            - ContainerPort: 8000
+              Protocol: tcp
+          Environment:
+            - {Name: CONSILIUM_PROVIDER, Value: !Ref Provider}
+            - {Name: CONSILIUM_MODEL, Value: !If [HasModelId, !Ref ModelId, ""]}
+            - {Name: CONSILIUM_LOG_FORMAT, Value: json}
+            - {Name: CONSILIUM_CHROMA_DIR, Value: /data/chroma}
+            - {Name: CONSILIUM_EPISODIC_DB, Value: /data/episodic.db}
+            - {Name: CONSILIUM_RUNS_DIR, Value: /data/runs}
+          Secrets:
+            - !If
+              - UsesAnthropic
+              - {Name: ANTHROPIC_API_KEY, ValueFrom: !Ref ProviderKeySecret}
+              - !Ref AWS::NoValue
+            - !If
+              - UsesOpenAI
+              - {Name: OPENAI_API_KEY, ValueFrom: !Ref ProviderKeySecret}
+              - !Ref AWS::NoValue
+          MountPoints:
+            - SourceVolume: data
+              ContainerPath: /data
+              ReadOnly: false
+          HealthCheck:
+            Command:
+              - CMD-SHELL
+              - python -c "import sys,urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=4).status==200 else 1)"
+            Interval: 30
+            Timeout: 5
+            Retries: 3
+            StartPeriod: 120
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: api
+
+  Service:
+    Type: AWS::ECS::Service
+    DependsOn: [MountTargetA, MountTargetB]
+    Properties:
+      ServiceName: consilium-health
+      Cluster: !Ref Cluster
+      LaunchType: FARGATE
+      PlatformVersion: LATEST
+      TaskDefinition: !Ref TaskDefinition
+      DesiredCount: !Ref DesiredCount
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 0
+        MaximumPercent: 200
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets: [!Ref SubnetA, !Ref SubnetB]
+          SecurityGroups: [!Ref ServiceSecurityGroup]
+
+  # ------------------------------------------------------------------ GitHub Actions (OIDC)
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: MakeOidcProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList: [sts.amazonaws.com]
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+        - 1c58a3a8518e8759bf075b76b750d4f2df264fcd
+
+  DeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: consilium-health-github-deploy
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !If
+                - MakeOidcProvider
+                - !Ref GitHubOidcProvider
+                - !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubRepository}:ref:refs/heads/main
+      Policies:
+        - PolicyName: build-push-deploy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: EcrLogin
+                Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: "*"
+              - Sid: EcrPush
+                Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:CompleteLayerUpload
+                  - ecr:DescribeImages
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:InitiateLayerUpload
+                  - ecr:PutImage
+                  - ecr:UploadLayerPart
+                Resource: !GetAtt Repository.Arn
+              - Sid: EcsTaskDefinitions
+                Effect: Allow
+                Action:
+                  - ecs:DescribeTaskDefinition
+                  - ecs:RegisterTaskDefinition
+                Resource: "*"
+              - Sid: EcsService
+                Effect: Allow
+                Action:
+                  - ecs:DescribeServices
+                  - ecs:UpdateService
+                Resource: !Ref Service
+              - Sid: EcsReadTasks
+                Effect: Allow
+                Action:
+                  - ecs:ListTasks
+                  - ecs:DescribeTasks
+                Resource: "*"
+                Condition:
+                  ArnEquals:
+                    ecs:cluster: !GetAtt Cluster.Arn
+              - Sid: ReadTaskNetworking
+                Effect: Allow
+                Action: ec2:DescribeNetworkInterfaces
+                Resource: "*"
+              - Sid: PassTaskRoles
+                Effect: Allow
+                Action: iam:PassRole
+                Resource:
+                  - !GetAtt TaskExecutionRole.Arn
+                  - !GetAtt TaskRole.Arn
+                Condition:
+                  StringEquals:
+                    iam:PassedToService: ecs-tasks.amazonaws.com
+
+Outputs:
+  RepositoryUri:
+    Value: !GetAtt Repository.RepositoryUri
+  ClusterName:
+    Value: !Ref Cluster
+  ServiceName:
+    Value: !GetAtt Service.Name
+  TaskFamily:
+    Value: consilium-health
+  DeployRoleArn:
+    Description: Store this as the GitHub repository variable AWS_DEPLOY_ROLE_ARN.
+    Value: !GetAtt DeployRole.Arn
+  ProviderKeySecretArn:
+    Description: Set the real key on this secret in the Secrets Manager console.
+    Value: !Ref ProviderKeySecret
+  LogGroupName:
+    Value: !Ref LogGroup
