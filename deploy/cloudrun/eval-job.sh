@@ -25,7 +25,8 @@
 
 set -euo pipefail
 
-: "${PROJECT_ID:?set PROJECT_ID}"
+PROJECT_ID="${PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
+: "${PROJECT_ID:?set PROJECT_ID or gcloud config set project}"
 MODE="${1:?legacy|adk}"; shift || true
 REGION="${REGION:-us-west1}"
 SERVICE="${SERVICE:-consilium-health}"
