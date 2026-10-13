@@ -60,6 +60,12 @@ class Settings(BaseModel):
     model: str | None = None
     openai_api_key: SecretStr | None = None
     anthropic_api_key: SecretStr | None = None
+    #: ``CONSILIUM_ANTHROPIC_MAX_TOKENS``: the Anthropic Messages API requires ``max_tokens`` and
+    #: the provider's default (1500) is sized for an answer.  The evaluation judge replies with one
+    #: JSON object per claim and is truncated at that size -- a truncated reply has no balanced
+    #: object and is scored as "judge could not be parsed" -- so a sweep on an Anthropic model
+    #: raises it.  ``None`` keeps the provider default; the OpenAI provider sends no cap at all.
+    anthropic_max_tokens: int | None = Field(default=None, ge=1)
 
     root_dir: Path = Path()
     runs_dir: Path = Path(DEFAULT_RUNS_DIR)
@@ -133,6 +139,13 @@ class Settings(BaseModel):
             )
 
         model = os.environ.get("CONSILIUM_MODEL", "").strip() or None
+        max_tokens_raw = os.environ.get("CONSILIUM_ANTHROPIC_MAX_TOKENS", "").strip()
+        try:
+            anthropic_max_tokens = int(max_tokens_raw) if max_tokens_raw else None
+        except ValueError:
+            raise ValueError(
+                f"CONSILIUM_ANTHROPIC_MAX_TOKENS must be an integer; got {max_tokens_raw!r}"
+            ) from None
 
         orchestrator = os.environ.get("ORCHESTRATOR", "legacy").strip().lower()
         if orchestrator not in ("legacy", "adk", "langgraph"):
@@ -153,6 +166,7 @@ class Settings(BaseModel):
             model=model,
             openai_api_key=_secret("OPENAI_API_KEY"),
             anthropic_api_key=_secret("ANTHROPIC_API_KEY"),
+            anthropic_max_tokens=anthropic_max_tokens,
             root_dir=root,
             runs_dir=_path("CONSILIUM_RUNS_DIR", DEFAULT_RUNS_DIR),
             data_dir=_path("CONSILIUM_DATA_DIR", DEFAULT_DATA_DIR),

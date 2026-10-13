@@ -119,14 +119,11 @@ async def test_a_turn_writes_the_legacy_events_with_mcp_tool_calls(
 async def test_a_planner_that_needs_no_tool_goes_straight_to_the_synthesizer(
     offline_runtime: RuntimeFactory,
 ) -> None:
-    runtime = _graph_runtime(
-        offline_runtime(
-            _script(
-                ScriptedResponse(content="Hello."),
-                ScriptedResponse(content=f"Hello. Ask me about a condition. {DISCLAIMER}"),
-            )
-        )
+    recorder = _Recorder(
+        ScriptedResponse(content="Hello."),
+        ScriptedResponse(content=f"Hello. Ask me about a condition. {DISCLAIMER}"),
     )
+    runtime = _graph_runtime(offline_runtime(recorder))
     tracer, sink = _tracer()
     with tracer:
         outcome = await run_turn(runtime, "hi", tracer=tracer)
@@ -134,6 +131,11 @@ async def test_a_planner_that_needs_no_tool_goes_straight_to_the_synthesizer(
     assert outcome.answer.startswith("Hello. Ask me")
     assert sink.of_type(ToolCallEvent) == []
     assert [call.caller for call in sink.of_type(LLMCallEvent)] == ["planner", "synthesizer"]
+    # The planner's prose reply is not evidence and must not leave the transcript ending on an
+    # assistant turn (a prefill request, which some models refuse): the synthesizer sees the
+    # question last.
+    synthesizer_messages = recorder.seen[1]
+    assert synthesizer_messages[-1].role == "user" and synthesizer_messages[-1].content == "hi"
 
 
 # ----------------------------------------------------------------------------------------------
@@ -324,6 +326,10 @@ def test_settings_accept_the_langgraph_orchestrator(monkeypatch: pytest.MonkeyPa
     assert settings.orchestrator == "langgraph"
     assert settings.graph_max_repairs == 1
     assert settings.graph_mcp == "stdio"
+
+    monkeypatch.setenv("CONSILIUM_ANTHROPIC_MAX_TOKENS", "8192")
+    assert Settings.from_env(load_env_file=False).anthropic_max_tokens == 8192
+    monkeypatch.delenv("CONSILIUM_ANTHROPIC_MAX_TOKENS")
 
     monkeypatch.setenv("CONSILIUM_GRAPH_MAX_REPAIRS", "two")
     with pytest.raises(ValueError, match="CONSILIUM_GRAPH_MAX_REPAIRS"):

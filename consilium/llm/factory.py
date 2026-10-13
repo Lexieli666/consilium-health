@@ -61,7 +61,13 @@ def make_provider(settings: Settings, *, script: Path | None = None) -> LLMProvi
             "CONSILIUM_PROVIDER=anthropic but ANTHROPIC_API_KEY is not set. Set it in the "
             "environment or in a .env file; never write a key into tracked source."
         )
+    extra: dict[str, int] = (
+        {}
+        if settings.anthropic_max_tokens is None
+        else {"max_tokens": settings.anthropic_max_tokens}
+    )
     return AnthropicProvider(
         api_key=settings.anthropic_api_key.get_secret_value(),
         model=settings.model or ANTHROPIC_DEFAULT_MODEL,
+        **extra,
     )

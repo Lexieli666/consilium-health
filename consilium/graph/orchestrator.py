@@ -174,7 +174,17 @@ class ConsiliumGraph:
             turn = _turn()
             violations = state.get("violations") or []
             repairs = state.get("repairs", 0)
-            messages: list[BaseMessage] = [SystemMessage(SYNTHESIZER), *state["messages"]]
+            transcript = list(state["messages"])
+            # A planner that called no tool replied with prose.  That reply is not evidence, and
+            # a transcript ending on an assistant turn is a prefill request, which some models
+            # refuse; the synthesizer answers the question itself.
+            if (
+                transcript
+                and isinstance(transcript[-1], AIMessage)
+                and not transcript[-1].tool_calls
+            ):
+                transcript.pop()
+            messages: list[BaseMessage] = [SystemMessage(SYNTHESIZER), *transcript]
             if violations:
                 repairs += 1
                 turn.repair_rounds.append(list(violations))
