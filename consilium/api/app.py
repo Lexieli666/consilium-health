@@ -230,6 +230,7 @@ def _register_routes(app: FastAPI) -> None:
             provider=runtime.provider.name,
             model=runtime.provider.model,
             config=runtime.config.name,
+            orchestrator=runtime.settings.orchestrator,
             retrieval=runtime.retriever is not None,
             corpus_documents=len(runtime.documents),
             trace_schema_version=SCHEMA_VERSION,

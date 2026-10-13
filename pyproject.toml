@@ -21,6 +21,7 @@ classifiers = [
 # release between the commit that produced the published evaluation numbers and a later checkout.
 # The exact resolved versions live in uv.lock, which is committed.
 dependencies = [
+    "google-adk>=2.0,<3",     # ORCHESTRATOR=adk: the planner/worker/synthesizer tree on Vertex AI Gemini
     "pydantic>=2.7,<3",
     "openai>=2.0,<3",
     "anthropic>=0.100,<1",
@@ -160,5 +161,5 @@ files = ["consilium", "eval", "tests"]
 [[tool.mypy.overrides]]
 # `redis` is deliberately not a dependency: it is supported as an optional backend and is
 # imported inside `RedisBackend.__init__`, so the package must import cleanly without it.
-module = ["rank_bm25.*", "chromadb.*", "sentence_transformers.*", "redis.*", "pandas.*", "pyarrow.*", "snowflake.*"]
+module = ["rank_bm25.*", "chromadb.*", "sentence_transformers.*", "redis.*", "pandas.*", "pyarrow.*", "snowflake.*", "google.adk.*"]
 ignore_missing_imports = true

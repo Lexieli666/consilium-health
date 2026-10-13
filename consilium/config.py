@@ -23,6 +23,10 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 ProviderName = Literal["openai", "anthropic", "mock"]
 RouterMode = Literal["planner", "single", "none"]
+#: Which orchestrator runs a turn.  ``legacy`` is the in-repo planner/worker/synthesizer router;
+#: ``adk`` is the same architecture expressed as Google ADK agents on Vertex AI Gemini
+#: (``consilium/adk/``).  The default stays ``legacy`` so that nothing changes unless asked.
+OrchestratorName = Literal["legacy", "adk"]
 LogFormat = Literal["json", "console"]
 
 DEFAULT_RUNS_DIR = "runs"
@@ -30,6 +34,8 @@ DEFAULT_DATA_DIR = "data"
 DEFAULT_CORPUS_DIR = "data/corpus"
 DEFAULT_CHROMA_DIR = "data/chroma"
 DEFAULT_EPISODIC_DB = "data/episodic.db"
+#: The Gemini model the ADK orchestrator uses unless ``CONSILIUM_ADK_MODEL`` says otherwise.
+DEFAULT_ADK_MODEL = "gemini-2.5-flash"
 
 
 class Settings(BaseModel):
@@ -59,6 +65,14 @@ class Settings(BaseModel):
 
     log_level: str = "INFO"
     log_format: LogFormat = "json"
+
+    #: ``ORCHESTRATOR=legacy|adk``.  Only the routing layer changes; the turn boundary, the safety
+    #: layer, memory and the trace schema are the same code on both paths.
+    orchestrator: OrchestratorName = "legacy"
+    #: ``CONSILIUM_ADK_MODEL``: the Gemini model behind every ADK agent.  Project and region come
+    #: from ``GOOGLE_CLOUD_PROJECT`` / ``GOOGLE_CLOUD_LOCATION`` with ``GOOGLE_GENAI_USE_VERTEXAI``,
+    #: which the Google GenAI SDK reads itself.
+    adk_model: str = DEFAULT_ADK_MODEL
 
     @property
     def policy_path(self) -> Path:
@@ -102,6 +116,10 @@ class Settings(BaseModel):
 
         model = os.environ.get("CONSILIUM_MODEL", "").strip() or None
 
+        orchestrator = os.environ.get("ORCHESTRATOR", "legacy").strip().lower()
+        if orchestrator not in ("legacy", "adk"):
+            raise ValueError(f"ORCHESTRATOR must be legacy or adk; got {orchestrator!r}")
+
         return cls(
             provider=provider,
             model=model,
@@ -115,6 +133,8 @@ class Settings(BaseModel):
             episodic_db_path=_path("CONSILIUM_EPISODIC_DB", DEFAULT_EPISODIC_DB),
             log_level=os.environ.get("CONSILIUM_LOG_LEVEL", "INFO").strip().upper(),
             log_format=_log_format(),
+            orchestrator=orchestrator,
+            adk_model=os.environ.get("CONSILIUM_ADK_MODEL", "").strip() or DEFAULT_ADK_MODEL,
         )
 
 

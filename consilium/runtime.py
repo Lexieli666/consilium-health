@@ -25,6 +25,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING, Protocol
 
 from consilium.agents import AGENT_TYPES, BaseAgent
 from consilium.agents.loop import ReActLoop
@@ -54,6 +55,30 @@ from consilium.skills.base import SkillContext, SkillResult
 from consilium.skills.registry import SkillRegistry
 from consilium.skills.symptom_map import SymptomSystemMap
 from consilium.trace import RiskLevel, RouteMode, ToolTransport, Tracer, TurnEvent, stopwatch
+
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from collections.abc import Sequence
+
+    from consilium.router.router import RouteResult
+
+
+class Orchestrator(Protocol):
+    """What the turn boundary needs from a routing layer, and nothing more.
+
+    Both :class:`consilium.router.router.Router` (``ORCHESTRATOR=legacy``) and
+    :class:`consilium.adk.AdkOrchestrator` (``ORCHESTRATOR=adk``) satisfy it structurally.  The
+    turn boundary -- red-flag assessment, validator, repair, memory, the ``turn`` event -- is the
+    same code around either, which is what makes the two measurable against each other.
+    """
+
+    async def handle(
+        self,
+        question: str,
+        *,
+        tracer: Tracer | None = None,
+        history: Sequence[Message] = (),
+        pinned_agent: str | None = None,
+    ) -> RouteResult: ...
 
 
 @dataclass(frozen=True)
@@ -142,6 +167,31 @@ class Runtime:
             config=self.config,
             deadline_seconds=deadline_seconds,
         )
+
+    def orchestrator(
+        self,
+        *,
+        tracer: Tracer | None = None,
+        deadline_seconds: float = DEFAULT_DEADLINE_SECONDS,
+    ) -> Orchestrator:
+        """The routing layer ``Settings.orchestrator`` names, built for one turn.
+
+        ``google.adk`` is imported only on the ``adk`` path, so a deployment that never sets
+        ``ORCHESTRATOR=adk`` never pays for the import and never needs Vertex AI credentials.
+        """
+        if self.settings.orchestrator == "adk":
+            from consilium.adk import AdkOrchestrator
+
+            return AdkOrchestrator(
+                model=self.settings.adk_model,
+                registry=self.registry,
+                policy=self.policy,
+                validator=self.validator,
+                context_factory=lambda name: self.context(agent=name, tracer=tracer),
+                config=self.config,
+                deadline_seconds=deadline_seconds,
+            )
+        return self.router(tracer=tracer, deadline_seconds=deadline_seconds)
 
 
 def build_runtime(
@@ -263,7 +313,7 @@ async def run_turn(
     ``repair_applied`` says which of the two saved it.
     """
     assessment = runtime.red_flags.assess(question)
-    router = runtime.router(tracer=tracer, deadline_seconds=deadline_seconds)
+    router = runtime.orchestrator(tracer=tracer, deadline_seconds=deadline_seconds)
 
     working = runtime.memory.get(tracer.session_id) if runtime.config.memory else None
     history = _history(runtime, working, question)
