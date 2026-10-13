@@ -26,4 +26,17 @@
 #     input: 0.00
 #     output: 0.00
 
-rates: {}
+# Filled in on 2026-10-13 for the GCP-migration comparison (docs/gcp-migration-eval.md), from the
+# providers' public price lists on that date -- standard tier, text, prompts <= 200k tokens:
+#   openai/gpt-4o-mini        https://developers.openai.com/api/docs/models/gpt-4o-mini
+#   vertexai/gemini-2.5-flash https://cloud.google.com/vertex-ai/generative-ai/pricing
+# Gemini's output rate covers reasoning ("thinking") tokens, which is why the ADK trace adds
+# `thoughts_token_count` into `completion_tokens` (consilium/adk/agents.py).  The judge's calls are
+# not traced and are not in any cost-per-turn figure; see eval/run.py.
+rates:
+  "openai/gpt-4o-mini":
+    input: 0.15
+    output: 0.60
+  "vertexai/gemini-2.5-flash":
+    input: 0.30
+    output: 2.50
