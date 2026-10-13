@@ -23,8 +23,8 @@
 #       artifactregistry.googleapis.com secretmanager.googleapis.com aiplatform.googleapis.com
 #
 #   # API keys live in Secret Manager and reach the container via --set-secrets; never in an env
-#   # var on the command line, never in source.  Only the key for PROVIDER is required; create
-#   # both if you will switch providers.
+#   # var on the command line, never in source.  Only the key for PROVIDER is required (the
+#   # script mounts whichever of the two secrets exist).  Read from your shell environment:
 #   printf '%s' "$OPENAI_API_KEY"    | gcloud secrets create openai-api-key    --data-file=- --replication-policy=automatic
 #   printf '%s' "$ANTHROPIC_API_KEY" | gcloud secrets create anthropic-api-key --data-file=- --replication-policy=automatic
 #   # To rotate:  printf '%s' "$NEW" | gcloud secrets versions add openai-api-key --data-file=-
@@ -33,9 +33,7 @@
 #   # and call Vertex AI (for ORCHESTRATOR=adk).  Nothing else.
 #   gcloud iam service-accounts create consilium-run --display-name="Consilium-Health Cloud Run"
 #   SA="consilium-run@${PROJECT_ID}.iam.gserviceaccount.com"
-#   for s in openai-api-key anthropic-api-key; do
-#     gcloud secrets add-iam-policy-binding "$s" --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor
-#   done
+#   gcloud secrets add-iam-policy-binding openai-api-key --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor
 #   gcloud projects add-iam-policy-binding "$PROJECT_ID" --member="serviceAccount:$SA" --role=roles/aiplatform.user
 #
 # Cost: Cloud Build ~2-4 min on the default e2 pool per deploy (free tier covers 120 min/day);
@@ -70,7 +68,15 @@ ENV_VARS+=",GOOGLE_CLOUD_PROJECT=${PROJECT_ID}"
 ENV_VARS+=",GOOGLE_CLOUD_LOCATION=${REGION}"
 ENV_VARS+=",CONSILIUM_LOG_FORMAT=json"
 
-SECRETS="OPENAI_API_KEY=openai-api-key:latest,ANTHROPIC_API_KEY=anthropic-api-key:latest"
+# Mount only the secrets that exist, so a project with one provider key deploys without a
+# placeholder for the other.
+SECRETS=""
+for pair in OPENAI_API_KEY=openai-api-key ANTHROPIC_API_KEY=anthropic-api-key; do
+    if gcloud secrets describe "${pair#*=}" --project "$PROJECT_ID" >/dev/null 2>&1; then
+        SECRETS+="${SECRETS:+,}${pair}:latest"
+    fi
+done
+[ -n "$SECRETS" ] || { echo "no provider secret found; see the header of this script" >&2; exit 2; }
 
 echo ">> deploying ${SERVICE} to ${REGION} in ${PROJECT_ID} (provider=${PROVIDER} orchestrator=${ORCHESTRATOR})"
 gcloud run deploy "$SERVICE" \
