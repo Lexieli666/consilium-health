@@ -167,7 +167,10 @@ def trace_callbacks(scratch: WorkerScratch, tracer: Tracer | None) -> dict[str, 
             tracer.llm_call(
                 caller="forced_answer" if scratch._forced_call else scratch.caller,
                 provider=PROVIDER_LABEL,
-                model=llm_response.model_version or scratch.model,
+                # The configured model id, not the served `model_version`: it is the key
+                # eval/pricing.yaml prices and --max-cost checks before the sweep starts, and a
+                # version suffix appearing mid-run would make the cap abort as "unpriced".
+                model=scratch.model,
                 prompt_tokens=prompt_tokens,
                 completion_tokens=completion_tokens,
                 latency_ms=latency_ms,

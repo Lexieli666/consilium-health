@@ -33,8 +33,14 @@
 # Gemini's output rate covers reasoning ("thinking") tokens, which is why the ADK trace adds
 # `thoughts_token_count` into `completion_tokens` (consilium/adk/agents.py).  The judge's calls are
 # not traced and are not in any cost-per-turn figure; see eval/run.py.
+# `llm_call.model` is the id the provider *returns*, which for OpenAI carries the snapshot date;
+# both forms are listed so that the pre-sweep --max-cost check (CONSILIUM_MODEL) and the per-call
+# pricing (the returned id) resolve to the same rate.
 rates:
   "openai/gpt-4o-mini":
+    input: 0.15
+    output: 0.60
+  "openai/gpt-4o-mini-2024-07-18":
     input: 0.15
     output: 0.60
   "vertexai/gemini-2.5-flash":
