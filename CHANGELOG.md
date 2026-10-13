@@ -93,8 +93,27 @@ skills. Everything below is in `main` and none of it is a plan.
   every invocation emits the existing `tool_call` event carrying `transport: "mcp"`. Contract tests
   assert each schema through an SDK client, over both an in-memory transport and a real subprocess,
   offline. (this release)
+- **`ORCHESTRATOR=langgraph`: the turn as a LangGraph `StateGraph`** (`consilium/graph/`) —
+  planner with the seven MCP tools bound, `ToolNode` executing them in the project's own MCP
+  server (in-process, stdio child or streamable-HTTP URL), synthesizer, validator with a bounded
+  validator → synthesizer repair loop (`CONSILIUM_GRAPH_MAX_REPAIRS`, default 2), `MemorySaver`
+  keyed by session id, LangSmith tracing from the `LANGSMITH_*` variables. Behind the same
+  `Orchestrator` protocol and turn boundary as `legacy` and `adk`, with the server-side `tool_call`
+  and `retrieval` events forwarded into the turn trace so the harness reads it unchanged.
+  `langchain-mcp-adapters` is not used: every release pins `mcp<2.0`, and the server is on mcp 2.x.
+  `python -m consilium.graph "<question>"` runs one turn and prints its trace. Not measured: no
+  evaluation run has been executed for it. (`2c2f90f`, 2026-10-13)
+- **`eval/graph_compare.py` and `docs/LANGGRAPH_EVAL.md`**: the published ablation rows beside a
+  LangGraph run, with p95 latency from the traces and per-item deltas carrying evidence and a
+  suggested failure category; `eval/results/published-langgraph/` is the tracked location for that
+  run once it exists. (`6f0f200`, 2026-10-13)
 
 ### Changed
+
+- **README rewritten as a handoff document**: overview, both orchestrators with the graph diagram,
+  usage per interface, the results table with the LangGraph column marked `not run`, limitations
+  with trace references, guardrails, the Cortex Search comparison, handoff guidance, next steps.
+  (this release)
 
 - **Python floor raised to 3.12**, `requires-python = ">=3.12,<3.14"`, CI on 3.12 and 3.13, and the
   two `TypeAlias` aliases converted to PEP 695 `type` statements. Type-checking happens at the
