@@ -334,15 +334,25 @@ are needed for real retrieval quality numbers and are deliberately absent from C
 
 ## Deployment
 
-The API ships as a container: `Dockerfile` builds the FastAPI service with the self-hosted
-retriever and the embedding model baked in, `docker compose up --build` runs it locally, and
-`.github/workflows/deploy.yml` builds, smoke-tests, pushes to Amazon ECR and rolls an ECS Fargate
-service on every push to `main`, assuming an IAM role through GitHub's OIDC provider rather than
-holding AWS keys. The ChromaDB index, episodic memory and per-turn traces live on an EFS volume
-mounted at `/data`; the provider key comes from Secrets Manager. One CloudFormation template,
-`deploy/aws/stack.yml`, creates all of it, and `deploy/aws/README.md` walks through the one-time
-setup, the running cost (about $0.70 a day while a task runs, nothing when `DesiredCount` is 0)
-and the teardown.
+The API ships as a container (`Dockerfile`: python 3.12-slim, non-root, the bge-small model
+**and the ChromaDB index** baked in at build time from the committed corpus, so a scale-to-zero
+cold start never re-embeds). `docker compose up --build` runs it locally on port 8080.
+
+**Google Cloud Run** is the deployment target. `deploy/cloudrun/deploy.sh` deploys from source
+with Cloud Build (region `us-west1`, min-instances 0, 2 GiB, concurrency 10, unauthenticated for
+now); provider keys reach the container from Secret Manager via `--set-secrets`, and the one-time
+setup — APIs, secrets, a dedicated service account with exactly `secretAccessor` and
+`aiplatform.user` — is in the script's header comment. The orchestrator is selected per
+deployment with `ORCHESTRATOR=legacy|adk` (default `legacy`; `adk` runs the same planner →
+workers → synthesizer architecture as Google ADK agents on Vertex AI Gemini, see
+`consilium/adk/` and `docs/gcp-migration-eval.md`). `deploy/cloudrun/eval-job.sh` runs the
+golden set as a Cloud Run Job on the deployed image, with results in a GCS bucket.
+
+{{DEPLOYMENT_VERIFICATION}}
+
+The previous AWS path is still in the tree: `.github/workflows/deploy.yml` and
+`deploy/aws/stack.yml` build, push to ECR and roll an ECS Fargate service (`deploy/aws/README.md`
+walks through it). It is not exercised by the Cloud Run deployment and is kept for reference.
 
 ## MCP
 
