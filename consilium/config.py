@@ -25,8 +25,17 @@ ProviderName = Literal["openai", "anthropic", "mock"]
 RouterMode = Literal["planner", "single", "none"]
 #: Which orchestrator runs a turn.  ``legacy`` is the in-repo planner/worker/synthesizer router;
 #: ``adk`` is the same architecture expressed as Google ADK agents on Vertex AI Gemini
-#: (``consilium/adk/``).  The default stays ``legacy`` so that nothing changes unless asked.
-OrchestratorName = Literal["legacy", "adk"]
+#: (``consilium/adk/``); ``langgraph`` is a LangGraph ``StateGraph`` -- planner, retrieve
+#: (``ToolNode`` over the project's own MCP server), synthesizer, validator with a bounded repair
+#: loop (``consilium/graph/``).  The default stays ``legacy`` so that nothing changes unless asked.
+OrchestratorName = Literal["legacy", "adk", "langgraph"]
+#: How ``ORCHESTRATOR=langgraph`` reaches the MCP server: ``inprocess`` speaks the protocol to
+#: :func:`consilium.mcp_server.build_server` over the SDK's in-memory streams; ``stdio`` launches
+#: ``consilium mcp-serve --transport stdio`` as a child process; an ``http(s)://`` URL connects to
+#: a running ``consilium mcp-serve --transport http``.
+DEFAULT_GRAPH_MCP = "inprocess"
+#: Upper bound on validator -> synthesizer repair rounds per turn in the LangGraph orchestrator.
+DEFAULT_GRAPH_MAX_REPAIRS = 2
 LogFormat = Literal["json", "console"]
 
 DEFAULT_RUNS_DIR = "runs"
@@ -66,9 +75,18 @@ class Settings(BaseModel):
     log_level: str = "INFO"
     log_format: LogFormat = "json"
 
-    #: ``ORCHESTRATOR=legacy|adk``.  Only the routing layer changes; the turn boundary, the safety
-    #: layer, memory and the trace schema are the same code on both paths.
+    #: ``ORCHESTRATOR=legacy|adk|langgraph``.  Only the routing layer changes; the turn boundary,
+    #: the safety layer, memory and the trace schema are the same code on every path.
     orchestrator: OrchestratorName = "legacy"
+    #: ``CONSILIUM_GRAPH_MCP``: ``inprocess``, ``stdio`` or a streamable-HTTP URL.  See
+    #: ``consilium/graph/mcp_tools.py`` for what each one can and cannot put in the trace.
+    graph_mcp: str = DEFAULT_GRAPH_MCP
+    #: ``CONSILIUM_GRAPH_MCP_ARGS``: extra arguments for the ``stdio`` child, for example
+    #: ``--embedder hash --store numpy`` so the child builds the same index the host did.
+    graph_mcp_args: str = ""
+    #: ``CONSILIUM_GRAPH_MAX_REPAIRS``: validator -> synthesizer rounds before the deterministic
+    #: ``OutputRepair`` at the turn boundary takes over.
+    graph_max_repairs: int = Field(default=DEFAULT_GRAPH_MAX_REPAIRS, ge=0)
     #: ``CONSILIUM_ADK_MODEL``: the Gemini model behind every ADK agent.  Project and region come
     #: from ``GOOGLE_CLOUD_PROJECT`` / ``GOOGLE_CLOUD_LOCATION`` with ``GOOGLE_GENAI_USE_VERTEXAI``,
     #: which the Google GenAI SDK reads itself.
@@ -117,8 +135,18 @@ class Settings(BaseModel):
         model = os.environ.get("CONSILIUM_MODEL", "").strip() or None
 
         orchestrator = os.environ.get("ORCHESTRATOR", "legacy").strip().lower()
-        if orchestrator not in ("legacy", "adk"):
-            raise ValueError(f"ORCHESTRATOR must be legacy or adk; got {orchestrator!r}")
+        if orchestrator not in ("legacy", "adk", "langgraph"):
+            raise ValueError(f"ORCHESTRATOR must be legacy, adk or langgraph; got {orchestrator!r}")
+
+        graph_max_repairs_raw = os.environ.get("CONSILIUM_GRAPH_MAX_REPAIRS", "").strip()
+        try:
+            graph_max_repairs = (
+                int(graph_max_repairs_raw) if graph_max_repairs_raw else DEFAULT_GRAPH_MAX_REPAIRS
+            )
+        except ValueError:
+            raise ValueError(
+                f"CONSILIUM_GRAPH_MAX_REPAIRS must be an integer; got {graph_max_repairs_raw!r}"
+            ) from None
 
         return cls(
             provider=provider,
@@ -135,6 +163,9 @@ class Settings(BaseModel):
             log_format=_log_format(),
             orchestrator=orchestrator,
             adk_model=os.environ.get("CONSILIUM_ADK_MODEL", "").strip() or DEFAULT_ADK_MODEL,
+            graph_mcp=os.environ.get("CONSILIUM_GRAPH_MCP", "").strip() or DEFAULT_GRAPH_MCP,
+            graph_mcp_args=os.environ.get("CONSILIUM_GRAPH_MCP_ARGS", "").strip(),
+            graph_max_repairs=graph_max_repairs,
         )
 
 

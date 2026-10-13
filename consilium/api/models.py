@@ -173,9 +173,10 @@ class HealthResponse(BaseModel):
     provider: str
     model: str
     config: str
-    #: ``legacy`` or ``adk``; see ``consilium/adk/``.  Reported because an answer from a Gemini
-    #: agent tree and one from the in-repo router are grounded the same way but produced by
-    #: different code, and a trace reader needs to know which.
+    #: ``legacy``, ``adk`` or ``langgraph``; see ``consilium/adk/`` and ``consilium/graph/``.
+    #: Reported because an answer from a Gemini agent tree, one from the LangGraph graph and one
+    #: from the in-repo router are grounded the same way but produced by different code, and a
+    #: trace reader needs to know which.
     orchestrator: str = "legacy"
     retrieval: bool
     corpus_documents: int = Field(ge=0)

@@ -65,8 +65,10 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
 class Orchestrator(Protocol):
     """What the turn boundary needs from a routing layer, and nothing more.
 
-    Both :class:`consilium.router.router.Router` (``ORCHESTRATOR=legacy``) and
-    :class:`consilium.adk.AdkOrchestrator` (``ORCHESTRATOR=adk``) satisfy it structurally.  The
+    :class:`consilium.router.router.Router` (``ORCHESTRATOR=legacy``),
+    :class:`consilium.adk.AdkOrchestrator` (``ORCHESTRATOR=adk``) and
+    :class:`consilium.graph.LangGraphOrchestrator` (``ORCHESTRATOR=langgraph``) satisfy it
+    structurally.  The
     turn boundary -- red-flag assessment, validator, repair, memory, the ``turn`` event -- is the
     same code around either, which is what makes the two measurable against each other.
     """
@@ -177,8 +179,15 @@ class Runtime:
         """The routing layer ``Settings.orchestrator`` names, built for one turn.
 
         ``google.adk`` is imported only on the ``adk`` path, so a deployment that never sets
-        ``ORCHESTRATOR=adk`` never pays for the import and never needs Vertex AI credentials.
+        ``ORCHESTRATOR=adk`` never pays for the import and never needs Vertex AI credentials; the
+        same holds for ``langgraph`` on the ``langgraph`` path.  The LangGraph orchestrator keeps
+        its compiled graph, checkpointer and MCP session per process (``consilium/graph/``), so
+        building it per turn costs two small objects.
         """
+        if self.settings.orchestrator == "langgraph":
+            from consilium.graph import LangGraphOrchestrator
+
+            return LangGraphOrchestrator(self, deadline_seconds=deadline_seconds)
         if self.settings.orchestrator == "adk":
             from consilium.adk import AdkOrchestrator
 
