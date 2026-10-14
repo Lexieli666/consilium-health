@@ -105,8 +105,20 @@ skills. Everything below is in `main` and none of it is a plan.
   evaluation run has been executed for it. (`2c2f90f`, 2026-10-13)
 - **`eval/graph_compare.py` and `docs/LANGGRAPH_EVAL.md`**: the published ablation rows beside a
   LangGraph run, with p95 latency from the traces and per-item deltas carrying evidence and a
-  suggested failure category; `eval/results/published-langgraph/` is the tracked location for that
-  run once it exists. (`6f0f200`, 2026-10-13)
+  suggested failure category. (`6f0f200`, `46b1b71`, 2026-10-13)
+- **`CONSILIUM_ANTHROPIC_MAX_TOKENS`**, because the Anthropic provider's 1500-token default
+  truncated the faithfulness judge; and the graph's synthesizer no longer sends a transcript that
+  ends on an assistant turn, which `claude-haiku-5-5` rejects. (`689d9a3`, 2026-10-13)
+- **`eval/pricing.yaml`: `anthropic/claude-haiku-5-5`** at $0.10 / $0.50 per million tokens,
+  platform.claude.com on 2026-10-13. (`e80a993`)
+- **LangGraph v2 (`CONSILIUM_GRAPH_VERSION=2`, the default):** `search_knowledge` runs on every
+  turn before the planner, by code, with the raw question, outside the planner's budget; v1 stays
+  selectable. (`f5bae8a`, 2026-10-14)
+- **Five `claude-haiku-5-5` evaluation runs** of the `full` preset — legacy and LangGraph v1 on
+  the offline and the bge retriever, LangGraph v2 on bge — four of them published under
+  `eval/results/published-haiku-*/` with manifests (`3e1bba2`); the v2 run is complete for the
+  golden items and unpublished because its judge and multi-turn phases lost the API credit
+  balance. The numbers and the per-item classification are in `docs/LANGGRAPH_EVAL.md`. (2026-10-14)
 
 ### Changed
 

@@ -12,8 +12,9 @@ or a LangGraph graph over the same skills served through the project's MCP serve
 every answer through a policy validator and a deterministic repair before delivery. Every turn
 writes a structured trace, and every number in this document is computed from committed traces by
 the evaluation harness, never typed in. It is not a clinical tool, not a medical device, and not a
-system that has been validated on real patients; its headline measured result is a safety
-regression that is documented rather than fixed.
+system that has been validated on real patients; its published headline result on `gpt-4o-mini` is
+a safety regression that is documented rather than fixed, and the 2026-10-14 `claude-haiku-5-5`
+runs below are a paired comparison of the two orchestrations, not a fix for it.
 
 ## Architecture
 
@@ -40,22 +41,32 @@ permits it, with `max_tool_calls=2` and `max_iterations=3` enforced in code. A s
 two or more completed answers under fixed precedence (diagnostic wins on urgency, consultation on
 facts, research on evidence strength); a single completed answer is delivered without a merge.
 
-**LangGraph (`consilium/graph/`).** One `StateGraph` with five nodes. `planner` is one model call
-with the seven MCP tools bound; it chooses tools, not specialists. `retrieve` is
-`langgraph.prebuilt.ToolNode`; the tools execute inside `consilium/mcp_server.py` (in-process over
-the MCP SDK's memory streams by default, or a `consilium mcp-serve` stdio child, or a streamable-HTTP
-URL — `CONSILIUM_GRAPH_MCP`), and the `max_tool_calls` budget is enforced inside the tools, as the
-legacy loop enforces it. `synthesizer` writes the answer from the tool observations. `validator`
-runs the same `PolicyValidator` the turn boundary uses; on a violation the edge returns to
-`synthesizer` with a repair instruction built from `data/policy.yaml`'s own rule text, at most
+**LangGraph (`consilium/graph/`).** One `StateGraph`. `planner` is one model call with the seven
+MCP tools bound; it chooses tools, not specialists. `retrieve` is `langgraph.prebuilt.ToolNode`;
+the tools execute inside `consilium/mcp_server.py` (in-process over the MCP SDK's memory streams by
+default, or a `consilium mcp-serve` stdio child, or a streamable-HTTP URL — `CONSILIUM_GRAPH_MCP`),
+and the `max_tool_calls` budget is enforced inside the tools, as the legacy loop enforces it.
+`synthesizer` writes the answer from the tool observations. `validator` runs the same
+`PolicyValidator` the turn boundary uses; on a violation the edge returns to `synthesizer` with a
+repair instruction built from `data/policy.yaml`'s own rule text, at most
 `CONSILIUM_GRAPH_MAX_REPAIRS` (default 2) times. `deliver` strips the turn's scratch messages and
 checkpoints the thread in a `MemorySaver` keyed by `thread_id = session_id`. Model calls go through
 `consilium.llm.LLMProvider` behind a `BaseChatModel` adapter, so they are `llm_call` trace events
 with the same caller labels and model ids as the legacy run.
 
+Two versions are selectable with `CONSILIUM_GRAPH_VERSION`. **v1** starts at the planner, so
+retrieval happens only if the planner asks for it; its measured run regressed recall@5 (0.884
+against the legacy 0.966 on the same model and index) because the planner chose `assess_risk`
+over `search_knowledge` and made 1.06 tool calls per turn. **v2 (default)** adds a `search` node
+ahead of the planner that calls `search_knowledge` with the raw question on every turn, by code,
+outside the planner's budget; the planner decides only on additional calls. Both are in the
+results below.
+
 ```mermaid
 flowchart TD
-    S([START]) --> P[planner<br/>LLM call, 7 MCP tools bound]
+    S([START]) -- v2 --> K[search<br/>search_knowledge with the raw question<br/>by code, not charged to the budget]
+    S -- v1 --> P
+    K --> P[planner<br/>LLM call, 7 MCP tools bound]
     P -- tool calls --> R[retrieve<br/>ToolNode → MCP server<br/>budget: max_tool_calls]
     P -- no tool calls --> Y
     R --> Y[synthesizer<br/>LLM call, no tools]
@@ -142,6 +153,7 @@ registry's own `inputSchema`; every result is wrapped by the output policy and t
 
 ```bash
 ORCHESTRATOR=langgraph uv run python -m consilium.graph "What are the red-flag symptoms for sepsis?"
+CONSILIUM_GRAPH_VERSION=1 uv run python -m consilium.graph "..."                      # planner-first v1
 uv run python -m consilium.graph --mock "What are the red-flag symptoms for sepsis?"   # offline
 CONSILIUM_GRAPH_MCP=stdio CONSILIUM_GRAPH_MCP_ARGS="--embedder hash --store numpy" \
     uv run python -m consilium.graph --mock "What are the red-flag symptoms for sepsis?"
@@ -157,51 +169,66 @@ off with one log line.
 
 ```bash
 uv run python -m eval.run --config full --max-cost 3.00                      # legacy
-ORCHESTRATOR=langgraph uv run python -m eval.run --config full --max-cost 3.00
-uv run python -m eval.graph_compare eval/results/<stamp>                    # comparison table
-uv run python -m eval.publish --from eval/results/<stamp> --out eval/results/published-langgraph
+ORCHESTRATOR=langgraph uv run python -m eval.run --config full --max-cost 3.00   # graph (v2)
+uv run python -m eval.graph_compare eval/results/<stamp> --baseline eval/results/published-haiku-bge-legacy
+uv run python -m eval.publish --from eval/results/<stamp> --out eval/results/<name>
 ```
 
 ## Evaluation results
 
-**The LangGraph run has not been executed.** The implementation was written and tested in an
-environment with no route to `api.openai.com`; the harness refuses the mock provider, correctly. The
-legacy columns are the published run (2026-08-30, commit `f19584a`, `gpt-4o-mini` as agent and
-judge, 150 golden items per row); the LangGraph column will be filled by the runbook in
-`docs/LANGGRAPH_EVAL.md`, which prints this table with that column populated. No LangGraph number
-appears anywhere in this repository until then.
+Two sets of runs, and they are not interchangeable. The **published run** (2026-08-30, commit
+`f19584a`, `gpt-4o-mini` as agent and judge) is the four-row ablation of the legacy orchestrator
+that `docs/EVALUATION.md` and `docs/SAFETY.md` are written about. The **2026-10-14 runs** put the
+legacy orchestrator and the LangGraph graph side by side on `claude-haiku-5-5` (agent and judge),
+the same `full` preset, the same 150 items and conversations, and the same bge/Chroma index, so
+that the difference between columns is the orchestration. Both are 150 golden items per column.
+`docs/LANGGRAPH_EVAL.md` has the protocol, a second paired measurement on the offline retriever,
+and the trace-level classification of every per-item difference.
 
-| metric | `baseline_llm` (legacy) | `single_agent_rag` (legacy) | `full` (legacy) | `full_no_memory` (legacy) | `full` (`ORCHESTRATOR=langgraph`) |
-|---|---|---|---|---|---|
-| retrieval recall@5 (union; n=149 labelled) | n/a | 0.721 | 0.857 | 0.885 | not run |
-| faithfulness, retrieved sources (judge mean) | n/a | 0.828 | 0.737 | 0.763 | not run |
-| faithfulness, oracle sources (judge mean) | 0.630 | 0.765 | 0.713 | 0.715 | not run |
-| red-flag recall, post-repair (n=28) | 0.893 | 0.929 | 0.500 | 0.536 | not run |
-| output violations / repairs per 100 turns | 102.7 / 102.7 | 104.0 / 104.0 | 104.0 / 104.0 | 103.3 / 103.3 | not run |
-| routing accuracy / planner fallback | n/a | n/a | 0.867 / 0.000 | 0.853 / 0.000 | n/a (no `route` event) |
-| latency p50 / p90 / p95 | 1.27 / 1.74 / 1.84 s | 2.53 / 3.34 / 3.50 s | 3.98 / 7.37 / 7.74 s | 4.19 / 7.14 / 8.39 s | not run |
-| cost per turn / per 150-item run | $0.00013 / $0.019 | $0.00057 / $0.085 | $0.00120 / $0.181 | $0.00123 / $0.185 | not run |
-| tokens / LLM calls / tool calls per turn | 514 / 1.00 / 0.00 | 3219 / 1.83 / 1.08 | 6714 / 3.71 / 1.71 | 6892 / 3.72 / 1.73 | not run |
+| metric | `full`, published (`gpt-4o-mini`) | legacy (`claude-haiku-5-5`) | LangGraph v1 (`claude-haiku-5-5`) | LangGraph v2 (`claude-haiku-5-5`) |
+|---|---|---|---|---|
+| retrieval recall@5 (n=149) | 0.857 | **0.966** | 0.884 | 0.941 |
+| faithfulness, retrieved / oracle (judge mean) | 0.737 / 0.713 | **0.810** / 0.657 | 0.752 / 0.626 | not measured¹ |
+| red-flag recall, post-repair (n=28) | 0.500 | 0.964 | **1.000** | **1.000** |
+| output violations / repairs per 100 turns | 104.0 / 104.0 | 105.3 / 105.3 | **0.0 / 0.0** | 0.7 / 0.7 |
+| routing accuracy / planner fallback | 0.867 / 0.000 | 0.893 / 0.000 | n/a | n/a |
+| multi-turn resolved (judge) | 0.627 | 0.561 | **0.988** | not measured¹ |
+| latency p50 / p90 / p95 | 3.98 / 7.37 / 7.74 s | 8.50 / 18.88 / 21.92 s | **7.27 / 10.34 / 11.86 s** | 7.84 / 11.47 / 13.06 s |
+| cost per turn / per 150-item run | $0.00120 / $0.181 | $0.00252 / $0.378 | **$0.00162 / $0.243** | $0.00204 / $0.305 |
+| tokens / LLM calls / tool calls per turn | 6714 / 3.71 / 1.71 | 16393 / 3.87 / 2.25 | 10705 / 2.85 / 1.06 | 14241 / 2.67 / 1.70 |
+| raw data | `eval/results/published/` | `eval/results/published-haiku-bge-legacy/` | `eval/results/published-haiku-bge-langgraph-v1/` | not published¹ |
 
-Raw data: `eval/results/published/` (`summary.json`, `report.md`, 679 session traces,
-`MANIFEST.json` with sha256 digests; `python -m eval.publish --verify` recomputes them). The
-LangGraph run will be published to `eval/results/published-langgraph/` in the same layout. p50 and
-p90 are harness outputs; p95 is `eval.metrics.percentile` over the same `turn.wall_ms` values,
-computed by `eval/graph_compare.py`. Cost is the sum of traced `llm_call` tokens at
-`eval/pricing.yaml` rates ($0.15 / $0.60 per million tokens for `gpt-4o-mini`); the judge's calls
-are not traced and are not included.
+¹ The v2 run lost its Anthropic credit balance after all 150 golden turns had completed and 49 had
+been judged; the golden-item rows are complete, the judge and multi-turn rows are not, and the run
+is unpublished until the rerun in `docs/LANGGRAPH_EVAL.md` ("Runbook") is done.
+
+What the table says, in order of confidence: the graph's validator → synthesizer loop removes the
+output violations the deterministic guard otherwise repairs on every legacy turn (the disclaimer on
+150 of 150, plus a few dosing and escalation rules), at fewer model calls per turn than the legacy
+router; red-flag recall on `claude-haiku-5-5` is 0.964–1.000 on every row, so the published 0.500
+is a property of that model-and-orchestrator pair; v1's retrieval regression is structural
+(optional retrieval) and v2 recovers most of it (0.884 → 0.941 against 0.966), with the residual
+being fan-out width — the legacy router's three specialists make 2.25 calls per turn; the graph's
+faithfulness is lower on both retrievers by a judge with kappa 0.592 against people; the graph's
+uncompacted thread resolves far more multi-turn referents than the legacy five-exchange window.
+Each raw-data directory carries `summary.json`, `report.md`, 179 session traces and a sha256
+`MANIFEST.json` (`python -m eval.publish --verify --out <dir>`). p50 and p90 are harness outputs;
+p95 is `eval.metrics.percentile` over the same `turn.wall_ms` values, computed by
+`eval/graph_compare.py`. Cost is the sum of traced `llm_call` tokens at `eval/pricing.yaml` rates
+($0.15 / $0.60 per million for `gpt-4o-mini`, $0.10 / $0.50 for `claude-haiku-5-5`); the judge's
+calls are not traced and not included.
 
 Two caveats carry over from `docs/EVALUATION.md`. `relevant_doc_ids` (144 of 150 items) and
 `reference_answer` (148 of 150) were written by a model and not verified by a person, so recall@5
 and both faithfulness rows are measured against a machine-constructed reference; routing accuracy
 and red-flag recall are hand-labelled. The faithfulness judge's agreement with a blind human sample
 is Cohen's kappa = 0.592 (n=40), below the 0.6 line, with residual disagreement in the direction of
-the judge being too loose.
+the judge being too loose; the `claude-haiku-5-5` judge has not been validated against people at all.
 
-The headline result of the published run is negative: the `full` configuration retrieves better
-than single-agent RAG (recall@5 0.857 against 0.721) and delivers a seek-care instruction on half
-the red-flag items (0.500 against 0.893 for a plain LLM). The mechanism is in `docs/SAFETY.md` §7
-and in the Limitations below.
+The published run's headline result stands: on `gpt-4o-mini` the `full` configuration retrieves
+better than single-agent RAG (recall@5 0.857 against 0.721) and delivers a seek-care instruction
+on half the red-flag items (0.500 against 0.893 for a plain LLM). The mechanism is in
+`docs/SAFETY.md` §7 and in the Limitations below.
 
 ## Limitations
 
@@ -226,12 +253,35 @@ and in the Limitations below.
   (`traces/full-g-ge-024.json`).
 - **ICD-10 coverage is narrow.** Seven of the sixteen conditions in the corpus have a note that
   decides a code; the rest are covered by chapter maps only (`docs/CORPUS.md`).
-- **The LangGraph orchestrator is unmeasured** (see Evaluation results). Known structural
-  differences: no per-specialist skill policy (the planner may call all seven tools), no
-  `max_iterations` guard (one planning step), thread memory is uncompacted (the legacy working
-  memory replays the last five exchanges and compacts the rest), and the checkpointed answer is
-  the pre-repair draft. The repair rounds are logged and visible in LangSmith but are not trace
-  events.
+- **LangGraph v1 regressed retrieval, structurally.** With retrieval optional, the planner chose
+  `assess_risk` (57 calls over 150 items) over `search_knowledge` (25) and made 1.06 tool calls per
+  turn against the legacy router's 2.25; recall@5 0.884 against 0.966 on the same model and index
+  (0.791 against 0.946 on the offline retriever). Of the 24 items that differ from legacy, 11 are
+  tool-selection misses (`assess_risk` alone, e.g. `g-md-002`, `g-md-012`), 8 are single-call
+  partial coverage on two-document questions (e.g. `g-cc-001`, `g-ge-014`), 3 are ranking misses
+  (`g-ge-020`, `g-su-005`, `g-su-006`), 2 are improvements. Trace pairs under
+  `eval/results/published-haiku-bge-{legacy,langgraph-v1}/traces/full-<id>.json`. v2's forced
+  search recovers to 0.941; its 9 remaining drops are 4 items where legacy's diagnostic agent also
+  called `analyze_symptoms` (`g-su-022`, `g-su-028`, `g-su-030`, `g-md-021`), 4 where legacy's
+  fan-out made 2–6 calls to the graph's 1–2 (`g-cc-011`, `g-cc-028`, `g-md-016`, `g-md-023`), and
+  `g-su-006`.
+- **The graph's faithfulness is lower** (0.752 against 0.810 on retrieved sources, v1 on bge;
+  the same direction on the hash retriever), by a judge that has not been validated against people
+  on this model. Not explained; one candidate mechanism is in `docs/LANGGRAPH_EVAL.md` §6.
+- **Known structural differences of the graph:** no per-specialist skill policy (the planner may
+  call all seven tools), no `max_iterations` guard (one planning step), thread memory is uncompacted
+  (the legacy working memory replays the last five exchanges and compacts the rest — which is also
+  why the graph resolves 0.988 of multi-turn referents to the legacy 0.561), and the checkpointed
+  answer is the pre-repair draft. The repair rounds are logged and visible in LangSmith but are not
+  trace events.
+- **Migration findings on `claude-haiku-5-5`.** (a) The model rejects a transcript that ends on an
+  assistant message (`400 … does not support assistant message prefill`); v1's synthesizer did that
+  when the planner called no tool, fixed in `689d9a3`. (b) The Anthropic provider's 1500-token
+  `max_tokens` default truncated the faithfulness judge on 7 of its first 10 calls, scored as
+  "could not be parsed"; `CONSILIUM_ANTHROPIC_MAX_TOKENS=8192` was used for every run and the
+  default was left alone. (c) The legacy research agent returned an empty forced answer 3 times per
+  run (`agent.empty_forced_answer`), delivered as the fixed fallback sentence; not seen on
+  `gpt-4o-mini`, not investigated.
 - **`langchain-mcp-adapters` is not used.** Every release pins `mcp<2.0` and imports modules
   removed in mcp 2.x; the MCP server is written against mcp ≥2.1. `consilium/graph/mcp_tools.py`
   replaces it with an adapter on the mcp 2.x client (~100 lines). Over a remote HTTP server the
@@ -328,6 +378,8 @@ refresh. Neither result transfers to a different corpus without rerunning the re
 | `CONSILIUM_GRAPH_MCP` | `inprocess` | `inprocess`, `stdio`, or an `http(s)://…/mcp` URL |
 | `CONSILIUM_GRAPH_MCP_ARGS` | empty | extra `consilium mcp-serve` arguments for the stdio child |
 | `CONSILIUM_GRAPH_MAX_REPAIRS` | `2` | validator → synthesizer rounds |
+| `CONSILIUM_GRAPH_VERSION` | `2` | `1`: the planner decides every tool call; `2`: `search_knowledge` runs first, by code |
+| `CONSILIUM_ANTHROPIC_MAX_TOKENS` | provider default (1500) | Anthropic `max_tokens`; evaluation runs use `8192` so the judge is not truncated |
 | `CONSILIUM_ADK_MODEL` | `gemini-2.5-flash` | ADK only |
 | `CONSILIUM_RUNS_DIR` | `runs` | where traces are written |
 | `CONSILIUM_DATA_DIR` / `CONSILIUM_CORPUS_DIR` / `CONSILIUM_CHROMA_DIR` / `CONSILIUM_EPISODIC_DB` | `data`, `data/corpus`, `data/chroma`, `data/episodic.db` | data locations |
@@ -344,15 +396,19 @@ grouping). `eval/data/golden.jsonl` (150 items; `expected_route` and `red_flag` 
 `eval/pricing.yaml` (list prices with dates). The Chroma index under `data/chroma/` is gitignored
 and rebuilt by `consilium ingest`.
 
-**Re-running the evaluation.** `docs/LANGGRAPH_EVAL.md` has the step-by-step runbook. In short:
-`uv sync --extra embeddings`, `uv run consilium ingest`, set the provider and key in `.env`, then
+**Re-running the evaluation.** `docs/LANGGRAPH_EVAL.md` has the runbook. In short:
+`uv sync --extra embeddings`, `uv run consilium ingest`, set the provider and key in `.env`
+(`CONSILIUM_ANTHROPIC_MAX_TOKENS=8192` for an Anthropic model), then
 `ORCHESTRATOR=<legacy|langgraph> uv run python -m eval.run --config full --max-cost 3.00`. The run
-writes `eval/results/<stamp>/{summary.json, report.md, runs/}`; `python -m eval.graph_compare
-eval/results/<stamp>` prints the comparison and per-item deltas with trace paths;
-`python -m eval.publish --from eval/results/<stamp> --out eval/results/published-langgraph`
-copies it into the committed layout with a manifest. The sweep is sequential (latency is a reported
-number); the harness refuses the mock provider and refuses a spend cap for an unpriced model.
-Expect under $1 at `gpt-4o-mini` list prices for one configuration plus the judge.
+writes `eval/results/<stamp>/{summary.json, report.md, runs/}`;
+`python -m eval.graph_compare eval/results/<stamp> --baseline eval/results/published-haiku-bge-legacy`
+prints the comparison and per-item deltas with trace paths and a suggested failure category;
+`python -m eval.publish --from eval/results/<stamp> --out eval/results/<name>` copies it into the
+committed layout with a manifest (add the name to `.gitignore`'s allow-list). The sweep is
+sequential (latency is a reported number); the harness refuses the mock provider and refuses a
+spend cap for an unpriced model. One configuration with the judge and the multi-turn set cost
+$0.24–$0.38 at `claude-haiku-5-5` list prices. Where the Hugging Face hub is unreachable, put
+`models--BAAI--bge-small-en-v1.5` under a directory and set `HF_HUB_CACHE=<dir> HF_HUB_OFFLINE=1`.
 
 **Adding a tool.** Write a module under `consilium/skills/` that defines a pydantic argument model
 and a function decorated with `@skill(name=..., description=..., category=...,
@@ -387,8 +443,12 @@ deletes them. Session ids in evaluation runs are `<config>-<item_id>`.
 None of the following is done. Each item that changes measured behaviour needs its own evaluation
 run before any number in this document is updated.
 
-- **Run the LangGraph evaluation** and fill the column above; classify any regression against
-  `full` by reading the trace pairs `eval/graph_compare.py` names.
+- **Rerun LangGraph v2 with a complete judge pass and the multi-turn set** (the one pending
+  number in the results table), and validate the `claude-haiku-5-5` judge against the existing
+  human-labelled sample before comparing faithfulness across models.
+- **Widen v2's fan-out where the classification says it matters:** `analyze_symptoms` for
+  symptom questions and a second search for two-document questions are the two residual
+  mechanisms; both change measured behaviour and need their own run.
 - **Databricks mirror** of the corpus, index and evaluation harness — not started.
 - **Banking corpus**: a second domain to test whether the orchestration, the policy mechanism and
   the harness transfer; the red-flag table and the output rules are domain-specific and would need
@@ -401,8 +461,9 @@ run before any number in this document is updated.
   check beside the phrase table; fuzzy matching on red-flag patterns guarded by the false-positive
   probes; a DVT note and rule for `g-md-027`.
 - **ADK orchestrator evaluation** on Vertex AI Gemini, and the first Cloud Run build.
-- **Working-memory compaction for the LangGraph thread**, and recording the delivered (post-repair)
-  answer in the checkpoint rather than the draft.
+- **Working-memory compaction for the LangGraph thread** (it is uncompacted, which is both why
+  it resolves more multi-turn referents and why long conversations grow without bound), and
+  recording the delivered (post-repair) answer in the checkpoint rather than the draft.
 
 ## Documentation
 
