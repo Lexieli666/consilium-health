@@ -187,29 +187,33 @@ and the trace-level classification of every per-item difference.
 
 | metric | `full`, published (`gpt-4o-mini`) | legacy (`claude-haiku-5-5`) | LangGraph v1 (`claude-haiku-5-5`) | LangGraph v2 (`claude-haiku-5-5`) |
 |---|---|---|---|---|
-| retrieval recall@5 (n=149) | 0.857 | **0.966** | 0.884 | 0.941 |
-| faithfulness, retrieved / oracle (judge mean) | 0.737 / 0.713 | **0.810** / 0.657 | 0.752 / 0.626 | not measured¹ |
-| red-flag recall, post-repair (n=28) | 0.500 | 0.964 | **1.000** | **1.000** |
-| output violations / repairs per 100 turns | 104.0 / 104.0 | 105.3 / 105.3 | **0.0 / 0.0** | 0.7 / 0.7 |
+| retrieval recall@5 (n=149) | 0.857 | **0.966** | 0.884 | 0.949 |
+| faithfulness, retrieved / oracle (judge mean) | 0.737 / 0.713 | **0.810** / 0.657 | 0.752 / 0.626 | 0.770 / **0.679** |
+| red-flag recall, post-repair (n=28) | 0.500 | 0.964 | **1.000** | 0.929¹ |
+| output violations / repairs per 100 turns | 104.0 / 104.0 | 105.3 / 105.3 | **0.0 / 0.0** | **0.0 / 0.0** |
 | routing accuracy / planner fallback | 0.867 / 0.000 | 0.893 / 0.000 | n/a | n/a |
-| multi-turn resolved (judge) | 0.627 | 0.561 | **0.988** | not measured¹ |
-| latency p50 / p90 / p95 | 3.98 / 7.37 / 7.74 s | 8.50 / 18.88 / 21.92 s | **7.27 / 10.34 / 11.86 s** | 7.84 / 11.47 / 13.06 s |
-| cost per turn / per 150-item run | $0.00120 / $0.181 | $0.00252 / $0.378 | **$0.00162 / $0.243** | $0.00204 / $0.305 |
-| tokens / LLM calls / tool calls per turn | 6714 / 3.71 / 1.71 | 16393 / 3.87 / 2.25 | 10705 / 2.85 / 1.06 | 14241 / 2.67 / 1.70 |
-| raw data | `eval/results/published/` | `eval/results/published-haiku-bge-legacy/` | `eval/results/published-haiku-bge-langgraph-v1/` | not published¹ |
+| multi-turn resolved (judge) | 0.627 | 0.561 | **0.988** | 0.975 |
+| latency p50 / p90 / p95 | 3.98 / 7.37 / 7.74 s | 8.50 / 18.88 / 21.92 s | **7.27 / 10.34 / 11.86 s** | 7.82 / 10.44 / 12.45 s |
+| cost per turn / per 150-item run | $0.00120 / $0.181 | $0.00252 / $0.378 | **$0.00162 / $0.243** | $0.00201 / $0.301 |
+| tokens / LLM calls / tool calls per turn | 6714 / 3.71 / 1.71 | 16393 / 3.87 / 2.25 | 10705 / 2.85 / 1.06 | 14191 / 2.67 / 1.68 |
+| raw data | `eval/results/published/` | `eval/results/published-haiku-bge-legacy/` | `eval/results/published-haiku-bge-langgraph-v1/` | `eval/results/published-haiku-bge-langgraph-v2/` |
 
-¹ The v2 run lost its Anthropic credit balance after all 150 golden turns had completed and 49 had
-been judged; the golden-item rows are complete, the judge and multi-turn rows are not, and the run
-is unpublished until the rerun in `docs/LANGGRAPH_EVAL.md` ("Runbook") is done.
+¹ Both v2 false negatives (`g-su-017`, `g-md-021`) are answers that open with an emergency
+instruction ("Please get urgent medical help now. Call your local emergency number…") phrased
+outside the 38-phrase list `consilium/safety/escalation.py` counts; the detector is strict by
+design and understates recall (`docs/SAFETY.md`). They are scored as misses here, as the
+published methodology requires. An earlier v2 run that lost its API credit balance mid-judge
+scored 1.000 on the same 28 items; it is not published.
 
 What the table says, in order of confidence: the graph's validator → synthesizer loop removes the
 output violations the deterministic guard otherwise repairs on every legacy turn (the disclaimer on
 150 of 150, plus a few dosing and escalation rules), at fewer model calls per turn than the legacy
 router; red-flag recall on `claude-haiku-5-5` is 0.964–1.000 on every row, so the published 0.500
 is a property of that model-and-orchestrator pair; v1's retrieval regression is structural
-(optional retrieval) and v2 recovers most of it (0.884 → 0.941 against 0.966), with the residual
+(optional retrieval) and v2 recovers most of it (0.884 → 0.949 against 0.966), with the residual
 being fan-out width — the legacy router's three specialists make 2.25 calls per turn; the graph's
-faithfulness is lower on both retrievers by a judge with kappa 0.592 against people; the graph's
+faithfulness is lower on retrieved sources on both retrievers (v2 narrows it: 0.770 against 0.810,
+and 0.679 against 0.657 on oracle sources) by a judge with kappa 0.592 against people; the graph's
 uncompacted thread resolves far more multi-turn referents than the legacy five-exchange window.
 Each raw-data directory carries `summary.json`, `report.md`, 179 session traces and a sha256
 `MANIFEST.json` (`python -m eval.publish --verify --out <dir>`). p50 and p90 are harness outputs;
@@ -261,9 +265,9 @@ on half the red-flag items (0.500 against 0.893 for a plain LLM). The mechanism 
   partial coverage on two-document questions (e.g. `g-cc-001`, `g-ge-014`), 3 are ranking misses
   (`g-ge-020`, `g-su-005`, `g-su-006`), 2 are improvements. Trace pairs under
   `eval/results/published-haiku-bge-{legacy,langgraph-v1}/traces/full-<id>.json`. v2's forced
-  search recovers to 0.941; its 9 remaining drops are 4 items where legacy's diagnostic agent also
-  called `analyze_symptoms` (`g-su-022`, `g-su-028`, `g-su-030`, `g-md-021`), 4 where legacy's
-  fan-out made 2–6 calls to the graph's 1–2 (`g-cc-011`, `g-cc-028`, `g-md-016`, `g-md-023`), and
+  search recovers to 0.949; its 9 remaining drops are 3 items where legacy's diagnostic agent also
+  called `analyze_symptoms` (`g-su-022`, `g-su-028`, `g-su-030`), 5 where legacy's fan-out made
+  2–6 calls to the graph's 1–2 (`g-cc-011`, `g-cc-028`, `g-md-016`, `g-md-023`, `g-md-028`), and
   `g-su-006`.
 - **The graph's faithfulness is lower** (0.752 against 0.810 on retrieved sources, v1 on bge;
   the same direction on the hash retriever), by a judge that has not been validated against people
@@ -443,9 +447,10 @@ deletes them. Session ids in evaluation runs are `<config>-<item_id>`.
 None of the following is done. Each item that changes measured behaviour needs its own evaluation
 run before any number in this document is updated.
 
-- **Rerun LangGraph v2 with a complete judge pass and the multi-turn set** (the one pending
-  number in the results table), and validate the `claude-haiku-5-5` judge against the existing
-  human-labelled sample before comparing faithfulness across models.
+- **Validate the `claude-haiku-5-5` judge** against the existing human-labelled sample before
+  comparing faithfulness across models, and decide whether the escalation detector's phrase list
+  should grow (it scores two v2 answers that instruct emergency care as misses); both change what
+  published numbers mean and need their own run.
 - **Widen v2's fan-out where the classification says it matters:** `analyze_symptoms` for
   symptom questions and a second search for two-document questions are the two residual
   mechanisms; both change measured behaviour and need their own run.

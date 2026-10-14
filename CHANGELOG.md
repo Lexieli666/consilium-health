@@ -116,9 +116,9 @@ skills. Everything below is in `main` and none of it is a plan.
   selectable. (`f5bae8a`, 2026-10-14)
 - **Five `claude-haiku-5-5` evaluation runs** of the `full` preset — legacy and LangGraph v1 on
   the offline and the bge retriever, LangGraph v2 on bge — four of them published under
-  `eval/results/published-haiku-*/` with manifests (`3e1bba2`); the v2 run is complete for the
-  golden items and unpublished because its judge and multi-turn phases lost the API credit
-  balance. The numbers and the per-item classification are in `docs/LANGGRAPH_EVAL.md`. (2026-10-14)
+  `eval/results/published-haiku-*/` with manifests (`76eab63`); a first v2 run lost the API credit
+  balance mid-judge and was rerun in full and published (`published-haiku-bge-langgraph-v2/`).
+  The numbers and the per-item classification are in `docs/LANGGRAPH_EVAL.md`. (2026-10-14)
 
 ### Changed
 

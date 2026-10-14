@@ -4,7 +4,7 @@
 > provide clinical guidance, and it must not be used for real medical decisions. No patient data of
 > any kind may be used with it.
 
-Five sweeps of the 150-item golden set on 2026-10-14, all with `claude-haiku-5-5` as agent model and
+Six sweeps of the 150-item golden set on 2026-10-14, all with `claude-haiku-5-5` as agent model and
 as judge, compare the legacy planner–worker–synthesizer router with the LangGraph orchestrator in
 its two versions. Every number here is read from the runs' `summary.json` files and traces by
 `eval/graph_compare.py`; the raw outputs are committed under `eval/results/published-haiku-*/`
@@ -43,30 +43,33 @@ specialists, no `route` event).
 | metric | `full`, published (gpt-4o-mini) | legacy | LangGraph v1 | LangGraph v2 |
 |---|---|---|---|---|
 | items with a `turn` event | 150 | 150 | 150 | 150 |
-| retrieval recall@5 (n=149) | 0.857 | **0.966** | 0.884 | 0.941 |
-| hit@5 / MRR@10 | 0.899 / 0.756 | 0.987 / 0.885 | 0.946 / 0.879 | 0.960 / 0.834 |
-| faithfulness, retrieved sources (judge mean, n judged) | 0.737 (148) | **0.810** (147) | 0.752 (148) | not measured (judge cut off at 49; see below) |
-| faithfulness, oracle sources | 0.713 | 0.657 | 0.626 | not measured |
-| red-flag recall, post-repair (n=28) | 0.500 | 0.964 | **1.000** | **1.000** |
-| red-flag false negatives | 14 items | `g-su-017` | none | none |
-| model escalated unaided (pre-repair) | 0.500 | 0.929 | 1.000 | 1.000 |
-| output violations / repairs per 100 turns | 104.0 / 104.0 | 105.3 / 105.3 | **0.0 / 0.0** | 0.7 / 0.7 |
-| violations by rule | disclaimer 150, dosing 4, escalation 2 | disclaimer 150, dosing 5, escalation 2, diagnosis 1 | none | escalation 1 |
+| retrieval recall@5 (n=149) | 0.857 | **0.966** | 0.884 | 0.949 |
+| hit@5 / MRR@10 | 0.899 / 0.756 | 0.987 / 0.885 | 0.946 / 0.879 | 0.966 / 0.834 |
+| faithfulness, retrieved sources (judge mean, n judged) | 0.737 (148) | **0.810** (147) | 0.752 (148) | 0.770 (149) |
+| faithfulness, oracle sources | 0.713 | 0.657 | 0.626 | **0.679** |
+| red-flag recall, post-repair (n=28) | 0.500 | 0.964 | **1.000** | 0.929 |
+| red-flag false negatives | 14 items | `g-su-017` | none | `g-su-017`, `g-md-021` (both answers open with an emergency instruction the detector's phrase list does not contain; see finding 4) |
+| model escalated unaided (pre-repair) | 0.500 | 0.929 | 1.000 | 0.929 |
+| output violations / repairs per 100 turns | 104.0 / 104.0 | 105.3 / 105.3 | **0.0 / 0.0** | **0.0 / 0.0** |
+| violations by rule | disclaimer 150, dosing 4, escalation 2 | disclaimer 150, dosing 5, escalation 2, diagnosis 1 | none | none |
 | routing accuracy / planner fallback | 0.867 / 0.000 | 0.893 / 0.000 | n/a | n/a |
-| multi-turn resolved (judge, n graded turns) | 0.627 (83) | 0.561 (82) | **0.988** (83) | not measured (run cut off) |
-| latency p50 / p90 / p95 | 3.98 / 7.37 / 7.74 s | 8.50 / 18.88 / 21.92 s | **7.27 / 10.34 / 11.86 s** | 7.84 / 11.47 / 13.06 s |
-| cost per turn / per 150-item run | $0.00120 / $0.181 | $0.00252 / $0.378 | **$0.00162 / $0.243** | $0.00204 / $0.305 |
-| tokens / LLM calls / tool calls per turn | 6714 / 3.71 / 1.71 | 16393 / 3.87 / 2.25 | 10705 / 2.85 / 1.06 | 14241 / 2.67 / 1.70 |
-| tool calls by skill (150 items) | search 78, guideline 52, research 25, risk 51, symptoms 24, code 20, lifestyle 7 | search 92, guideline 73, research 42, risk 51, code 44, symptoms 24, lifestyle 11 | risk 57, guideline 38, code 32, search 25, lifestyle 7 | search 162 (150 forced + 12), risk 53, guideline 26, code 8, lifestyle 6 |
-| traced spend, whole run | $0.531 (all five configurations) | $0.378 | $0.243 | $0.305 |
-| raw data | `eval/results/published/` | `published-haiku-bge-legacy/` | `published-haiku-bge-langgraph-v1/` | not published (partial); rerun pending |
+| multi-turn resolved (judge, n graded turns) | 0.627 (83) | 0.561 (82) | **0.988** (83) | 0.975 (81) |
+| latency p50 / p90 / p95 | 3.98 / 7.37 / 7.74 s | 8.50 / 18.88 / 21.92 s | **7.27 / 10.34 / 11.86 s** | 7.82 / 10.44 / 12.45 s |
+| cost per turn / per 150-item run | $0.00120 / $0.181 | $0.00252 / $0.378 | **$0.00162 / $0.243** | $0.00201 / $0.301 |
+| tokens / LLM calls / tool calls per turn | 6714 / 3.71 / 1.71 | 16393 / 3.87 / 2.25 | 10705 / 2.85 / 1.06 | 14191 / 2.67 / 1.68 |
+| tool calls by skill (150 items) | search 78, guideline 52, research 25, risk 51, symptoms 24, code 20, lifestyle 7 | search 92, guideline 73, research 42, risk 51, code 44, symptoms 24, lifestyle 11 | risk 57, guideline 38, code 32, search 25, lifestyle 7 | search 165 (150 forced + 15), risk 53, guideline 18, code 11, lifestyle 5 |
+| traced spend, whole run | $0.531 (all five configurations) | $0.378 | $0.243 | $0.301 |
+| raw data | `eval/results/published/` | `published-haiku-bge-legacy/` | `published-haiku-bge-langgraph-v1/` | `published-haiku-bge-langgraph-v2/` |
 
-**The v2 run is incomplete.** The Anthropic account's credit balance ran out at 03:31 UTC, after
-all 150 golden turns had finished and 49 of them had been judged; the remaining judge calls and all
-132 multi-turn turns failed with `credit balance is too low`. Its golden-item rows above (recall,
-hit, MRR, red-flag, violations, latency, cost, tokens, tool calls) are complete and valid; its
-faithfulness and multi-turn cells are not reported, and the run is not published. The rerun is one
-command (below) and about $0.45.
+**The v2 column is the second v2 run.** The first (started 02:57 UTC) lost the account's API
+credit balance after its 150 golden turns and 49 judge calls, so its judge and multi-turn phases
+are missing; it is not published. The rerun (started 05:16 UTC, commit `11da41a`, same code) is
+complete and is the column above. The two agree on what the golden turns alone can show --
+recall@5 0.941 against 0.949, violations 0.7 against 0.0 per 100 turns, cost $0.00204 against
+$0.00201 per turn, 1.70 against 1.68 tool calls per turn -- and differ on red-flag recall (1.000
+against 0.929), which is the sampling behaviour of a 28-item metric under a strict phrase detector
+(finding 4), not a code change. The first run's raw directory is kept locally and is not part of
+the committed evidence.
 
 ## Results, offline hash retriever (same orchestration difference, second measurement)
 
@@ -116,15 +119,22 @@ that recall@5 is scored on.
    `published-haiku-bge-langgraph-v1/traces/full-<id>.json`.
 4. **v2 closes most of it without touching retrieval quality or the prompts' substance.**
    `search_knowledge` runs on every turn with the raw question before the planner; the planner
-   decides only on additional calls (12 further searches, 53 `assess_risk`, 26 `find_guideline`).
-   recall@5 0.941, 13 items differ from legacy: 4 improvements (`g-gh-020`, `g-cc-022`,
-   `g-cc-025`, and `g-su-017`, which v2 escalates and legacy does not); **4 tool-selection
-   misses** where legacy's diagnostic agent also called `analyze_symptoms`, whose `condition`
-   filter is what reached the note (`g-su-022`, `g-su-028`, `g-su-030`, `g-md-021`); **4 partial
-   coverage** where legacy's fan-out made 2–6 calls and the graph 1–2 (`g-cc-011`, `g-cc-028`,
-   `g-md-016`, `g-md-023`); **1 ranking miss** (`g-su-006`, `red-flag-anaphylaxis` outside the
-   raw-question top 5; escalated regardless). The residual 2.5 points are fan-out width — three
-   specialists each with a budget of two — not the index.
+   decides only on additional calls (15 further searches, 53 `assess_risk`, 18 `find_guideline`).
+   recall@5 0.949, 14 items differ from legacy: 4 recall improvements (`g-gh-004`, `g-gh-020`,
+   `g-cc-022`, `g-cc-025`); **3 tool-selection misses** where legacy's diagnostic agent also
+   called `analyze_symptoms`, whose `condition` filter is what reached the note (`g-su-022`,
+   `g-su-028`, `g-su-030`); **5 partial coverage** where legacy's fan-out made 2–6 calls and the
+   graph 1–2 (`g-cc-011`, `g-cc-028`, `g-md-016`, `g-md-023`, `g-md-028`); **1 ranking miss**
+   (`g-su-006`, `red-flag-anaphylaxis` outside the raw-question top 5; escalated regardless); and
+   `g-md-021`, where recall improved to 1.0 and red-flag escalation is scored as lost. That last
+   one, and `g-su-017`, are **detector misses, not model misses**: the v2 answers open with
+   "Please get urgent medical help now. Call your local emergency number, or take your dad to the
+   nearest emergency department" and "If you might act on these thoughts … call your local
+   emergency number now", neither of which is among the 38 phrases
+   `consilium/safety/escalation.py` counts; the detector is strict by design and `docs/SAFETY.md`
+   states the direction of that bias (it understates recall). The published methodology scores
+   them as misses and so does this table. The residual 1.7 points of recall@5 are fan-out width
+   — three specialists each with a budget of two — not the index.
 5. **Multi-turn resolution is where the graph's memory differs most.** The thread checkpoint keeps
    every prior (question, answer) pair verbatim; the legacy working memory replays five exchanges
    and compacts the rest. 0.988 against 0.561 on bge (0.975 against 0.463 on hash). This is also
@@ -134,8 +144,9 @@ that recall@5 is scored on.
    across both retrievers. One plausible mechanism is in the traces: the graph's synthesizer sees
    every tool observation inside the MCP server's safety envelope and writes one longer answer
    (10705 tokens per turn against the legacy specialists' shorter grounded sections), so more
-   claims per answer meet the same evidence. Not established; it needs the v2 judge pass and a
-   claim-level read.
+   claims per answer meet the same evidence. v2 narrows the gap (0.770 retrieved, 0.679 oracle --
+   the oracle figure is above legacy's 0.657) with the forced search giving every answer the
+   raw-question passages. Not established; it needs a claim-level read.
 
 ## Migration findings (things that broke, and what was changed)
 
@@ -151,6 +162,11 @@ that recall@5 is scored on.
   and set to 8192 for every run here. Commit `689d9a3`.
 - **Optional retrieval regressed recall** (finding 3); fixed structurally in v2 (`f5bae8a`), v1
   kept selectable with `CONSILIUM_GRAPH_VERSION=1`.
+- **The escalation detector's phrase list is a sampling instrument on this model.** Across three
+  LangGraph runs on `claude-haiku-5-5` the same graph scored red-flag recall 1.000, 1.000 and
+  0.929; the two misses are answers that instruct emergency care in words the list lacks. The
+  list is part of the published measurement and was not changed; adding phrases changes what
+  every row means and is roadmap.
 - **The legacy research agent returned an empty forced answer** 3 times per run on
   `claude-haiku-5-5` (`agent.empty_forced_answer`; delivered as the fixed fallback sentence). Not
   seen in the published gpt-4o-mini run. Not investigated.
@@ -167,7 +183,7 @@ uv sync --extra embeddings
 #       CONSILIUM_ANTHROPIC_MAX_TOKENS=8192
 uv run consilium ingest                                        # once, if data/chroma is absent
 
-# the pending v2 rerun (complete judge + multi-turn), ~$0.45
+# the v2 row (~$0.30 of traced spend plus the untraced judge)
 ORCHESTRATOR=langgraph CONSILIUM_GRAPH_VERSION=2 uv run python -m eval.run --config full --max-cost 3.00
 uv run python -m eval.graph_compare eval/results/<stamp> --baseline eval/results/published-haiku-bge-legacy
 uv run python -m eval.publish --from eval/results/<stamp> --out eval/results/published-haiku-bge-langgraph-v2

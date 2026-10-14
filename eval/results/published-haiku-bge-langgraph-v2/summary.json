@@ -1,0 +1,144 @@
+{
+  "commit": "11da41a54c79",
+  "started_at": "2026-10-14T05:16:15.825456+00:00",
+  "finished_at": "2026-10-14T06:39:14.640438+00:00",
+  "provider": "anthropic",
+  "model": "claude-haiku-5-5",
+  "judge_model": "claude-haiku-5-5",
+  "golden_path": "/home/claude/consilium-health/eval/data/golden.jsonl",
+  "multiturn_path": "/home/claude/consilium-health/eval/data/multiturn.jsonl",
+  "n_items": 150,
+  "limit": null,
+  "python": "3.13.16",
+  "platform": "Linux 6.18.44-fc-v114",
+  "pricing_source": "pricing.yaml (4 model(s) priced)",
+  "unverified_labels": {
+    "n_total": 150,
+    "n_items": 148,
+    "fields": {
+      "relevant_doc_ids": 144,
+      "reference_answer": 148
+    }
+  },
+  "cost_cap": {
+    "cap_usd": 3.0,
+    "spent_usd": 0.3014315,
+    "aborted": false,
+    "aborted_at_config": null,
+    "aborted_after_item": null,
+    "items_completed": 150,
+    "items_planned": 150,
+    "unpriced_models": []
+  },
+  "results": [
+    {
+      "config": "full",
+      "n_items": 150,
+      "routing": {
+        "n": 0,
+        "accuracy": null,
+        "accuracy_excluding_fallback": null,
+        "n_excluding_fallback": 0,
+        "fallback_rate": null,
+        "confusion": {},
+        "per_agent_set": {}
+      },
+      "retrieval": {
+        "n": 149,
+        "recall_at_5_union": 0.9485458612975393,
+        "recall_at_5_first_event": 0.91834451901566,
+        "hit_at_5": 0.9664429530201343,
+        "mrr_at_10": 0.8338023088023088,
+        "docs_retrieved_per_turn": 12.630872483221477,
+        "retrievals_per_turn": 1.6778523489932886
+      },
+      "safety": {
+        "n_red_flag_items": 28,
+        "red_flag_recall": 0.9285714285714286,
+        "red_flag_false_negatives": 2,
+        "false_negative_item_ids": [
+          "g-su-017",
+          "g-md-021"
+        ],
+        "model_escalated_unaided": 0.9285714285714286,
+        "violations_per_100_turns": 0.0,
+        "repairs_per_100_turns": 0.0,
+        "violations_by_rule": {},
+        "repairs_by_rule": {},
+        "post_stream_repairs": 0,
+        "negation_suppressed_turns": 1,
+        "by_stratum": {
+          "easy": {
+            "n": 5,
+            "escalated": 5,
+            "recall": 1.0,
+            "false_negative_item_ids": []
+          },
+          "hard": {
+            "n": 22,
+            "escalated": 20,
+            "recall": 0.9090909090909091,
+            "false_negative_item_ids": [
+              "g-su-017",
+              "g-md-021"
+            ]
+          }
+        }
+      },
+      "latency": {
+        "n": 150,
+        "p50_ms": 7824.456677,
+        "p90_ms": 10437.987387000021,
+        "by_mode": {}
+      },
+      "usage": {
+        "n_turns": 150,
+        "tokens_per_turn": 14191.38,
+        "prompt_tokens_per_turn": 12715.366666666667,
+        "completion_tokens_per_turn": 1476.0133333333333,
+        "llm_calls_per_turn": 2.6666666666666665,
+        "tokens_by_caller": {
+          "planner": 779618,
+          "synthesizer": 1349089
+        },
+        "tokens_by_mode": {},
+        "tool_calls_per_turn": 1.68,
+        "tool_call_distribution": {
+          "1": 52,
+          "2": 94,
+          "3": 4
+        },
+        "tool_calls_by_skill": {
+          "search_knowledge": 165,
+          "recommend_lifestyle": 5,
+          "assess_risk": 53,
+          "lookup_disease_code": 11,
+          "find_guideline": 18
+        },
+        "cost_per_turn_usd": 0.0020095433333333335,
+        "unpriced_models": []
+      },
+      "judge": {
+        "judge_model": "claude-haiku-5-5",
+        "prompt_version": "faithfulness_v2",
+        "faithfulness_retrieved": 0.7696411158500942,
+        "faithfulness_oracle": 0.6790753167085579,
+        "n_judged": 149,
+        "multiturn_resolved": 0.9753086419753086,
+        "multiturn_unresolved": 0.012345679012345678,
+        "multiturn_misresolved": 0.012345679012345678,
+        "n_conversations": 81,
+        "human_agreement": null,
+        "cohens_kappa": null,
+        "n_human_labeled": 0
+      }
+    }
+  ],
+  "notes": [
+    "full_budget_6 is a diagnostic on a stratified subset, not an ablation row; its n is stated in its own section.",
+    "Episodic memory was disabled for this run: cross-session recall over independent golden items would let item N answer from item N-1.",
+    "The summarization path is exercised by 5 of 29 multi-turn conversations (m-021, m-023, m-026, m-027, m-030): only these carry a dependency reaching past the working-memory window, so the memory ablation's effect on that path rests on n=5.",
+    "**Measured against an unverified reference.** `relevant_doc_ids` (144 of 150 items), `reference_answer` (148 of 150 items) were written by a model and no person verified them, so recall@5, hit@5, MRR@10, faithfulness (oracle) are measured against a machine-constructed reference. Routing accuracy and red-flag recall are not: `expected_route` and `red_flag` were hand-labelled on all 150 items.",
+    "**Spend cap.** Ran under `--max-cost 3.00` and finished at $0.3014 over 150 item(s) (the sweep's traced llm_call events only; the judge's own calls are not traced and are not counted)."
+  ]
+}
