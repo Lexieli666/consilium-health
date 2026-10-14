@@ -1,0 +1,361 @@
+{
+  "session_id": "full-g-su-003",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:08.813568Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 836,
+          "completion_tokens": 404,
+          "latency_ms": 2675.346234000017,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:08.930780Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Treat this as an urgent possible transient ischemic attack or stroke. The user had one-sided facial drooping and speech disturbance lasting about ten minutes this morning, and both symptoms have since resolved. State clearly that these are recognised warning signs that need same-day emergency evaluation, even though they have resolved. Tell the user to call emergency services now, and to note the time symptoms started and when they resolved. Also list any other symptoms the user should report, such as arm weakness, numbness, vision change, or balance problems.",
+              "why": "Transient facial droop and speech change are stroke warning signs, and urgency and red-flag claims belong to the diagnostic specialist."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2792.606207999995
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:08.930958Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:08.931127Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:10.672244Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1760,
+          "completion_tokens": 277,
+          "latency_ms": 1739.728776999982,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:10.704142Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "This morning one side of my face went funny (drooping) and my speech came out wrong for about ten minutes. Both have now resolved.",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 0,
+              "rrf_score": 0.030798389007344232
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.028782894736842105
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 2,
+              "rrf_score": 0.028006267136701922
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 1,
+              "rrf_score": 0.027783137179239824
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 0,
+              "rrf_score": 0.027692895339954164
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.027364110201042444
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 30.82970899998827
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:10.704590Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "This morning one side of my face went funny (drooping) and my speech came out wrong for about ten minutes. Both have now resolved."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 31.884160999993583,
+          "source_doc_ids": [
+            "red-flag-stroke-symptoms",
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-anaphylaxis",
+            "red-flag-sepsis",
+            "red-flag-gastrointestinal-bleeding"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:11.510793Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4021,
+          "completion_tokens": 95,
+          "latency_ms": 805.6305729999735,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:11.542263Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "This morning one side of my face went funny (drooping) and my speech came out wrong for about ten minutes. Both have now resolved.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.030886196246139225
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 1,
+              "rrf_score": 0.0304147465437788
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.029030910609857977
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 30.544577999989997
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:11.542654Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "This morning one side of my face went funny (drooping) and my speech came out wrong for about ten minutes. Both have now resolved."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 31.433939000010014,
+          "source_doc_ids": [
+            "condition-insomnia",
+            "condition-osteoarthritis",
+            "condition-upper-respiratory-infection",
+            "condition-migraine",
+            "condition-coronary-artery-disease"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:13.991338Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5431,
+          "completion_tokens": 406,
+          "latency_ms": 2448.313208000002,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:13.991670Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:13.992473Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:13.992743Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:09:13.993052Z",
+          "trace_id": "b0d3bd1aa48f440ea6938d1df1a39e63",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "my face on one sied went funny this morning and my speach came out wrong for about ten minits, its ok now",
+          "answer": "**Call emergency services now.** Facial drooping on one side and disturbed speech are recognised warning signs of a stroke or transient ischaemic attack (TIA, a brief stroke-like episode). They need same-day emergency evaluation even though they have gone away. Do not wait to see if they come back. (Source: red-flag-stroke-symptoms.)\n\nWhile you wait for help or travel to care:\n\n- **Write down the time** the symptoms started, and the time they stopped. If you do not know exactly when they started, note the last time you were known to be well.\n- **Tell the person you are with** what happened, so they can tell the responders too.\n- **Do not drive yourself.**\n\nReport these to the emergency team even if they seem to have settled:\n- Weakness or numbness in one arm, or one arm drifting down when both are raised\n- Numbness or weakness in a leg, or one whole side of the body\n- Slurred speech, trouble finding words, or trouble understanding others\n- Sudden confusion\n- Sudden loss or blurring of vision in one or both eyes\n- Sudden difficulty walking, dizziness, or loss of balance or coordination\n- A sudden severe headache with no known cause\n\n(Source: red-flag-stroke-symptoms.)\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7853.781862000005,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

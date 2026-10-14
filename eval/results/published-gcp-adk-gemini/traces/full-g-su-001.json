@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-su-001",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:22.328960Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 577,
+          "completion_tokens": 102,
+          "latency_ms": 1466.2775750000492,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:22.439273Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of the chest discomfort described and identify potential serious causes.",
+              "why": "The user is describing acute chest pain, which requires urgent diagnostic assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1580.352117000018
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:22.439409Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:22.439526Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:23.670091Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 657,
+          "completion_tokens": 132,
+          "latency_ms": 1224.0964149999627,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:23.688489Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "It feels like someone heavy is sitting on my chest and it started about twenty minutes ago.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03125763125763126
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.02877846790890269
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 2,
+              "rrf_score": 0.028309409888357256
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 17.104008999979214
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:23.688750Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "It feels like someone heavy is sitting on my chest and it started about twenty minutes ago."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 17.729735999978402,
+          "source_doc_ids": [
+            "red-flag-chest-pain",
+            "red-flag-acute-abdominal-pain",
+            "condition-coronary-artery-disease",
+            "red-flag-anaphylaxis",
+            "lifestyle-type-2-diabetes-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:28.276017Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2194,
+          "completion_tokens": 489,
+          "latency_ms": 4584.89169500001,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:28.277408Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:28.278245Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:28.278360Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:50:28.278522Z",
+          "trace_id": "23605218f66f44489efae04f48c86046",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I think maybe something is wrong with my chest. It feels like someone heavy is sitting on it and it started about twenty minutes ago.",
+          "answer": "Call emergency services immediately. The feeling of \"someone heavy is sitting on\" your chest, lasting for about twenty minutes, can indicate a serious condition. According to the document \"Chest pain that may indicate a heart attack\" from emergency medicine and cardiology society guidance, chest discomfort described as pressure, tightness, squeezing, heaviness or burning in the center or left of the chest that lasts more than a few minutes should be treated as a possible heart attack until proven otherwise. I cannot diagnose your condition, but these symptoms warrant immediate medical attention.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7423.619047000046,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

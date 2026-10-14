@@ -12,7 +12,7 @@ two runs, and names the trace file so the cause can be read off the events.
 Usage::
 
     uv run python -m eval.gcp_compare eval/results/<legacy-run> eval/results/<adk-run>
-        [--config full] [--markdown docs/gcp-migration-eval.md]  # prints a table; writes a block
+        [--config full] [--golden <path>] > docs/gcp-migration-eval.md   # prints the block
 """
 
 from __future__ import annotations
@@ -38,6 +38,15 @@ from eval.metrics import (
     turn_event,
 )
 from eval.run import DEFAULT_GOLDEN, load_pricing
+
+#: The judge that graded ``eval/results/published/`` and the only judge whose agreement with a
+#: human has been measured on this project (Cohen's kappa 0.592, n=40, docs/EVALUATION.md §4.2).
+#: A run graded by anything else produces faithfulness numbers that are comparable within that
+#: run's pair and **not** to the published column, and :func:`judge_caveat` says so underneath
+#: the table.  It is emitted by the tool and not typed into the document, because a caveat that
+#: has to be re-typed every time the table is regenerated is a caveat that will eventually be
+#: left off the regeneration that matters.
+VALIDATED_JUDGE = "gpt-4o-mini"
 
 
 @dataclass(frozen=True)
@@ -126,6 +135,25 @@ def summary_row(run_dir: Path, config: str) -> dict[str, Any]:
     }
 
 
+def judge_caveat(*judge_models: str | None) -> list[str]:
+    """The footnote for a run graded by an unvalidated judge.  Empty when there is nothing to say."""
+    others = sorted({m for m in judge_models if m and not m.startswith(VALIDATED_JUDGE)})
+    if not others:
+        return []
+    return [
+        "",
+        f"**The judge is not the published one.** These runs were graded by "
+        f"{', '.join(f'`{m}`' for m in others)}; `eval/results/published/` was graded by "
+        f"`{VALIDATED_JUDGE}`, which is the only judge on this project whose agreement with a "
+        "human has been measured (Cohen's kappa 0.592, n=40, `docs/EVALUATION.md` §4.2, itself "
+        "0.008 below the 0.6 usability line). **No kappa has been measured for the judge used "
+        "here**, on `eval/judges/faithfulness_v2.md` or any other prompt. The two faithfulness "
+        "rows above are therefore comparable to each other and not to any published number, and "
+        "re-validating would take a fresh blind sample (`--human-sample 40 --sample-seed <new> "
+        "--exclude-sample <each prior CSV>`) and 40 human labels.",
+    ]
+
+
 def models(views: dict[str, ItemView]) -> str:
     return ", ".join(sorted({m for v in views.values() for m in v.models})) or "n/a"
 
@@ -195,6 +223,7 @@ def compare(legacy_dir: Path, adk_dir: Path, *, config: str, golden: Path) -> tu
             deltas.append(
                 f"- `{item.id}`: " + "; ".join(notes) + f"  (`{x.trace_path}` vs `{y.trace_path}`)"
             )
+    lines += judge_caveat(a["judge_model"], b["judge_model"])
     return "\n".join(lines), deltas
 
 

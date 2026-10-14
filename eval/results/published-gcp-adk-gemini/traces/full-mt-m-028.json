@@ -1,0 +1,1898 @@
+{
+  "session_id": "full-mt-m-028",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:03:45.717409Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 559,
+          "completion_tokens": 106,
+          "latency_ms": 4773.288974999559,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:03:45.842351Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the symptom of feeling \"low\" for four months and assess its urgency and potential underlying conditions.",
+              "why": "The user is describing a prolonged symptom that requires diagnostic interpretation and urgency assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 4901.966508999976
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:03:45.842485Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:03:45.842546Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:03:54.859095Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 645,
+          "completion_tokens": 91,
+          "latency_ms": 9010.340603999794,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:03:54.876282Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I have been low for about four months.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 1,
+              "rrf_score": 0.028370221327967807
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.02804284323271665
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.02564102564102564
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 16.109153999423143
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:03:54.876520Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I have been low for about four months."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 16.586615999585774,
+          "source_doc_ids": [
+            "guideline-heart-failure-reduced-ef-therapy",
+            "guideline-type-2-diabetes-first-line-therapy",
+            "guideline-type-2-diabetes-glycemic-targets",
+            "condition-hypothyroidism",
+            "lifestyle-type-2-diabetes-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:11.114509Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2103,
+          "completion_tokens": 323,
+          "latency_ms": 16235.569204999592,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:11.132383Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "I have been low for about four months.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.031099324975891997
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 0,
+              "rrf_score": 0.030776515151515152
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.0304147465437788
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 1,
+              "rrf_score": 0.027272727272727275
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.026992753623188405
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 16.358070000023872
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:11.132666Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "I have been low for about four months."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 16.85016600004019,
+          "source_doc_ids": [
+            "condition-hypothyroidism",
+            "condition-insomnia",
+            "condition-upper-respiratory-infection",
+            "condition-generalized-anxiety-disorder",
+            "condition-iron-deficiency-anemia"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:14.115511Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3738,
+          "completion_tokens": 274,
+          "latency_ms": 2980.377904999841,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:14.118876Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:14.119629Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:14.119898Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:14.120345Z",
+          "trace_id": "a237c0ebfca44846a7c5bd2ba8fbd94d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have been low for about four months.",
+          "answer": "Your symptom of feeling \"low\" is quite general and does not specifically point to a single body system based on the analysis.\n\nWhen discussing this with a clinician, some conditions they might consider include:\n\n*   Hypothyroidism (underactive thyroid)\n*   Insomnia\n*   Generalized anxiety disorder\n*   Iron-deficiency anemia\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 33184.1683319999,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:19.065448Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 559,
+          "completion_tokens": 240,
+          "latency_ms": 4865.333236000879,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:19.175480Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the symptom of not enjoying things one used to, and assess its potential clinical significance.",
+              "why": "The user is describing a symptom that requires interpretation and assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 4979.014876000292
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:19.175648Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:19.175715Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:40.573941Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 843,
+          "completion_tokens": 102,
+          "latency_ms": 21391.43732499997,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:40.591532Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I am not enjoying things I used to.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 3,
+              "rrf_score": 0.029083245521601686
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.02684684684684685
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 16.384077000111574
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:40.591809Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I am not enjoying things I used to."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 16.893478999918443,
+          "source_doc_ids": [
+            "guideline-anxiety-screening-and-first-line-care",
+            "lifestyle-copd-activity",
+            "lifestyle-asthma-adherence",
+            "lifestyle-gerd-diet",
+            "coding-icd10-cm-code-structure-and-conventions"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:52.960625Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2396,
+          "completion_tokens": 152,
+          "latency_ms": 12366.503431999263,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:52.978968Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "not enjoying things I used to (anhedonia)",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 2,
+              "rrf_score": 0.02921395544346364
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.029116045245077504
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.026875901875901876
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 0,
+              "rrf_score": 0.026334026334026334
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.025657894736842105
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 17.215930999554985
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:04:52.979267Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "not enjoying things I used to (anhedonia)"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 17.725683000207937,
+          "source_doc_ids": [
+            "condition-asthma",
+            "condition-migraine",
+            "condition-osteoarthritis",
+            "condition-generalized-anxiety-disorder",
+            "condition-gerd"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:28.425471Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3882,
+          "completion_tokens": 3849,
+          "latency_ms": 35443.65392999953,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:28.426884Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:28.428717Z",
+          "trace_id": "372182d31b8f449e9450333ceeb91c81",
+          "session_id": "full-mt-m-028",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "I am not enjoying things I used to.",
+          "answer": "The symptom \"not enjoying things one used to\" has been assessed as a **routine** urgency. This means there is no emergency pattern in the red-flag table that matched this description. However, this is not a clearance, and if symptoms are severe, worsening, or new and unexplained, seeking medical advice is recommended.\n\nYour symptom is quite general, and the analysis did not identify a specific pattern or a single body system directly involved based on the information available.\n\nWhen discussing this with a clinician, some conditions they might consider, as identified by the system's analysis, include:\n\n*   Asthma\n*   Migraine\n*   Osteoarthritis\n*   Generalized anxiety disorder (from `condition-generalized-anxiety-disorder`)\n*   Gastroesophageal reflux disease (GERD)\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: condition-asthma, condition-migraine, condition-osteoarthritis, condition-generalized-anxiety-disorder, condition-gerd]",
+          "risk_level": "routine",
+          "wall_ms": 74235.47479100034,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:31.869592Z",
+          "trace_id": "4a73ea683df34fedacaf776431d9fc41",
+          "session_id": "full-mt-m-028",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 557,
+          "completion_tokens": 106,
+          "latency_ms": 3361.0053510001308,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:31.983158Z",
+          "trace_id": "4a73ea683df34fedacaf776431d9fc41",
+          "session_id": "full-mt-m-028",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the symptom of sleeping badly and assess its potential urgency.",
+              "why": "The user is describing a symptom, which requires interpretation and urgency assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 3479.1523740004777
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:31.983294Z",
+          "trace_id": "4a73ea683df34fedacaf776431d9fc41",
+          "session_id": "full-mt-m-028",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:31.983365Z",
+          "trace_id": "4a73ea683df34fedacaf776431d9fc41",
+          "session_id": "full-mt-m-028",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:34.857519Z",
+          "trace_id": "4a73ea683df34fedacaf776431d9fc41",
+          "session_id": "full-mt-m-028",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1165,
+          "completion_tokens": 65,
+          "latency_ms": 2865.9689269998125,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:34.874246Z",
+          "trace_id": "4a73ea683df34fedacaf776431d9fc41",
+          "session_id": "full-mt-m-028",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "sleeping badly",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 3,
+              "rrf_score": 0.031024531024531024
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.0293236301369863
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 3,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.012987012987012988
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 15.585891000228003
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:34.874472Z",
+          "trace_id": "4a73ea683df34fedacaf776431d9fc41",
+          "session_id": "full-mt-m-028",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "sleeping badly"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 16.003370000362338,
+          "source_doc_ids": [
+            "condition-insomnia",
+            "coding-insomnia-g47",
+            "lifestyle-migraine-sleep",
+            "guideline-osteoarthritis-management",
+            "lifestyle-insomnia-sleep"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:42.801407Z",
+          "trace_id": "4a73ea683df34fedacaf776431d9fc41",
+          "session_id": "full-mt-m-028",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2602,
+          "completion_tokens": 419,
+          "latency_ms": 7924.089305999587,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:42.802936Z",
+          "trace_id": "4a73ea683df34fedacaf776431d9fc41",
+          "session_id": "full-mt-m-028",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:42.805248Z",
+          "trace_id": "4a73ea683df34fedacaf776431d9fc41",
+          "session_id": "full-mt-m-028",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "I am sleeping badly as well.",
+          "answer": "The symptom \"sleeping badly\" has been assessed as a **routine** urgency. This means there is no emergency pattern in the red-flag table that matched this description. However, this is not a clearance, and if symptoms are severe, worsening, or new and unexplained, seeking medical advice is recommended.\n\n\"Sleeping badly\" is a general symptom, but it strongly points to potential issues with sleep itself, such as insomnia. Insomnia is defined as difficulty falling asleep, staying asleep, or waking earlier than intended, despite having adequate opportunity to sleep, and it must also have daytime consequences (condition-insomnia).\n\nWhen discussing this with a clinician, they might explore:\n\n*   **Insomnia**: This is a primary consideration for poor sleep (condition-insomnia, coding-insomnia-g47).\n*   **Lifestyle factors**: A clinician might discuss sleep habits, as changes in sleep patterns can trigger conditions like migraines, and regularity in sleep is often more important than duration (lifestyle-migraine-sleep). Lifestyle adjustments like light exposure and avoiding caffeine, alcohol, and nicotine are also relevant (lifestyle-insomnia-sleep).\n*   **Underlying conditions**: Poor sleep can also be associated with other medical or mental conditions, with anxiety and depression being frequent companions (coding-insomnia-g47).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: condition-insomnia, coding-insomnia-g47, lifestyle-migraine-sleep, lifestyle-insomnia-sleep]",
+          "risk_level": "routine",
+          "wall_ms": 14304.364235000321,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 3,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:44.522263Z",
+          "trace_id": "b9908af984d946e5b1df326df7baf7b1",
+          "session_id": "full-mt-m-028",
+          "turn_index": 3,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 559,
+          "completion_tokens": 188,
+          "latency_ms": 1633.4876680002708,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:44.554956Z",
+          "trace_id": "b9908af984d946e5b1df326df7baf7b1",
+          "session_id": "full-mt-m-028",
+          "turn_index": 3,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the symptom of waking early in the morning.",
+              "why": "The user is describing a symptom related to sleep patterns."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1669.7262889992999
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:44.555200Z",
+          "trace_id": "b9908af984d946e5b1df326df7baf7b1",
+          "session_id": "full-mt-m-028",
+          "turn_index": 3,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:44.555386Z",
+          "trace_id": "b9908af984d946e5b1df326df7baf7b1",
+          "session_id": "full-mt-m-028",
+          "turn_index": 3,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:52.033223Z",
+          "trace_id": "b9908af984d946e5b1df326df7baf7b1",
+          "session_id": "full-mt-m-028",
+          "turn_index": 3,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1545,
+          "completion_tokens": 128,
+          "latency_ms": 7470.500904999426,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:52.050928Z",
+          "trace_id": "b9908af984d946e5b1df326df7baf7b1",
+          "session_id": "full-mt-m-028",
+          "turn_index": 3,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "waking about four in the morning",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 1,
+              "rrf_score": 0.0315136476426799
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 16.324330999850645
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:05:52.051214Z",
+          "trace_id": "b9908af984d946e5b1df326df7baf7b1",
+          "session_id": "full-mt-m-028",
+          "turn_index": 3,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "waking about four in the morning"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 16.834713000207557,
+          "source_doc_ids": [
+            "lifestyle-insomnia-sleep",
+            "lifestyle-migraine-sleep",
+            "condition-migraine",
+            "condition-insomnia",
+            "condition-osteoarthritis"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:11.991118Z",
+          "trace_id": "b9908af984d946e5b1df326df7baf7b1",
+          "session_id": "full-mt-m-028",
+          "turn_index": 3,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3128,
+          "completion_tokens": 497,
+          "latency_ms": 19937.309724999977,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:11.992699Z",
+          "trace_id": "b9908af984d946e5b1df326df7baf7b1",
+          "session_id": "full-mt-m-028",
+          "turn_index": 3,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:11.995091Z",
+          "trace_id": "b9908af984d946e5b1df326df7baf7b1",
+          "session_id": "full-mt-m-028",
+          "turn_index": 3,
+          "type": "turn",
+          "question": "I am waking about four in the morning.",
+          "answer": "The symptom \"waking about four in the morning\" has been assessed as a **routine** urgency. This means there is no emergency pattern in the red-flag table that matched this description. However, this is not a clearance, and if symptoms are severe, worsening, or new and unexplained, seeking medical advice is recommended.\n\nWaking early in the morning is a common symptom related to sleep patterns. It primarily points to issues within the **nervous system**, specifically concerning sleep regulation.\n\nWhen discussing this with a clinician, some conditions they might consider include:\n\n*   **Insomnia**: This is a key consideration, as difficulty staying asleep or waking earlier than intended are hallmarks of insomnia (condition-insomnia).\n*   **Sleep habits**: The clinician might review your daily routine. Going to bed earlier to compensate for a bad night can sometimes backfire, associating bed with wakefulness. Bright light in the morning can help regulate the sleep-wake cycle, and avoiding caffeine, alcohol, and nicotine, especially in the afternoon and evening, is also important (lifestyle-insomnia-sleep).\n*   **Other conditions**: Waking early with a headache, or frequent night waking with headache, could suggest a link with migraine (lifestyle-migraine-sleep). Also, changes in sleep can be associated with other conditions that affect sleep quality.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: condition-insomnia, lifestyle-insomnia-sleep, lifestyle-migraine-sleep]",
+          "risk_level": "routine",
+          "wall_ms": 29112.05243099994,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 4,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:15.410656Z",
+          "trace_id": "074418ce7749413293325e795631e5c0",
+          "session_id": "full-mt-m-028",
+          "turn_index": 4,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 558,
+          "completion_tokens": 289,
+          "latency_ms": 3341.8914020003285,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:15.445797Z",
+          "trace_id": "074418ce7749413293325e795631e5c0",
+          "session_id": "full-mt-m-028",
+          "turn_index": 4,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Acknowledge the user's statement about their daily activity and offer general health context.",
+              "why": "The user is providing a general statement about their health or routine, which falls under general health questions."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 3380.9269209996273
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:15.445944Z",
+          "trace_id": "074418ce7749413293325e795631e5c0",
+          "session_id": "full-mt-m-028",
+          "turn_index": 4,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:15.446046Z",
+          "trace_id": "074418ce7749413293325e795631e5c0",
+          "session_id": "full-mt-m-028",
+          "turn_index": 4,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:30.391152Z",
+          "trace_id": "074418ce7749413293325e795631e5c0",
+          "session_id": "full-mt-m-028",
+          "turn_index": 4,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1832,
+          "completion_tokens": 227,
+          "latency_ms": 14938.271676999648,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:30.392801Z",
+          "trace_id": "074418ce7749413293325e795631e5c0",
+          "session_id": "full-mt-m-028",
+          "turn_index": 4,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:30.393466Z",
+          "trace_id": "074418ce7749413293325e795631e5c0",
+          "session_id": "full-mt-m-028",
+          "turn_index": 4,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:30.393762Z",
+          "trace_id": "074418ce7749413293325e795631e5c0",
+          "session_id": "full-mt-m-028",
+          "turn_index": 4,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:30.394053Z",
+          "trace_id": "074418ce7749413293325e795631e5c0",
+          "session_id": "full-mt-m-028",
+          "turn_index": 4,
+          "type": "turn",
+          "question": "I still get to work every day.",
+          "answer": "It's good that you are maintaining your daily routine and getting to work. Continuing with daily activities can be a positive sign of functional capacity.\n\nDaily activity is generally beneficial for overall health. Regular physical activity can have a positive impact on mood, sleep, and general well-being.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 18333.39813600014,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 5,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:32.009934Z",
+          "trace_id": "5b84cdc2cdbf4ce6af14ee6fe8ba6af4",
+          "session_id": "full-mt-m-028",
+          "turn_index": 5,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 559,
+          "completion_tokens": 142,
+          "latency_ms": 1543.2140359998812,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:32.124049Z",
+          "trace_id": "5b84cdc2cdbf4ce6af14ee6fe8ba6af4",
+          "session_id": "full-mt-m-028",
+          "turn_index": 5,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Ask the user to clarify what 'this' refers to, as no context was provided to identify the condition or situation they are asking about.",
+              "why": "The question is too vague to assign to a specialist without context."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1661.4025320004657
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:32.124201Z",
+          "trace_id": "5b84cdc2cdbf4ce6af14ee6fe8ba6af4",
+          "session_id": "full-mt-m-028",
+          "turn_index": 5,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:32.124263Z",
+          "trace_id": "5b84cdc2cdbf4ce6af14ee6fe8ba6af4",
+          "session_id": "full-mt-m-028",
+          "turn_index": 5,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:53.687354Z",
+          "trace_id": "5b84cdc2cdbf4ce6af14ee6fe8ba6af4",
+          "session_id": "full-mt-m-028",
+          "turn_index": 5,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1939,
+          "completion_tokens": 333,
+          "latency_ms": 21552.20444600036,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:53.688783Z",
+          "trace_id": "5b84cdc2cdbf4ce6af14ee6fe8ba6af4",
+          "session_id": "full-mt-m-028",
+          "turn_index": 5,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:53.689602Z",
+          "trace_id": "5b84cdc2cdbf4ce6af14ee6fe8ba6af4",
+          "session_id": "full-mt-m-028",
+          "turn_index": 5,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:53.689811Z",
+          "trace_id": "5b84cdc2cdbf4ce6af14ee6fe8ba6af4",
+          "session_id": "full-mt-m-028",
+          "turn_index": 5,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:53.690078Z",
+          "trace_id": "5b84cdc2cdbf4ce6af14ee6fe8ba6af4",
+          "session_id": "full-mt-m-028",
+          "turn_index": 5,
+          "type": "turn",
+          "question": "Is there a questionnaire used to assess this?",
+          "answer": "Could you please clarify what \"this\" refers to? Are you asking about a questionnaire for feeling low, not enjoying things, sleeping badly, or waking early, or for a combination of these symptoms?\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 23230.665223999495,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 6,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:58.316373Z",
+          "trace_id": "377a7a47b1084da18179046c735a93ec",
+          "session_id": "full-mt-m-028",
+          "turn_index": 6,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 558,
+          "completion_tokens": 247,
+          "latency_ms": 4547.299085999839,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:58.347852Z",
+          "trace_id": "377a7a47b1084da18179046c735a93ec",
+          "session_id": "full-mt-m-028",
+          "turn_index": 6,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain that 'high score' is too ambiguous in a medical context and ask for clarification about what 'score' the user is referring to.",
+              "why": "This is a general, undefined question that needs clarification, falling under general health questions."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 4582.624995000515
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:58.348008Z",
+          "trace_id": "377a7a47b1084da18179046c735a93ec",
+          "session_id": "full-mt-m-028",
+          "turn_index": 6,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:06:58.348077Z",
+          "trace_id": "377a7a47b1084da18179046c735a93ec",
+          "session_id": "full-mt-m-028",
+          "turn_index": 6,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:06.965995Z",
+          "trace_id": "377a7a47b1084da18179046c735a93ec",
+          "session_id": "full-mt-m-028",
+          "turn_index": 6,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1969,
+          "completion_tokens": 165,
+          "latency_ms": 8610.448620999705,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:06.967886Z",
+          "trace_id": "377a7a47b1084da18179046c735a93ec",
+          "session_id": "full-mt-m-028",
+          "turn_index": 6,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:06.969457Z",
+          "trace_id": "377a7a47b1084da18179046c735a93ec",
+          "session_id": "full-mt-m-028",
+          "turn_index": 6,
+          "type": "turn",
+          "question": "What would a high score lead to?",
+          "answer": "In a medical context, \"high score\" is too ambiguous. There are many different questionnaires and assessments that use scores, and what a \"high score\" indicates can vary greatly depending on the specific tool being used and the condition it aims to assess.\n\nCould you please clarify which questionnaire or assessment you are referring to? Knowing the specific score or assessment tool would help understand its implications.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 13206.902762000027,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 7,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:11.720836Z",
+          "trace_id": "96395cdfaf274b5f80316b8d4e1b768d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 7,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 558,
+          "completion_tokens": 522,
+          "latency_ms": 4665.869493999708,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:11.754225Z",
+          "trace_id": "96395cdfaf274b5f80316b8d4e1b768d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 7,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain how sleep as a general health topic or condition is typically addressed in a medical context.",
+              "why": "This is a general health question without specific symptoms or research needs."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 4702.939721999428
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:11.754368Z",
+          "trace_id": "96395cdfaf274b5f80316b8d4e1b768d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 7,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:11.754441Z",
+          "trace_id": "96395cdfaf274b5f80316b8d4e1b768d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 7,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:22.119755Z",
+          "trace_id": "96395cdfaf274b5f80316b8d4e1b768d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 7,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1858,
+          "completion_tokens": 97,
+          "latency_ms": 10357.42475799998,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:22.142328Z",
+          "trace_id": "96395cdfaf274b5f80316b8d4e1b768d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 7,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "how sleep is addressed in a medical context and if it is treated separately",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 3,
+              "rrf_score": 0.03021353930031804
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 2,
+              "rrf_score": 0.029206349206349208
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 1,
+              "rrf_score": 0.029206349206349208
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.027212143650499815
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 21.535360000598303
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:22.142632Z",
+          "trace_id": "96395cdfaf274b5f80316b8d4e1b768d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 7,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "how sleep is addressed in a medical context and if it is treated separately"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 21.877009000490943,
+          "source_doc_ids": [
+            "condition-insomnia",
+            "coding-insomnia-g47",
+            "condition-generalized-anxiety-disorder",
+            "guideline-insomnia-cbt-first-line",
+            "lifestyle-migraine-sleep"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:30.707323Z",
+          "trace_id": "96395cdfaf274b5f80316b8d4e1b768d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 7,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3383,
+          "completion_tokens": 1095,
+          "latency_ms": 8562.013076999392,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:30.709273Z",
+          "trace_id": "96395cdfaf274b5f80316b8d4e1b768d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 7,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:30.712735Z",
+          "trace_id": "96395cdfaf274b5f80316b8d4e1b768d",
+          "session_id": "full-mt-m-028",
+          "turn_index": 7,
+          "type": "turn",
+          "question": "And would the sleep be treated separately?",
+          "answer": "In a medical context, sleep as a general health topic or condition is typically addressed through a comprehensive assessment. This often involves:\n\n*   **Detailed history**: A clinician will ask about your sleep patterns, habits, and any difficulties you experience, such as trouble falling asleep, staying asleep, or waking too early.\n*   **Sleep diary**: You might be asked to keep a sleep diary for one to two weeks. This helps to get a more accurate picture of your sleep, as people tend to misremember aspects of their sleep when relying solely on memory (condition-insomnia).\n*   **Screening for other conditions**: Sleep problems are often connected to other medical or mental health conditions. A clinician will look for underlying issues that might be causing or contributing to poor sleep, such as:\n    *   Obstructive sleep apnea\n    *   Restless legs syndrome\n    *   Circadian rhythm disorders (like those from shift work)\n    *   Chronic pain\n    *   Depression\n    *   Anxiety\n    *   Effects of substances like caffeine, alcohol, nicotine, or certain medications (condition-insomnia, coding-insomnia-g47).\n\nRegarding whether sleep would be treated separately, it's often addressed as part of a broader picture. If an underlying condition is found, treating that condition is crucial. For example, anxiety and depression are frequent companions to insomnia, and their management often goes hand-in-hand with addressing sleep difficulties (coding-insomnia-g47, condition-generalized-anxiety-disorder).\n\nHowever, specific sleep disorders like chronic insomnia also have their own primary treatments. Cognitive behavioral therapy for insomnia (CBT-I) is a recommended first-line treatment for chronic insomnia, often used before medication. It involves techniques like stimulus control (using the bed only for sleep) and sleep restriction (limiting time in bed to actual sleep time) (guideline-insomnia-cbt-first-line). Lifestyle adjustments, such as avoiding caffeine and alcohol, are also important (condition-insomnia).\n\nIn summary, sleep is assessed thoroughly, considering its connection to other health issues. While often part of managing broader conditions, sleep problems can also be treated with specific therapies.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: condition-insomnia, coding-insomnia-g47, condition-generalized-anxiety-disorder, guideline-insomnia-cbt-first-line]",
+          "risk_level": "routine",
+          "wall_ms": 23662.25820499949,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 8,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:32.961577Z",
+          "trace_id": "c44ec74e00cb4bed89dec6eac3ba08be",
+          "session_id": "full-mt-m-028",
+          "turn_index": 8,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 557,
+          "completion_tokens": 143,
+          "latency_ms": 1869.0708700005416,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:33.067855Z",
+          "trace_id": "c44ec74e00cb4bed89dec6eac3ba08be",
+          "session_id": "full-mt-m-028",
+          "turn_index": 8,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Ask the user to clarify what 'that first' refers to, as the previous context is missing.",
+              "why": "The question lacks context to be actionable by any specialist."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1979.1560459998436
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:33.068010Z",
+          "trace_id": "c44ec74e00cb4bed89dec6eac3ba08be",
+          "session_id": "full-mt-m-028",
+          "turn_index": 8,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:33.068125Z",
+          "trace_id": "c44ec74e00cb4bed89dec6eac3ba08be",
+          "session_id": "full-mt-m-028",
+          "turn_index": 8,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:35.736037Z",
+          "trace_id": "c44ec74e00cb4bed89dec6eac3ba08be",
+          "session_id": "full-mt-m-028",
+          "turn_index": 8,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2128,
+          "completion_tokens": 279,
+          "latency_ms": 2659.7190510001383,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:35.737429Z",
+          "trace_id": "c44ec74e00cb4bed89dec6eac3ba08be",
+          "session_id": "full-mt-m-028",
+          "turn_index": 8,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:35.737997Z",
+          "trace_id": "c44ec74e00cb4bed89dec6eac3ba08be",
+          "session_id": "full-mt-m-028",
+          "turn_index": 8,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:35.738249Z",
+          "trace_id": "c44ec74e00cb4bed89dec6eac3ba08be",
+          "session_id": "full-mt-m-028",
+          "turn_index": 8,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T08:07:35.738519Z",
+          "trace_id": "c44ec74e00cb4bed89dec6eac3ba08be",
+          "session_id": "full-mt-m-028",
+          "turn_index": 8,
+          "type": "turn",
+          "question": "What is offered for that first?",
+          "answer": "To help me understand, could you please clarify what \"that first\" refers to?\n\nAre you asking about:\n*   Feeling \"low\"?\n*   Not enjoying things you used to?\n*   Sleeping badly or waking early?\n*   A high score on a questionnaire?\n*   Something else entirely?\n\nOnce I understand what \"that first\" refers to, I can try to provide more relevant information.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4943.9314119999835,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

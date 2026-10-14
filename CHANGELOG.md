@@ -122,6 +122,28 @@ skills. Everything below is in `main` and none of it is a plan.
 
 ### Changed
 
+- **The ADK orchestrator has its first evaluation run.** Both arms over the 150-item golden set
+  and the 29-conversation multi-turn set, as Cloud Run Jobs on the same deployed image, judged by
+  `claude-haiku-5-5` on both sides: red-flag recall 92.9% (legacy, `claude-haiku-5-5`) against
+  82.1% (ADK, `gemini-2.5-flash`), recall@5 94.6% against 93.3%, $0.00244 against $0.00512 per
+  turn, p95 20.92 s against 35.25 s. The regression is the project's existing documented
+  mechanism — `assess_risk` returns a non-match and the draft restates it instead of escalating —
+  reproduced on a different agent model, and the run moved orchestrator and model at once so it
+  cannot attribute it to either. `docs/gcp-migration-eval.md`; raw data in
+  `eval/results/20261014T050334Z-{legacy,adk}`. (this release)
+
+- **The Cloud Run deployment is real.** `deploy/cloudrun/deploy.sh` and `bootstrap.sh` now default
+  to `anthropic` / `claude-haiku-5-5` and mount `anthropic-api-key` from Secret Manager rather than
+  requiring an OpenAI key; `bootstrap.sh` reads `CONSILIUM_ANTHROPIC_API_KEY` or `ANTHROPIC_API_KEY`
+  so a shell that keeps the app's key under a project-scoped name does not have to shadow the one
+  the Anthropic tooling reads. The service URL and the two verification responses are in the
+  README's *Deployed service* block. (this release)
+- **`eval/gcp_compare.py` prints the judge caveat itself.** When a run was graded by anything other
+  than `gpt-4o-mini` — the only judge on this project whose agreement with a human was measured —
+  the table is followed by a paragraph saying so and naming what re-validation would take. A caveat
+  that has to be re-typed every time the table is regenerated is a caveat that will eventually be
+  left off the regeneration that matters. (this release)
+
 - **README rewritten as a handoff document**: overview, both orchestrators with the graph diagram,
   usage per interface, the results table with the LangGraph column marked `not run`, limitations
   with trace references, guardrails, the Cortex Search comparison, handoff guidance, next steps.
@@ -146,6 +168,41 @@ skills. Everything below is in `main` and none of it is a plan.
   (`60b232e`, 2026-08-30)
 
 ### Fixed
+
+- **The first real Cloud Build could not parse the Dockerfile.** It used BuildKit-only syntax — a
+  `# syntax=` frontend and three `RUN --mount=type=cache` lines — and the `gcr.io/cloud-builders/
+  docker` step that `gcloud run deploy --source` generates runs the classic engine, where a cache
+  mount is a hard parse error (`the --mount option requires BuildKit`) rather than an ignored
+  optimisation. The build failed in ten seconds, before any layer. The mounts only ever sped up
+  repeat local builds; the layer cache still covers the dependency layer. (this release)
+- **`GET /healthz` is unreachable on Cloud Run, so the handler now answers at `/v1/healthz` too.**
+  Google's frontend answers `/healthz` itself with its own HTML 404 and the request never reaches
+  the container: on the deployed service every other path returns this app's
+  `{"detail":"Not Found"}` and is written to the request log, while `/healthz` appears in no
+  request log at all — reproduced both from outside GCP and from a Cloud Build step inside it. The
+  route and the `$PORT` binding were never the problem. `/healthz` is kept for `docker compose`'s
+  healthcheck and the local commands; `/v1/healthz` is what anything behind that frontend calls.
+  (this release)
+- **`eval-job.sh` could not deploy its own job.** The container argv was passed as `--args "-m,..."`
+  and gcloud read the leading dash as another flag (`argument --args: expected one argument`); it is
+  now `--args=...`, and extra arguments are appended only when there are any, because
+  `printf ',%s'` with nothing to format still emits the separator. (this release)
+- **`--limit` did not bound the multi-turn set.** A 5-item smoke run still drove all 29
+  conversations: on the Cloud Run job the golden items took under a minute and the conversations
+  that followed took twenty. It now limits both, and the multi-turn report states its own n.
+  (this release)
+- **`eval-all.sh` interpolated an unchecked project id** into the bucket name, the job environment
+  and the `gsutil` URLs. An unset `gcloud config project` produced `gs://-consilium-eval` three
+  commands later; the placeholder ids the setup docs use are now rejected by name. (this release)
+- **`BgeEmbedder` called a method sentence-transformers renamed in v5.**
+  `get_sentence_embedding_dimension` warns, the suite runs with warnings as errors, and the failure
+  landed on whichever test happened to build a real embedder. The new name is tried first and the
+  old one is the fallback. (this release)
+- **Two tests asserted that `eval/pricing.yaml` ships empty**, which stopped being true when the
+  file was filled in for the Haiku and Gemini runs. One now pins the bargain the file actually
+  makes — every entry is a complete input/output pair, and an unpriced model stays unpriced rather
+  than free — and the other refuses a cap on a model id nobody will ever price, so it keeps holding
+  as the operator fills the file in. (this release)
 
 - **`--human-sample` produced a sample nobody could score.** It wrote empty `judge_label` and
   `judge_rationale` columns and returned before the judge ran, so `--score-judge` would have

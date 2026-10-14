@@ -1,0 +1,251 @@
+{
+  "session_id": "full-g-md-024",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:11:59.075039Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 590,
+          "completion_tokens": 103,
+          "latency_ms": 997.5821549999182,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:11:59.198943Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of a 39.5 temperature and non-blanching rash in a child, and provide immediate actionable advice.",
+              "why": "This is a critical symptom presentation requiring urgent interpretation and guidance."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1125.467214000082
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:11:59.199108Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:11:59.199194Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:12:00.028655Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 684,
+          "completion_tokens": 102,
+          "latency_ms": 823.0884790000346,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:12:00.048781Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Child has a temperature of 39.5 and a non-blanching rash",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 1,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.031054405392392875
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 1,
+              "rrf_score": 0.029437229437229435
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.02904040404040404
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 3,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 0,
+              "rrf_score": 0.0125
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 18.915551000191044
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:12:00.049288Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Child has a temperature of 39.5 and a non-blanching rash"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 19.75296800014803,
+          "source_doc_ids": [
+            "red-flag-meningitis-signs",
+            "red-flag-sepsis",
+            "red-flag-anaphylaxis",
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-sudden-severe-headache"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:12:01.664416Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2237,
+          "completion_tokens": 65,
+          "latency_ms": 1612.4824469998202,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:12:01.665960Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:12:01.666577Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:12:01.666769Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T07:12:01.666926Z",
+          "trace_id": "c56eb72d7f0b462981b88da072e247d8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "My child has a temperature of 39.5 and a rash that does not go pale when I press a glass on it. How urgent is this, and what should I do right now?",
+          "answer": "This is an emergency. Call emergency services now. A high temperature and a non-blanching rash in a child can be signs of serious infections like meningitis or meningococcal disease, which can worsen rapidly, sometimes within hours. The non-blanching rash is a late sign, indicating the situation is already critical.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3596.934888000078,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

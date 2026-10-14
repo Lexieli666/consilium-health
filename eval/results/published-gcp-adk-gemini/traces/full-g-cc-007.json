@@ -1,0 +1,251 @@
+{
+  "session_id": "full-g-cc-007",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:55.244423Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 566,
+          "completion_tokens": 115,
+          "latency_ms": 1207.5284659999852,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:55.367700Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain whether COPD and an exacerbation are coded as one or two entities, referring to relevant coding conventions.",
+              "why": "This is a question about how conditions are classified and coded."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1336.0232960000076
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:55.367842Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:55.367915Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:56.344290Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 563,
+          "completion_tokens": 97,
+          "latency_ms": 969.5518579999316,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:56.366227Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "COPD with exacerbation",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 1,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 3,
+              "rrf_score": 0.012987012987012988
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 3,
+              "rrf_score": 0.01282051282051282
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 17.519391000064388
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:56.366607Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "COPD with exacerbation"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 17.933896000045024,
+          "source_doc_ids": [
+            "coding-copd-j44",
+            "coding-asthma-j45",
+            "coding-icd10-chapter-10-respiratory",
+            "coding-gerd-k21",
+            "coding-icd10-chapter-09-circulatory"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:58.151533Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3392,
+          "completion_tokens": 189,
+          "latency_ms": 1781.9303329999912,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:58.153142Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:58.153917Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:58.154336Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:54:58.154736Z",
+          "trace_id": "663d5b04e4024c7e9796c39963091430",
+          "session_id": "full-g-cc-007",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "If someone has COPD and an exacerbation, is that one code or two?",
+          "answer": "When someone has COPD and an exacerbation, these are coded as two separate entities. The classification does not treat them as mutually exclusive events. Both an infection and an exacerbation are distinct, and if both are documented, both codes should be reported (coding-copd-j44).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4126.570810000089,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

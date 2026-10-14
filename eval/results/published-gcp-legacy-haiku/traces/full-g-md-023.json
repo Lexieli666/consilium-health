@@ -1,0 +1,905 @@
+{
+  "session_id": "full-g-md-023",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:33.711455Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 849,
+          "completion_tokens": 381,
+          "latency_ms": 2512.754199000028,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:33.825691Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "parallel",
+          "agents": [
+            "diagnostic",
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret chest discomfort that occurs only with anxiety and not on exertion. Describe the features that help distinguish it from cardiac-type pain, state any red flags that would make it urgent, and say when to seek same-day or emergency care.",
+              "why": "Symptom interpretation and any urgency or red-flag claim belong to the diagnostic specialist."
+            },
+            {
+              "subtask_id": "2-research",
+              "agent": "research",
+              "objective": "Report what current clinical guidance describes for assessing chest discomfort, including how clinicians distinguish anxiety-related from cardiac causes and where authorities differ. State the strength of the evidence for each approach.",
+              "why": "The second half asks what guidance says, which is a guideline and evidence question."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2627.040997999984
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:33.825840Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:33.825929Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "2-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:33.826077Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:33.829867Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "2-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:35.279519Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1681,
+          "completion_tokens": 181,
+          "latency_ms": 1452.0640759999424,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:35.313892Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I get chest discomfort only when I am anxious, never on exertion. I want to know how to tell it apart from heart-related chest pain and what warning signs would make it urgent.",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 1,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 3,
+              "rrf_score": 0.029957522915269395
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 3,
+              "rrf_score": 0.028594771241830064
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.028006267136701922
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 1,
+              "rrf_score": 0.026875901875901876
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 2,
+              "rrf_score": 0.026856524873828405
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.02649122807017544
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 33.09448200002407
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:35.314332Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I get chest discomfort only when I am anxious, never on exertion. I want to know how to tell it apart from heart-related chest pain and what warning signs would make it urgent."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 34.35267300005762,
+          "source_doc_ids": [
+            "red-flag-chest-pain",
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-diabetic-emergency",
+            "red-flag-stroke-symptoms",
+            "red-flag-sepsis"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:36.459918Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1771,
+          "completion_tokens": 477,
+          "latency_ms": 2628.044318999855,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:36.492927Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "How do clinicians distinguish anxiety-related chest discomfort from cardiac causes, what does current guidance describe, and where do authorities differ? What is the strength of evidence for each approach?",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.032018442622950824
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.03007688828584351
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 3,
+              "rrf_score": 0.027313266443701224
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 0,
+              "rrf_score": 0.02638888888888889
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 3,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 32.42319099990709
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:36.575662Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "Features of chest discomfort that suggest a cardiac cause versus anxiety or panic, such as exertional triggers, duration and character",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.0315136476426799
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.029571646010002173
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.027912386121341344
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 82.38126900005227
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:36.657656Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3769,
+          "completion_tokens": 225,
+          "latency_ms": 1342.8157650000685,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:36.676461Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "Red flag symptoms of chest pain that require emergency evaluation",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 3,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.030834914611005692
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.02976190476190476
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.027526395173453996
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.027479766610201392
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 3,
+              "rrf_score": 0.027425373134328357
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.0273972602739726
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 3,
+              "rrf_score": 0.02667140825035562
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 100.485277999951
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:36.856044Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "Chest discomfort only when anxious, never on exertion. User wants to know how to tell it apart from cardiac chest pain.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.028484848484848488
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.028370221327967807
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.027650648360030512
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.026500526500526502
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 197.14004900015425
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:36.856500Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "Chest discomfort only when anxious, never on exertion. User wants to know how to tell it apart from cardiac chest pain."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 198.14891000009993,
+          "source_doc_ids": [
+            "condition-coronary-artery-disease",
+            "condition-gerd",
+            "condition-generalized-anxiety-disorder",
+            "condition-heart-failure",
+            "condition-copd"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:36.874557Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "Guideline recommendations for initial assessment of chest pain, including risk scores and troponin testing",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.032018442622950824
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.029957522915269395
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.029411764705882353
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.029051670471052088
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.028985507246376812
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 3,
+              "rrf_score": 0.028850145288501453
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.02878726010616578
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 3,
+              "rrf_score": 0.028612012987012988
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 3,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 1,
+              "rrf_score": 0.027912386121341344
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 197.67510899987428
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:36.970208Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "Evidence strength for using symptom features or clinical scores to rule out cardiac chest pain in people with low risk",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.032018442622950824
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 3,
+              "rrf_score": 0.029631255487269532
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 3,
+              "rrf_score": 0.029571646010002173
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 1,
+              "rrf_score": 0.02804284323271665
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 3,
+              "rrf_score": 0.027425373134328357
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.026334026334026334
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 3,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 95.25499900018985
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:36.970677Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "deep_research",
+          "args": {
+            "question": "How do clinicians distinguish anxiety-related chest discomfort from cardiac causes, what does current guidance describe, and where do authorities differ? What is the strength of evidence for each approach?",
+            "sub_queries": [
+              "Features of chest discomfort that suggest a cardiac cause versus anxiety or panic, such as exertional triggers, duration and character",
+              "Red flag symptoms of chest pain that require emergency evaluation",
+              "Guideline recommendations for initial assessment of chest pain, including risk scores and troponin testing",
+              "Evidence strength for using symptom features or clinical scores to rule out cardiac chest pain in people with low risk",
+              "Where guidelines disagree on chest pain assessment or testing for low-risk patients"
+            ]
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 510.2449999999408,
+          "source_doc_ids": [
+            "red-flag-chest-pain",
+            "condition-generalized-anxiety-disorder",
+            "condition-gerd",
+            "condition-coronary-artery-disease",
+            "guideline-gerd-initial-management-and-alarm-features",
+            "lifestyle-hypertension-activity",
+            "condition-upper-respiratory-infection",
+            "condition-influenza",
+            "condition-hypertension",
+            "condition-copd",
+            "guideline-influenza-vaccination-and-antivirals"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:37.057623Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "chest pain initial assessment and low-risk evaluation",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 3,
+              "rrf_score": 0.031099324975891997
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 3,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 1,
+              "rrf_score": 0.030798389007344232
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 3,
+              "rrf_score": 0.028612012987012988
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 86.33362499995201
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:37.058157Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "chest pain",
+            "aspect": "initial assessment and low-risk evaluation"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 86.90267599990875,
+          "source_doc_ids": [
+            "guideline-copd-diagnosis-and-stepwise-management",
+            "guideline-coronary-artery-disease-secondary-prevention",
+            "guideline-gerd-initial-management-and-alarm-features",
+            "guideline-lipid-screening-and-statin-initiation",
+            "guideline-influenza-vaccination-and-antivirals"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:42.233813Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5369,
+          "completion_tokens": 1072,
+          "latency_ms": 5376.617319000161,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:42.234167Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:45.236296Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 14554,
+          "completion_tokens": 1320,
+          "latency_ms": 8177.707988999828,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:45.236724Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "2-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:51.268775Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "synthesizer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 2487,
+          "completion_tokens": 1321,
+          "latency_ms": 6031.689734999873,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:51.270055Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": null,
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:51.270252Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": null,
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:29:51.270740Z",
+          "trace_id": "e1a971ca1d2146f9aa3a32d427b2f7c4",
+          "session_id": "full-g-md-023",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I get chest discomfort only when I am anxious, never on exertion. How do I tell the difference, and what does guidance describe about assessing it?",
+          "answer": "**Call emergency services now if you have chest discomfort right now, or if it is new, unexplained, or different from before.** Do not drive yourself. Chest discomfort can be a heart attack, and treatment works best in the first minutes. Anxiety does not rule that out.\n\nFeeling anxious does not reliably tell you the cause. The anxiety guidance (*Generalized anxiety disorder*) says a first episode of chest pain with breathlessness or collapse is treated as a physical emergency until a heart and lung cause is excluded, because the two are not distinguishable by how they feel. The coronary artery disease guidance (*Coronary artery disease*) says stable angina can be brought on by exertion or emotional stress, so a link to anxious moments does not exclude a heart cause. Heart symptoms can also be atypical, such as breathlessness, fatigue, nausea or indigestion-like discomfort, and the absence of classic pain is not reassuring. Heartburn is not a safe assumption either: chest discomfort \"must not be assumed to be reflux\" (*GERD*).\n\nFrom the chest pain guidance (*red-flag-chest-pain*), get emergency help for pressure, tightness, squeezing, heaviness or burning in the centre or left of the chest that lasts more than a few minutes or comes and goes; pain spreading to the arm, shoulder, neck, jaw, back or upper belly; chest discomfort with breathlessness, cold sweat, nausea, vomiting, light-headedness or a sense of doom; discomfort at rest or with less effort than usual; and any chest discomfort if you have known heart disease, diabetes or several heart risk factors.\n\nFor new or changing discomfort, even if it seems linked to anxiety, have a clinician assess it the same day rather than assuming the cause. For a recurring pattern, a GP visit is the usual first step, and you should bring a note of when it happens, how long it lasts, what it feels like and what helps. The sources differ slightly on timing: the diagnostic guidance puts new or changing symptoms at same-day assessment, while the research summary calls a GP or urgent-care visit the usual first step for ongoing concerns.\n\nI could not find a guideline or source that lists features separating anxiety-related pain from cardiac pain, sets testing criteria, or grades the evidence for telling them apart, so I cannot tell you how reliable any such approach is. This is general information, not a diagnosis. Only a clinician who examines you can tell what is causing your symptoms.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 20070.52292200001,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

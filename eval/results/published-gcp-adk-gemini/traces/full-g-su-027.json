@@ -1,0 +1,361 @@
+{
+  "session_id": "full-g-su-027",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:26.580506Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 571,
+          "completion_tokens": 140,
+          "latency_ms": 1606.9375659999992,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:26.734495Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the described symptoms, assess their urgency, and frame potential differentials.",
+              "why": "The user is describing symptoms, which requires urgency assessment and interpretation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1765.5736070000216
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:26.734617Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:26.734693Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:28.071222Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 651,
+          "completion_tokens": 92,
+          "latency_ms": 1329.4518970000127,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:28.093504Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I have had three headaches this month, all on one side, with nausea and the light bothering me.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.029437229437229435
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.0293236301369863
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.027479766610201392
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.027364110201042444
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 3,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 20.936399000049732
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:28.093754Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I have had three headaches this month, all on one side, with nausea and the light bothering me."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 21.54275099996994,
+          "source_doc_ids": [
+            "condition-migraine",
+            "guideline-migraine-acute-and-preventive-treatment",
+            "red-flag-stroke-symptoms",
+            "red-flag-sudden-severe-headache",
+            "lifestyle-migraine-sleep"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:30.951636Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2147,
+          "completion_tokens": 302,
+          "latency_ms": 2854.576069000018,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:30.971966Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "I have had three headaches this month, all on one side, with nausea and the light bothering me.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.02967032967032967
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.028438886647841874
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 3,
+              "rrf_score": 0.02819138376017471
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.027402402402402402
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.026856524873828405
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 19.160759999977017
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:30.972270Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "I have had three headaches this month, all on one side, with nausea and the light bothering me."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 19.782053000028554,
+          "source_doc_ids": [
+            "condition-migraine",
+            "condition-generalized-anxiety-disorder",
+            "condition-insomnia",
+            "condition-urinary-tract-infection",
+            "condition-type-2-diabetes"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:33.328550Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3748,
+          "completion_tokens": 324,
+          "latency_ms": 2353.1262669999933,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:33.329959Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:33.330723Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:33.331141Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:33.331704Z",
+          "trace_id": "993d689d9db941aaa84e4ba5a3ebefd2",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have had three headaches this month, all on one side, with nausea and the light bothering me.",
+          "answer": "The symptoms you describe, including one-sided headaches, nausea, and sensitivity to light, are consistent with the typical features of a migraine attack (condition-migraine). A migraine headache is classically one-sided, pulsating, moderate to severe, and made worse by routine physical activity. It is often accompanied by nausea or sensitivity to light and sound (condition-migraine).\n\nThese symptoms appear to primarily involve a single body system, though nausea involves the gastrointestinal system. A clinician would want to discuss your symptoms to understand their pattern and rule out other possibilities. Conditions a clinician might consider given your symptoms include migraine (condition-migraine).\n\nIt is important to discuss these symptoms with a healthcare professional for a proper evaluation.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 8366.26701199998,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

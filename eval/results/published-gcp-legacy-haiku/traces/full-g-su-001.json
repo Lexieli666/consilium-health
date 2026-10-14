@@ -1,0 +1,361 @@
+{
+  "session_id": "full-g-su-001",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:49.274261Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 847,
+          "completion_tokens": 156,
+          "latency_ms": 1428.27183899999,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:49.396523Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of chest pressure described as heavy pressure, like weight on the chest, starting about twenty minutes ago. Identify red flags, state whether emergency care should be sought immediately, and group the possibilities by likelihood and severity.",
+              "why": "This is a new symptom with possible cardiac red flags, so urgency assessment comes first and this specialist owns urgency claims."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1550.587581000002
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:49.396670Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:49.396768Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:50.974999Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1682,
+          "completion_tokens": 269,
+          "latency_ms": 1576.839462999999,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:51.006631Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Chest pressure described as heavy pressure, like someone heavy sitting on the chest, started about twenty minutes ago. User says something may be wrong with their chest.",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.030776515151515152
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 2,
+              "rrf_score": 0.030090497737556562
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 2,
+              "rrf_score": 0.02819138376017471
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.027443609022556388
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 3,
+              "rrf_score": 0.027364110201042444
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 0,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 2,
+              "rrf_score": 0.013157894736842105
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 2,
+              "rrf_score": 0.01282051282051282
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 30.48847799999521
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:51.007204Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Chest pressure described as heavy pressure, like someone heavy sitting on the chest, started about twenty minutes ago. User says something may be wrong with their chest."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 31.769650000001093,
+          "source_doc_ids": [
+            "red-flag-chest-pain",
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-anaphylaxis",
+            "red-flag-gastrointestinal-bleeding",
+            "red-flag-acute-abdominal-pain"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:52.858632Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3992,
+          "completion_tokens": 324,
+          "latency_ms": 1851.0323709999739,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:52.888504Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "Chest pressure described as heavy pressure, like someone heavy sitting on the chest, started about twenty minutes ago.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 0,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.030090497737556562
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.028370221327967807
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.027912386121341344
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 3,
+              "rrf_score": 0.027650648360030512
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.027031963470319637
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.02658450704225352
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.02632034632034632
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.0261986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 28.669574999980796
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:52.888838Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "Chest pressure described as heavy pressure, like someone heavy sitting on the chest, started about twenty minutes ago."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 29.591726000035123,
+          "source_doc_ids": [
+            "condition-coronary-artery-disease",
+            "condition-hypertension",
+            "condition-gerd",
+            "condition-asthma",
+            "condition-copd"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:58.774840Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5396,
+          "completion_tokens": 1160,
+          "latency_ms": 5885.59941699998,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:58.775274Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:58.776337Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:58.776543Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:08:58.776852Z",
+          "trace_id": "4039a6ff14eb436c84ef6814f3f4b426",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I think maybe something is wrong with my chest. It feels like someone heavy is sitting on it and it started about twenty minutes ago.",
+          "answer": "**Call emergency services now.** Heavy pressure on the chest that started about 20 minutes ago can be a heart attack. Treatment works best in the first minutes. Do not drive yourself. Tell the call handler exactly what you told me.\n\n**Red flags to check.** Each of these makes the situation more urgent. You don't need to confirm any of them before calling. The guidance lists:\n- Heaviness or pressure in the centre or left of the chest that lasts more than a few minutes or comes and goes.\n- Discomfort spreading to the arms, shoulders, neck, jaw, back, or upper stomach.\n- Breathlessness, cold sweat, nausea or vomiting, light-headedness, or a sense of impending doom.\n- Discomfort at rest.\n\n(Source: *Chest pain that may indicate a heart attack*, emergency medicine and cardiology guidance.)\n\n**Possibilities, grouped by severity.** The passages I retrieved do not say how likely each one is for you, so I can't rank them by likelihood. I can only group them by how serious they are.\n\n- **Serious, must be ruled out first:** heart-related causes. Guidance says chest discomfort must not be assumed to be reflux or anything else until a cardiac cause has been checked (*Coronary artery disease*; *GERD*).\n- **Serious, involving breathing:** lung conditions such as asthma or COPD can cause chest tightness with breathlessness. Breathing red flags apply, including trouble speaking in full sentences or blue lips (*Severe difficulty breathing*; *Asthma*; *COPD*).\n- **Less serious, but still needs assessment:** reflux (heartburn). Its discomfort can feel the same as cardiac pain, so it is not a safe assumption (*GERD*).\n\nHigh blood pressure is usually symptomless (*Hypertension*), so it does not explain this pressure on its own.\n\nPlease call emergency services now rather than waiting to see whether it passes.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 10929.660624000007,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-cc-009",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:05.293360Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 571,
+          "completion_tokens": 99,
+          "latency_ms": 1106.2519820000034,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:05.396660Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain how to identify a combination code from a tabular list.",
+              "why": "This is a question about code classification and interpretation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1213.8392919999887
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:05.396800Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:05.396863Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:07.400645Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 559,
+          "completion_tokens": 115,
+          "latency_ms": 1997.5245719999748,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:07.416532Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "combination code identification",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 2,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 2,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 2,
+              "rrf_score": 0.030536130536130537
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 3,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.02761904761904762
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 2,
+              "rrf_score": 0.027402402402402402
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 0,
+              "rrf_score": 0.027205882352941177
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 15.036739000038324
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:07.416976Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "combination code identification"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 15.511166000010235,
+          "source_doc_ids": [
+            "coding-icd10-cm-code-structure-and-conventions",
+            "coding-type-2-diabetes-e11",
+            "coding-heart-failure-i50",
+            "coding-hypertension-i10",
+            "coding-icd10-cm-versus-who-icd10"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:12.927236Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2863,
+          "completion_tokens": 551,
+          "latency_ms": 5507.165494999981,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:12.928620Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:12.929338Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:12.929679Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:12.930117Z",
+          "trace_id": "2f23aee6b47843ca9fb9f7a6a25f0f90",
+          "session_id": "full-g-cc-009",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "How can I tell from the tabular list that a code is a combination code rather than a plain one?",
+          "answer": "Combination codes are single codes in the tabular list that represent two conditions, or a condition and its complication, together. You can identify them because the code itself describes both elements. When a combination code exists, it is used instead of separate codes for each condition or complication. For example, in the context of hypertension, if there is organ involvement, the classification prefers a combination code, such as I11 for documented hypertensive heart disease, instead of separate codes for hypertension and heart disease.\n\nThis information comes from the document \"ICD-10-CM code structure and the conventions that govern selection\" and \"Coding hypertension: I10 and the hypertensive disease family\".\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 8750.202044000049,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

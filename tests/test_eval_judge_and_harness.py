@@ -36,7 +36,7 @@ from eval.judge import (
     score_sample,
     write_sample,
 )
-from eval.metrics import turn_event
+from eval.metrics import rate_for, turn_event
 from eval.run import (
     SAMPLE_SEED,
     SampleDrawError,
@@ -820,9 +820,28 @@ async def test_memory_off_still_runs_a_conversation(tmp_path: Path) -> None:
 # --- runner helpers ------------------------------------------------------------------------------
 
 
-def test_pricing_ships_empty_so_cost_is_not_measured_by_default() -> None:
-    """A rate card copied from a vendor page at some past date is not a measurement."""
-    assert load_pricing() == {}
+def test_pricing_carries_dated_rates_only_for_the_models_the_runs_used() -> None:
+    """A rate card copied from a vendor page at some past date is not a measurement.
+
+    The file shipped empty until a run needed a dollar figure.  It now carries the rates the
+    operator read off each provider's price list on the day of the run, with the date and the URL
+    beside them in the file, and what this test pins is the shape of that bargain: every entry is a
+    complete input/output pair (a half-filled entry would price part of a sweep and read as
+    complete), and a model nobody filled in is still unpriced rather than free -- which is what
+    makes ``usage_report`` report ``not measured`` and ``--max-cost`` refuse the cap.
+    """
+    rates = load_pricing()
+
+    assert rates, "eval/pricing.yaml carries the rates the published runs were costed at"
+    for key, entry in rates.items():
+        assert set(entry) >= {"input", "output"}, f"{key} is missing a half of its rate"
+        assert all(value > 0 for value in entry.values()), f"{key} has a free token rate"
+
+    assert rate_for(rates, "openai", "gpt-4o-mini") is not None
+    assert rate_for(rates, "anthropic", "claude-haiku-5-5") is not None
+    assert rate_for(rates, "vertexai", "gemini-2.5-flash") is not None
+    assert rate_for(rates, "anthropic", "a-model-nobody-priced") is None
+    assert rate_for({}, "openai", "gpt-4o-mini") is None
 
 
 def test_the_stratified_subset_keeps_the_category_mix() -> None:

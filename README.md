@@ -295,9 +295,15 @@ on half the red-flag items (0.500 against 0.893 for a plain LLM). The mechanism 
   metadata only; `mcp-serve --transport http` binds to localhost by default. Not hardened.
 - **`POST /v1/chat` streams the banner early and the body late.** The body is assembled and then
   delivered incrementally, so time to first token is the turn's latency (`docs/DESIGN.md`, Phase 9).
-- **Cloud Run deployment is unverified.** `Dockerfile` and `deploy/cloudrun/*.sh` exist; the first
-  Cloud Build has not been run and the ADK orchestrator has not been evaluated
-  (`docs/gcp-migration-STATUS.md`).
+- **The ADK orchestrator is measured, and it is worse on the headline safety metric.** On the
+  150-item golden set, run as a Cloud Run Job on the deployed image, `ORCHESTRATOR=adk`
+  (`gemini-2.5-flash` on Vertex AI) scores red-flag recall **0.821 against the legacy router's
+  0.929** on `claude-haiku-5-5` — five false negatives against two, all in the hard-phrasing
+  stratum — at 2.1× the cost per turn and a p95 of 35.25 s against 20.92 s. Retrieval and routing
+  are within a point or two. The two arms differ in orchestrator *and* agent model at once, and
+  the traces point at the model, so this is not a verdict on ADK as an architecture.
+  `docs/gcp-migration-eval.md` has the table, the trace-level causes and what the run does not
+  license concluding.
 
 ## Guardrails
 
@@ -435,8 +441,80 @@ hash embedder, numpy store, in-process MCP), `uv run ruff check .`, `uv run ruff
 
 **Deployment.** `Dockerfile` bakes the bge-small model and the Chroma index into the image;
 `docker compose up --build` serves on port 8080. `deploy/cloudrun/bootstrap.sh` and `deploy.sh`
-target Google Cloud Run and have not been run end to end; `deploy/aws/` is the earlier ECS Fargate
-path, kept for reference. The orchestrator is chosen per deployment with `ORCHESTRATOR`.
+target Google Cloud Run and **have now been run end to end** (see *Deployed service* below);
+`deploy/aws/` is the earlier ECS Fargate path, kept for reference and never deployed. The
+orchestrator is chosen per deployment with `ORCHESTRATOR`.
+
+### Deployed service
+
+Deployed 2026-10-14 to Cloud Run, `us-west1`, project `project-36f5f6ea-edf1-4d0c-817`, from the
+repository root with `PROVIDER=anthropic MODEL=claude-haiku-5-5 ./deploy/cloudrun/deploy.sh`
+(Cloud Build builds `Dockerfile`; image
+`us-west1-docker.pkg.dev/.../cloud-run-source-deploy/consilium-health@sha256:d3f4aca2`). The
+`ANTHROPIC_API_KEY` reaches the container from Secret Manager (`anthropic-api-key`) under the
+dedicated `consilium-run` service account, whose only grants are reading that secret and calling
+Vertex AI; min-instances 0, 2 GiB, concurrency 10, unauthenticated.
+
+    https://consilium-health-319588523653.us-west1.run.app
+
+```console
+$ curl -sS https://consilium-health-319588523653.us-west1.run.app/v1/healthz
+{"status":"ok","provider":"anthropic","model":"claude-haiku-5-5","config":"full",
+ "orchestrator":"legacy","retrieval":true,"corpus_documents":78,"trace_schema_version":2}
+```
+
+`corpus_documents: 78` is the index baked into the image at build time, not a cold-start rebuild.
+
+```console
+$ curl -sS -X POST https://consilium-health-319588523653.us-west1.run.app/v1/ask \
+       -H 'content-type: application/json' \
+       -d '{"question":"What is the ICD-10 code for type 2 diabetes, and when is E11.9 the right choice?"}'
+{
+  "session_id": "api-710a7080909048db8c362324",
+  "turn_index": 0,
+  "answer": "**Code:** Type 2 diabetes mellitus is category **E11** in ICD-10-CM, in Chapter 4
+    (endocrine, nutritional and metabolic diseases). E11 is never used on its own at three
+    characters. Extra characters name the complication. (Source: *Coding type 2 diabetes: E11 and
+    its complication subcategories*)\n\n**E11.9:** The code ending in 9 is for diabetes documented
+    without complications. That is the source of the commonly quoted E11.9. (Same source.)\n\n
+    **Complication codes:** The E11 family has subcategories for kidney involvement, retinal
+    involvement (including whether macular edema is present), neuropathy, circulatory involvement
+    of the limbs, skin, oral and joint complications, and metabolic states of hyperglycemia and
+    hypoglycemia. (Same source.)\n\n**Limits of this answer:** My search for further coding rules
+    failed, so I could not confirm how a coder decides between E11.9 and the complication codes in
+    each case. The retrieved material does not give that decision rule. For that, check the
+    official ICD-10-CM Official Guidelines or ask a medical coder or the clinician who documented
+    the diagnosis.\n\nThis is general information about how a classification works. It is not a
+    diagnosis, and it does not say which code applies to any person's record.\n\nNot medical
+    advice. This is an educational software project. It does not diagnose or treat, and it must
+    not be used for real medical decisions.",
+  "sources": ["coding-type-2-diabetes-e11", "coding-icd10-chapter-04-endocrine",
+              "coding-hypertension-i10", "coding-heart-failure-i50",
+              "coding-icd10-chapter-06-nervous",
+              "coding-icd10-cm-code-structure-and-conventions", "coding-asthma-j45",
+              "coding-icd10-chapter-13-musculoskeletal"],
+  "route": {"mode": "single", "agents": ["consultation"], "fallback": false, "missing": []},
+  "risk_level": "routine",
+  "trace_id": "1cb740433de64e439c86bd1af0a8a3d8",
+  "wall_ms": 8902.686725999998,
+  "safety": {"violations": ["disclaimer"], "repairs": ["disclaimer"]}
+}
+```
+
+The answer is wrapped for this document; the newlines inside `answer` are `\n` in the real
+response. It is the deployed system behaving as the Limitations section describes: the answer is
+grounded in the baked corpus and names its sources, the tool budget is spent before the coding
+rule is found and the answer says so rather than filling the gap, and the turn boundary's
+validator caught a missing disclaimer and repaired it.
+
+**`GET /healthz` does not work on Cloud Run, and that is not a bug in this service.** Google's
+frontend answers `/healthz` itself with its own HTML 404 and the request never reaches the
+container: on the deployed service every other path returns this app's `{"detail":"Not Found"}`
+and appears in the Cloud Run request log, while `/healthz` appears in no request log at all —
+reproduced both from outside GCP and from a Cloud Build step inside it. The handler is therefore
+registered at **two** paths (`consilium/api/app.py`): `/healthz`, which is what `docker compose`'s
+healthcheck and the local commands above call, and `/v1/healthz`, which is what anything behind
+that frontend has to call.
 
 **Traces.** `runs/<session_id>/<turn_index>.jsonl`, one JSON object per line, schema version 2
 (`consilium/trace.py`). Traces contain verbatim questions and prompts; `consilium runs purge`
@@ -454,6 +532,10 @@ run before any number in this document is updated.
 - **Widen v2's fan-out where the classification says it matters:** `analyze_symptoms` for
   symptom questions and a second search for two-document questions are the two residual
   mechanisms; both change measured behaviour and need their own run.
+- **Separate the orchestrator from the model in the ADK comparison.** The measured run moved both
+  at once; a third arm — the legacy router on `gemini-2.5-flash`, or the ADK tree on
+  `claude-haiku-5-5` — is what would attribute the red-flag regression to one of them.
+  `docs/gcp-migration-eval.md` states why the current pair cannot.
 - **Databricks mirror** of the corpus, index and evaluation harness — not started.
 - **Banking corpus**: a second domain to test whether the orchestration, the policy mechanism and
   the harness transfer; the red-flag table and the output rules are domain-specific and would need
@@ -475,8 +557,9 @@ run before any number in this document is updated.
 `docs/DESIGN.md` (decisions and rejected alternatives), `docs/EVALUATION.md` (golden set,
 metrics, judge validation), `docs/SAFETY.md` (rule table, validator, repair, §7 on the red-flag
 regression), `docs/FAILURE_CASES.md` (four traced failures), `docs/LANGGRAPH_EVAL.md` (LangGraph
-evaluation status and runbook), `docs/CORPUS.md`, `docs/gcp-migration-STATUS.md`, `eval/cortex/README.md`
-(the Cortex Search comparison), `CHANGELOG.md`.
+evaluation status and runbook), `docs/gcp-migration-eval.md` (the legacy router against the ADK
+orchestrator on Vertex AI, measured), `docs/CORPUS.md`, `docs/gcp-migration-STATUS.md`,
+`eval/cortex/README.md` (the Cortex Search comparison), `CHANGELOG.md`.
 
 ## License
 

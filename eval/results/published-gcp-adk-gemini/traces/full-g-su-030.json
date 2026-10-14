@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-su-030",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:44.980237Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 568,
+          "completion_tokens": 89,
+          "latency_ms": 1088.909957999988,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:45.085440Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the symptom of shortness of breath during exertion and assess its potential urgency.",
+              "why": "This is a symptom description, requiring diagnostic interpretation and urgency assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1198.7911000000508
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:45.085575Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:45.085641Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:46.501552Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 649,
+          "completion_tokens": 116,
+          "latency_ms": 1408.682749000036,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:46.520206Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Shortness of breath climbing two flights of stairs but completely fine at rest.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.02964426877470356
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.029411764705882353
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 17.581368999969982
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:46.520450Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Shortness of breath climbing two flights of stairs but completely fine at rest."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 18.117442000004758,
+          "source_doc_ids": [
+            "lifestyle-copd-activity",
+            "red-flag-severe-breathing-difficulty",
+            "lifestyle-hypertension-activity",
+            "coding-asthma-j45",
+            "coding-copd-j44"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:48.593788Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2141,
+          "completion_tokens": 231,
+          "latency_ms": 2070.2016550000053,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:48.595054Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:48.595763Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:48.596021Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:53:48.596396Z",
+          "trace_id": "d816a5fa208c4d20a012f51736107e1a",
+          "session_id": "full-g-su-030",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I get short of breath climbing two flights of stairs but I am completely fine at rest.",
+          "answer": "Your symptom of shortness of breath when climbing two flights of stairs, but not at rest, is classified as **routine**.\n\nNo emergency pattern in the red-flag table matched this description. This is not a clearance: the table covers a fixed list of presentations, and a symptom it does not list can still be serious. If symptoms are severe, worsening, or new and unexplained, you should seek medical advice.\n\nI will now analyze your symptoms further.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4713.494024999989,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

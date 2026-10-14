@@ -1,0 +1,343 @@
+{
+  "session_id": "full-g-ge-015",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:50.824235Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 830,
+          "completion_tokens": 222,
+          "latency_ms": 1739.0098660000604,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:50.990242Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Summarize what current clinical guidelines recommend for acute migraine treatment, and the criteria guidelines use to decide when preventive therapy should be considered. Note where authorities differ and state the strength of the supporting evidence.",
+              "why": "This is a guideline and evidence question, which is the research specialist's remit."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1905.0839069999483
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:50.990423Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:50.990537Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:52.472903Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1757,
+          "completion_tokens": 230,
+          "latency_ms": 1480.8734010000535,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:52.497488Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "migraine acute treatment first-line options",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 0,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 2,
+              "rrf_score": 0.029418126757516764
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.0293236301369863
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 3,
+              "rrf_score": 0.02854251012145749
+            },
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 0,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.027783137179239824
+            },
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.013333333333333334
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 23.924658000055388
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:52.497890Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "migraine",
+            "aspect": "acute treatment first-line options"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 24.38109800004895,
+          "source_doc_ids": [
+            "guideline-migraine-acute-and-preventive-treatment",
+            "guideline-anxiety-screening-and-first-line-care",
+            "guideline-osteoarthritis-management",
+            "guideline-hypertension-first-line-treatment",
+            "guideline-insomnia-cbt-first-line"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:52.563730Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "migraine when to consider preventive therapy",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.03076923076923077
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 3,
+              "rrf_score": 0.028782894736842105
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 1,
+              "rrf_score": 0.02803921568627451
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 0,
+              "rrf_score": 0.027583600982429624
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.027443609022556388
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.026013513513513515
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 65.3707819999454
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:52.564163Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "migraine",
+            "aspect": "when to consider preventive therapy"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 65.83619299999555,
+          "source_doc_ids": [
+            "guideline-migraine-acute-and-preventive-treatment",
+            "guideline-lipid-screening-and-statin-initiation",
+            "guideline-insomnia-cbt-first-line",
+            "guideline-copd-diagnosis-and-stepwise-management",
+            "guideline-coronary-artery-disease-secondary-prevention"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:58.049515Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 6187,
+          "completion_tokens": 1029,
+          "latency_ms": 5484.940877999975,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:58.049840Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:58.051096Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:58.052558Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:19:58.053978Z",
+          "trace_id": "1ae57c7778304a16a488130e938d1477",
+          "session_id": "full-g-ge-015",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What does guidance describe for treating an acute migraine, and when is prevention considered?",
+          "answer": "**Acute treatment (National headache society guidance, migraine document)**\n\nThe guidance says to treat an attack early, while pain is still mild, because responses drop once an attack is well established. It groups options by strength of evidence rather than ranking them for any one person:\n\n- Simple pain relievers and anti-inflammatory drugs for mild to moderate attacks.\n- Triptans for moderate to severe attacks, or when simple pain relievers have not worked.\n- Gepants and ditans where triptans do not work, are not tolerated, or are ruled out by heart or blood-vessel disease. The guidance names this last reason as the main limit on triptan use.\n- Anti-nausea medicines as add-ons when nausea gets in the way of taking tablets, and other routes when vomiting makes tablets unreliable.\n\nThe guidance suggests trying a treatment on two or three separate attacks before judging it ineffective, because attacks vary a lot.\n\n**When prevention is considered (same document)**\n\nPreventive treatment is offered when attacks are frequent or disabling enough that acute treatment alone is not enough. The guidance describes this as:\n\n- four or more migraine days a month with some disability, or\n- fewer attacks, if the disability is severe, acute treatment does not work or cannot be used, or the person prefers prevention.\n\nThe aim is fewer and less severe attacks, not none. A 50 percent cut in migraine days is the usual definition of a response.\n\n**Disagreement and strength of evidence**\n\nThe retrieved migraine guidance does not flag any disagreement between authorities. I found no other migraine guidance to compare it with, so I cannot say whether other bodies set the same thresholds.\n\nThe passages I retrieved do not state how strong the evidence is for each acute option or for the prevention thresholds. They say only that the acute options are grouped by evidence strength. For the grades, check the full guideline document.\n\nThe retrieved passages also did not cover the section on medication-overuse limits, which the guideline's title mentions.\n\nThese summaries are for general understanding only. A clinician can work out which options fit a particular person's situation, including any heart or blood-vessel conditions.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 8965.024824000011,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

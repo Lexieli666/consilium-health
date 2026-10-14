@@ -1,0 +1,342 @@
+{
+  "session_id": "full-g-cc-025",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:40.364741Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 828,
+          "completion_tokens": 93,
+          "latency_ms": 905.3949089999378,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:40.520789Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain whether G47 is a code, category, or block in ICD-10 classification, and how to tell the difference from the structure of the code.",
+              "why": "A classification-structure question with no symptom or evidence component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1061.5013240000053
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:40.520949Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:40.521058Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:41.659743Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1612,
+          "completion_tokens": 142,
+          "latency_ms": 1137.2284920000766,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:41.680297Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "G47",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 2,
+              "rrf_score": 0.031746031746031744
+            },
+            {
+              "doc_id": "coding-icd10-chapter-06-nervous",
+              "chunk_index": 1,
+              "rrf_score": 0.03131881575727918
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 0,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 20.012441999938346
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:41.681083Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "G47"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 20.85440300004393,
+          "source_doc_ids": [
+            "coding-insomnia-g47",
+            "coding-icd10-chapter-06-nervous",
+            "coding-icd10-chapter-13-musculoskeletal",
+            "coding-icd10-chapter-14-genitourinary",
+            "coding-icd10-chapter-11-digestive"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:41.760678Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "ICD-10 code structure chapter block category subcategory difference",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 0,
+              "rrf_score": 0.028531243721117136
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 0,
+              "rrf_score": 0.027972027972027972
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 0,
+              "rrf_score": 0.027912386121341344
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 0,
+              "rrf_score": 0.02702702702702703
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "coding-icd10-chapter-06-nervous",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 78.95908399996188
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:41.761153Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "ICD-10 code structure chapter block category subcategory difference",
+            "category": "coding"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 79.47688400008701,
+          "source_doc_ids": [
+            "coding-icd10-cm-versus-who-icd10",
+            "coding-icd10-chapter-05-mental",
+            "coding-icd10-chapter-09-circulatory",
+            "coding-hypertension-i10",
+            "coding-icd10-chapter-13-musculoskeletal"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:47.443217Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 10139,
+          "completion_tokens": 1028,
+          "latency_ms": 5681.56153599989,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:47.443610Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:47.444305Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:47.445047Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:47.445981Z",
+          "trace_id": "8bfceeeb2f4f460a967a50f53b36acad",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Is G47 a code, a category or a block, and how would I tell the difference?",
+          "answer": "**G47 is a category.** It is a three-character code that groups related conditions, which here are sleep-related disorders. The surrounding structure is:\n\n- **Chapter:** Chapter 6, diseases of the nervous system, covers G00 to G99.\n- **Block:** G40 to G47, episodic and paroxysmal disorders. A block is a range of codes, written with a dash.\n- **Category:** G47, a single three-character code within that block. The category holds insomnia, hypersomnia, sleep apnea, narcolepsy, parasomnias and sleep-related movement disorders.\n\nTo tell them apart, look at the shape of the notation:\n\n- A **range** like G40 to G47 names a block or chapter.\n- A **three-character code** like G47 is a category.\n- A **code with a decimal point** after the three characters is a more specific subcategory.\n\nThe sources I searched do not show whether G47 has further subdivisions after the decimal point, so I can't tell you that from them. For that, check the full ICD-10-CM tabular list, or ask a medical coder.\n\n*Source: ICD-10-CM Chapter 6 summary, and \"Coding insomnia: G47 and F51\" (US clinical modification of ICD-10, NCHS/CMS educational summary).*\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7984.606116999998,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1.7
 # Consilium-Health service image: FastAPI service, self-hosted hybrid retriever (BM25 + bge-small +
 # RRF), ChromaDB store.  Built for Cloud Run (linux/amd64); builds natively on arm64 too.
 #
@@ -15,6 +14,12 @@
 # The eval harness (`eval/`) ships in the image too, so that the golden set can be run as a Cloud
 # Run Job against exactly the deployed code, environment and region.  It is not part of the wheel
 # and costs nothing at serve time.
+#
+# No BuildKit-only syntax here -- no `# syntax=` frontend, no `RUN --mount=type=cache`.  Cloud
+# Build's `gcr.io/cloud-builders/docker` step, which `gcloud run deploy --source` generates, runs
+# the classic engine, and a cache mount is a hard parse error there, not a silently ignored
+# optimisation (`the --mount option requires BuildKit`).  The uv cache it bought only sped up
+# repeat local builds; the layer cache above still covers the dependency layer.
 
 FROM python:3.12-slim AS builder
 
@@ -29,18 +34,15 @@ WORKDIR /app
 
 # Dependency layer: only the lock and the project metadata, so it is cached until they change.
 COPY pyproject.toml uv.lock README.md ./
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project --no-extra embeddings --no-extra cortex
+RUN uv sync --frozen --no-dev --no-install-project --no-extra embeddings --no-extra cortex
 
 # The service code.
 COPY consilium ./consilium
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-extra embeddings --no-extra cortex
+RUN uv sync --frozen --no-dev --no-extra embeddings --no-extra cortex
 
 # The embeddings extra, with CPU-only torch.  Installed after `uv sync` because sync makes the
 # environment match the lock exactly and would otherwise replace this torch with the CUDA one.
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --python /app/.venv/bin/python \
+RUN uv pip install --python /app/.venv/bin/python \
         --index-url https://download.pytorch.org/whl/cpu torch \
  && uv pip install --python /app/.venv/bin/python \
         "sentence-transformers>=5,<6" "chromadb>=1.0,<2"

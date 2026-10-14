@@ -254,7 +254,16 @@ async def test_the_openapi_schema_is_generated_without_a_runtime() -> None:
 
     schema = main_app.openapi()
 
-    assert set(schema["paths"]) == {"/healthz", "/v1/ask", "/v1/chat", "/v1/sessions/{session_id}"}
+    # `/healthz` and `/v1/healthz` are one handler at two paths: Cloud Run's frontend answers
+    # `/healthz` itself and the request never reaches the container, so a deployment behind it has
+    # to call the second path (consilium/api/app.py).
+    assert set(schema["paths"]) == {
+        "/healthz",
+        "/v1/healthz",
+        "/v1/ask",
+        "/v1/chat",
+        "/v1/sessions/{session_id}",
+    }
 
 
 async def test_the_runs_directory_is_the_configured_one(

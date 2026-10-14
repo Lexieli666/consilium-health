@@ -133,7 +133,13 @@ class BgeEmbedder:
         self._model = model
         self._batch_size = batch_size
         self.name = model_name
-        self.dim = int(model.get_sentence_embedding_dimension())
+        # sentence-transformers renamed this in v5; the old name still works and warns, and
+        # the project runs pytest with warnings as errors, so the new name is tried first and
+        # the old one is the fallback for an older pin.
+        dimension = getattr(model, "get_embedding_dimension", None) or (
+            model.get_sentence_embedding_dimension
+        )
+        self.dim = int(dimension())
         if self.dim != EMBEDDING_DIM:
             raise ValueError(
                 f"{model_name} is {self.dim}-dimensional; this project's stores and "

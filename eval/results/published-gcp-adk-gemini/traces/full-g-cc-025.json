@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-cc-025",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:13.774586Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 571,
+          "completion_tokens": 155,
+          "latency_ms": 2849.1965570000275,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:13.881307Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the difference between a code, a category, and a block in medical classification systems, and determine whether G47 is a code, a category, or a block.",
+              "why": "The user is asking about the classification of a medical code and how to differentiate between classification levels."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2960.287092000044
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:13.881442Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:13.881503Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:25.673576Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 582,
+          "completion_tokens": 135,
+          "latency_ms": 11784.784358000024,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:25.690394Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "G47",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 2,
+              "rrf_score": 0.031746031746031744
+            },
+            {
+              "doc_id": "coding-icd10-chapter-06-nervous",
+              "chunk_index": 1,
+              "rrf_score": 0.03131881575727918
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 0,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 15.905008999993697
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:25.690913Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "G47"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 16.461035000020274,
+          "source_doc_ids": [
+            "coding-insomnia-g47",
+            "coding-icd10-chapter-06-nervous",
+            "coding-icd10-chapter-13-musculoskeletal",
+            "coding-icd10-chapter-14-genitourinary",
+            "coding-icd10-chapter-11-digestive"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:30.126932Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 5756,
+          "completion_tokens": 730,
+          "latency_ms": 4432.55310699999,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:30.128253Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:30.129277Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:30.129773Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:57:30.130388Z",
+          "trace_id": "49a38bffddc6461b85b0ec64f973ddc8",
+          "session_id": "full-g-cc-025",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Is G47 a code, a category or a block, and how would I tell the difference?",
+          "answer": "In medical classification systems, like ICD-10-CM, these terms describe different levels of grouping for conditions:\n\n*   **Code:** This is the most specific identifier for a diagnosis or condition. It can have three, four, five, six, or seven characters. For example, G47.0 would be a specific code for a type of insomnia.\n*   **Category:** This is a three-character code that groups similar conditions. For instance, **G47** is a category for sleep disorders, and it includes conditions like hypersomnia, circadian rhythm sleep disorders, sleep apnea, narcolepsy, and parasomnias (from \"Coding insomnia: G47 and F51, and the chapter split between them\").\n*   **Block:** This is a range of categories that group related conditions. For example, G40 to G47 forms a block for \"episodic and paroxysmal disorders\" (from \"ICD-10-CM Chapter 6: diseases of the nervous system (G00-G99)\").\n\nTherefore, G47 is a **category**. It also falls within the block G40-G47.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 19212.32333699993,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

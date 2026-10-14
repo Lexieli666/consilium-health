@@ -1,0 +1,341 @@
+{
+  "session_id": "full-g-su-021",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:00.352391Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 834,
+          "completion_tokens": 293,
+          "latency_ms": 2073.383349999972,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:00.494031Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently recurrent evening heartburn after dinner should be evaluated, including which accompanying features would make it more urgent (such as chest pain, pain spreading to the arm or jaw, shortness of breath, difficulty or pain when swallowing, vomiting blood, black stools, unintended weight loss, or symptoms that persist despite lifestyle changes), and whether it is worth raising with a doctor.",
+              "why": "This is a symptom description, and the main question is whether it needs medical attention and how soon."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2215.075031999959
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:00.494202Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:00.494298Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:01.920825Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1725,
+          "completion_tokens": 256,
+          "latency_ms": 1425.2330640000537,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:01.968662Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Recurrent heartburn most evenings after dinner. No other symptoms reported. User asks whether it is worth mentioning to a doctor. Checking for red flags: chest pain, pain spreading to arm or jaw, shortness of breath, trouble or pain swallowing, vomiting blood, black stools, unintended weight loss, symptoms persisting despite lifestyle changes.",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 0,
+              "rrf_score": 0.030330882352941176
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 0,
+              "rrf_score": 0.02967032967032967
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.029513888888888888
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 1,
+              "rrf_score": 0.029386529386529386
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.028258706467661692
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.026742734890354787
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 2,
+              "rrf_score": 0.012987012987012988
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 46.144841999989694
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:01.969067Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Recurrent heartburn most evenings after dinner. No other symptoms reported. User asks whether it is worth mentioning to a doctor. Checking for red flags: chest pain, pain spreading to arm or jaw, shortness of breath, trouble or pain swallowing, vomiting blood, black stools, unintended weight loss, symptoms persisting despite lifestyle changes."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 47.83445500004291,
+          "source_doc_ids": [
+            "red-flag-chest-pain",
+            "red-flag-gastrointestinal-bleeding",
+            "red-flag-acute-abdominal-pain",
+            "red-flag-anaphylaxis",
+            "red-flag-sudden-severe-headache"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:01.994885Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "Heartburn most evenings after dinner, recurrent. No other symptoms reported.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 0,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.028985507246376812
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 1,
+              "rrf_score": 0.02889344262295082
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.028612012987012988
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 2,
+              "rrf_score": 0.026709401709401708
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.02666666666666667
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 3,
+              "rrf_score": 0.02631578947368421
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 24.759109000001445
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:01.995179Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "Heartburn most evenings after dinner, recurrent. No other symptoms reported."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 25.489500000048793,
+          "source_doc_ids": [
+            "condition-gerd",
+            "condition-influenza",
+            "condition-insomnia",
+            "condition-type-2-diabetes",
+            "condition-migraine"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:05.288734Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5778,
+          "completion_tokens": 437,
+          "latency_ms": 3293.1409719999465,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:05.289113Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:05.289486Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:05.289780Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:12:05.290373Z",
+          "trace_id": "86feb56dd3704b84a4b35a0818ff6ea4",
+          "session_id": "full-g-su-021",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I get heartburn most evenings after dinner. Is that worth mentioning to a doctor?",
+          "answer": "The first risk check matched \"chest pain,\" \"vomiting blood,\" and \"black stools.\" I put those terms in my query as a list of things to check, not as things you reported. I'll re-run the check using only what you told me.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7010.393429999908,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-gh-014",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:20.204578Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 558,
+          "completion_tokens": 103,
+          "latency_ms": 1414.602135999985,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:20.316668Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the physiological reason why low iron causes tiredness.",
+              "why": "This is a general health question seeking a condition explanation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1530.0807090000035
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:20.316909Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:20.317059Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:21.541042Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 544,
+          "completion_tokens": 90,
+          "latency_ms": 1217.141330000004,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:21.556062Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "why low iron causes tiredness",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 0,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 2,
+              "rrf_score": 0.029910714285714284
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.02946912242686891
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 1,
+              "rrf_score": 0.02782608695652174
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.027745885954841176
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.027692895339954164
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 3,
+              "rrf_score": 0.027402402402402402
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 14.123882000006915
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:21.556338Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "why low iron causes tiredness"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 14.437440000023116,
+          "source_doc_ids": [
+            "condition-iron-deficiency-anemia",
+            "condition-heart-failure",
+            "guideline-heart-failure-reduced-ef-therapy",
+            "red-flag-gastrointestinal-bleeding",
+            "condition-hypothyroidism"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:24.224098Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1966,
+          "completion_tokens": 248,
+          "latency_ms": 2665.2860769999907,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:24.225601Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:24.226442Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:24.226706Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:48:24.227047Z",
+          "trace_id": "e048653b1f4e47ec8ce59ea7de9cbaba",
+          "session_id": "full-g-gh-014",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Why does low iron make people tired?",
+          "answer": "Low iron can lead to tiredness because iron is essential for making hemoglobin. Hemoglobin is a protein in red blood cells that carries oxygen throughout your body. When you don't have enough iron, your body can't produce enough hemoglobin. This results in fewer and smaller red blood cells that are less efficient at carrying oxygen to your tissues, leading to a feeling of tiredness. This information comes from the \"Iron-deficiency anemia\" document.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5443.733651000002,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

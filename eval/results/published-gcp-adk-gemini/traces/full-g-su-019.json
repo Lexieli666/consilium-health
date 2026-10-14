@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-su-019",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:55.053595Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 573,
+          "completion_tokens": 101,
+          "latency_ms": 1467.6976720000425,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:55.150181Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the symptoms of a dry cough for ten days after a cold, with no fever, and assess if any action is needed.",
+              "why": "The user is describing symptoms and asking for an assessment of urgency and next steps."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1568.3853699999872
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:55.150400Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:55.150542Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:57.704837Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 665,
+          "completion_tokens": 88,
+          "latency_ms": 2547.2049500000367,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:57.722821Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "dry cough for ten days after a cold, no fever",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 1,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.028991596638655463
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 3,
+              "rrf_score": 0.027205882352941177
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.0261986301369863
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.02531645569620253
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 16.77386299996897
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:57.723190Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "dry cough for ten days after a cold, no fever"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 17.387573000007706,
+          "source_doc_ids": [
+            "condition-upper-respiratory-infection",
+            "guideline-uri-antibiotic-stewardship",
+            "condition-influenza",
+            "red-flag-meningitis-signs",
+            "red-flag-sepsis"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:59.061874Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2159,
+          "completion_tokens": 124,
+          "latency_ms": 1335.4197820000309,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:59.063258Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:59.064243Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:59.064627Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:52:59.065136Z",
+          "trace_id": "f83a5460313d48b2a70dfcefeca9a139",
+          "session_id": "full-g-su-019",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have had a dry cough for about ten days after a cold, no fever. Should I be doing anything?",
+          "answer": "You have a routine urgency. No emergency pattern in the red-flag table matched this description. That is not a clearance: the table covers a fixed list of presentations, and a symptom it does not list can still be serious. If symptoms are severe, worsening, or new and unexplained, seek medical advice.\n\nA cough that persists for two to three weeks after a cold is normal and does not by itself indicate a bacterial infection or treatment failure. This is often the last symptom to resolve after a cold.\n\nDiscolored nasal discharge is also part of the normal viral course and does not necessarily indicate a bacterial infection.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5486.233454000001,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

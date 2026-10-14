@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-cc-017",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:07.829023Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 570,
+          "completion_tokens": 116,
+          "latency_ms": 1391.3423940000484,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:07.941430Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the rules or conventions that determine if a three-character category can be used as a standalone code in medical classification.",
+              "why": "This is a question about classification conventions, which falls under general health questions."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1507.9302160000907
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:07.941624Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:07.941772Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:10.043954Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 570,
+          "completion_tokens": 128,
+          "latency_ms": 2094.4879539999874,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:10.061205Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "three-character category coding conventions",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 0,
+              "rrf_score": 0.030621785881252923
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 1,
+              "rrf_score": 0.029709507042253523
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 2,
+              "rrf_score": 0.029418126757516764
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 0,
+              "rrf_score": 0.029083245521601686
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 0,
+              "rrf_score": 0.028991596638655463
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 2,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 0,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 16.355654999983926
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:10.061536Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "three-character category coding conventions"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 16.733849000047485,
+          "source_doc_ids": [
+            "coding-icd10-cm-code-structure-and-conventions",
+            "coding-type-2-diabetes-e11",
+            "coding-icd10-cm-versus-who-icd10",
+            "coding-heart-failure-i50",
+            "coding-copd-j44"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:12.944982Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2562,
+          "completion_tokens": 394,
+          "latency_ms": 2880.156609000096,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:12.946373Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:12.947347Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:12.947749Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:56:12.948235Z",
+          "trace_id": "a5c5103cf6694240840305e4ad002fc0",
+          "session_id": "full-g-cc-017",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "How do I know whether a three-character category can stand on its own as a usable code?",
+          "answer": "In medical classification, specifically within ICD-10-CM, a three-character code represents a category. This three-character form can be used as a standalone code if it is complete and does not require further characters to specify details like cause, anatomical site, severity, or laterality, or to describe the encounter.\n\nWhen additional characters are used to add more detail, a decimal point follows the first three characters. For example, \"I10\" is a standalone three-character code, while \"E11.9\" indicates that additional detail follows the initial three-character category \"E11\".\n\nThis information comes from the document \"ICD-10-CM code structure and the conventions that govern selection.\"\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 6517.587867999964,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

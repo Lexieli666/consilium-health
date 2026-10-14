@@ -10,6 +10,9 @@ how an HTTP answer stops being the thing the published numbers were measured on.
 ``GET  /v1/sessions/{id}``     structural metadata about a session.  **No conversation content.**
 ``GET  /healthz``              liveness, plus the facts that decide whether an answer means
                                anything.
+``GET  /v1/healthz``           the same handler at a second path, because Google Cloud Run's
+                               frontend answers ``/healthz`` itself and the request never reaches
+                               the container (see the route below).
 
 **Nothing session-scoped is held here.**  The ``Runtime`` is built once and is read-only; a
 session's ``WorkingMemory`` is fetched from ``Runtime.memory`` by ``session_id`` for the duration of
@@ -221,7 +224,16 @@ def _register_routes(app: FastAPI) -> None:
             )
         return HTMLResponse(path.read_text(encoding="utf-8"))
 
+    # Two paths, one handler.  On Cloud Run, `GET /healthz` is answered by Google's frontend with
+    # its own HTML 404 and never reaches the container: every other path on the same deployed
+    # service returns this app's `{"detail":"Not Found"}` and is written to the request log, while
+    # `/healthz` appears in no request log at all -- reproduced both from outside GCP and from a
+    # Cloud Build step inside it.  `/healthz` is kept because it is what docker compose's
+    # healthcheck and the local README commands call, and `/v1/healthz` is what a deployment behind
+    # that frontend has to call.  Registering the handler twice is cheaper than making the project's
+    # documented liveness path depend on where it happens to be running.
     @app.get("/healthz", response_model=HealthResponse, tags=["ops"])
+    @app.get("/v1/healthz", response_model=HealthResponse, tags=["ops"])
     async def healthz(state: StateDep) -> HealthResponse:
         """Liveness, and what the answers from this process are grounded in."""
         runtime = state.runtime

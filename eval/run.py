@@ -12,7 +12,8 @@ validate the judge.
 Four commands, matching the brief:
 
 ``--config NAME``       run one preset instead of the ablation set.
-``--limit N``           run the first N items.  For a smoke test before spending on the full sweep.
+``--limit N``           run the first N golden items and the first N multi-turn conversations.
+                        For a smoke test before spending on the full sweep.
 ``--human-sample N``    write ``judge_sample.csv`` for a person to label.  Requires ``--config``.
 ``--score-judge PATH``  read a completed sample and report agreement and Cohen's kappa.
 
@@ -742,7 +743,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--config", help=f"One preset instead of the ablation set: {', '.join(PRESETS)}"
     )
-    parser.add_argument("--limit", type=int, help="Run only the first N items.")
+    parser.add_argument(
+        "--limit",
+        type=int,
+        help="Run only the first N golden items and the first N multi-turn conversations.",
+    )
     parser.add_argument("--golden", type=Path, default=DEFAULT_GOLDEN)
     parser.add_argument("--multiturn", type=Path, default=DEFAULT_MULTITURN)
     parser.add_argument("--out", type=Path, default=None, help="Results directory.")
@@ -863,7 +868,13 @@ async def main(argv: Sequence[str] | None = None) -> int:
         return 2
 
     if args.limit:
+        # Both sets, not just the golden items.  `--limit` exists so a misconfigured sweep is found
+        # cheaply, and a "smoke run" that still drove all 29 multi-turn conversations was neither
+        # cheap nor quick: on the Cloud Run job the 5 golden items took under a minute and the
+        # conversations that followed them took twenty.  The multi-turn report states its own n, so
+        # a shortened set reports a shortened n rather than a wrong one.
         items = items[: args.limit]
+        conversations = conversations[: args.limit]
 
     # Read and checked *before* the sweep, which is the expensive half: an unreadable prior sample
     # or an exclusion that cannot fill a stratum is a mistake in the command line, and finding it

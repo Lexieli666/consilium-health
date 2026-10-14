@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-cc-023",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:24.462001Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 825,
+          "completion_tokens": 210,
+          "latency_ms": 1644.0715670000827,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:24.627133Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain whether an ICD-10 category root (the three-character code) can ever be submitted without its decimal subcharacters, and when that is or isn't acceptable under coding conventions.",
+              "why": "This is a classification and coding-convention question with no symptom or evidence component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1809.2614460000505
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:24.627305Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:24.627478Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:25.699249Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1625,
+          "completion_tokens": 120,
+          "latency_ms": 1070.1062680000177,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:25.728120Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "ICD-10 category root three-character code submitted without decimal subcharacters coding conventions",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 3,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 0,
+              "rrf_score": 0.030090497737556562
+            },
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 0,
+              "rrf_score": 0.029709507042253523
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 0,
+              "rrf_score": 0.029631255487269532
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 0,
+              "rrf_score": 0.028381642512077296
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 2,
+              "rrf_score": 0.02761904761904762
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 0,
+              "rrf_score": 0.027242401779095628
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 28.294594000044526
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:25.728622Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "ICD-10 category root three-character code submitted without decimal subcharacters coding conventions"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 28.852895999989414,
+          "source_doc_ids": [
+            "coding-icd10-cm-code-structure-and-conventions",
+            "coding-icd10-cm-versus-who-icd10",
+            "coding-copd-j44",
+            "coding-type-2-diabetes-e11",
+            "coding-hypertension-i10"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:30.295903Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4551,
+          "completion_tokens": 818,
+          "latency_ms": 4566.837718999977,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:30.296332Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:30.297187Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:30.298224Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T05:16:30.299218Z",
+          "trace_id": "25c564ef50f3426786fbe4848d884c32",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Is it ever correct to submit a code root without its decimal characters?",
+          "answer": "Yes, but only in a narrow case. Whether a three-character root is acceptable depends on whether that category is complete on its own.\n\n- **Complete three-character codes:** The corpus says I10 (essential hypertension) is \"a complete code at three characters.\" It has no decimal because nothing follows the first three characters. Submitting I10 as written is correct. (Source: *Coding hypertension: I10 and the hypertensive disease family*.)\n- **Categories that need more characters:** The corpus says \"most ICD-10-CM categories require a fourth, fifth or sixth character before the code is billable.\" A bare three-character root for those categories is not a complete code. You would need to add the required characters. (Source: *Coding hypertension*, and *ICD-10-CM code structure and the conventions that govern selection*.)\n- **The decimal itself:** A decimal point follows the first three characters only when more characters follow, so its presence or absence reflects whether the code continues. (Source: *ICD-10-CM code structure*.)\n\nThe corpus does not list which other three-character categories are complete. It also says code validity changes by year, and that only a lookup against a current code file settles whether a code is valid. (Source: *ICD-10-CM and WHO ICD-10: why a code found in one may not exist in the other*.) For a specific claim, check the current official code set or ask a certified medical coder.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7478.729413999986,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

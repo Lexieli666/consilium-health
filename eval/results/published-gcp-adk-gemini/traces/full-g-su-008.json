@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-su-008",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:22.551109Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 577,
+          "completion_tokens": 116,
+          "latency_ms": 1409.9907840000014,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:22.653147Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of the described respiratory distress, including the ineffectiveness of the rescue inhaler, and provide an initial interpretation of the symptoms.",
+              "why": "The user is describing acute and severe symptoms requiring urgent assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1517.1182710000153
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:22.653309Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:22.653385Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:23.815914Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 671,
+          "completion_tokens": 133,
+          "latency_ms": 1155.6570529999703,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:23.836718Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I can only get a few words out before I have to stop for air, and my rescue puffer isn't doing anything tonight.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 0,
+              "rrf_score": 0.03007688828584351
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.029386529386529386
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.02758751902587519
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.027071520029266508
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 19.6026489999781
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:23.836964Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I can only get a few words out before I have to stop for air, and my rescue puffer isn't doing anything tonight."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 20.22574199997962,
+          "source_doc_ids": [
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-suicidal-ideation",
+            "condition-asthma",
+            "red-flag-stroke-symptoms",
+            "lifestyle-hypertension-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:26.994386Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2202,
+          "completion_tokens": 497,
+          "latency_ms": 3154.9536370000055,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:26.995980Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:26.996888Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:26.997076Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:51:26.997344Z",
+          "trace_id": "df1aa63e700943eea5cb6e4239526dc6",
+          "session_id": "full-g-su-008",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I can only get a few words out before I have to stop for air, and my rescue puffer isn't doing anything tonight.",
+          "answer": "You should seek immediate care. The ineffectiveness of a rescue inhaler when you are having trouble speaking due to breathlessness is a sign that things are getting worse, not better, and needs urgent medical attention.\n\nThe document \"Severe difficulty breathing\" (red-flag-severe-breathing-difficulty) notes that a quiet chest during a severe asthma attack is a dangerous sign, indicating that the obstruction has worsened rather than resolved. Your symptoms suggest a similar severe breathing difficulty.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5866.015910999977,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

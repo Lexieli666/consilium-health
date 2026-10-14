@@ -9,19 +9,31 @@
 # ships, and the traces it needs are written by the process that runs the turn.
 #
 # Usage:
-#   PROJECT_ID=my-project ./deploy/cloudrun/eval-job.sh legacy     # gpt-4o-mini, in-repo router
+#   PROJECT_ID=my-project ./deploy/cloudrun/eval-job.sh legacy     # claude-haiku-5-5, in-repo router
 #   PROJECT_ID=my-project ./deploy/cloudrun/eval-job.sh adk        # Vertex AI Gemini, ADK tree
 #   PROJECT_ID=my-project ./deploy/cloudrun/eval-job.sh adk --limit 5   # smoke run first
 #
 # Then:  gsutil -m cp -r "gs://${BUCKET}/${RUN_NAME}" eval/results/
 #
-# The judge is gpt-4o-mini (the kappa-validated judge, eval/judges/faithfulness_v2.md) on BOTH
-# runs: `Judge(runtime.provider)` uses CONSILIUM_PROVIDER, which stays openai; ORCHESTRATOR=adk
-# changes only the routing layer and the model the agents run on.
+# THE JUDGE.  `Judge(runtime.provider)` grades with whatever CONSILIUM_PROVIDER/CONSILIUM_MODEL the
+# process is configured with, and both modes below set the same pair -- anthropic /
+# claude-haiku-5-5 -- so the two runs are graded by one instrument.  That instrument is **not** the
+# one the published baseline used: eval/results/published/ was graded by gpt-4o-mini, the judge
+# whose agreement with a human was measured (Cohen's kappa 0.592, n=40, docs/EVALUATION.md §4.2).
+# No kappa has been measured for claude-haiku-5-5 on eval/judges/faithfulness_v2.md.  So the
+# faithfulness numbers these two runs produce are comparable **to each other** and not to the
+# published column, and every table that prints them has to say so.  Re-validating would be
+# `--human-sample 40 --sample-seed <new> --exclude-sample <both prior CSVs>` plus 40 human labels;
+# that has not been done.
 #
-# Cost: both sweeps together are expected well under $2 at the rates in eval/pricing.yaml (the
-# published 650-item sweep on gpt-4o-mini cost $0.53); the job itself is cents.  --max-cost caps
-# the traced spend of the sweep (not the judge) and stops between items.
+# CONSILIUM_ANTHROPIC_MAX_TOKENS: the Anthropic Messages API requires max_tokens and the provider's
+# default (1500) truncated the judge's per-claim JSON mid-object on the first smoke run, which the
+# harness then scored as "judge could not be parsed".  8192 is the value the README and the LangGraph
+# runbook document for an Anthropic sweep; the OpenAI provider the published run used sent no cap.
+#
+# Cost: both sweeps together are expected well under $2 at the rates in eval/pricing.yaml; the job
+# itself is cents.  --max-cost caps the traced spend of the sweep (not the judge) and stops
+# between items.
 
 set -euo pipefail
 
@@ -32,7 +44,9 @@ REGION="${REGION:-us-west1}"
 SERVICE="${SERVICE:-consilium-health}"
 JOB="${JOB:-consilium-eval}"
 BUCKET="${BUCKET:-${PROJECT_ID}-consilium-eval}"
-MODEL="${MODEL:-gpt-4o-mini}"
+PROVIDER="${PROVIDER:-anthropic}"
+MODEL="${MODEL:-claude-haiku-5-5}"
+ANTHROPIC_MAX_TOKENS="${ANTHROPIC_MAX_TOKENS:-8192}"
 ADK_MODEL="${ADK_MODEL:-gemini-2.5-flash}"
 MAX_COST="${MAX_COST:-3}"
 SA="consilium-run@${PROJECT_ID}.iam.gserviceaccount.com"
@@ -50,10 +64,29 @@ echo ">> image: ${IMAGE}"
 gsutil ls -b "gs://${BUCKET}" >/dev/null 2>&1 || gsutil mb -p "$PROJECT_ID" -l "$REGION" "gs://${BUCKET}"
 gsutil iam ch "serviceAccount:${SA}:roles/storage.objectAdmin" "gs://${BUCKET}" >/dev/null
 
-ENV_VARS="CONSILIUM_PROVIDER=openai,CONSILIUM_MODEL=${MODEL},ORCHESTRATOR=${MODE}"
+ENV_VARS="CONSILIUM_PROVIDER=${PROVIDER},CONSILIUM_MODEL=${MODEL},ORCHESTRATOR=${MODE}"
+ENV_VARS+=",CONSILIUM_ANTHROPIC_MAX_TOKENS=${ANTHROPIC_MAX_TOKENS}"
 ENV_VARS+=",CONSILIUM_ADK_MODEL=${ADK_MODEL},GOOGLE_GENAI_USE_VERTEXAI=true"
 ENV_VARS+=",GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=${REGION}"
 ENV_VARS+=",CONSILIUM_LOG_FORMAT=json,CONSILIUM_LOG_LEVEL=WARNING,CONSILIUM_RUNS_DIR=/tmp/runs"
+
+# Mount only the provider secret the run needs; the judge and (on `legacy`) the agents both talk to
+# CONSILIUM_PROVIDER, so `adk` needs it too even though its agents run on Vertex AI.
+case "$PROVIDER" in
+  anthropic) SECRET="ANTHROPIC_API_KEY=anthropic-api-key:latest" ;;
+  openai)    SECRET="OPENAI_API_KEY=openai-api-key:latest" ;;
+  *) echo "PROVIDER must be anthropic or openai for a paid sweep; got ${PROVIDER}" >&2; exit 2 ;;
+esac
+
+# The container's argv, comma-joined for --args.  Two details gcloud is strict about: the value
+# starts with `-m`, so it has to be passed as `--args=...` (with `--args ...` gcloud reads the
+# leading dash as another flag and fails with "expected one argument"), and extra arguments are
+# appended only when there are any, because `printf ',%s'` with nothing to format still emits the
+# separator and would send an empty argv entry.
+ARGS="-m,eval.run,--config,full,--max-cost,${MAX_COST},--out,/results/${RUN_NAME}"
+if [ "$#" -gt 0 ]; then
+    ARGS+="$(printf ',%s' "$@")"
+fi
 
 # `deploy` creates or updates; the job's spec is identical between the two modes except the
 # environment, which is the point.
@@ -65,9 +98,9 @@ gcloud run jobs deploy "$JOB" \
     --add-volume "name=results,type=cloud-storage,bucket=${BUCKET}" \
     --add-volume-mount "volume=results,mount-path=/results" \
     --set-env-vars "$ENV_VARS" \
-    --set-secrets "OPENAI_API_KEY=openai-api-key:latest" \
+    --set-secrets "$SECRET" \
     --command python \
-    --args "-m,eval.run,--config,full,--max-cost,${MAX_COST},--out,/results/${RUN_NAME}$(printf ',%s' "$@")" \
+    --args="${ARGS}" \
     --quiet
 
 echo ">> executing ${JOB} (${MODE}) -> gs://${BUCKET}/${RUN_NAME}"

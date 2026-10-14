@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-gh-001",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:53.467370Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 566,
+          "completion_tokens": 203,
+          "latency_ms": 1985.367643999993,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:53.793503Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what high blood pressure is and distinguish it from a single elevated blood pressure reading.",
+              "why": "This is a general health question asking for a condition explanation and clarification."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2475.4921100000047
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:53.793689Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:53.793835Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:54.645081Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 559,
+          "completion_tokens": 73,
+          "latency_ms": 825.8785539999991,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:55.190102Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "high blood pressure versus single elevated reading",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 1,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.029116045245077504
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.029030910609857977
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 1,
+              "rrf_score": 0.027799227799227798
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.027692895339954164
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 1,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 539.6921469999967
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:55.190500Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "high blood pressure versus single elevated reading"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 540.1332389999993,
+          "source_doc_ids": [
+            "condition-hypertension",
+            "guideline-hypertension-diagnosis-and-bp-targets",
+            "lifestyle-hypertension-diet",
+            "lifestyle-heart-failure-diet",
+            "coding-hypertension-i10"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:59.626208Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2008,
+          "completion_tokens": 506,
+          "latency_ms": 4431.431322000009,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:59.627740Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:59.629845Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:59.630298Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:46:59.630872Z",
+          "trace_id": "dff69de3a32947779698fd1a76e6b5d5",
+          "session_id": "full-g-gh-001",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What is high blood pressure, and how is it different from one high reading?",
+          "answer": "High blood pressure, also known as hypertension, means that the pressure in your arteries is persistently raised over time, not just on a single occasion. Blood pressure is recorded as two numbers: the systolic pressure (when the heart beats) over the diastolic pressure (between beats) (condition-hypertension).\n\nA single high blood pressure reading is different from hypertension because blood pressure naturally changes throughout the day due to activity, stress, pain, caffeine, sleep, and time of day. Therefore, a diagnosis of high blood pressure requires repeated measurements rather than just one reading. A single high reading in a clinic does not mean you have high blood pressure (condition-hypertension).\n\nFrom a classification perspective, a single elevated reading is considered a \"finding\" and not a disease. A diagnosis of hypertension, which is documented in your medical record, is what formally classifies it as high blood pressure (coding-hypertension-i10).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 10246.319553999996,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

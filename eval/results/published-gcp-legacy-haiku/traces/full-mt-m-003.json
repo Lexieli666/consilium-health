@@ -1,0 +1,678 @@
+{
+  "session_id": "full-mt-m-003",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:35.656346Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 817,
+          "completion_tokens": 347,
+          "latency_ms": 2329.7887919998175,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:35.788874Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Acknowledge that the user has migraines about six times a month. Explain how migraine frequency is classified (episodic versus chronic), note when frequent migraines are worth discussing with a clinician, and offer general lifestyle and management guidance. Ask what the user would like to know more about.",
+              "why": "The message is a statement about a known condition with no symptom triage or evidence question, so general condition guidance fits."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2462.37801999996
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:35.789054Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:35.789170Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:37.624456Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1649,
+          "completion_tokens": 335,
+          "latency_ms": 1833.7858549994053,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:37.651217Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "migraine classification episodic versus chronic headache frequency per month",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.03057889822595705
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.029877369007803793
+            },
+            {
+              "doc_id": "coding-icd10-chapter-06-nervous",
+              "chunk_index": 1,
+              "rrf_score": 0.02871794871794872
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 0,
+              "rrf_score": 0.02531645569620253
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 26.22995100045955
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:37.651600Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "migraine classification episodic versus chronic headache frequency per month"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 26.65114200044627,
+          "source_doc_ids": [
+            "condition-migraine",
+            "guideline-migraine-acute-and-preventive-treatment",
+            "red-flag-sudden-severe-headache",
+            "lifestyle-migraine-sleep",
+            "coding-icd10-chapter-06-nervous"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:37.672387Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "migraine",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 3,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.013157894736842105
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.012987012987012988
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 20.31192199956422
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:37.672849Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "migraine"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 20.8125929993912,
+          "source_doc_ids": [
+            "lifestyle-migraine-sleep",
+            "lifestyle-type-2-diabetes-adherence",
+            "lifestyle-type-2-diabetes-activity",
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-generalized-anxiety-disorder-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:43.450150Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5011,
+          "completion_tokens": 986,
+          "latency_ms": 5776.817146000212,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:43.450565Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:43.451720Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:43.452321Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:43.453055Z",
+          "trace_id": "a95c6f00bd254cf48b41ab9f881517df",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I get migraines maybe six times a month.",
+          "answer": "Thank you for sharing that. Headaches about six times a month are worth taking seriously. I can't tell you what is causing yours, but I can share what the guidance says.\n\n**How frequency is classified:** Migraine is usually described as episodic when it happens on fewer than 15 days a month. It is called chronic when headache occurs on 15 or more days a month, with at least 8 of those having migraine features, for more than three months. At about six a month, you would fall in the episodic range (*Migraine*, general clinical reference).\n\n**When to talk to a clinician:** Frequent attacks are a good reason to see a clinician, especially if they are getting more common, are hard to manage, or are affecting sleep or daily life. The sleep note in this resource says headaches on waking most mornings, or headaches that wake you at night, should be assessed rather than handled with sleep habits alone (*Sleep and migraine*).\n\n**Pain medicine use:** Taking acute headache medicine too often can keep headaches going. Guidance sets limits on how many days a month these medicines should be used. Check with a clinician or pharmacist about your own use (*Migraine: acute treatment and medication-overuse limits*).\n\n**General lifestyle guidance:** Keep sleep and meal times fairly regular, including on weekends. Sudden changes in sleep or caffeine are the part most often linked to attacks. Caffeine affects both headaches and sleep, so changes to it are best made gradually (*Sleep and migraine*).\n\n**Seek urgent care right away** if a headache is sudden and reaches full intensity within about a minute, or comes with fever and a stiff neck, new weakness, numbness, confusion, or trouble speaking or seeing. Also seek urgent care after any head injury, or with a red, painful eye and halos around lights (*Sudden severe headache and other dangerous headache patterns*).\n\nI was not able to look up detailed management options in this session, so I cannot go further into treatments. Would you like to know more about how migraine is diagnosed, what to track before a clinic visit, or how sleep and caffeine may affect attacks?\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 10124.375542000053,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:46.641346Z",
+          "trace_id": "47ce293e1f0d4593aa9dff4ff0731ac6",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 816,
+          "completion_tokens": 302,
+          "latency_ms": 3103.5759550004514,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:46.676967Z",
+          "trace_id": "47ce293e1f0d4593aa9dff4ff0731ac6",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "The question's referent (\"that\") is missing, so ask the user what they are referring to, such as a symptom, test result, or risk factor, and what preventive measure they have in mind. Once that is clear, explain in general terms what typically determines whether preventive care is warranted.",
+              "why": "The question cannot be answered without knowing what \"that\" refers to, and consultation is the default agent for general guidance."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 3139.2358709999826
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:46.677141Z",
+          "trace_id": "47ce293e1f0d4593aa9dff4ff0731ac6",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:46.677279Z",
+          "trace_id": "47ce293e1f0d4593aa9dff4ff0731ac6",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:49.607252Z",
+          "trace_id": "47ce293e1f0d4593aa9dff4ff0731ac6",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 2538,
+          "completion_tokens": 446,
+          "latency_ms": 2928.4397000001263,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:49.633265Z",
+          "trace_id": "47ce293e1f0d4593aa9dff4ff0731ac6",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "when is preventive treatment warranted for migraine, frequency and disability criteria",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 3,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 3,
+              "rrf_score": 0.029709507042253523
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.02821939586645469
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 3,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 25.49942999939958
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:49.633611Z",
+          "trace_id": "47ce293e1f0d4593aa9dff4ff0731ac6",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "when is preventive treatment warranted for migraine, frequency and disability criteria"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 25.899070000377833,
+          "source_doc_ids": [
+            "guideline-migraine-acute-and-preventive-treatment",
+            "condition-migraine",
+            "lifestyle-migraine-sleep",
+            "red-flag-sudden-severe-headache",
+            "guideline-insomnia-cbt-first-line"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:53.776616Z",
+          "trace_id": "47ce293e1f0d4593aa9dff4ff0731ac6",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4512,
+          "completion_tokens": 775,
+          "latency_ms": 4142.453594000472,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:53.777260Z",
+          "trace_id": "47ce293e1f0d4593aa9dff4ff0731ac6",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:53.779759Z",
+          "trace_id": "47ce293e1f0d4593aa9dff4ff0731ac6",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "Is that enough to need something preventive?",
+          "answer": "I'm not sure what \"that\" refers to. Could you tell me:\n\n1. **What is \"that\"?** For example, the migraines you mentioned (about six a month), a symptom, a test result, or a risk factor.\n2. **What preventive measure do you have in mind?** For example, a daily preventive medicine, a lifestyle change, or a screening test.\n\nOnce I know that, I can explain what guidance says about when prevention is considered.\n\nIn general, the migraine guidance in this corpus says preventive treatment is considered when attacks are frequent or disabling enough that treating each attack alone is not enough. It describes this as four or more migraine days a month with some disability. Fewer attacks may also qualify when disability is severe, when acute treatment does not work or cannot be used, or when the person prefers prevention. The aim is to reduce how often and how badly attacks happen, not to stop them completely. A 50 percent drop in migraine days is the usual measure of a good response (*Migraine: acute treatment, when prevention starts, and medication-overuse limits*, guideline).\n\nWhether prevention is warranted for you is a decision to make with a clinician. They would weigh how often attacks occur, how much they disrupt your life, and what has or has not worked so far.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 10239.81096099942,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:55.811104Z",
+          "trace_id": "d0dfef31b70d4b469cfe4631a9d82422",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 811,
+          "completion_tokens": 270,
+          "latency_ms": 1932.9882299998644,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:55.846564Z",
+          "trace_id": "d0dfef31b70d4b469cfe4631a9d82422",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "The question \"What are the options for that?\" has no clear referent, so ask the user which condition, symptom, or situation they mean. Once identified, explain the general treatment or management options for it, and note that a clinician should guide the final choice.",
+              "why": "The referent of \"that\" is missing, so a single general-purpose specialist should clarify it before any specific options can be given."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1968.4964260004563
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:55.846739Z",
+          "trace_id": "d0dfef31b70d4b469cfe4631a9d82422",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:55.846846Z",
+          "trace_id": "d0dfef31b70d4b469cfe4631a9d82422",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:58.290021Z",
+          "trace_id": "d0dfef31b70d4b469cfe4631a9d82422",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3056,
+          "completion_tokens": 409,
+          "latency_ms": 2441.5403070006505,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:58.290414Z",
+          "trace_id": "d0dfef31b70d4b469cfe4631a9d82422",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:23:58.291382Z",
+          "trace_id": "d0dfef31b70d4b469cfe4631a9d82422",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "What are the options for that?",
+          "answer": "I'm not sure what \"that\" refers to. Which condition, symptom, or situation do you mean?\n\nIf you mean the migraines you mentioned earlier, just say so. I can then explain the general treatment and management options described in the corpus. A clinician should guide the final choice.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4412.595156999487,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

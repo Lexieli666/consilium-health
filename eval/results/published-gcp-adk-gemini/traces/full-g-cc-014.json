@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-cc-014",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:48.562400Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 570,
+          "completion_tokens": 113,
+          "latency_ms": 1224.4037079999543,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:48.662457Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain any coding conventions for heart failure, specifically if there are codes that must precede or follow it, and the reasons for these rules.",
+              "why": "This is a question about disease classification and coding conventions."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1329.0633090000483
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:48.662595Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:48.662699Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:49.650309Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 573,
+          "completion_tokens": 103,
+          "latency_ms": 980.8717040000374,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:49.665509Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "heart failure",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 1,
+              "rrf_score": 0.030303030303030304
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 3,
+              "rrf_score": 0.030117753623188408
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 1,
+              "rrf_score": 0.028991596638655463
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 2,
+              "rrf_score": 0.028814262023217248
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 2,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 3,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 2,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 0,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 14.397937000012462
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:49.665925Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "heart failure"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 14.852329999939684,
+          "source_doc_ids": [
+            "coding-heart-failure-i50",
+            "coding-icd10-chapter-09-circulatory",
+            "coding-hypertension-i10",
+            "coding-icd10-chapter-03-blood",
+            "coding-copd-j44"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:53.583093Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 4472,
+          "completion_tokens": 527,
+          "latency_ms": 3914.281390000042,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:53.584444Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:53.585274Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:53.585760Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T06:55:53.586378Z",
+          "trace_id": "ec5facdb3d7e4566a9f00b6b4c29449e",
+          "session_id": "full-g-cc-014",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "For heart failure, is there a code that has to come before or after it, and why?",
+          "answer": "Heart failure is classified as I50 in ICD-10-CM. This code is further specified by two factors: the mechanism of heart failure (systolic, diastolic, or combined) and its acuity (acute, chronic, or acute on chronic). This information comes from \"Coding heart failure: I50, its mechanism axis and its acuity axis.\"\n\nRegarding codes that must precede or follow heart failure, the clinical coding guidelines note a specific convention when hypertension is also present. Unlike the presumed causal link between hypertension and chronic kidney disease, no such presumption is made for heart disease. Therefore, unless the patient's record explicitly states that the heart condition is hypertensive or caused by hypertension, heart disease and hypertension are coded separately. This means the specific code for hypertensive heart disease (I11) is not used unless a causal link is documented. This guideline is explained in \"Coding hypertension: I10 and the hypertensive disease family.\"\n\nThe provided information does not indicate any other codes that must always precede or follow heart failure with a fixed rule.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 6256.220782000014,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

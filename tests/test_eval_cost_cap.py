@@ -240,7 +240,11 @@ def test_a_cap_on_an_unpriceable_model_is_refused() -> None:
 async def test_the_runner_refuses_the_cap_before_it_spends_anything(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """`eval/pricing.yaml` ships empty on purpose, so the shipped state of the repo refuses a cap.
+    """A model the operator never priced refuses the cap, against the real `eval/pricing.yaml`.
+
+    The model id is one nobody will ever add a rate for, on purpose: the assertion has to keep
+    holding as the operator fills the file in for each run, and a model that is priced today would
+    turn this into a test of which rates happen to be committed.
 
     Refused before `build_runtime`, so no item is paid for to discover that the guard the operator
     thought they had could never have fired.
@@ -248,14 +252,14 @@ async def test_the_runner_refuses_the_cap_before_it_spends_anything(
     from eval.run import main
 
     monkeypatch.setenv("CONSILIUM_PROVIDER", "openai")
-    monkeypatch.setenv("CONSILIUM_MODEL", "gpt-4o-mini")
+    monkeypatch.setenv("CONSILIUM_MODEL", "gpt-4o-mini-no-such-snapshot")
     monkeypatch.setenv("OPENAI_API_KEY", "not-a-real-key")
 
     code = await main(["--config", "full", "--max-cost", "1.0"])
 
     assert code == 2
     err = capsys.readouterr().err
-    assert "openai/gpt-4o-mini has no entry in pricing.yaml" in err
+    assert "openai/gpt-4o-mini-no-such-snapshot has no entry in pricing.yaml" in err
     assert "An unpriceable run cannot be capped" in err
 
 
