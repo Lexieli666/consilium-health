@@ -97,6 +97,8 @@ log = get_logger(__name__)
 
 #: ``AgentResult.agent`` and ``tool_call.agent`` for the graph's single worker.
 GRAPH_AGENT = "planner"
+#: The skill version 2 runs before the planner.  The only unfiltered retrieval in the registry.
+SEARCH_SKILL = "search_knowledge"
 GRAPH_OBJECTIVE = "Plan the tool calls, run them over MCP, synthesize, validate."
 
 
@@ -163,12 +165,45 @@ class ConsiliumGraph:
 
     def _build(self, tools: Sequence[Any]) -> CompiledStateGraph[Any, Any, Any, Any]:
         planner_model = self.model.bind_tools(tools)
-        planner_system = planner_prompt(self.config.max_tool_calls)
+        version = self.runtime.settings.graph_version
+        planner_system = planner_prompt(self.config.max_tool_calls, searched=version == 2)
+
+        async def search(state: GraphState) -> GraphState:
+            """Version 2: ``search_knowledge`` with the raw question, on every turn, by code.
+
+            Recorded in the transcript as an assistant tool call plus its tool result, which is
+            how the planner and the synthesizer see every other retrieval, and the only shape in
+            which a tool result is valid for the provider.  Executed through the same MCP tool as
+            a planner-requested call, so it is traced the same way; it is not charged against the
+            planner's ``max_tool_calls``, because the planner did not ask for it.
+            """
+            question = state["question"]
+            observation = await self.toolkit.call(
+                SEARCH_SKILL, {"query": question}, charge_budget=False
+            )
+            call_id = f"forced-{uuid.uuid4().hex[:8]}"
+            request = AIMessage(
+                id=f"{call_id}-request",
+                content="",
+                tool_calls=[
+                    {
+                        "id": call_id,
+                        "name": SEARCH_SKILL,
+                        "args": {"query": question},
+                        "type": "tool_call",
+                    }
+                ],
+            )
+            result = ToolMessage(
+                id=f"{call_id}-result", content=observation, tool_call_id=call_id, name=SEARCH_SKILL
+            )
+            return {"messages": [request, result], "scratch_ids": [str(request.id)]}
 
         async def planner(state: GraphState, config: RunnableConfig) -> GraphState:
             messages: list[BaseMessage] = [SystemMessage(planner_system), *state["messages"]]
             reply = await planner_model.ainvoke(messages, config=config, caller="planner")
-            return {"messages": [reply], "scratch_ids": [str(reply.id)]}
+            scratch = [*state.get("scratch_ids", []), str(reply.id)]
+            return {"messages": [reply], "scratch_ids": scratch}
 
         async def synthesizer(state: GraphState, config: RunnableConfig) -> GraphState:
             turn = _turn()
@@ -235,12 +270,18 @@ class ConsiliumGraph:
             return "retrieve" if isinstance(last, AIMessage) and last.tool_calls else "synthesizer"
 
         graph: StateGraph[GraphState] = StateGraph(GraphState)
+        if version == 2:
+            graph.add_node("search", search)
         graph.add_node("planner", planner)
         graph.add_node("retrieve", ToolNode(list(tools), name="retrieve"))
         graph.add_node("synthesizer", synthesizer)
         graph.add_node("validator", validator)
         graph.add_node("deliver", deliver)
-        graph.add_edge(START, "planner")
+        if version == 2:
+            graph.add_edge(START, "search")
+            graph.add_edge("search", "planner")
+        else:
+            graph.add_edge(START, "planner")
         graph.add_conditional_edges("planner", after_planner)
         graph.add_edge("retrieve", "synthesizer")
         graph.add_edge("synthesizer", "validator")

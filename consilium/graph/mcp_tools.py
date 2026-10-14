@@ -323,10 +323,17 @@ class McpToolkit:
             coroutine=call, name=name, description=description, args_schema=schema
         )
 
-    async def call(self, name: str, arguments: Mapping[str, Any]) -> str:
-        """One MCP ``call_tool``, under the turn's budget, with its trace forwarded."""
+    async def call(
+        self, name: str, arguments: Mapping[str, Any], *, charge_budget: bool = True
+    ) -> str:
+        """One MCP ``call_tool``, under the turn's budget, with its trace forwarded.
+
+        ``charge_budget=False`` is for a call the graph makes by construction rather than one the
+        planner requested (version 2's forced ``search_knowledge``): it is executed, traced and
+        recorded like any other, but it is not one of the planner's ``max_tool_calls``.
+        """
         budget = current_budget.get()
-        if budget is not None:
+        if budget is not None and charge_budget:
             if budget.used >= budget.max_tool_calls:
                 log.info("graph.tool_budget_exhausted", skill=name)
                 return BUDGET_EXHAUSTED_OBSERVATION

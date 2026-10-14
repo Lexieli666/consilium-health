@@ -36,6 +36,12 @@ OrchestratorName = Literal["legacy", "adk", "langgraph"]
 DEFAULT_GRAPH_MCP = "inprocess"
 #: Upper bound on validator -> synthesizer repair rounds per turn in the LangGraph orchestrator.
 DEFAULT_GRAPH_MAX_REPAIRS = 2
+#: Which LangGraph graph runs.  ``1``: the planner decides every tool call, retrieval included.
+#: ``2``: ``search_knowledge`` runs on every turn before the planner, with the raw question as the
+#: query, and the planner decides only on additional calls.  Version 1 is kept because its run is
+#: a published finding (docs/LANGGRAPH_EVAL.md); the default is the version whose numbers the
+#: README reports as current.
+DEFAULT_GRAPH_VERSION: Literal[1, 2] = 2
 LogFormat = Literal["json", "console"]
 
 DEFAULT_RUNS_DIR = "runs"
@@ -93,6 +99,8 @@ class Settings(BaseModel):
     #: ``CONSILIUM_GRAPH_MAX_REPAIRS``: validator -> synthesizer rounds before the deterministic
     #: ``OutputRepair`` at the turn boundary takes over.
     graph_max_repairs: int = Field(default=DEFAULT_GRAPH_MAX_REPAIRS, ge=0)
+    #: ``CONSILIUM_GRAPH_VERSION=1|2``; see ``DEFAULT_GRAPH_VERSION``.
+    graph_version: Literal[1, 2] = DEFAULT_GRAPH_VERSION
     #: ``CONSILIUM_ADK_MODEL``: the Gemini model behind every ADK agent.  Project and region come
     #: from ``GOOGLE_CLOUD_PROJECT`` / ``GOOGLE_CLOUD_LOCATION`` with ``GOOGLE_GENAI_USE_VERTEXAI``,
     #: which the Google GenAI SDK reads itself.
@@ -151,6 +159,15 @@ class Settings(BaseModel):
         if orchestrator not in ("legacy", "adk", "langgraph"):
             raise ValueError(f"ORCHESTRATOR must be legacy, adk or langgraph; got {orchestrator!r}")
 
+        graph_version_raw = os.environ.get("CONSILIUM_GRAPH_VERSION", "").strip()
+        if graph_version_raw not in ("", "1", "2"):
+            raise ValueError(f"CONSILIUM_GRAPH_VERSION must be 1 or 2; got {graph_version_raw!r}")
+        graph_version: Literal[1, 2] = (
+            DEFAULT_GRAPH_VERSION
+            if not graph_version_raw
+            else (1 if graph_version_raw == "1" else 2)
+        )
+
         graph_max_repairs_raw = os.environ.get("CONSILIUM_GRAPH_MAX_REPAIRS", "").strip()
         try:
             graph_max_repairs = (
@@ -180,6 +197,7 @@ class Settings(BaseModel):
             graph_mcp=os.environ.get("CONSILIUM_GRAPH_MCP", "").strip() or DEFAULT_GRAPH_MCP,
             graph_mcp_args=os.environ.get("CONSILIUM_GRAPH_MCP_ARGS", "").strip(),
             graph_max_repairs=graph_max_repairs,
+            graph_version=graph_version,
         )
 
 

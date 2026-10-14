@@ -52,8 +52,11 @@ async def _close_graphs() -> AsyncIterator[None]:
     await close_all()
 
 
-def _graph_runtime(runtime: Runtime, **config: Any) -> Runtime:
-    settings: Settings = runtime.settings.model_copy(update={"orchestrator": "langgraph"})
+def _graph_runtime(runtime: Runtime, *, version: int = 1, **config: Any) -> Runtime:
+    """Version 1 unless stated: these tests pin the planner-first graph the published run used."""
+    settings: Settings = runtime.settings.model_copy(
+        update={"orchestrator": "langgraph", "graph_version": version}
+    )
     run_config = runtime.config.model_copy(update=config) if config else runtime.config
     return replace(runtime, settings=settings, config=run_config)
 
@@ -225,7 +228,7 @@ async def test_max_repairs_zero_disables_the_loop(offline_runtime: RuntimeFactor
     runtime = replace(
         runtime,
         settings=runtime.settings.model_copy(
-            update={"orchestrator": "langgraph", "graph_max_repairs": 0}
+            update={"orchestrator": "langgraph", "graph_max_repairs": 0, "graph_version": 1}
         ),
     )
     tracer, sink = _tracer()
@@ -311,6 +314,64 @@ async def test_memory_off_gives_every_turn_a_fresh_thread(offline_runtime: Runti
 
     contents = [m.content for m in recorder.seen[2] if m.role in ("user", "assistant")]
     assert contents == ["second question"]
+
+
+# ----------------------------------------------------------------------------------------------
+# Version 2: search_knowledge runs before the planner, by code, outside the planner's budget.
+# ----------------------------------------------------------------------------------------------
+
+
+async def test_v2_searches_with_the_raw_question_before_the_planner(
+    offline_runtime: RuntimeFactory,
+) -> None:
+    recorder = _Recorder(
+        ScriptedResponse(
+            tool_calls=[ScriptedToolCall(name="lookup_disease_code", arguments={"condition": "x"})]
+        ),
+        ScriptedResponse(content=f"{GROUNDED} {DISCLAIMER}"),
+    )
+    runtime = _graph_runtime(offline_runtime(recorder), version=2, max_tool_calls=1)
+    tracer, sink = _tracer()
+    with tracer:
+        outcome = await run_turn(runtime, "What is hypertension?", tracer=tracer)
+
+    tools = sink.of_type(ToolCallEvent)
+    assert [tool.skill for tool in tools] == ["search_knowledge", "lookup_disease_code"]
+    assert tools[0].args == {"query": "What is hypertension?"}
+    assert tools[0].transport == "mcp"
+    assert len(sink.of_type(RetrievalEvent)) >= 1
+    # The planner saw the forced search as a tool call it had made, and nothing else before it.
+    planner_messages = recorder.seen[0]
+    assert [m.role for m in planner_messages] == ["system", "user", "assistant", "tool"]
+    assert planner_messages[2].tool_calls[0].name == "search_knowledge"
+    assert "already been searched" in (planner_messages[0].content or "")
+    # The forced search was not charged: a budget of 1 still let the planner's one call run.
+    assert len(outcome.tool_results) == 2
+    assert outcome.sources == tuple(tools[0].source_doc_ids) + tuple(
+        d for d in tools[1].source_doc_ids if d not in tools[0].source_doc_ids
+    )
+
+
+async def test_v2_thread_memory_keeps_only_question_and_answer(
+    offline_runtime: RuntimeFactory,
+) -> None:
+    recorder = _Recorder(
+        ScriptedResponse(content="no more tools"),
+        ScriptedResponse(content=f"First answer. {DISCLAIMER}"),
+        ScriptedResponse(content="no more tools"),
+        ScriptedResponse(content=f"Second answer. {DISCLAIMER}"),
+    )
+    runtime = _graph_runtime(offline_runtime(recorder), version=2, memory=True)
+    for turn, question in enumerate(["first question", "second question"]):
+        tracer, _ = _tracer("graph-v2-memory", turn)
+        with tracer:
+            await run_turn(runtime, question, tracer=tracer)
+
+    second_planner = recorder.seen[2]
+    roles = [m.role for m in second_planner]
+    # system, then the prior (question, answer) pair, then this turn's question and its search.
+    assert roles == ["system", "user", "assistant", "user", "assistant", "tool"]
+    assert second_planner[1].content == "first question"
 
 
 # ----------------------------------------------------------------------------------------------

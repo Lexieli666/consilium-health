@@ -56,8 +56,21 @@ keeping every grounded claim and every document name, and changing nothing else:
 """
 
 
-def planner_prompt(max_tool_calls: int) -> str:
-    return PLANNER.format(max_tool_calls=max_tool_calls)
+#: Version 2 only.  The corpus has already been searched with the user's question before the
+#: planner runs; the planner is told so, because a planner that does not know it would search
+#: again and spend its budget on the one call the graph already made.
+PLANNER_SEARCHED = """
+The corpus has already been searched with the user's own words; the passages are in the tool
+result above. Do not repeat that search. Call a further tool only when it adds something those
+passages cannot give -- an urgency assessment for symptoms, an ICD-10 code, a guideline threshold,
+lifestyle guidance, or a differently phrased search for a part of the question the passages do not
+cover.
+"""
+
+
+def planner_prompt(max_tool_calls: int, *, searched: bool = False) -> str:
+    prompt = PLANNER.format(max_tool_calls=max_tool_calls)
+    return prompt + PLANNER_SEARCHED if searched else prompt
 
 
 def repair_instruction(policy: Policy, violations: Sequence[Violation]) -> str:
