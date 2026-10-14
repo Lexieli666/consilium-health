@@ -147,7 +147,11 @@ def read_run(run_dir: Path, config: str, items: Sequence[GoldenItem]) -> dict[st
 
 
 def summary_row(run_dir: Path, config: str) -> dict[str, Any] | None:
-    summary = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+    """The harness's own aggregates for one configuration; ``None`` if the run has no summary."""
+    path = run_dir / "summary.json"
+    if not path.is_file():  # a run still in progress, or a directory that is not a run
+        return None
+    summary = json.loads(path.read_text(encoding="utf-8"))
     result = next((r for r in summary["results"] if r["config"] == config), None)
     if result is None:
         return None
@@ -336,7 +340,18 @@ def deltas(
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("langgraph", type=Path, help="the LangGraph run (results dir)")
-    parser.add_argument("--baseline", type=Path, default=Path("eval/results/published"))
+    parser.add_argument(
+        "--baseline",
+        type=Path,
+        default=Path("eval/results/published"),
+        help="the legacy run the per-item deltas are computed against (its `--config` row)",
+    )
+    parser.add_argument(
+        "--published",
+        type=Path,
+        default=Path("eval/results/published"),
+        help="the published ablation run shown as reference columns; `none` to omit them",
+    )
     parser.add_argument("--config", default="full", help="baseline config for per-item deltas")
     parser.add_argument("--graph-config", default="full", help="config name used in the graph run")
     parser.add_argument("--golden", type=Path, default=DEFAULT_GOLDEN)
@@ -344,10 +359,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     items = load_golden(args.golden)
-    columns: list[tuple[str, dict[str, Any] | None]] = [
-        (f"`{name}` (legacy, published)", column(args.baseline, name, items))
-        for name in BASELINE_CONFIGS
-    ]
+    columns: list[tuple[str, dict[str, Any] | None]] = []
+    if str(args.published) != "none":
+        columns.extend(
+            (f"`{name}` (legacy, published)", column(args.published, name, items))
+            for name in BASELINE_CONFIGS
+        )
+    base: dict[str, Any] | None = None
+    if args.baseline.resolve() != args.published.resolve():
+        base = column(args.baseline, args.config, items) if args.baseline.exists() else None
+        columns.append((f"`{args.config}` (legacy, `{args.baseline.name}`)", base))
+    else:
+        base = next((row for name, row in columns if name.startswith(f"`{args.config}`")), None)
     graph_column = (
         column(args.langgraph, args.graph_config, items) if args.langgraph.exists() else None
     )
@@ -357,15 +380,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         if graph_column is None:
             print(f"\n(no LangGraph run at {args.langgraph}; the column reads `not run`)")
         return 0
-
-    base = next(row for name, row in columns if name.startswith(f"`{args.config}`"))
     if base is None:
         print(f"\nbaseline config {args.config!r} is not in {args.baseline}", file=sys.stderr)
         return 2
     lines = deltas(items, base["views"], graph_column["views"])
     attempted = sum(v.attempted for v in graph_column["views"].values())
     print(
-        f"\nper-item differences against `{args.config}` over {attempted} attempted item(s): {len(lines)}"
+        f"\nper-item differences against `{args.config}` ({args.baseline.name}) over "
+        f"{attempted} attempted item(s): {len(lines)}"
     )
     for line in lines:
         print(line)
