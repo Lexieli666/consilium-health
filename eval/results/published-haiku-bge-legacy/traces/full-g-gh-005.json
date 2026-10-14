@@ -1,0 +1,341 @@
+{
+  "session_id": "full-g-gh-005",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:13.664044Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 828,
+          "completion_tokens": 114,
+          "latency_ms": 1065.1941099995383,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:13.664452Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what heart failure means, clarifying that it refers to the heart pumping less effectively rather than stopping, and how it is classified (for example by ejection fraction).",
+              "why": "This is a general condition-explanation question with no symptom triage or evidence-comparison component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1065.6603839997842
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:13.664592Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:13.664631Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:16.886123Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1623,
+          "completion_tokens": 224,
+          "latency_ms": 3220.1311750004606,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:16.917764Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "heart failure definition heart pumping less effectively not stopped",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 0,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.02904040404040404
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.02803921568627451
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.025974025974025976
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 31.266226000298047
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:16.917943Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "heart failure definition heart pumping less effectively not stopped"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 31.50300099969172,
+          "source_doc_ids": [
+            "condition-heart-failure",
+            "coding-heart-failure-i50",
+            "lifestyle-heart-failure-diet",
+            "lifestyle-hypertension-activity",
+            "guideline-heart-failure-reduced-ef-therapy"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:16.964454Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "heart failure classification ejection fraction reduced preserved",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 0,
+              "rrf_score": 0.031746031746031744
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.02946912242686891
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 2,
+              "rrf_score": 0.027799227799227798
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 1,
+              "rrf_score": 0.025657894736842105
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 2,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 1,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 1,
+              "rrf_score": 0.013157894736842105
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 46.01369500051078
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:16.964750Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "heart failure classification ejection fraction reduced preserved"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 46.33741500038013,
+          "source_doc_ids": [
+            "coding-heart-failure-i50",
+            "guideline-heart-failure-reduced-ef-therapy",
+            "condition-heart-failure",
+            "guideline-type-2-diabetes-first-line-therapy",
+            "coding-hypertension-i10"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:19.606728Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4760,
+          "completion_tokens": 429,
+          "latency_ms": 2641.6657899999336,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:19.606890Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:19.607469Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:19.609391Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:43:19.610700Z",
+          "trace_id": "43c5af8d0d43430a8889317a76abbf8f",
+          "session_id": "full-g-gh-005",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "When someone says they have heart failure, does that mean the heart has stopped working?",
+          "answer": "Heart failure does not mean the heart has stopped. The main reference (General clinical reference, \"Heart failure\") describes it as a condition in which the heart cannot fill with or eject blood well enough to meet the body's needs. The heart is still beating, but it is not keeping up with the body's demand. It is a long-term condition that is usually managed over many years.\n\nIt is classified by ejection fraction, which is the share of blood in the heart's main pumping chamber (the left ventricle) that is pushed out with each beat. The guidance uses three groups:\n\n- **Reduced**: 40 percent or below. The heart muscle contracts weakly.\n- **Mildly reduced**: 41 to 49 percent.\n- **Preserved**: 50 percent or above. The muscle pumps normally, but it is stiff and fills poorly. The reference notes this is a different problem, not a milder form, and that it accounts for roughly half of cases.\n\nThe classification matters because treatment evidence differs between these groups. The cardiology consensus guidance (Heart failure with reduced ejection fraction) warns that treatments shown to help in reduced ejection fraction have not always shown the same benefit in preserved ejection fraction.\n\nIf you are asking about a specific person, a clinician who knows their results is the right person to explain what their ejection fraction means for them.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7008.18101599998,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

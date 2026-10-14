@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-su-003",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:00.275128Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 836,
+          "completion_tokens": 349,
+          "latency_ms": 2211.703997000086,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:00.276043Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Treat this as an urgent red-flag presentation. A one-sided facial change and speech disturbance that lasted about ten minutes and then resolved may be a transient ischemic attack or stroke warning sign, even though the person feels better. State clearly that they should seek emergency medical evaluation now (call emergency services if available) rather than waiting, and explain why resolution does not rule out a serious cause. Also note any other symptoms to report, such as weakness, numbness, vision change, or trouble walking.",
+              "why": "Facial droop and speech change are stroke warning signs, and urgency and red-flag claims belong to the diagnostic specialist."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2212.6656949999415
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:00.276116Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:00.276148Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:01.920633Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1752,
+          "completion_tokens": 229,
+          "latency_ms": 1643.3881589999828,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:01.923311Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "This morning one side of my face went funny and my speech came out wrong for about ten minutes. It has now resolved and I feel OK.",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 0,
+              "rrf_score": 0.03057889822595705
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 2,
+              "rrf_score": 0.028958333333333336
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.02877846790890269
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.02804284323271665
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 0,
+              "rrf_score": 0.027651515151515153
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 1,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 1.791084999922532
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:01.923504Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "This morning one side of my face went funny and my speech came out wrong for about ten minutes. It has now resolved and I feel OK."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 2.5828459999956976,
+          "source_doc_ids": [
+            "red-flag-stroke-symptoms",
+            "red-flag-acute-abdominal-pain",
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-anaphylaxis",
+            "red-flag-sudden-severe-headache"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:06.005953Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4087,
+          "completion_tokens": 730,
+          "latency_ms": 4079.8017549999486,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:06.006168Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:06.006750Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:06.006796Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:06.006944Z",
+          "trace_id": "c659806e564c4103b40c7beb764da79b",
+          "session_id": "full-g-su-003",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "my face on one sied went funny this morning and my speach came out wrong for about ten minits, its ok now",
+          "answer": "**Call emergency services now. Do not wait for symptoms to come back.** A sudden one-sided face change with speech trouble can be a stroke or a warning sign of one. Emergency guidance says these symptoms are treated as a stroke until proven otherwise (red-flag-stroke-symptoms). Note the time this started, or the last time you were known to be well, and give it to the responders.\n\nFeeling better does not mean it is safe to wait. The guidance treats any sudden onset of these symptoms as an emergency, whether or not they settle. Only a clinician, using tests, can tell whether this was a brief warning event or something more serious. Treatment works best when started quickly, so the call should happen now, even if you feel fine.\n\nTell the emergency team if you also notice any of these, because they matter too (red-flag-stroke-symptoms):\n- Weakness or numbness in one arm, or one arm drifting down when both are raised\n- Numbness or weakness in a leg or one whole side of the body\n- Sudden confusion or trouble understanding others\n- Sudden loss or blurring of vision in one or both eyes\n- Sudden trouble walking, dizziness, or loss of balance\n- A sudden, severe headache with no known cause\n\nDo not drive yourself. Do not wait to see whether it happens again.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7942.889793999939,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

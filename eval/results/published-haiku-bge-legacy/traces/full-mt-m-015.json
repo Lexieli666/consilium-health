@@ -1,0 +1,806 @@
+{
+  "session_id": "full-mt-m-015",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:43.342099Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 814,
+          "completion_tokens": 213,
+          "latency_ms": 1456.1818450001738,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:43.342609Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Acknowledge that the user has coronary artery disease, briefly explain what the diagnosis means, and ask what they would like to know, such as symptoms to watch for, lifestyle guidance, or treatment options.",
+              "why": "The message states a diagnosis without a question, so a general condition explanation with an invitation to follow up is the most useful single response."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1456.7425779987389
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:43.342699Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:43.342753Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:44.465583Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1624,
+          "completion_tokens": 182,
+          "latency_ms": 1121.5439380011958,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:44.515618Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "coronary artery disease overview",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 2,
+              "rrf_score": 0.03055037313432836
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.029411764705882353
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 2,
+              "rrf_score": 0.029083245521601686
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.02702702702702703
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.0259915611814346
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 49.65640699992946
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:44.515911Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "coronary artery disease overview",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 50.02459899878886,
+          "source_doc_ids": [
+            "condition-coronary-artery-disease",
+            "condition-heart-failure",
+            "condition-type-2-diabetes",
+            "condition-hypertension",
+            "condition-copd"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:47.436298Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3791,
+          "completion_tokens": 509,
+          "latency_ms": 2919.9380579993885,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:47.436487Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:47.437420Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:47.438264Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:47.439148Z",
+          "trace_id": "0064608b1bb24144a07c8582e1aeb55a",
+          "session_id": "full-mt-m-015",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have coronary artery disease.",
+          "answer": "Thank you for sharing that. Coronary artery disease is a condition where plaque, a fatty, cholesterol-rich build-up, forms inside the arteries that supply blood to the heart muscle. According to the General clinical reference (educational summary, \"Coronary artery disease\"), plaque builds up over decades. It can cause symptoms in two main ways:\n\n- **Gradual narrowing** can limit blood flow when the heart needs more oxygen, often causing predictable chest discomfort during activity.\n- **Plaque rupture** can trigger a sudden clot that blocks the artery. This can happen even at a plaque that was never narrow enough to cause symptoms.\n\nIf you have chest pain, pressure, or breathlessness that is new, getting worse, or occurs at rest, call your local emergency number right away.\n\nWhat would you like to know? I can cover:\n- Symptoms to watch for\n- Lifestyle guidance (diet, activity, sleep)\n- How the condition is classified in ICD-10 coding\n- General information on how it is managed\n\nFor treatment decisions, your clinician is the right person to talk to.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5550.791141000445,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:48.375716Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 816,
+          "completion_tokens": 120,
+          "latency_ms": 936.1129680000886,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:48.376092Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what secondary prevention means in health care: early detection and intervention for a disease already present, aimed at stopping progression, with a brief contrast to primary and tertiary prevention.",
+              "why": "This is a general health concept question with no symptoms, urgency, or evidence-comparison component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 936.5420539998013
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:48.376162Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:48.376203Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:49.969094Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 2083,
+          "completion_tokens": 255,
+          "latency_ms": 1590.7296029999998,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:50.000343Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "secondary prevention early detection intervention progression",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 2,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.03007688828584351
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 30.77920699979586
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:50.000625Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "secondary prevention early detection intervention progression"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 31.12366499954078,
+          "source_doc_ids": [
+            "guideline-coronary-artery-disease-secondary-prevention",
+            "condition-coronary-artery-disease",
+            "guideline-type-2-diabetes-screening",
+            "guideline-lipid-screening-and-statin-initiation",
+            "guideline-osteoarthritis-management"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:50.037985Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "primary prevention tertiary prevention levels of prevention",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.030309988518943745
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 36.78150999985519
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:50.038211Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "primary prevention tertiary prevention levels of prevention"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 37.03413999937766,
+          "source_doc_ids": [
+            "condition-coronary-artery-disease",
+            "guideline-coronary-artery-disease-secondary-prevention",
+            "guideline-lipid-screening-and-statin-initiation",
+            "guideline-hypertension-first-line-treatment",
+            "condition-urinary-tract-infection"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:55.351525Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5674,
+          "completion_tokens": 1001,
+          "latency_ms": 5312.855603999196,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:55.351668Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:55.352993Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:55.354084Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:55.355413Z",
+          "trace_id": "5bab3938ad9b4919b2b88f1e0e8415e6",
+          "session_id": "full-mt-m-015",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "What is meant by secondary prevention?",
+          "answer": "Secondary prevention is the set of measures used for someone who already has an established disease, to reduce the chance of further problems. For coronary artery disease, the guidance defines it as the measures used after a previous heart attack, a procedure to open the arteries, or disease seen on a heart scan (angiography). It is aimed at stopping the disease from getting worse and causing another event. (Source: Coronary artery disease: secondary prevention after a diagnosis, major cardiology society consensus guidance, educational summary.)\n\nThe guidance describes it as a package, not a single treatment. Its main parts include:\n\n- **Antiplatelet medicine**, which helps prevent clots. The guidance says the length of treatment is tailored to bleeding risk.\n- **High-intensity statin therapy**, a cholesterol-lowering treatment. Lipid guidance lists this as the recommended approach for established heart disease. (Source: Lipids: screening intervals, risk stratification and statin initiation.)\n- **Non-drug measures**, which the guidance says are the parts most often dropped. It does not list them in the passage I retrieved.\n\nYour clinician can tell you which of these apply to you.\n\nI could not find the general definitions of primary and tertiary prevention in the reference material I can search, so I can't give a sourced contrast. In outline, primary prevention aims to stop a disease from starting, and tertiary prevention aims to reduce the impact of a disease that is already long-term. Please check a public health or medical education source for those definitions.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7912.196626999503,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:57.369151Z",
+          "trace_id": "e8dd3f3e6846409f9dc207fb984d6c0b",
+          "session_id": "full-mt-m-015",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 822,
+          "completion_tokens": 280,
+          "latency_ms": 2013.1593290007004,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:57.369572Z",
+          "trace_id": "e8dd3f3e6846409f9dc207fb984d6c0b",
+          "session_id": "full-mt-m-015",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Identify which parts of the previously discussed care plan are lifestyle measures and which are medication. If the earlier topic is not clear from the conversation, say so and ask which condition is meant rather than guessing.",
+              "why": "Lifestyle guidance is consultation's remit, and the question refers to earlier context that needs to be confirmed."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2013.6336840005242
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:57.369636Z",
+          "trace_id": "e8dd3f3e6846409f9dc207fb984d6c0b",
+          "session_id": "full-mt-m-015",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:57.369667Z",
+          "trace_id": "e8dd3f3e6846409f9dc207fb984d6c0b",
+          "session_id": "full-mt-m-015",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:58.927611Z",
+          "trace_id": "e8dd3f3e6846409f9dc207fb984d6c0b",
+          "session_id": "full-mt-m-015",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 2760,
+          "completion_tokens": 262,
+          "latency_ms": 1556.623086999025,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:58.958190Z",
+          "trace_id": "e8dd3f3e6846409f9dc207fb984d6c0b",
+          "session_id": "full-mt-m-015",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "coronary artery disease",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.031746031746031744
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.031054405392392875
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.029551337359792925
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.02804284323271665
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 3,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.012987012987012988
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 30.155570999340853
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:07:58.958437Z",
+          "trace_id": "e8dd3f3e6846409f9dc207fb984d6c0b",
+          "session_id": "full-mt-m-015",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "coronary artery disease"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 30.457074000878492,
+          "source_doc_ids": [
+            "lifestyle-type-2-diabetes-activity",
+            "lifestyle-hypertension-activity",
+            "lifestyle-copd-activity",
+            "lifestyle-hypertension-diet",
+            "lifestyle-heart-failure-diet"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:08:04.185352Z",
+          "trace_id": "e8dd3f3e6846409f9dc207fb984d6c0b",
+          "session_id": "full-mt-m-015",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4835,
+          "completion_tokens": 1201,
+          "latency_ms": 5226.419275999433,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:08:04.185535Z",
+          "trace_id": "e8dd3f3e6846409f9dc207fb984d6c0b",
+          "session_id": "full-mt-m-015",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:08:04.188956Z",
+          "trace_id": "e8dd3f3e6846409f9dc207fb984d6c0b",
+          "session_id": "full-mt-m-015",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "Which parts of that are lifestyle rather than medication?",
+          "answer": "Your earlier question was about secondary prevention for coronary artery disease, so I've answered for that.\n\n**Medication parts (from the secondary prevention guidance):**\n- **Antiplatelet medicine**, to help prevent clots. The guidance says treatment length is tailored to bleeding risk.\n- **High-intensity statin therapy**, to lower cholesterol. The lipid guidance lists this as the recommended approach for established heart disease.\n\n**Lifestyle parts:**\n- The secondary prevention guidance says non-drug measures are part of the package, but the passage I retrieved does not list them. I can't name specific lifestyle measures for coronary artery disease from that source.\n- My lifestyle search returned guidance for other conditions: high blood pressure, type 2 diabetes, COPD, and heart failure. I can't confirm those apply to coronary artery disease, so I haven't used them as coronary-specific advice.\n- One relevant caution comes from the physical activity guidance for high blood pressure. It says anyone with known heart disease should be assessed before starting vigorous activity. Anyone who gets chest discomfort, severe breathlessness, or faintness during exercise should stop and seek assessment.\n\nIf you have chest pain or breathlessness that is new, worsening, or happens at rest, call your local emergency number now.\n\nFor a list of lifestyle measures suited to your situation, ask your clinician or cardiac rehabilitation team.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: guideline-coronary-artery-disease-secondary-prevention, guideline-lipid-screening-and-statin-initiation, lifestyle-hypertension-activity, lifestyle-heart-failure-diet, lifestyle-hypertension-diet, lifestyle-copd-activity, lifestyle-type-2-diabetes-activity]",
+          "risk_level": "routine",
+          "wall_ms": 8829.702336999617,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

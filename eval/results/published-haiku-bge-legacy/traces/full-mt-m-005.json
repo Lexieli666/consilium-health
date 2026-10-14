@@ -1,0 +1,978 @@
+{
+  "session_id": "full-mt-m-005",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:39.800979Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 818,
+          "completion_tokens": 157,
+          "latency_ms": 1222.4948729999596,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:39.801406Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently recurring evening heartburn needs care, including any red flags such as chest pain, pain radiating to the arm or jaw, shortness of breath, difficulty or pain on swallowing, vomiting blood, black stools, or unintended weight loss, and group the likely causes by body system.",
+              "why": "A recurring symptom description, and urgency and red-flag assessment comes first."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1222.9826140010118
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:39.801469Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:39.801499Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:41.410777Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1670,
+          "completion_tokens": 311,
+          "latency_ms": 1608.1214989990258,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:41.457307Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I have been getting heartburn most evenings. Asked about red flags: chest pain, pain radiating to arm or jaw, shortness of breath, difficulty or pain swallowing, vomiting blood, black stools, unintended weight loss. The user has not mentioned any of these so far.",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 1,
+              "rrf_score": 0.030536130536130537
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 0,
+              "rrf_score": 0.029857397504456328
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 0,
+              "rrf_score": 0.02946912242686891
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.028814262023217248
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 1,
+              "rrf_score": 0.028782894736842105
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.027984344422700584
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.02694394213381555
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 45.05177499959245
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:41.457717Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I have been getting heartburn most evenings. Asked about red flags: chest pain, pain radiating to arm or jaw, shortness of breath, difficulty or pain swallowing, vomiting blood, black stools, unintended weight loss. The user has not mentioned any of these so far."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 46.59452099986083,
+          "source_doc_ids": [
+            "red-flag-chest-pain",
+            "red-flag-gastrointestinal-bleeding",
+            "red-flag-acute-abdominal-pain",
+            "red-flag-diabetic-emergency",
+            "red-flag-anaphylaxis"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:44.095802Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4349,
+          "completion_tokens": 493,
+          "latency_ms": 2637.3876179986837,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:44.137592Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I have been getting heartburn most evenings.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.031099324975891997
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.030017921146953404
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 0,
+              "rrf_score": 0.029273504273504274
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 41.15414400075679
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:44.137820Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I have been getting heartburn most evenings."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 41.688303999762866,
+          "source_doc_ids": [
+            "condition-gerd",
+            "red-flag-chest-pain",
+            "guideline-gerd-initial-management-and-alarm-features",
+            "guideline-heart-failure-reduced-ef-therapy",
+            "coding-gerd-k21"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:51.119563Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5963,
+          "completion_tokens": 1209,
+          "latency_ms": 6981.2912800007325,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:51.119777Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:51.121020Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:51.121090Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:51.121299Z",
+          "trace_id": "881f810f2f0a480ebdcaaa615497bb6e",
+          "session_id": "full-mt-m-005",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have been getting heartburn most evenings.",
+          "answer": "**Urgency: routine, based on your description.** The symptom check found no emergency pattern in the red-flag table for \"heartburn most evenings.\" That is not a clearance. The table covers a fixed list of presentations, so please seek medical advice if the pattern changes.\n\n**Call emergency services now if you have any of these:**\n- Chest pain, pressure, or tightness, especially with pain spreading to the arm, jaw, or back, or with breathlessness, sweating, or nausea\n- Shortness of breath\n- Vomiting blood, or vomit that looks like coffee grounds\n- Black, tarry stools\n- Pain or difficulty when swallowing, if it is new or getting worse\n\nHeartburn and heart-related chest pain can feel alike. A clinical guideline in the retrieved material says a history of reflux does not rule out a heart cause, and that antacid relief does not rule it out either. If your evening discomfort ever feels different, comes with breathlessness, or spreads to the arm or jaw, treat it as an emergency.\n\n**Body systems involved:** I could not finish the body-system grouping because the tool budget ran out for this conversation. From the material I did retrieve, the pattern you describe mainly concerns the digestive system (the food pipe and stomach). The heart and chest are also worth ruling out, as explained above.\n\n**Next step:** Because this happens most evenings, book a routine appointment with a doctor. They can ask about meal timing, weight, smoking, alcohol, and medicines that can worsen reflux, and can decide whether any treatment is appropriate for you. Some guidance suggests that for typical symptoms with no warning features, a doctor may first try a time-limited course of acid-reducing treatment before arranging tests. Do not start or change any medicine without speaking to a clinician or pharmacist first.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 12541.46912700162,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:52.822224Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 814,
+          "completion_tokens": 263,
+          "latency_ms": 1700.4610900003172,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:52.822685Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what the evidence and general lifestyle guidance say about meal timing (for example, intermittent fasting, eating earlier or later in the day, and regular versus irregular meals), note that the answer depends on the goal, such as weight, blood sugar, energy, or digestion, and ask the user what they hope to change.",
+              "why": "This is a general lifestyle question with no symptoms or evidence-comparison component, so one generalist answer is enough."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1700.9685649991297
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:52.822745Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:52.822775Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:55.050786Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 2445,
+          "completion_tokens": 464,
+          "latency_ms": 2226.8617609988723,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:55.079472Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "meal timing diet",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.0315136476426799
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.030776515151515152
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.029957522915269395
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 1,
+              "rrf_score": 0.0261986301369863
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 28.308441998888156
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:55.079657Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "meal timing",
+            "domain": "diet"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 28.550537999763037,
+          "source_doc_ids": [
+            "lifestyle-gerd-diet",
+            "lifestyle-hypertension-diet",
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-insomnia-sleep",
+            "lifestyle-heart-failure-diet"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:55.114745Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "intermittent fasting meal timing evidence eating earlier or later in the day regular meals",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 2,
+              "rrf_score": 0.029437229437229435
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.028985507246376812
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 0,
+              "rrf_score": 0.028949545078577336
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.026875901875901876
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 34.561051999844494
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:55.114975Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "intermittent fasting meal timing evidence eating earlier or later in the day regular meals"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 34.82029499900818,
+          "source_doc_ids": [
+            "lifestyle-gerd-diet",
+            "condition-gerd",
+            "lifestyle-insomnia-sleep",
+            "guideline-lipid-screening-and-statin-initiation",
+            "lifestyle-heart-failure-diet"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:58.940801Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5753,
+          "completion_tokens": 644,
+          "latency_ms": 3825.3704239996296,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:58.940962Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:03:58.945298Z",
+          "trace_id": "9b62b158e6fe440ca31bf70170c1ddcd",
+          "session_id": "full-mt-m-005",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "Would changing when I eat help?",
+          "answer": "Yes, possibly. The retrieved material is clearest about one timing change, and it is for reflux.\n\n**For evening heartburn (from the reflux diet note, lifestyle-gerd-diet):** Smaller meals and a gap of several hours between the last meal and lying down are the two changes with the best support. A full stomach that is lying flat has less to hold its contents down. The same note says this kind of timing change often helps more than swapping foods, for people whose symptoms mostly happen at night. The GERD summary (condition-gerd) also lists meal timing and portion changes among standard measures.\n\n**For other goals, the material I could retrieve does not cover it.** I searched for intermittent fasting, earlier or later eating, and regular versus irregular meals, but found no passage on those. I cannot tell you from these sources whether they help with weight, blood sugar, or energy. One related point: the diabetes diet note (lifestyle-type-2-diabetes-diet) says no single eating pattern is best for everyone, and the one a person can keep up with matters most. That is a general principle, not a finding about meal timing.\n\n**What would you like to change?** Your answer shapes what is useful to look at:\n- Heartburn or night-time reflux: the timing approach above is the most relevant.\n- Weight: I can look for guidance on eating patterns and weight.\n- Blood sugar: this is best discussed with a clinician, especially if you take any glucose-lowering medicine, since timing changes can affect it.\n- Energy or sleep: I can look at the sleep material, which covers regular wake times.\n\nPlease do not change medicines or start a fasting plan without speaking to a clinician or pharmacist first.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n\n[sources: lifestyle-gerd-diet, condition-gerd, lifestyle-type-2-diabetes-diet, lifestyle-insomnia-sleep]",
+          "risk_level": "routine",
+          "wall_ms": 7819.326068000009,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:00.672298Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 817,
+          "completion_tokens": 291,
+          "latency_ms": 1726.2777230007487,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:00.672804Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Identify what 'it' refers to from the conversation so far. If the referent is clear, explain which more serious conditions this symptom or finding can sometimes signal, and state any red-flag features that warrant prompt care. If the referent is not clear from context, say so and ask the user to specify the symptom or finding.",
+              "why": "Asking whether something signals a worse condition is a differential and urgency question, which the diagnostic specialist owns."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1726.9256119998317
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:00.672881Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:00.672919Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:03.454967Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3220,
+          "completion_tokens": 527,
+          "latency_ms": 2780.1758869991318,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:03.492475Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Heartburn most evenings. User asks whether this symptom can be a sign of something worse.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 2,
+              "rrf_score": 0.02877846790890269
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.025833333333333333
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 36.73515299851715
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:03.492734Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Heartburn most evenings. User asks whether this symptom can be a sign of something worse."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 37.434344998473534,
+          "source_doc_ids": [
+            "condition-gerd",
+            "guideline-gerd-initial-management-and-alarm-features",
+            "condition-copd",
+            "condition-urinary-tract-infection",
+            "lifestyle-generalized-anxiety-disorder-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:03.526566Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "heartburn reflux alarm features warning signs serious conditions prompt review",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 3,
+              "rrf_score": 0.030536130536130537
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 0,
+              "rrf_score": 0.029571646010002173
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.025978407557354925
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 33.0984680003894
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:03.526794Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "heartburn reflux alarm features warning signs serious conditions prompt review"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 33.381000999725075,
+          "source_doc_ids": [
+            "condition-gerd",
+            "red-flag-diabetic-emergency",
+            "guideline-gerd-initial-management-and-alarm-features",
+            "condition-copd",
+            "condition-asthma"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:06.915453Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 6752,
+          "completion_tokens": 664,
+          "latency_ms": 3388.026020000325,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:06.915609Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:04:06.916673Z",
+          "trace_id": "0209ddc386c74662a399374d33b45b30",
+          "session_id": "full-mt-m-005",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "And is it ever a sign of something worse?",
+          "answer": "**Urgency: routine, based on the description.** The symptom check found no emergency pattern for \"heartburn most evenings.\" That is not a clearance.\n\n**Call emergency services now** if heartburn-type discomfort comes with chest pain or pressure, pain spreading to the arm, neck, or jaw, breathlessness, sweating, or nausea, or if it occurs on exertion. The GERD summary (condition-gerd) says heartburn and cardiac pain cannot be reliably told apart by how they feel, so chest discomfort should not be assumed to be reflux.\n\n**Serious causes the material mentions:**\n- **Heart disease:** the most important one to rule out, as above.\n- **Conditions of the food pipe or stomach:** the GERD guideline (guideline-gerd-initial-management-and-alarm-features) lists alarm features that change the approach, including new symptoms at an older age and a family history of upper gastrointestinal cancer. Those features lead to referral for a camera test (endoscopy) rather than starting with a trial of medicine. The guideline also notes that some people with ongoing symptoms have a different cause, such as a movement problem of the food pipe, which more acid-reducing treatment does not help.\n\n**Seek prompt medical care (not necessarily emergency) for:**\n- Difficulty or pain when swallowing, especially if new or worsening\n- Vomiting blood, or black, tarry stools\n- Unintentional weight loss\n\n**Not in the retrieved material:** I did not find a passage listing the full range of serious conditions linked to heartburn. This answer covers only what the retrieved passages describe.\n\nA doctor can check the pattern against your age, risk factors, and history. Please book an appointment, and seek care sooner if any of the features above appear.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n\n[sources: condition-gerd, guideline-gerd-initial-management-and-alarm-features, red-flag-chest-pain]",
+          "risk_level": "routine",
+          "wall_ms": 7969.822950999514,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

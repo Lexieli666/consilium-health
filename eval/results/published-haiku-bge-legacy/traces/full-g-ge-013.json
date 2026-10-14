@@ -1,0 +1,611 @@
+{
+  "session_id": "full-g-ge-013",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:04.638879Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 823,
+          "completion_tokens": 172,
+          "latency_ms": 1372.0758890003708,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:04.639350Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Identify what current clinical guidelines describe as first-line treatment for chronic insomnia, and note any differences between authorities.",
+              "why": "The question asks what guidelines describe as first-line, which is a guideline lookup."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1372.6731919996382
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:04.639425Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:04.639463Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:05.955519Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1717,
+          "completion_tokens": 287,
+          "latency_ms": 1314.4418049996602,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:06.006231Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "chronic insomnia first-line treatment",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.03125763125763126
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.0304147465437788
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.026992753623188405
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 0,
+              "rrf_score": 0.025645240835114255
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 2,
+              "rrf_score": 0.025158227848101268
+            },
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 2,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 45.52759699981834
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:06.006440Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "chronic insomnia",
+            "aspect": "first-line treatment"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 45.78526699970098,
+          "source_doc_ids": [
+            "guideline-insomnia-cbt-first-line",
+            "guideline-anxiety-screening-and-first-line-care",
+            "guideline-hypertension-first-line-treatment",
+            "guideline-type-2-diabetes-first-line-therapy",
+            "guideline-gerd-initial-management-and-alarm-features"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:06.051640Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "What do current clinical guidelines describe as first-line treatment for chronic insomnia, and do authorities disagree?",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 3,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 1,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.03036576949620428
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.02964426877470356
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 0,
+              "rrf_score": 0.02786377708978328
+            },
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 3,
+              "rrf_score": 0.027205882352941177
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 44.709460000376566
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:06.094932Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "first-line treatment chronic insomnia cognitive behavioural therapy guideline",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 3,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 1,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.031024531024531024
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.030117753623188408
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 2,
+              "rrf_score": 0.02854251012145749
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 0,
+              "rrf_score": 0.027443609022556388
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 2,
+              "rrf_score": 0.014084507042253521
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 43.061871000645624
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:06.129960Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "pharmacological treatment chronic insomnia guideline recommendation",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 3,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.029206349206349208
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 0,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 3,
+              "rrf_score": 0.028404512489927477
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 3,
+              "rrf_score": 0.026013513513513515
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 34.84705800019583
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:06.165502Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "differences between guidelines insomnia treatment recommendations",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 3,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 0,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 2,
+              "rrf_score": 0.030886196246139225
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.030330882352941176
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.029211087420042643
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "coding-icd10-chapter-06-nervous",
+              "chunk_index": 1,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 0,
+              "rrf_score": 0.013333333333333334
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 35.368150000067544
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:06.202393Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "strength of evidence cognitive behavioural therapy for insomnia",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 3,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 0,
+              "rrf_score": 0.029411764705882353
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 2,
+              "rrf_score": 0.028381642512077296
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.028371628371628373
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.028083267871170464
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 2,
+              "rrf_score": 0.027046783625730993
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 36.71694400054548
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:06.202667Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "deep_research",
+          "args": {
+            "question": "What do current clinical guidelines describe as first-line treatment for chronic insomnia, and do authorities disagree?",
+            "sub_queries": [
+              "first-line treatment chronic insomnia cognitive behavioural therapy guideline",
+              "pharmacological treatment chronic insomnia guideline recommendation",
+              "differences between guidelines insomnia treatment recommendations",
+              "strength of evidence cognitive behavioural therapy for insomnia"
+            ]
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 195.78051300049992,
+          "source_doc_ids": [
+            "condition-insomnia",
+            "guideline-insomnia-cbt-first-line",
+            "lifestyle-insomnia-sleep",
+            "guideline-anxiety-screening-and-first-line-care",
+            "coding-insomnia-g47",
+            "condition-generalized-anxiety-disorder",
+            "lifestyle-migraine-sleep",
+            "coding-icd10-chapter-05-mental"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:10.555408Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 14673,
+          "completion_tokens": 868,
+          "latency_ms": 4352.174992000073,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:10.555567Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:10.556370Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:10.557965Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:57:10.561259Z",
+          "trace_id": "d04ae1a779b44709b35cb79ef0a429ac",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What is described as first-line treatment for chronic insomnia?",
+          "answer": "Current guidance in the retrieved material describes **cognitive behavioral therapy for insomnia (CBT-I)** as the first-line treatment for chronic insomnia in adults, ahead of medication. This comes from the sleep medicine and internal medicine guidance summary (*Chronic insomnia: cognitive behavioral therapy as first-line treatment*). A general clinical reference on insomnia says the same, with medication as second-line and time-limited.\n\nThe guidance says the therapy is usually delivered as a package over roughly four to eight sessions. Its parts include:\n- **Stimulus control:** using the bed only for sleep, and getting up when unable to sleep.\n- **Sleep restriction:** limiting time in bed, then extending it as sleep improves.\n- **Cognitive restructuring:** addressing worries and beliefs that keep someone awake.\n- **Relaxation training.**\n\nThe guidance also says that sleep hygiene advice alone is not effective treatment for chronic insomnia. It describes the benefits of CBT-I as lasting after treatment ends, and as avoiding the risks of long-term sleep medication.\n\n**Differences between authorities:** The retrieved passages show no disagreement. The insomnia guidance has no disagreement section, and the cross-check returned none. This does not prove that authorities agree everywhere. It means these sources did not report a difference.\n\n**Strength of evidence:** The retrieved passages do not give a graded evidence rating or trial results for CBT-I, so I cannot say how strong the evidence is from these sources.\n\nIf you have chronic insomnia, a clinician can explain how CBT-I might fit your situation and what options are available near you.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7288.973808000264,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

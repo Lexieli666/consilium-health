@@ -1,0 +1,1930 @@
+{
+  "session_id": "full-mt-m-027",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:48.035352Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 810,
+          "completion_tokens": 238,
+          "latency_ms": 1712.0566579997103,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:48.035812Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Acknowledge that the user has COPD and explain briefly what the diagnosis involves. Invite them to say what they want to know, such as managing symptoms, lifestyle, or treatment options. Do not assume a specific question or flag urgency, since the message reports no symptoms.",
+              "why": "The message states a diagnosis without a question or symptoms, so it is a general condition-explanation request."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1712.574802000745
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:48.035882Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:48.035914Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:49.346997Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1641,
+          "completion_tokens": 178,
+          "latency_ms": 1309.8889520006196,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:49.385740Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "COPD chronic obstructive pulmonary disease what it is",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 2,
+              "rrf_score": 0.027984344422700584
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.027650648360030512
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.026742734890354787
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 2,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 38.36999499981175
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:49.385939Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "COPD chronic obstructive pulmonary disease what it is",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 38.626244000624865,
+          "source_doc_ids": [
+            "condition-copd",
+            "condition-asthma",
+            "condition-heart-failure",
+            "condition-type-2-diabetes",
+            "condition-coronary-artery-disease"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:51.395758Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3783,
+          "completion_tokens": 345,
+          "latency_ms": 2009.3959759997233,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:51.395937Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:51.396674Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:51.397439Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:51.398318Z",
+          "trace_id": "366cc0843d2a43eb862da621c881356d",
+          "session_id": "full-mt-m-027",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have COPD.",
+          "answer": "Thank you for telling me. COPD, or chronic obstructive pulmonary disease, is a long-term lung condition. The main feature is airflow limitation: air moves in and out of the lungs less easily than it should. This happens because of inflammation and narrowing of the small airways, and damage to the air sacs in the lungs (emphysema). Common features are breathlessness on exertion that gets worse over time, a long-standing cough, and mucus production. (Source: General clinical reference, \"Chronic obstructive pulmonary disease (COPD)\".)\n\nThe reference notes that the lung damage cannot be reversed. Treatment can reduce symptoms, improve how much you can do physically, and reduce flare-ups. Stopping the exposure that caused the damage is the step that most changes how the condition progresses.\n\nWhat would you like to know? For example, you could ask about managing symptoms, lifestyle changes, or treatment options. Tell me what matters most to you, and I will look into it. For decisions about your own treatment, your doctor or nurse is the right person to talk to.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5072.7847359994485,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:53.073094Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 816,
+          "completion_tokens": 240,
+          "latency_ms": 1674.3227269998897,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:53.073517Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Acknowledge the user's two years without smoking and briefly explain the health benefits they can expect at this stage. Offer lifestyle guidance on staying smoke-free, and invite any follow-up question they have.",
+              "why": "This is a statement with no symptom, urgency, or evidence question, so general health guidance is the only specialist needed."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1674.798534000729
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:53.073581Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:53.073611Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:54.633211Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 2071,
+          "completion_tokens": 257,
+          "latency_ms": 1558.5399310002686,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:54.675527Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "health benefits after stopping smoking, two years smoke-free, COPD progression",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 0,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 2,
+              "rrf_score": 0.029138513513513514
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.028169014084507043
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.027745885954841176
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 2,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 2,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 41.93404100078624
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:54.675721Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "health benefits after stopping smoking, two years smoke-free, COPD progression"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 42.1818329996313,
+          "source_doc_ids": [
+            "condition-copd",
+            "guideline-hypertension-first-line-treatment",
+            "guideline-copd-diagnosis-and-stepwise-management",
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-copd-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:54.710588Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "COPD adherence",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.031024531024531024
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 34.33807399960642
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:54.710815Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "COPD",
+            "domain": "adherence"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 34.58467800010112,
+          "source_doc_ids": [
+            "lifestyle-copd-activity",
+            "lifestyle-type-2-diabetes-adherence",
+            "lifestyle-asthma-adherence",
+            "lifestyle-hypertension-activity",
+            "lifestyle-generalized-anxiety-disorder-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:59.775875Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5388,
+          "completion_tokens": 931,
+          "latency_ms": 5064.6423879989015,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:59.776024Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:15:59.778577Z",
+          "trace_id": "60848c4c7a6d4043b800cef43184df14",
+          "session_id": "full-mt-m-027",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "I stopped smoking two years ago.",
+          "answer": "Congratulations on two years without smoking. That is a real achievement.\n\nThe reference material I can access does not give a timeline of specific health changes at two years, so I can't tell you what you should expect at this stage. What it does say is that stopping smoking is the only intervention shown to change how fast lung function declines in COPD (source: \"COPD: spirometric diagnosis, group assessment and initial therapy\"). It also says that removing the exposure that damaged the lungs is the step that most changes how the condition progresses (source: \"Chronic obstructive pulmonary disease (COPD)\").\n\nThe material also covers staying active. It says that breathlessness can lead people to avoid activity, which weakens the muscles and makes breathlessness worse. Regular activity, with breathing technique and pacing, can help break that cycle (source: \"Staying active with COPD: breathing technique, pacing and the deconditioning spiral\"). Pulmonary rehabilitation, a structured exercise and education programme, is also mentioned in the guidance.\n\nI did not find passages on strategies for avoiding relapse to smoking. For that, a GP, nurse, or local stop-smoking service would be a good place to ask.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n\nIf you have a question about staying active, your breathing, or anything else, let me know.",
+          "risk_level": "routine",
+          "wall_ms": 8377.377356999204,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:00.925579Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 816,
+          "completion_tokens": 116,
+          "latency_ms": 1146.5739920004125,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:00.925970Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently new breathlessness on walking needs medical review, identify any red-flag features that would warrant immediate care, and outline the main differential considerations by body system.",
+              "why": "A symptom description, so urgency assessment comes first and owns any red-flag claims."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1147.0159630007402
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:00.926029Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:00.926061Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:02.510670Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 2681,
+          "completion_tokens": 242,
+          "latency_ms": 1583.439523999914,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:02.555214Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I get breathless walking to the shop. The user has COPD and stopped smoking two years ago. The breathlessness is new.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.030090497737556562
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.02821939586645469
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 3,
+              "rrf_score": 0.02761904761904762
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 43.51549199964211
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:02.555488Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I get breathless walking to the shop. The user has COPD and stopped smoking two years ago. The breathlessness is new."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 44.458893999035354,
+          "source_doc_ids": [
+            "condition-copd",
+            "red-flag-severe-breathing-difficulty",
+            "lifestyle-copd-activity",
+            "condition-heart-failure",
+            "condition-asthma"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:04.003642Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4838,
+          "completion_tokens": 193,
+          "latency_ms": 1447.6840579991404,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:04.050897Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "New breathlessness when walking to the shop. The person has COPD and stopped smoking two years ago.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.03055037313432836
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.028850145288501453
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.02877846790890269
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.028577260665441927
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.028531243721117136
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 3,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.013333333333333334
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 46.460287001536926
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:04.051122Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "New breathlessness when walking to the shop. The person has COPD and stopped smoking two years ago."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 47.089091000088956,
+          "source_doc_ids": [
+            "condition-copd",
+            "condition-asthma",
+            "condition-gerd",
+            "condition-hypertension",
+            "condition-generalized-anxiety-disorder"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:09.770565Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 6281,
+          "completion_tokens": 1072,
+          "latency_ms": 5718.9743669987365,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:09.770713Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:09.773450Z",
+          "trace_id": "bba7bb0464c34e43aa71d59fcb4d43b4",
+          "session_id": "full-mt-m-027",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "I get breathless walking to the shop.",
+          "answer": "**Urgency: routine.** The red-flag table did not match this description, so the rule-based tier is routine medical review. That is not a clearance. A new change in breathlessness, even one that seems mild, is worth raising with your GP or nurse soon, especially since you have COPD. Please book that review rather than waiting for the next scheduled appointment.\n\n**Seek emergency care straight away if you have any of these** (source: \"Severe difficulty breathing\"):\n- Breathlessness at rest, or breathlessness that comes on suddenly.\n- Being unable to speak in full sentences, or having to pause for breath between words.\n- Blue or grey lips, tongue, face or fingertips.\n- Drowsiness, confusion or exhaustion while struggling to breathe.\n- Chest pain together with breathlessness.\n\nAlso seek prompt care if you have breathlessness that wakes you at night, ankle or leg swelling, or weight gain over a few days. The heart failure reference describes these as signs that need action (source: \"Heart failure\").\n\n**Body systems to consider:** The pattern found here involves one system, the respiratory (breathing) system. Conditions a clinician may want to think about include COPD itself, asthma, which can coexist with COPD (source: \"Asthma\"), and heart failure, which is a heart cause of breathlessness (source: \"Heart failure\"). Anxiety can also cause breathlessness, but a clinician should rule out a physical cause first (source: \"Generalized anxiety disorder\"). I cannot tell you which of these, if any, applies to you. Only a clinician, usually after examination and tests such as spirometry, can do that.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 9991.834300999471,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 3,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:11.466626Z",
+          "trace_id": "f2a7a5aea11e40958ecf796bcb91768a",
+          "session_id": "full-mt-m-027",
+          "turn_index": 3,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 816,
+          "completion_tokens": 227,
+          "latency_ms": 1692.560808000053,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:11.467028Z",
+          "trace_id": "f2a7a5aea11e40958ecf796bcb91768a",
+          "session_id": "full-mt-m-027",
+          "turn_index": 3,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "The user has only stated that they use a long-acting inhaler and has not asked a question. Give a brief, general explanation of what long-acting inhalers are used for and invite the user to say what they want to know, such as how to use it, side effects, or when to seek care.",
+              "why": "The message has no explicit question or symptom, so the default general-information specialist is the safest single assignment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1693.0189279992192
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:11.467089Z",
+          "trace_id": "f2a7a5aea11e40958ecf796bcb91768a",
+          "session_id": "full-mt-m-027",
+          "turn_index": 3,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:11.467128Z",
+          "trace_id": "f2a7a5aea11e40958ecf796bcb91768a",
+          "session_id": "full-mt-m-027",
+          "turn_index": 3,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:12.616586Z",
+          "trace_id": "f2a7a5aea11e40958ecf796bcb91768a",
+          "session_id": "full-mt-m-027",
+          "turn_index": 3,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3370,
+          "completion_tokens": 170,
+          "latency_ms": 1148.0971450000652,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:12.656474Z",
+          "trace_id": "f2a7a5aea11e40958ecf796bcb91768a",
+          "session_id": "full-mt-m-027",
+          "turn_index": 3,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "long-acting inhaler use in COPD",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 2,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 2,
+              "rrf_score": 0.030798389007344232
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 2,
+              "rrf_score": 0.029273504273504274
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.02797339593114241
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.027272727272727275
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 3,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 39.50667800017982
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:12.656694Z",
+          "trace_id": "f2a7a5aea11e40958ecf796bcb91768a",
+          "session_id": "full-mt-m-027",
+          "turn_index": 3,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "long-acting inhaler use in COPD"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 39.803571000447846,
+          "source_doc_ids": [
+            "guideline-copd-diagnosis-and-stepwise-management",
+            "guideline-asthma-diagnosis-and-stepwise-therapy",
+            "lifestyle-asthma-adherence",
+            "red-flag-severe-breathing-difficulty",
+            "condition-copd"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:15.652105Z",
+          "trace_id": "f2a7a5aea11e40958ecf796bcb91768a",
+          "session_id": "full-mt-m-027",
+          "turn_index": 3,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5721,
+          "completion_tokens": 555,
+          "latency_ms": 2994.955721000224,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:15.652248Z",
+          "trace_id": "f2a7a5aea11e40958ecf796bcb91768a",
+          "session_id": "full-mt-m-027",
+          "turn_index": 3,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:15.656414Z",
+          "trace_id": "f2a7a5aea11e40958ecf796bcb91768a",
+          "session_id": "full-mt-m-027",
+          "turn_index": 3,
+          "type": "turn",
+          "question": "I use a long-acting inhaler.",
+          "answer": "A long-acting inhaler is usually a daily, preventer-type inhaler. It is taken every day, whether or not you feel short of breath. The COPD guidance describes long-acting bronchodilators, which relax and open the airways, as a core part of treatment for many people with COPD (source: \"COPD: spirometric diagnosis, group assessment and initial therapy\"). The asthma guidance notes that the daily inhaler produces no immediate feeling, so people sometimes drop it when they feel well, which is when it is working (source: \"Sticking with asthma treatment: inhaler technique, controllers and action plans\").\n\nThe reference material I can access does not cover how your particular inhaler works, its side effects, or how to use it. Your prescriber or pharmacist can answer those questions for your own inhaler.\n\nWhat would you like to know? I can explain how to use it, what side effects are described in general, or when to seek care. Tell me which one matters most to you.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: guideline-copd-diagnosis-and-stepwise-management, lifestyle-asthma-adherence, condition-copd]",
+          "risk_level": "routine",
+          "wall_ms": 5878.329484999995,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 4,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:17.305830Z",
+          "trace_id": "a6f5aac502334c7bbd69c078114fe797",
+          "session_id": "full-mt-m-027",
+          "turn_index": 4,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 815,
+          "completion_tokens": 221,
+          "latency_ms": 1648.0674619997444,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:17.306222Z",
+          "trace_id": "a6f5aac502334c7bbd69c078114fe797",
+          "session_id": "full-mt-m-027",
+          "turn_index": 4,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Acknowledge the user's report of one chest infection last winter, note that no current question was asked, and invite them to say what they would like to know, such as recovery, recurrence, or when to seek care.",
+              "why": "The message is a past-history statement with no symptom or explicit question, so the default general-health agent is the right fit."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1648.8887760006037
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:17.306281Z",
+          "trace_id": "a6f5aac502334c7bbd69c078114fe797",
+          "session_id": "full-mt-m-027",
+          "turn_index": 4,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:17.306326Z",
+          "trace_id": "a6f5aac502334c7bbd69c078114fe797",
+          "session_id": "full-mt-m-027",
+          "turn_index": 4,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:19.783707Z",
+          "trace_id": "a6f5aac502334c7bbd69c078114fe797",
+          "session_id": "full-mt-m-027",
+          "turn_index": 4,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3844,
+          "completion_tokens": 424,
+          "latency_ms": 2476.265887999034,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:19.783854Z",
+          "trace_id": "a6f5aac502334c7bbd69c078114fe797",
+          "session_id": "full-mt-m-027",
+          "turn_index": 4,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:19.785453Z",
+          "trace_id": "a6f5aac502334c7bbd69c078114fe797",
+          "session_id": "full-mt-m-027",
+          "turn_index": 4,
+          "type": "turn",
+          "question": "I had one chest infection last winter.",
+          "answer": "Thank you for telling me. I'm sorry you had a chest infection last winter. It sounds like it was hard.\n\nYou haven't asked a question yet, so I'm not sure what you'd like to know. I can help with things like:\n\n- **Recovery:** what the guidance says about getting back to normal after a chest infection.\n- **Recurrence:** what the guidance says about infections coming back.\n- **When to seek care:** the warning signs that mean you should get help quickly.\n\nTell me which of these matters most to you, or ask something else. If your breathing is getting worse right now, please contact your GP, nurse or local urgent care service without waiting for an answer from me.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4126.608208998732,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 5,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:22.304309Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 817,
+          "completion_tokens": 426,
+          "latency_ms": 2518.402611000056,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:22.304807Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Report what current guidelines say about when adding an inhaled corticosteroid is recommended, and state that the answer depends on the underlying condition (for example asthma or COPD) and on the patient's current treatment, which the question does not specify. Note where authorities differ.",
+              "why": "The question asks whether a treatment should be added, which is a guideline and evidence question, and the condition is unstated."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2518.9541099989583
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:22.304874Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:22.304908Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:24.713056Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4246,
+          "completion_tokens": 519,
+          "latency_ms": 2406.9882210005744,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:24.750796Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "COPD when to add an inhaled corticosteroid",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 2,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 3,
+              "rrf_score": 0.028484848484848488
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.013157894736842105
+            },
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 2,
+              "rrf_score": 0.012987012987012988
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 37.354866000896436
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:24.751045Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "COPD",
+            "aspect": "when to add an inhaled corticosteroid"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 37.66676699888194,
+          "source_doc_ids": [
+            "guideline-asthma-diagnosis-and-stepwise-therapy",
+            "guideline-copd-diagnosis-and-stepwise-management",
+            "guideline-osteoarthritis-management",
+            "guideline-heart-failure-reduced-ef-therapy",
+            "guideline-type-2-diabetes-first-line-therapy"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:24.787037Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "asthma when to add an inhaled corticosteroid",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 2,
+              "rrf_score": 0.032018442622950824
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 3,
+              "rrf_score": 0.029236022193768675
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 3,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 0,
+              "rrf_score": 0.013157894736842105
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 35.20220300015353
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:24.787283Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "asthma",
+            "aspect": "when to add an inhaled corticosteroid"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 35.484101999827544,
+          "source_doc_ids": [
+            "guideline-asthma-diagnosis-and-stepwise-therapy",
+            "guideline-copd-diagnosis-and-stepwise-management",
+            "guideline-osteoarthritis-management",
+            "guideline-heart-failure-reduced-ef-therapy",
+            "guideline-influenza-vaccination-and-antivirals"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:30.335591Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 9119,
+          "completion_tokens": 1066,
+          "latency_ms": 5547.792429000765,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:30.335735Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:30.340288Z",
+          "trace_id": "aed92abcb775411e8013b17603e028aa",
+          "session_id": "full-mt-m-027",
+          "turn_index": 5,
+          "type": "turn",
+          "question": "Should an inhaled steroid be added?",
+          "answer": "The answer depends on the lung condition involved and on the treatment you're already on. Your question doesn't say either, so I can only give the general picture. Whether to change your inhaler is a decision for your prescriber, not something I can recommend.\n\n**COPD:** The COPD guidance (\"COPD: spirometric diagnosis, group assessment and initial therapy\") says that adding an inhaled corticosteroid is considered for people with a significant exacerbation history, meaning past flare-ups that needed treatment. In that group, it is added where the blood eosinophil count is high or where features of coexisting asthma are present. The guidance uses the eosinophil count as the marker for who benefits, because inhaled corticosteroids carry an increased risk of pneumonia. The passage I retrieved was cut off, so I could not see the full list of groups.\n\n**Asthma:** The asthma guidance (\"Asthma: confirming the diagnosis and the stepwise approach to controller therapy\") places inhaled corticosteroids at the lower and middle steps of treatment. The step is chosen from current symptom control and exacerbation history, and it is reviewed rather than fixed. Before stepping up, the guidance says inhaler technique and adherence should be checked, because they account for much of apparent treatment failure.\n\n**Where authorities differ:** The asthma guidance is marked as having a disagreement section, but the passage I retrieved did not include it, so I cannot tell you what the disagreement is. The COPD guidance is not marked as having one. My search for a direct comparison between the COPD sources failed, so I can't confirm where they differ. I also have no information on how strong the evidence behind these recommendations is.\n\nFor your situation, the questions to take to your GP, respiratory nurse or prescriber are: what condition my treatment is for, whether I have had flare-ups that needed treatment, whether my inhaler already contains a steroid, and whether my technique and daily use are being checked.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: guideline-copd-diagnosis-and-stepwise-management, guideline-asthma-diagnosis-and-stepwise-therapy]",
+          "risk_level": "routine",
+          "wall_ms": 10549.959960000706,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 6,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:32.776895Z",
+          "trace_id": "393c2e96b4ac4b5a91b4399ca8c3b015",
+          "session_id": "full-mt-m-027",
+          "turn_index": 6,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 814,
+          "completion_tokens": 404,
+          "latency_ms": 2435.7078000011825,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:32.777341Z",
+          "trace_id": "393c2e96b4ac4b5a91b4399ca8c3b015",
+          "session_id": "full-mt-m-027",
+          "turn_index": 6,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the factors that would make the condition or event being discussed more or less likely, such as risk factors, protective factors, and modifiable lifestyle or environmental influences. The question does not name the condition, so state that the referent is unclear and ask the user to specify which condition or situation they mean.",
+              "why": "The question is a follow-up with no clear referent, and the default specialist is the best fit for general explanation and lifestyle guidance."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2436.2133340000582
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:32.777415Z",
+          "trace_id": "393c2e96b4ac4b5a91b4399ca8c3b015",
+          "session_id": "full-mt-m-027",
+          "turn_index": 6,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:32.777488Z",
+          "trace_id": "393c2e96b4ac4b5a91b4399ca8c3b015",
+          "session_id": "full-mt-m-027",
+          "turn_index": 6,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:36.328854Z",
+          "trace_id": "393c2e96b4ac4b5a91b4399ca8c3b015",
+          "session_id": "full-mt-m-027",
+          "turn_index": 6,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4668,
+          "completion_tokens": 625,
+          "latency_ms": 3550.2528449997044,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:36.328994Z",
+          "trace_id": "393c2e96b4ac4b5a91b4399ca8c3b015",
+          "session_id": "full-mt-m-027",
+          "turn_index": 6,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:36.329727Z",
+          "trace_id": "393c2e96b4ac4b5a91b4399ca8c3b015",
+          "session_id": "full-mt-m-027",
+          "turn_index": 6,
+          "type": "turn",
+          "question": "What would make that more or less likely?",
+          "answer": "I'm not sure what \"that\" refers to. Your recent messages touched on COPD, a chest infection last winter, and whether an inhaled steroid should be added, so I don't want to guess.\n\nWhich would you like me to cover?\n- Developing COPD\n- Getting another chest infection\n- Having a COPD flare-up\n- Needing a change to your inhaled treatment\n- Something else\n\nOnce you tell me, I'll look up the risk factors, protective factors, and modifiable lifestyle or environmental influences in the reference material and name the sources.\n\nIf your breathing is getting worse right now, contact your GP, nurse or local urgent care service without waiting for my answer. If you have any of the emergency signs I listed earlier, seek emergency care straight away.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5987.944386999516,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 7,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:38.254996Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 822,
+          "completion_tokens": 305,
+          "latency_ms": 1924.5734360010829,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:38.255414Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what kinds of exercise are generally recommended at each stage of the condition under discussion. The question says 'this stage' but the stage is not given, so state that the stage is unknown, give the general exercise guidance by stage, and ask which stage applies.",
+              "why": "The question asks for lifestyle guidance, which is consultation's area, and the missing stage needs to be flagged rather than assumed."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1925.1001320008072
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:38.255519Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:38.255554Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:39.864140Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4525,
+          "completion_tokens": 285,
+          "latency_ms": 1607.1453470012784,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:39.900235Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "COPD activity",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.03057889822595705
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.030536130536130537
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.02684684684684685
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 3,
+              "rrf_score": 0.01282051282051282
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 35.60692599967297
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:39.900415Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "COPD",
+            "domain": "activity"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 35.84975299963844,
+          "source_doc_ids": [
+            "lifestyle-copd-activity",
+            "lifestyle-type-2-diabetes-activity",
+            "lifestyle-generalized-anxiety-disorder-activity",
+            "lifestyle-hypertension-activity",
+            "lifestyle-osteoarthritis-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:39.945882Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "COPD exercise recommendations by severity stage",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.03036576949620428
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.029411764705882353
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.029236022193768675
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.012658227848101266
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 44.90240199993423
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:39.946954Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "COPD exercise recommendations by severity stage",
+            "category": "lifestyle"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 45.995849000973976,
+          "source_doc_ids": [
+            "lifestyle-copd-activity",
+            "lifestyle-hypertension-activity",
+            "lifestyle-type-2-diabetes-activity",
+            "lifestyle-generalized-anxiety-disorder-activity",
+            "lifestyle-osteoarthritis-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:45.138688Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 7774,
+          "completion_tokens": 1033,
+          "latency_ms": 5191.106562000641,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:45.138859Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T03:16:45.143744Z",
+          "trace_id": "361bfcec09aa4967b32d1287e7a3c116",
+          "session_id": "full-mt-m-027",
+          "turn_index": 7,
+          "type": "turn",
+          "question": "And what kind of exercise is described for someone at this stage?",
+          "answer": "The stage is not stated in your question, and I can't tell from our conversation which stage applies to you. I've assumed the condition is COPD, since that is the condition we have been discussing.\n\nThe reference material I can access does not give exercise recommendations separated by stage. It describes exercise as a core part of COPD treatment in general. It explains that breathlessness makes people avoid activity, which weakens the muscles, which makes the same task feel harder. Breaking that cycle is described as one of the main ways to improve. The material also mentions breathing technique and pacing (spreading activity into manageable parts with rest in between). It refers to pulmonary rehabilitation, a structured programme, as part of the recommended measures, but the passage I retrieved does not describe what that programme involves (source: \"Staying active with COPD: breathing technique, pacing and the deconditioning spiral\").\n\nOn safety, the blood pressure activity guidance says anyone with breathlessness that seems out of proportion to effort should be assessed before starting vigorous activity. It also says to stop and seek assessment if chest discomfort, severe breathlessness or faintness comes on during exercise (source: \"Physical activity for high blood pressure\"). Given that you mentioned getting breathless walking to the shop, check with your GP or nurse before starting a new exercise plan.\n\nTo give you more specific guidance, tell me which stage applies to you. Your clinician can tell you the stage, and a respiratory team can advise on suitable exercise for it.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: lifestyle-copd-activity, lifestyle-hypertension-activity]",
+          "risk_level": "routine",
+          "wall_ms": 8808.632205000322,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

@@ -30,14 +30,18 @@ data/chroma/
 *.sqlite3
 
 # Evaluation results: only the published runs are committed, timestamped runs are not.
-# `published/` is the legacy ablation run (gpt-4o-mini, bge index); `published-langgraph/` and
-# `published-legacy-haiku/` are the paired ORCHESTRATOR=langgraph / legacy runs on claude-haiku-5-5
-# with the offline hash retriever, in the same layout
-# (`python -m eval.publish --from <run> --out eval/results/<name>`).
+# `published/` is the legacy ablation run (gpt-4o-mini, bge index).  The `published-haiku-*`
+# directories are the paired claude-haiku-5-5 runs behind docs/LANGGRAPH_EVAL.md, in the same
+# layout (`python -m eval.publish --from <run> --out eval/results/<name>`): `hash` = the offline
+# HashEmbedder/NumpyStore pipeline, `bge` = the bge-small/Chroma index; `legacy`,
+# `langgraph-v1` (planner decides every tool call) and `langgraph-v2` (search_knowledge first).
 eval/results/*
 !eval/results/published/
-!eval/results/published-langgraph/
-!eval/results/published-legacy-haiku/
+!eval/results/published-haiku-hash-legacy/
+!eval/results/published-haiku-hash-langgraph-v1/
+!eval/results/published-haiku-bge-legacy/
+!eval/results/published-haiku-bge-langgraph-v1/
+!eval/results/published-haiku-bge-langgraph-v2/
 
 # Reference material that lives in the PARENT directory.  These patterns are anchored with a
 # leading slash on purpose: an unanchored `config.py` would also match `consilium/config.py`,

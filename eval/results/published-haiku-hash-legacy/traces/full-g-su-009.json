@@ -1,0 +1,361 @@
+{
+  "session_id": "full-g-su-009",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:55.114676Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 835,
+          "completion_tokens": 165,
+          "latency_ms": 2193.0156140000463,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:55.115163Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of a sudden, severe headache of abrupt onset ('like a bang') during exertion (lifting), with photophobia, described as the worst headache ever. Triage it, flag any red-flag features requiring immediate emergency evaluation, and group the differential by likely cause without reassuring.",
+              "why": "A sudden severe headache is a red-flag urgency question that the diagnostic specialist owns."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2193.555915000047
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:55.115233Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:55.115281Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:56.769524Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1689,
+          "completion_tokens": 269,
+          "latency_ms": 1652.528996000001,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:56.775092Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Worst headache I have ever had. Sudden onset, like a bang, while lifting (exertion). Sensitivity to light (photophobia), the lights hurt.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.029910714285714284
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.029236022193768675
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.029206349206349208
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 4.605430999959026
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:56.775299Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Worst headache I have ever had. Sudden onset, like a bang, while lifting (exertion). Sensitivity to light (photophobia), the lights hurt."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 5.388314000015271,
+          "source_doc_ids": [
+            "red-flag-sudden-severe-headache",
+            "red-flag-stroke-symptoms",
+            "condition-migraine",
+            "red-flag-acute-abdominal-pain",
+            "guideline-migraine-acute-and-preventive-treatment"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:58.546113Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3967,
+          "completion_tokens": 305,
+          "latency_ms": 1770.3556049999634,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:58.550552Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "Worst headache I have ever had. Sudden onset, like a bang, while lifting (exertion). Sensitivity to light (photophobia), the lights hurt.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.030798389007344232
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 1,
+              "rrf_score": 0.0288981288981289
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 0,
+              "rrf_score": 0.028850145288501453
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.02819138376017471
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.02786377708978328
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 0,
+              "rrf_score": 0.027799227799227798
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 1,
+              "rrf_score": 0.027583600982429624
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 3.432064000094215
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:58.550770Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "Worst headache I have ever had. Sudden onset, like a bang, while lifting (exertion). Sensitivity to light (photophobia), the lights hurt."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 4.266355000027033,
+          "source_doc_ids": [
+            "condition-migraine",
+            "condition-iron-deficiency-anemia",
+            "condition-coronary-artery-disease",
+            "condition-type-2-diabetes",
+            "condition-influenza"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:06:05.505449Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5423,
+          "completion_tokens": 1312,
+          "latency_ms": 6954.190405000077,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:06:05.505602Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:06:05.506397Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:06:05.506449Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:06:05.506602Z",
+          "trace_id": "274e8edfcca746d784c27b92ebf94eea",
+          "session_id": "full-g-su-009",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "worst hedache ive ever had, came on like a bang while i was lifting, and the lights hurt",
+          "answer": "**Urgency: emergency. Call emergency services now (999 in the UK, 112 or 911 elsewhere).** Do not wait to see if it settles, and do not drive yourself.\n\nThe triage tool returned \"routine\" because none of its fixed rules matched. But the guidance it retrieved lists this exact pattern under \"Call emergency services immediately\": a headache that comes on abruptly, reaches full strength within about a minute, and is often described as the worst of one's life. This is called a thunderclap headache (*Sudden severe headache and other dangerous headache patterns*, emergency guidance). I have followed that guidance rather than the tool's \"routine\" label, because missing an emergency is the bigger risk.\n\n**Other warning signs in the same guidance:** Tell the emergency team right away if you also have any of these:\n- A stiff neck, fever, or a rash that does not fade under pressure.\n- New confusion, drowsiness, a seizure, weakness or numbness, trouble speaking, or loss of vision (*Sudden severe headache*; *Sudden neurological symptoms that may indicate a stroke*).\n- Sudden severe eye pain, a red eye, or blurred vision with halos around lights.\n\n**What the sources do not tell me:** The retrieved material does not list the causes of a thunderclap headache, so I can't name them from these sources. A clinician needs to examine you urgently to find out why it happened. The migraine note describes a headache that is usually one-sided, builds over time, and is made worse by activity. A sudden onset like yours does not fit that typical picture, and that is not a reason to wait. The other conditions the symptom search returned (iron deficiency, coronary artery disease, diabetes, influenza) were not good matches for this description, so I have not discussed them.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 12584.080517999952,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,257 @@
+{
+  "session_id": "full-g-ge-013",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:05.621866Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 823,
+          "completion_tokens": 176,
+          "latency_ms": 1324.6268809998583,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:05.624257Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Report what current clinical guidelines describe as first-line treatment for chronic insomnia, and note any differences between authorities.",
+              "why": "This is a guideline lookup question about what is recommended, with no symptom or urgency component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1327.0647790000112
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:05.624324Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:05.624358Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:06.740432Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1716,
+          "completion_tokens": 140,
+          "latency_ms": 1114.8867230001542,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:06.742143Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "chronic insomnia first-line treatment",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 1,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 1,
+              "rrf_score": 0.02871794871794872
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.02813852813852814
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 0,
+              "rrf_score": 0.026547116736990152
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.02651914295749912
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 2,
+              "rrf_score": 0.025657894736842105
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 1.308119999976043
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:06.742362Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "chronic insomnia",
+            "aspect": "first-line treatment"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 1.5926269998089992,
+          "source_doc_ids": [
+            "guideline-hypertension-first-line-treatment",
+            "guideline-insomnia-cbt-first-line",
+            "guideline-uti-uncomplicated-treatment",
+            "guideline-anxiety-screening-and-first-line-care",
+            "guideline-influenza-vaccination-and-antivirals"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:09.643142Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4652,
+          "completion_tokens": 516,
+          "latency_ms": 2900.3485790001378,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:09.643310Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:09.643756Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:09.644451Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:15:09.645323Z",
+          "trace_id": "d48f34c72f614a49b4b4f1add63628e3",
+          "session_id": "full-g-ge-013",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What is described as first-line treatment for chronic insomnia?",
+          "answer": "Current guidance in the corpus describes **cognitive behavioral therapy for insomnia (CBT-I)** as the first-line treatment for chronic insomnia in adults, ahead of medication. The source is the sleep medicine and internal medicine guidance summary (guideline-insomnia-cbt-first-line).\n\nThe same summary says CBT-I is usually delivered over about four to eight sessions. It combines several parts, including stimulus control (using the bed only for sleep) and sleep restriction (limiting time in bed to match actual sleep). The summary says its benefits last after treatment ends, while drug effects generally do not, and that it avoids the risks linked to long-term sleep medication.\n\nTwo authorities in this summary agree, so no disagreement is recorded. The corpus does not give a formal evidence-strength grade for this recommendation, so I cannot say how strong the underlying trials are. A clinician can explain the options and how they might fit a particular situation.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5346.209068000007,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

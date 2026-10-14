@@ -1,0 +1,680 @@
+{
+  "session_id": "full-mt-m-002",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:27.246097Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 820,
+          "completion_tokens": 122,
+          "latency_ms": 967.0333750000282,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:27.246636Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what a type 2 diabetes diagnosis means in general terms, including how it is typically managed and what questions the patient might want to ask their doctor.",
+              "why": "The user is sharing a diagnosis and seeks general condition explanation, with no symptom triage or evidence-comparison component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 967.6294979999511
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:27.246705Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:27.246740Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:28.430276Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1611,
+          "completion_tokens": 207,
+          "latency_ms": 1180.296396999438,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:28.432669Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "type 2 diabetes what it is, diagnosis, and general management",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.030309988518943745
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 2,
+              "rrf_score": 0.030309988518943745
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.029386529386529386
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 2,
+              "rrf_score": 0.028958333333333336
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 0,
+              "rrf_score": 0.028404512489927477
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 2,
+              "rrf_score": 0.027106227106227107
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 2.071455999612226
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:28.432899Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "type 2 diabetes what it is, diagnosis, and general management",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 2.3276399997484987,
+          "source_doc_ids": [
+            "condition-type-2-diabetes",
+            "condition-generalized-anxiety-disorder",
+            "condition-urinary-tract-infection",
+            "condition-influenza",
+            "condition-hypothyroidism"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:28.434088Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "type 2 diabetes",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.030834914611005692
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.029910714285714284
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.029850746268656716
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 3,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 0.7537989995398675
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:28.434225Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "type 2 diabetes"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 0.9107570003834553,
+          "source_doc_ids": [
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-hypertension-diet",
+            "lifestyle-type-2-diabetes-adherence",
+            "lifestyle-type-2-diabetes-activity",
+            "lifestyle-hypertension-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:33.433371Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4852,
+          "completion_tokens": 966,
+          "latency_ms": 4998.946005999642,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:33.433572Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:33.434543Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:33.436031Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:33.437806Z",
+          "trace_id": "13765a10f5554cc6b9fc0d8059c451ae",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "My doctor says I have type 2 diabetes.",
+          "answer": "A type 2 diabetes diagnosis means your blood sugar (glucose) stays above the normal range over time. In this condition, the body's tissues respond poorly to insulin, a hormone that moves sugar from the blood into cells. The pancreas, which makes insulin, cannot keep up with the extra demand. It usually develops gradually over years, and many people have no symptoms when it is found. (Source: General clinical reference, *Type 2 diabetes mellitus*.)\n\nManagement is mostly ongoing self-care, with your clinician guiding it:\n\n- **Weight:** If your weight is above the healthy range, even a sustained loss of about 5% helps blood sugar, blood pressure and cholesterol. Some people reach remission, meaning normal glucose without glucose-lowering medication. Remission is not a cure, and monitoring continues. (Source: national diabetes association nutrition guidance.)\n- **Activity:** The guidance suggests at least 150 minutes a week of moderate-to-vigorous activity, spread over at least three days, with no more than two days in a row without activity, plus strength training on two or three non-consecutive days. (Source: diabetes physical activity guidance.)\n- **Medication and follow-up:** Diabetes is largely self-managed between appointments. Structured diabetes education is described as a core part of care, and it is offered at diagnosis. (Source: diabetes self-management guidance.)\n\nMy search did not return the part of the reference that explains how diagnosis is confirmed or which blood tests are used, so I can't explain that from these sources.\n\nQuestions you might want to ask your doctor:\n\n- What test results led to this diagnosis, and what do the numbers mean for me?\n- Is there a chance this could go into remission, and what would that take?\n- What would a realistic weight or activity goal look like for me?\n- Am I being referred for diabetes education or a dietitian?\n- How often should I come in, and what should I track at home?\n- What side effects should I watch for with any medication you prescribe, and what should I do if I can't afford it or find it hard to take?\n\nPlease don't change or stop any medication without talking to your clinician first.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7154.653069000233,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:35.930927Z",
+          "trace_id": "391dafdadf2a4e84af1159e1bb94ccec",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 812,
+          "completion_tokens": 328,
+          "latency_ms": 2492.6928210006736,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:35.931381Z",
+          "trace_id": "391dafdadf2a4e84af1159e1bb94ccec",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "The question does not say what 'it' refers to, so ask the user which measurement, test, or condition they mean (for example blood pressure, blood glucose, cholesterol, or a symptom) and any relevant context such as age or existing diagnoses. Once that is known, explain how often that check is generally recommended and what might change the schedule.",
+              "why": "The referent is missing, so no specialist can give a useful frequency without clarifying it first, and this is a general health question that consultation can handle."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2493.1979650000358
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:35.931486Z",
+          "trace_id": "391dafdadf2a4e84af1159e1bb94ccec",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:35.931522Z",
+          "trace_id": "391dafdadf2a4e84af1159e1bb94ccec",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:38.829211Z",
+          "trace_id": "391dafdadf2a4e84af1159e1bb94ccec",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 2559,
+          "completion_tokens": 560,
+          "latency_ms": 2896.5652070000942,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:38.829385Z",
+          "trace_id": "391dafdadf2a4e84af1159e1bb94ccec",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:38.830975Z",
+          "trace_id": "391dafdadf2a4e84af1159e1bb94ccec",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "How often should it be checked?",
+          "answer": "I'm not sure what \"it\" refers to. Could you tell me which of these you mean?\n\n- Blood glucose (blood sugar)\n- Blood pressure\n- Cholesterol\n- Another test or measurement\n- A symptom you are tracking\n\nPlease also tell me, if you're comfortable sharing:\n\n- Your age\n- Any diagnoses you already have, such as the type 2 diabetes you mentioned earlier\n- Any medicines you take. Don't change them based on this conversation.\n\nOnce I know which check you mean, I can explain how often it is generally recommended and what might change that schedule. Your clinician makes the final decision on your own timing.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5391.4862350002295,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:40.144077Z",
+          "trace_id": "d2b3fb823ca74f02b836c9b856830922",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 812,
+          "completion_tokens": 170,
+          "latency_ms": 1312.589241000751,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:40.144928Z",
+          "trace_id": "d2b3fb823ca74f02b836c9b856830922",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Ask for the context needed to give useful dietary guidance, such as the condition or goal involved, and give general healthy-eating guidance in the meantime.",
+              "why": "This is a general lifestyle question with no symptoms or evidence component, and it is too vague to tailor without more detail."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1313.5304520001228
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:40.145001Z",
+          "trace_id": "d2b3fb823ca74f02b836c9b856830922",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:40.145035Z",
+          "trace_id": "d2b3fb823ca74f02b836c9b856830922",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:41.858234Z",
+          "trace_id": "d2b3fb823ca74f02b836c9b856830922",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 2762,
+          "completion_tokens": 279,
+          "latency_ms": 1712.0184650002557,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:41.859629Z",
+          "trace_id": "d2b3fb823ca74f02b836c9b856830922",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "type 2 diabetes diet",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.030303030303030304
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.028438886647841874
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.02782608695652174
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.02758751902587519
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 3,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 1.034580000123242
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:41.859797Z",
+          "trace_id": "d2b3fb823ca74f02b836c9b856830922",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "type 2 diabetes",
+            "domain": "diet"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 1.2799750002159271,
+          "source_doc_ids": [
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-heart-failure-diet",
+            "lifestyle-gerd-diet",
+            "lifestyle-hypertension-diet",
+            "lifestyle-type-2-diabetes-adherence"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:46.189773Z",
+          "trace_id": "d2b3fb823ca74f02b836c9b856830922",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4930,
+          "completion_tokens": 862,
+          "latency_ms": 4329.594664000069,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:46.189963Z",
+          "trace_id": "d2b3fb823ca74f02b836c9b856830922",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:46.193620Z",
+          "trace_id": "d2b3fb823ca74f02b836c9b856830922",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "And what should I be eating?",
+          "answer": "For type 2 diabetes, the retrieved guidance focuses on a few practical points rather than a list of foods:\n\n- **\"Sugar-free\" does not mean \"carbohydrate-free.\"** Starch raises blood glucose about as much as sugar does. (Source: National diabetes association nutrition guidance, *Diet for type 2 diabetes*.)\n- **Fruit is not off-limits.** Whole fruit is part of the recommended eating patterns. (Same source.)\n- **Carbohydrate amounts are set individually.** The guidance does not give a single carbohydrate target. Your clinician or a dietitian sets that. (Same source.)\n- **Weight matters, if your weight is above the healthy range.** A sustained loss of 5% gives measurable benefit to blood sugar, blood pressure and cholesterol. (Same source.)\n\nThe same corpus also notes that most dietary sodium (salt) comes from packaged and restaurant foods such as bread, processed meat, cheese, sauces and soups, not the salt shaker. Reading labels for sodium per serving helps more than any single swap. This comes from the blood-pressure diet guidance, which is relevant if you also have high blood pressure. (Source: *Diet for high blood pressure*.)\n\nMy search did not return a full list of recommended foods, so I can't give you one from these sources.\n\nTo give more useful guidance, it would help to know:\n\n- Whether you have any other diagnoses, such as high blood pressure or high cholesterol\n- Your current weight goal, if your clinician has set one\n- Whether you have any food allergies, intolerances or cultural or dietary preferences\n- Whether you have been referred to a dietitian or diabetes education course\n\nPlease don't change any medication based on diet changes without talking to your clinician first.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7358.706154999709,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

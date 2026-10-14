@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-su-004",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:07.724254Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 837,
+          "completion_tokens": 241,
+          "latency_ms": 1716.6271830000142,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:07.724731Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess this as an emergency. Facial drooping and arm heaviness on one side that began on waking are possible stroke signs. State clearly that the person should call emergency services now, and note the time of onset, since treatment timing matters. Do not offer reassurance or wait-and-see advice.",
+              "why": "Possible stroke symptoms need immediate urgency triage, and diagnostic owns all red-flag claims."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1717.164270000012
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:07.724794Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:07.724859Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:09.189011Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1683,
+          "completion_tokens": 228,
+          "latency_ms": 1460.9521680000626,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:09.192451Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "The right corner of my mouth has stopped moving and the arm on that side feels heavy since I woke up. Facial drooping and arm heaviness on one side, began on waking.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 1,
+              "rrf_score": 0.03125763125763126
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.030621785881252923
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.030621785881252923
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.029236022193768675
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.028373015873015873
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 2,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.028125
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.027783137179239824
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.027364110201042444
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 2.4271360000511777
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:09.192669Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "The right corner of my mouth has stopped moving and the arm on that side feels heavy since I woke up. Facial drooping and arm heaviness on one side, began on waking."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 3.3120870000402647,
+          "source_doc_ids": [
+            "red-flag-stroke-symptoms",
+            "guideline-hypertension-diagnosis-and-bp-targets",
+            "condition-hypertension",
+            "lifestyle-heart-failure-diet",
+            "lifestyle-insomnia-sleep"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:12.192608Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4112,
+          "completion_tokens": 532,
+          "latency_ms": 2999.5150720000083,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:12.192760Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:12.193359Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:12.193454Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:05:12.193571Z",
+          "trace_id": "879357807ff447c383d190580de17f6c",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "The right corner of my mouth has stopped moving and the arm on that side feels heavy since I woke up.",
+          "answer": "**Call emergency services now. Do not wait.** Sudden drooping on one side of the face and a heavy arm on the same side are classic stroke signs. Treat this as a stroke until a doctor proves otherwise.\n\n**Note the time you first noticed symptoms.** If you woke up with them, note the last time you were known to be well, which is probably when you went to sleep. Give that time to the emergency operator and the doctors. Treatment for stroke depends on timing.\n\nThe urgency tool returned \"routine,\" but that result does not fit your description. It matched no entries in its list. Please ignore it. The stroke guidance says that sudden face drooping, or weakness in one arm, means calling emergency services immediately (source: \"Sudden neurological symptoms that may indicate a stroke,\" red-flag guidance).\n\nDo not drive yourself. If someone is with you, ask them to call emergency services while you stay still and keep the person from being alone.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 6185.299018000023,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

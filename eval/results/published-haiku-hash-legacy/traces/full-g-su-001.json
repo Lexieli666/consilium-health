@@ -1,0 +1,341 @@
+{
+  "session_id": "full-g-su-001",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:46.444892Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 847,
+          "completion_tokens": 126,
+          "latency_ms": 1236.4182249999658,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:46.445279Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of chest pressure described as heaviness that started about twenty minutes ago, and identify any red flags that call for immediate emergency care.",
+              "why": "A new chest symptom with possible cardiac features is an urgency question, and diagnostic owns all urgency and red-flag claims."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1236.873965999962
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:46.445348Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:46.445381Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:47.653745Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1651,
+          "completion_tokens": 208,
+          "latency_ms": 1207.3964259999457,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:47.657644Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Chest pressure described as heaviness, like someone heavy is sitting on the chest. Started about twenty minutes ago. User says something may be wrong with the chest.",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 0,
+              "rrf_score": 0.03007688828584351
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 2,
+              "rrf_score": 0.029957522915269395
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.029910714285714284
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 1,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 0,
+              "rrf_score": 0.027884615384615386
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 3,
+              "rrf_score": 0.027692895339954164
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 2,
+              "rrf_score": 0.013333333333333334
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 0,
+              "rrf_score": 0.012987012987012988
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 2.852749999988191
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:47.658172Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Chest pressure described as heaviness, like someone heavy is sitting on the chest. Started about twenty minutes ago. User says something may be wrong with the chest."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 4.0810729999520845,
+          "source_doc_ids": [
+            "red-flag-chest-pain",
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-anaphylaxis",
+            "red-flag-stroke-symptoms",
+            "red-flag-acute-abdominal-pain"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:47.662456Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "Chest pressure described as heaviness, like someone heavy is sitting on the chest. Started about twenty minutes ago. User says something may be wrong with the chest.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.032018442622950824
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 3,
+              "rrf_score": 0.02964254577157803
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.029206349206349208
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.028782894736842105
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.02871794871794872
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.025657894736842105
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 3.16824899994117
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:47.662683Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "Chest pressure described as heaviness, like someone heavy is sitting on the chest. Started about twenty minutes ago. User says something may be wrong with the chest."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 4.042512999944847,
+          "source_doc_ids": [
+            "condition-coronary-artery-disease",
+            "condition-gerd",
+            "condition-asthma",
+            "condition-copd",
+            "condition-hypertension"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:50.158318Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5522,
+          "completion_tokens": 337,
+          "latency_ms": 2495.251555999971,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:50.158481Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:50.159301Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:50.160062Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:04:50.161088Z",
+          "trace_id": "d2dc7075c7e24f0684220a87dc34012d",
+          "session_id": "full-g-su-001",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I think maybe something is wrong with my chest. It feels like someone heavy is sitting on it and it started about twenty minutes ago.",
+          "answer": "**This needs emergency care now. Call your local emergency number (for example 911 or 999) immediately. Do not drive yourself.**\n\nChest pressure or heaviness that has lasted more than a few minutes can be a sign of a heart attack, and treatment works best in the first minutes. (Source: *Chest pain that may indicate a heart attack*, red-flag guidance.) Do not wait to see whether it passes. If you have aspirin and no known allergy to it, do not take any medicine until you have spoken to the emergency operator, who can advise you.\n\nOther warning signs that make this more urgent include pain spreading to the arm, shoulder, neck, jaw or back; shortness of breath; cold sweat; nausea or vomiting; light-headedness; or a sense of doom. If any of these are present, say so when you call. Stay where someone can help you, and unlock the door so responders can reach you.\n\nThis guidance cannot tell you what is causing the feeling. Only a clinician can do that, and that assessment can happen after you have been seen.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 4950.156150999987,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

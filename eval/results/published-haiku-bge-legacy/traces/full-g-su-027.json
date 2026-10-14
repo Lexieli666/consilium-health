@@ -1,0 +1,341 @@
+{
+  "session_id": "full-g-su-027",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:21.067913Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 831,
+          "completion_tokens": 159,
+          "latency_ms": 1316.7342670003563,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:21.068335Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of recurrent one-sided headaches with nausea and light sensitivity over the past month, check for red flags (sudden or severe onset, neurological deficits, fever, neck stiffness, or changes from the usual pattern), and frame the differential, including migraine as a leading possibility.",
+              "why": "A symptom description with three episodes, so urgency and red-flag assessment comes first."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1317.2138050003923
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:21.068395Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:21.068426Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:22.831440Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1683,
+          "completion_tokens": 361,
+          "latency_ms": 1761.949688999266,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:22.888784Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Three headaches this month, all on one side of the head, with nausea and sensitivity to light. Past month only. Asked about red flags: sudden or severe onset, neurological deficits, fever, neck stiffness, or change from usual pattern.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.03131881575727918
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.03125
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.030798389007344232
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.02638888888888889
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 55.88878500020655
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:22.888994Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Three headaches this month, all on one side of the head, with nausea and sensitivity to light. Past month only. Asked about red flags: sudden or severe onset, neurological deficits, fever, neck stiffness, or change from usual pattern."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 57.18407099993783,
+          "source_doc_ids": [
+            "red-flag-meningitis-signs",
+            "condition-migraine",
+            "guideline-migraine-acute-and-preventive-treatment",
+            "red-flag-sudden-severe-headache",
+            "red-flag-stroke-symptoms"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:22.931705Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "Three headaches this month, all on one side of the head, with nausea and sensitivity to light. Past month only.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.030330882352941176
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.029083245521601686
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 3,
+              "rrf_score": 0.02797339593114241
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.027884615384615386
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.027598020555767037
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.027479766610201392
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.02581612258494337
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 41.591622999476385
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:22.931982Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "Three headaches this month, all on one side of the head, with nausea and sensitivity to light. Past month only."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 42.39727200001653,
+          "source_doc_ids": [
+            "condition-migraine",
+            "condition-generalized-anxiety-disorder",
+            "condition-insomnia",
+            "condition-type-2-diabetes",
+            "condition-hypertension"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:25.991222Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5488,
+          "completion_tokens": 594,
+          "latency_ms": 3058.7070369992944,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:25.991357Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:25.992164Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:25.992431Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:25.993062Z",
+          "trace_id": "c97fcde1ccab454bbb292f93fdb2d342",
+          "session_id": "full-g-su-027",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have had three headaches this month, all on one side, with nausea and the light bothering me.",
+          "answer": "**Urgency: routine.** The urgency tool found no emergency pattern in its red-flag table. It also says this is not a clearance. If the headaches become severe, get worse, or change in character, seek medical advice promptly.\n\n**Red flags to check for.** Based on the red-flag guidance, get emergency care right away if any of these happen with a headache: a sudden headache that reaches full strength within a minute, fever with a stiff neck, a new rash of spots that does not fade when pressed, confusion or drowsiness, a new weakness, numbness, speech trouble, or vision loss, or a headache after a head injury (*Sudden severe headache and other dangerous headache patterns*; *Signs suggesting meningitis*; *Sudden neurological symptoms that may indicate a stroke*). Your description does not mention any of these. Tell a clinician promptly if you notice any of them.\n\n**What the pattern suggests.** Migraine is a common recurrent condition. Its typical attack is one-sided, pulsating, moderate to severe, and comes with nausea and sensitivity to light. It can last hours to three days (*Migraine*). Your symptoms fit this description, so migraine is a leading possibility to discuss with a clinician. Only a clinician can confirm it. Other causes, such as tension-type headache, are also possible.\n\n**Points to raise with a clinician.** Medication use matters. Frequent use of pain relievers can keep headaches going (*Medication-overuse headache*), so mention how often you take any pain medicine. Stress, poor sleep, caffeine, and alcohol can also contribute, and a clinician may want to review them.\n\nThe retrieved material does not cover how to treat these headaches, and I cannot advise on medicines or doses. A primary care visit is a sensible next step to talk through the pattern.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 6240.313974999481,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

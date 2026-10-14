@@ -1,0 +1,361 @@
+{
+  "session_id": "full-g-su-028",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:27.551703Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 827,
+          "completion_tokens": 203,
+          "latency_ms": 1557.9617389994382,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:27.552122Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently persistent fatigue lasting a couple of months and heavy menstrual bleeding need medical review, flag any red-flag features, and frame the main differential by body system (for example, causes of blood loss or anemia, thyroid, and other hormonal or systemic causes).",
+              "why": "This is a symptom description, so urgency triage and differential framing come first."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1558.450009999433
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:27.552179Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:27.552210Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:28.909310Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1674,
+          "completion_tokens": 221,
+          "latency_ms": 1355.7666790002258,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:28.937401Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Tired all the time for a couple of months, and my periods have been heavy.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.02684684684684685
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.026356857985087564
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 27.31999400020868
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:28.937617Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Tired all the time for a couple of months, and my periods have been heavy."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 27.951031999691622,
+          "source_doc_ids": [
+            "condition-hypothyroidism",
+            "condition-insomnia",
+            "lifestyle-migraine-sleep",
+            "red-flag-stroke-symptoms",
+            "condition-migraine"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:29.809914Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3966,
+          "completion_tokens": 154,
+          "latency_ms": 871.9175969999924,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:29.850649Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "Tired all the time for a couple of months, and my periods have been heavy.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.02871794871794872
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.02862400327131466
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 1,
+              "rrf_score": 0.027071520029266508
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 37.61818599923572
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:29.850932Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "Tired all the time for a couple of months, and my periods have been heavy."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 40.559562999987975,
+          "source_doc_ids": [
+            "condition-hypothyroidism",
+            "condition-insomnia",
+            "condition-generalized-anxiety-disorder",
+            "condition-iron-deficiency-anemia",
+            "condition-type-2-diabetes"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:36.491523Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5685,
+          "completion_tokens": 1247,
+          "latency_ms": 6640.087759999915,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:36.491694Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:36.494149Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:36.494656Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:36.495302Z",
+          "trace_id": "6f88858c284f43f6ac5f9a61f247aef2",
+          "session_id": "full-g-su-028",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Tired all the time for a couple of months, and my periods have been heavy.",
+          "answer": "**Urgency: routine, but book a non-urgent appointment soon.** The red-flag table did not match your description. That is not the same as being cleared. Fatigue for a couple of months with heavy periods is worth a proper check-up, ideally within the next few weeks.\n\n**Seek urgent care now if you have any of these:** feeling faint or dizzy, chest pain, breathlessness at rest, a racing heartbeat that does not settle, or bleeding so heavy that you soak through protection very quickly. The iron-deficiency anemia summary lists breathlessness, palpitations, and dizziness as features of low blood count. Those symptoms need prompt assessment.\n\n**Possible areas a clinician may want to check (from the reference summaries):**\n\n- **Blood loss or anemia.** Heavy periods can lead to low iron and low blood count. The iron-deficiency anemia summary lists fatigue, pale skin, breathlessness on exertion, and cold hands and feet as common features. A blood count and iron stores (ferritin) are the usual first tests.\n- **Thyroid.** The hypothyroidism summary lists fatigue and heavy or irregular periods together. Thyroid problems are confirmed with blood tests, not by symptoms alone.\n- **Blood sugar.** The type 2 diabetes summary lists fatigue as a classic symptom.\n- **Sleep, mood, and anxiety.** The insomnia and generalized anxiety summaries list fatigue and disturbed sleep. Caffeine, alcohol, and some medicines can also contribute.\n\nThese are areas to discuss, not conclusions. Several can cause tiredness at the same time, and the symptoms overlap, so a clinician will usually compare blood results with your history.\n\n**Before the appointment,** it may help to note when the tiredness started, how heavy the periods are (for example, how often you change protection), any other symptoms, and any medicines or supplements you take.\n\nI could not look up further detail on heavy menstrual bleeding because the search limit for this conversation was reached. Please treat this as a starting point and ask your clinician about the bleeding directly.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 10498.128678000285,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

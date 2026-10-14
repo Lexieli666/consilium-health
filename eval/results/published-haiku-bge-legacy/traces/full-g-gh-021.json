@@ -1,0 +1,337 @@
+{
+  "session_id": "full-g-gh-021",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:11.756616Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 823,
+          "completion_tokens": 266,
+          "latency_ms": 1765.902226000435,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:11.757028Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the non-medication options for long-term insomnia, such as cognitive behavioural therapy for insomnia (CBT-I), sleep hygiene and routine changes, and relevant lifestyle factors, and note when persistent insomnia should be reviewed by a clinician.",
+              "why": "This is a general lifestyle and condition-management question with no symptom triage or evidence-dispute component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1766.4577610003107
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:11.757089Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:11.757133Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:13.283280Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1655,
+          "completion_tokens": 316,
+          "latency_ms": 1525.0670800005537,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:13.312365Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "chronic insomnia sleep",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 3,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.02786377708978328
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 2,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 28.72302700052387
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:13.312628Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "chronic insomnia",
+            "domain": "sleep"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 29.03031400001055,
+          "source_doc_ids": [
+            "lifestyle-insomnia-sleep",
+            "lifestyle-migraine-sleep",
+            "lifestyle-copd-activity",
+            "lifestyle-type-2-diabetes-activity",
+            "lifestyle-generalized-anxiety-disorder-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:13.357401Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "cognitive behavioural therapy for insomnia CBT-I non-drug treatment long-term insomnia",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 3,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 3,
+              "rrf_score": 0.030158730158730156
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 0,
+              "rrf_score": 0.029418126757516764
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 2,
+              "rrf_score": 0.02782608695652174
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 3,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 3,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.013157894736842105
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 44.26945200066257
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:13.357580Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "cognitive behavioural therapy for insomnia CBT-I non-drug treatment long-term insomnia"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 44.47357600020041,
+          "source_doc_ids": [
+            "condition-insomnia",
+            "guideline-insomnia-cbt-first-line",
+            "coding-insomnia-g47",
+            "lifestyle-insomnia-sleep",
+            "coding-icd10-chapter-05-mental"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:17.560825Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5166,
+          "completion_tokens": 886,
+          "latency_ms": 4202.713055000459,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:17.561005Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:17.561932Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:17.563400Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:45:17.565065Z",
+          "trace_id": "dce034b089f2403e857912cf3d20316c",
+          "session_id": "full-g-gh-021",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Apart from medication, what helps with long-term insomnia?",
+          "answer": "Cognitive behavioural therapy for insomnia (CBT-I) is the main non-drug treatment. Sleep medicine and internal medicine guidance list it as first-line for long-term insomnia in adults, ahead of medication. Its effects tend to last after treatment ends, which medication effects generally do not. It is usually delivered over about four to eight sessions and includes:\n\n- **Stimulus control:** using the bed only for sleep, and getting up when unable to sleep, so the bed stops signalling wakefulness. (Guideline note: *Chronic insomnia: cognitive behavioral therapy as first-line treatment*)\n- **Sleep restriction:** limiting time in bed toward actual sleep time, then extending it gradually as sleep improves. (Same guideline note)\n\nSleep habits support sleep but do not treat chronic insomnia on their own. The habit advice in the corpus (*Sleep habits for insomnia*) includes:\n\n- **A consistent wake time, seven days a week.** This matters more than bedtime, because morning light sets the body clock.\n- **A cool, dark, quiet room, with the clock turned away.** Checking the time at night tends to increase alertness.\n- **Exercise.** It generally supports sleep, but vigorous exercise close to bedtime helps some people and disturbs others, so it is worth testing for yourself.\n\nLifestyle factors also matter. The guideline note says alcohol shortens the time to fall asleep but fragments the second half of the night, so it often makes sleep worse even when it seems to help at first. Caffeine, nicotine and irregular shift patterns can also affect sleep and are worth reviewing.\n\n**When to see a clinician:** The condition overview (*Insomnia*) lists signs that need further assessment beyond insomnia treatment:\n- loud snoring with witnessed pauses in breathing\n- excessive daytime sleepiness\n- falling asleep while driving\n- acting out dreams\n- sleep problems alongside low mood or hopelessness\n\nThe migraine note adds that headache on waking most mornings, or headache that repeatedly wakes you, is worth raising with a clinician.\n\nI could not complete a final search for further review criteria, so this list may not be exhaustive. A clinician can advise on your own situation. If you have thoughts of harming yourself, seek immediate help from a crisis service or emergency care.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7570.522777000406,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+{
+  "session_id": "full-g-su-033",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:05.847257Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 849,
+          "completion_tokens": 295,
+          "latency_ms": 1990.5313360000036,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:05.847630Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess this as a possible anaphylaxis emergency: swollen lips and throat tightness ten minutes after eating shellfish. State immediately that emergency services should be called now, and that an adrenaline auto-injector should be used without delay if the person has one prescribed, as directed by their action plan. Flag any red-flag signs such as breathing difficulty, voice change, drooling, dizziness, or collapse.",
+              "why": "This is a time-critical urgency and red-flag question, which the diagnostic specialist owns."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1990.9681350000028
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:05.847686Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:05.847719Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:07.045344Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1737,
+          "completion_tokens": 189,
+          "latency_ms": 1196.6006120001111,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:07.048163Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I ate shellfish ten minutes ago and now my lips are swollen and my throat feels tight. Possible anaphylaxis: swollen lips and throat tightness ten minutes after eating shellfish.",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 3,
+              "rrf_score": 0.031024531024531024
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.02976190476190476
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.027650648360030512
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 0,
+              "rrf_score": 0.027598020555767037
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 0,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 2,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 1.7965849999654893
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:07.048396Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I ate shellfish ten minutes ago and now my lips are swollen and my throat feels tight. Possible anaphylaxis: swollen lips and throat tightness ten minutes after eating shellfish."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 2.7489800002058473,
+          "source_doc_ids": [
+            "red-flag-anaphylaxis",
+            "red-flag-chest-pain",
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-stroke-symptoms",
+            "red-flag-acute-abdominal-pain"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:12.246610Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4010,
+          "completion_tokens": 903,
+          "latency_ms": 5197.814062000134,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:12.246752Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:12.247339Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:12.247385Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:09:12.247510Z",
+          "trace_id": "17f77b82ce2648579111039d52254884",
+          "session_id": "full-g-su-033",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I ate shellfish ten minutes ago and now my lips are swollen and my throat feels tight. Should I use my adrenaline pen?",
+          "answer": "**Call emergency services now.** Do not wait to see if it gets better.\n\n**Yes, use your adrenaline auto-injector without delay if you have one prescribed.** Follow your action plan and the device's own instructions. The assessment tool advises using it straight away, into the outer thigh, and calling emergency services before or while you use it. Do not wait for a second opinion first.\n\nSwollen lips and a tight throat soon after eating shellfish match the warning pattern for anaphylaxis, a fast, serious allergic reaction. The guidance says it can be fatal and can worsen quickly (Anaphylaxis and severe allergic reaction, red-flag guidance). Get emergency help now, even if the symptoms seem to be easing.\n\n**Get help straight away if you notice any of these:**\n- Trouble breathing, breathlessness, wheezing, or a persistent cough\n- A hoarse voice, or difficulty swallowing\n- Drooling\n- Dizziness, faintness, or collapse\n- Pale skin or a weak, fast pulse\n- Vomiting or severe stomach pain\n\nTell the call handler that you think this is a severe allergic reaction after eating shellfish, and when the symptoms started.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "emergency",
+          "wall_ms": 8390.166877999945,
+          "red_flag_matched": true,
+          "red_flag_matched_raw": true,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,343 @@
+{
+  "session_id": "full-g-gh-004",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:14.154533Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 815,
+          "completion_tokens": 102,
+          "latency_ms": 1165.8169710000266,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:14.154964Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain how COPD and asthma differ in definition, typical causes, airflow limitation pattern, and usual course, in plain language.",
+              "why": "This is a condition-explanation question with no symptom triage or evidence-dispute component."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1166.299902999981
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:14.155030Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:14.155065Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:15.510908Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1599,
+          "completion_tokens": 222,
+          "latency_ms": 1354.7153529999605,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:15.512489Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "COPD definition causes airflow limitation course",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 0,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.0315136476426799
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 3,
+              "rrf_score": 0.029827662395050816
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 0,
+              "rrf_score": 0.028258706467661692
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 2,
+              "rrf_score": 0.027799227799227798
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 0,
+              "rrf_score": 0.027212143650499815
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.013157894736842105
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 1.2530249999826992
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:15.512711Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "COPD definition causes airflow limitation course",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 1.5229530000624436,
+          "source_doc_ids": [
+            "condition-copd",
+            "condition-asthma",
+            "condition-osteoarthritis",
+            "condition-influenza",
+            "condition-urinary-tract-infection"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:15.514228Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "asthma definition causes airflow limitation reversibility course",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 0,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 3,
+              "rrf_score": 0.030621785881252923
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 2,
+              "rrf_score": 0.028782894736842105
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 0,
+              "rrf_score": 0.028577260665441927
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 0,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 1.0770210000146108
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:15.514357Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "asthma definition causes airflow limitation reversibility course",
+            "category": "condition"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 1.2284829999771318,
+          "source_doc_ids": [
+            "condition-copd",
+            "condition-asthma",
+            "condition-osteoarthritis",
+            "condition-heart-failure",
+            "condition-influenza"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:20.781029Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4935,
+          "completion_tokens": 1033,
+          "latency_ms": 5266.3120500000105,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:20.781212Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:20.782205Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:20.782792Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T00:01:20.783531Z",
+          "trace_id": "ef3acf82ffaa48c083381201304721d8",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "How is COPD different from asthma?",
+          "answer": "**Short answer:** The main difference is the pattern of airflow limitation. In COPD the narrowing is persistent. In asthma it comes and goes. The retrieved material did not cover every part of your question, so I've noted the gaps below.\n\n**COPD** (source: *Chronic obstructive pulmonary disease (COPD)*, general clinical reference)\n- **What it is:** Long-term damage to the airways and lung tissue. It usually involves chronic inflammation with narrowed small airways, and emphysema, where the air sacs are destroyed.\n- **Airflow:** The limitation is persistent, not variable.\n- **Course:** The damage is not reversible. Treatment can ease symptoms and improve exercise capacity. Stopping the exposure that caused it is what changes how the condition progresses.\n- **Causes:** The passage mentions a \"relevant exposure history\" but does not name the exposures, so I can't list them from this source.\n\n**Asthma** (source: *Asthma*, general clinical reference)\n- **Airflow:** Limitation is variable. Diagnosis needs objective evidence of this variation, not just the symptom pattern.\n- **Triggers:** These include viral infections, house dust mite, pollen, animal dander, mold, tobacco smoke, air pollution, cold air, exercise, strong odours, and some medicines. Identifying an individual's triggers is part of managing it.\n- **Gaps:** The passage I retrieved was partial. It did not include asthma's general definition or its usual long-term course, so I can't describe those from this source.\n\n**Where they overlap:** The COPD source says the two can overlap in some people, and that this overlap is treated as its own situation.\n\nIf you have breathing symptoms yourself, a clinician can assess which pattern fits. If breathlessness is severe or getting worse quickly, seek urgent medical care.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7792.658103999997,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

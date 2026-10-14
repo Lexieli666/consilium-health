@@ -1,0 +1,361 @@
+{
+  "session_id": "full-g-md-018",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:28.122330Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 850,
+          "completion_tokens": 336,
+          "latency_ms": 1994.1961069998797,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:28.122719Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess how urgently a pregnant person at 34 weeks with new hand swelling and a persistent headache needs same-day emergency or obstetric assessment, state the red flags that would call for immediate emergency care, and frame the differential, including preeclampsia, so the person knows what to ask their clinician about.",
+              "why": "This is a symptom and urgency question in pregnancy, and the diagnostic specialist owns urgency and red-flag claims."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1994.6597110001676
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:28.122776Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:28.122809Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:29.362385Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1703,
+          "completion_tokens": 167,
+          "latency_ms": 1238.5186920000706,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:29.400488Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I am 34 weeks pregnant. I have new swelling in my hands and a headache that will not go away.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.032018442622950824
+            },
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 3,
+              "rrf_score": 0.030017921146953404
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 37.11818099964148
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:29.400723Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I am 34 weeks pregnant. I have new swelling in my hands and a headache that will not go away."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 37.81985099976737,
+          "source_doc_ids": [
+            "red-flag-sudden-severe-headache",
+            "red-flag-meningitis-signs",
+            "guideline-migraine-acute-and-preventive-treatment",
+            "condition-migraine",
+            "red-flag-stroke-symptoms"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:31.180380Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4071,
+          "completion_tokens": 354,
+          "latency_ms": 1779.222590000245,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:31.228902Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "I am 34 weeks pregnant with new swelling in my hands and a headache that will not shift.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 3,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 3,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.03047794966520434
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 3,
+              "rrf_score": 0.029116045245077504
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.02786377708978328
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.0259915611814346
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.02532051282051282
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 47.67541500041261
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:31.231121Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "I am 34 weeks pregnant with new swelling in my hands and a headache that will not shift."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 50.36445400037337,
+          "source_doc_ids": [
+            "condition-hypothyroidism",
+            "condition-migraine",
+            "condition-upper-respiratory-infection",
+            "condition-osteoarthritis",
+            "condition-influenza"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:40.081650Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5715,
+          "completion_tokens": 1634,
+          "latency_ms": 8849.881158999779,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:40.081819Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:40.082765Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:40.085285Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T02:05:40.085903Z",
+          "trace_id": "b98dfa4959dc4c9f84044de96c2a8d7e",
+          "session_id": "full-g-md-018",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I am 34 weeks pregnant with swelling in my hands and a headache that will not shift. How urgent is this, and what should I be asking about?",
+          "answer": "**Please contact your maternity or obstetric team today.** Do not wait for your next routine appointment. If you cannot reach them, or if your symptoms get worse, go to your nearest emergency department or call your local emergency number.\n\nMy urgency check returned \"routine\" because the symptoms did not match its fixed list of emergency patterns. That is not a clearance. The headache guidance I retrieved says a new headache in pregnancy, \"particularly with visual changes, swelling or upper abdominal pain,\" needs same-day medical assessment (source: red-flag-sudden-severe-headache). You have new swelling and a headache that will not go away, so same-day review is the right step.\n\n**Seek emergency care immediately if you have any of these:**\n- Sudden, severe headache that reaches its peak almost instantly (source: red-flag-sudden-severe-headache).\n- Sudden weakness or numbness in one arm or leg, a drooping face, slurred speech, or sudden confusion (source: red-flag-stroke-symptoms).\n- Sudden loss or blurring of vision in one or both eyes (source: red-flag-stroke-symptoms).\n- A seizure, or difficulty waking (source: red-flag-meningitis-signs).\n- Fever with a stiff neck, or a rash of spots that does not fade when pressed (source: red-flag-meningitis-signs).\n- Severe pain under your ribs or in your upper abdomen. The headache guidance names this as a pregnancy warning sign that needs same-day review, and you should go to emergency care if it is severe.\n\n**What to ask your clinician today:**\n- Should my blood pressure be checked now, and should preeclampsia be ruled out? I could not retrieve passages on preeclampsia for this answer, so I cannot explain it from my sources. Your clinician can explain it.\n- Does the swelling in my hands need checking alongside the headache, and is any other swelling present?\n- Does my headache need a blood or urine test?\n- What should I do if the headache, swelling or any new symptom gets worse tonight?\n\nI could not assess the swelling on its own. The symptom tool only matched the headache. The general conditions it listed (migraine, colds, flu, arthritis, thyroid problems) do not take account of pregnancy, so they should not be read as explanations for your symptoms. Only your clinician can tell you what is causing them.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 13953.874963999624,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

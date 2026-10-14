@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-su-031",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:50.343643Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 839,
+          "completion_tokens": 144,
+          "latency_ms": 1047.130826999819,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:50.344046Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of chest pain spreading down the left arm with sweating and nausea, state clearly whether this needs emergency care now, and frame the differential with the red flags that apply.",
+              "why": "Chest pain with arm spread, sweating and nausea is a possible emergency, and urgency and red-flag claims belong to the diagnostic specialist."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1047.5821029995132
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:50.344107Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:50.344136Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:51.555871Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1653,
+          "completion_tokens": 111,
+          "latency_ms": 1210.6256409997513,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:51.589241Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Chest pain spreading down the left arm, with sweating and feeling sick (nausea). User asks what to do.",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.030536130536130537
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 0,
+              "rrf_score": 0.030158730158730156
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.029386529386529386
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.02821939586645469
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 0,
+              "rrf_score": 0.02797339593114241
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 1,
+              "rrf_score": 0.026153846153846153
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "red-flag-gastrointestinal-bleeding",
+              "chunk_index": 2,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.012987012987012988
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 32.41066400005366
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:51.589499Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Chest pain spreading down the left arm, with sweating and feeling sick (nausea). User asks what to do."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 33.254295000006096,
+          "source_doc_ids": [
+            "red-flag-chest-pain",
+            "red-flag-stroke-symptoms",
+            "red-flag-sepsis",
+            "red-flag-acute-abdominal-pain",
+            "red-flag-severe-breathing-difficulty"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:56.116248Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 3891,
+          "completion_tokens": 741,
+          "latency_ms": 4526.2205429999085,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:56.116418Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:56.118310Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:56.118547Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:50:56.118937Z",
+          "trace_id": "73a63f3daa7345d6822b662fc5a74195",
+          "session_id": "full-g-su-031",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I am having chest pain and it is spreading down my left arm. I feel sweaty and sick. What should I do?",
+          "answer": "**Call emergency services now (999, 112, 911, or your local number). Do not drive yourself. Do not wait to see if it passes.**\n\nThe urgency rating comes from a fixed rule table: **emergency**. Chest discomfort spreading to the arm, with sweating and nausea, can be a heart attack. Treatment works best in the first minutes. The guidance says to treat this as a possible heart attack until a clinician proves otherwise (*Chest pain that may indicate a heart attack*, red-flag guidance). Tell the call handler exactly what you told me.\n\nWhile you wait:\n- Sit or lie down and try to stay calm.\n- If someone is with you, ask them to stay with you.\n- Do not eat or drink anything.\n\nThe same guidance lists other signs that also need an emergency call: pressure or tightness in the chest, discomfort in the neck, jaw or back, shortness of breath, light-headedness, or a feeling of impending doom.\n\nAlso check for sudden face drooping, arm weakness, slurred speech, or sudden confusion. These can signal a stroke, and you should tell the call handler about them too (*Sudden neurological symptoms that may indicate a stroke*, red-flag guidance).\n\nI can't tell you what is causing this. The retrieved guidance does not give a list of possible causes for this combination, so that is a question for the clinicians who assess you.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "emergency",
+          "wall_ms": 6820.038900000327,
+          "red_flag_matched": true,
+          "red_flag_matched_raw": true,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

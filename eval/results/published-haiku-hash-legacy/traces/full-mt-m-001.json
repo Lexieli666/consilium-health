@@ -1,0 +1,626 @@
+{
+  "session_id": "full-mt-m-001",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:09.323109Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 820,
+          "completion_tokens": 203,
+          "latency_ms": 1585.2291270002752,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:09.324588Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what a hypertension diagnosis means, how it is classified, and the common lifestyle measures and questions to raise with the treating clinician.",
+              "why": "The user states a diagnosis and asks for no symptom triage or evidence review, so general condition explanation covers it."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1586.66363500015
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:09.324691Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:09.324769Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:10.631140Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 1608,
+          "completion_tokens": 262,
+          "latency_ms": 1304.8154250000152,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:10.633297Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "what hypertension (high blood pressure) is and how it is classified",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 0,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 0,
+              "rrf_score": 0.0315136476426799
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 1,
+              "rrf_score": 0.030886196246139225
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 2,
+              "rrf_score": 0.03055037313432836
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 1,
+              "rrf_score": 0.029437229437229435
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.029030910609857977
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 0,
+              "rrf_score": 0.028438886647841874
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 2,
+              "rrf_score": 0.027984344422700584
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 2,
+              "rrf_score": 0.02666666666666667
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 1.6794590001154575
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:10.633532Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "what hypertension (high blood pressure) is and how it is classified"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 2.039970999248908,
+          "source_doc_ids": [
+            "guideline-hypertension-diagnosis-and-bp-targets",
+            "lifestyle-heart-failure-diet",
+            "condition-hypertension",
+            "coding-hypertension-i10",
+            "guideline-hypertension-first-line-treatment"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:10.634565Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "hypertension",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 1,
+              "rrf_score": 0.01282051282051282
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 0.516727000103856
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:10.634698Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "hypertension"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 0.6924009994691005,
+          "source_doc_ids": [
+            "lifestyle-hypertension-diet",
+            "lifestyle-asthma-adherence",
+            "lifestyle-copd-activity",
+            "lifestyle-generalized-anxiety-disorder-activity",
+            "lifestyle-gerd-diet"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:15.495711Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 4965,
+          "completion_tokens": 944,
+          "latency_ms": 4860.699934999502,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:15.495911Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:15.501713Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:15.502393Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:15.503301Z",
+          "trace_id": "8b3bab2f3b904fd7a515fe4b831c2087",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have been diagnosed with high blood pressure.",
+          "answer": "A diagnosis of high blood pressure (hypertension) means your blood pressure is raised over time, not just on one visit. Blood pressure has two numbers: the top (systolic) and the bottom (diastolic), both in millimeters of mercury. Because readings change through the day, doctors usually confirm a diagnosis with repeated measurements. (Source: *Hypertension (high blood pressure)*, general clinical reference.)\n\n**How it is classified (adult office readings, US society guidance):**\n- **Normal:** top below 120 and bottom below 80.\n- **Elevated:** top 120 to 129 and bottom below 80.\n- **Stage 1:** top 130 to 139, or bottom 80 to 89.\n- **Stage 2:** top 140 or higher, or bottom 90 or higher.\n\nIf the two numbers fall in different categories, the higher one applies. (Source: *Hypertension: diagnostic thresholds and blood-pressure targets*, guideline summary.)\n\n**Common lifestyle measures:** The diet guidance describes a whole-pattern approach. Reducing salt and alcohol can help, and losing weight lowers blood pressure in proportion to the amount lost, even before a target weight is reached. The guidance says single \"superfood\" items, vinegar and garlic supplements lack comparable evidence. (Source: *Diet for high blood pressure*, lifestyle reference. My search returned only part of this document, so ask a clinician or dietitian for the full picture.)\n\n**Questions you could raise with your clinician:**\n- Was my diagnosis based on repeated readings, and were any taken outside the clinic, such as at home?\n- What stage am I in, and what is my target?\n- Which lifestyle changes would matter most for me, and how will we check progress?\n- If treatment is suggested, how often will my blood pressure be rechecked?\n- Do any of my other medicines, or over-the-counter products, affect blood pressure?\n\n**What I could not cover:** I was unable to look up the diagnosis code for your case. The coding reference I found says hypertension is usually classified under code I10, but the code used in your records depends on your clinician's documentation. I also did not find guidance on which medicines suit you, and I cannot give doses. Those decisions belong with your treating clinician.\n\nIf you have chest pain, severe shortness of breath, sudden weakness or numbness, confusion, or a severe headache with vision changes, seek emergency care right away.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7758.271183999568,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:17.011593Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 809,
+          "completion_tokens": 206,
+          "latency_ms": 1507.7144679999037,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:17.012033Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "The question 'What about diet?' has no stated condition, goal, or symptom. Give general dietary guidance that fits a broad range of readers, and say briefly what details (condition, goal, or concern) would let the answer be more specific.",
+              "why": "This is a general lifestyle question with no symptom or evidence component, so one agent is enough."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1508.2307860002402
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:17.012096Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:17.012129Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:19.369205Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 2639,
+          "completion_tokens": 449,
+          "latency_ms": 2355.7988290003777,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:19.370919Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "hypertension diet",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.032018442622950824
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.031009615384615385
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.03007688828584351
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 1.0288800003763754
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:19.371101Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "hypertension",
+            "domain": "diet"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 1.4271080008256831,
+          "source_doc_ids": [
+            "lifestyle-heart-failure-diet",
+            "lifestyle-gerd-diet",
+            "lifestyle-hypertension-diet",
+            "lifestyle-osteoarthritis-activity",
+            "lifestyle-asthma-adherence"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:19.372993Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "general healthy eating guidance for a broad range of adults",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 2,
+              "rrf_score": 0.03131881575727918
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.029906956136464335
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.029513888888888888
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.027222222222222224
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 1.3226699993538205
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:19.373268Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "general healthy eating guidance for a broad range of adults",
+            "category": "lifestyle"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 1.6275749994747457,
+          "source_doc_ids": [
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-heart-failure-diet",
+            "lifestyle-type-2-diabetes-adherence",
+            "lifestyle-osteoarthritis-activity",
+            "lifestyle-gerd-diet"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:26.274476Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "prompt_tokens": 5748,
+          "completion_tokens": 1395,
+          "latency_ms": 6900.818681000601,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:26.274626Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T01:18:26.278540Z",
+          "trace_id": "9611f8d0707842359d5f23250a057957",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "What about diet?",
+          "answer": "No single diet suits everyone. The diabetes nutrition guidance says several eating patterns have good evidence, and the best one is the one a person can keep up with, given their tastes, culture, budget, and cooking situation. (Source: *Diet for type 2 diabetes*, national diabetes association educational summary.)\n\n**Features that most healthy patterns share:**\n- More non-starchy vegetables, whole grains, beans and lentils, nuts, and minimally processed foods.\n- Less refined grains, added sugar, sugar-sweetened drinks, and highly processed foods.\n\nFor blood pressure, the diet guidance adds that cutting back on alcohol and losing weight both help, even before a target weight is reached. (Source: *Diet for high blood pressure*, lifestyle reference.)\n\n**Avoid cutting out whole food groups without a reason.** Reflux guidance says removing many common trigger foods has weak evidence and is hard to sustain. It recommends noticing which foods bother you personally. (Source: *Eating with reflux*, gastroenterology educational summary.)\n\n**To make this more specific, it would help to know:**\n- **Your condition**, if you have one. Some conditions come with specific limits, such as salt or fluid restrictions in heart failure, which your clinician should set for you.\n- **Your goal**, such as losing weight, lowering blood pressure, steadying blood sugar, or easing reflux.\n- **Any concern**, such as a food you think triggers symptoms, or difficulty eating enough.\n- **Practical limits**, such as budget, cooking time, or foods you cannot eat.\n\nI could not find guidance in the corpus that fits every reader, so these points are general, not a meal plan. A dietitian can tailor a plan to you.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 10770.909367000058,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}
