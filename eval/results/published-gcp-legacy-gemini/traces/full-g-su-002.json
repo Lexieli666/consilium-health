@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-su-002",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:12.558699Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 548,
+          "completion_tokens": 163,
+          "latency_ms": 1454.6925500000043,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:12.674493Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of the symptoms described for the user's father, specifically left arm ache, grey appearance, and sweating, considering his age.",
+              "why": "These are acute symptoms requiring urgent assessment for potential serious conditions."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1570.6662329999972
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:12.674681Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:12.674795Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:13.963436Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 708,
+          "completion_tokens": 114,
+          "latency_ms": 1286.756432000061,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:14.041308Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "my dads left arm has gone all achy n hes gone grey and sweaty, hes 62",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.032018442622950824
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.02921395544346364
+            },
+            {
+              "doc_id": "coding-icd10-chapter-13-musculoskeletal",
+              "chunk_index": 0,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.028985507246376812
+            },
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 76.69872799999666
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:14.041728Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "my dads left arm has gone all achy n hes gone grey and sweaty, hes 62"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 77.61933699998735,
+          "source_doc_ids": [
+            "red-flag-stroke-symptoms",
+            "red-flag-severe-breathing-difficulty",
+            "coding-icd10-chapter-13-musculoskeletal",
+            "red-flag-chest-pain",
+            "guideline-uri-antibiotic-stewardship"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:19.953210Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2232,
+          "completion_tokens": 577,
+          "latency_ms": 5910.33693899999,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:19.953889Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:19.954815Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:19.955512Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:19.956425Z",
+          "trace_id": "6104cff1155e45c5b9a9f1e49b11339d",
+          "session_id": "full-g-su-002",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "my dads left arm has gone all achy n hes gone grey and sweaty, hes 62, is that somethin to worry about",
+          "answer": "Please call for emergency medical help immediately.\n\nYour father's symptoms—left arm ache, grey appearance, and sweating—are concerning. Discomfort in one or both arms, accompanied by sweating, can be a sign of a serious condition such as a heart attack, especially in a 62-year-old.\n\nPlease do not delay in seeking immediate medical attention.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 8850.663333999932,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

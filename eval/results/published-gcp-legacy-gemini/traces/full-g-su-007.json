@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-su-007",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:59.029525Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 545,
+          "completion_tokens": 143,
+          "latency_ms": 1494.4396320000806,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:59.145502Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the described symptoms following a wasp sting, assess the urgency of the situation, and identify potential red flags.",
+              "why": "These are acute symptoms requiring immediate urgency assessment and interpretation of a potential allergic reaction."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1610.6801460000497
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:59.145744Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:59.145938Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:53:00.817409Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 698,
+          "completion_tokens": 112,
+          "latency_ms": 1669.6703339999885,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:53:00.859492Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "Got stung by a wasp an hour ago, my hand has ballooned and now my eyelids look puffy and I feel strange.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.02976190476190476
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 0,
+              "rrf_score": 0.02921395544346364
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 2,
+              "rrf_score": 0.02877846790890269
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.026500526500526502
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 40.970377999997254
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:53:00.859871Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "Got stung by a wasp an hour ago, my hand has ballooned and now my eyelids look puffy and I feel strange."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 41.90723499993965,
+          "source_doc_ids": [
+            "red-flag-stroke-symptoms",
+            "red-flag-suicidal-ideation",
+            "red-flag-anaphylaxis",
+            "red-flag-chest-pain",
+            "guideline-hypothyroidism-testing-and-monitoring"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:53:05.473682Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2216,
+          "completion_tokens": 527,
+          "latency_ms": 4612.847008999893,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:53:05.474272Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:53:05.474755Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:53:05.475145Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:53:05.475568Z",
+          "trace_id": "c1875dc7383145ffa96b59f15858b943",
+          "session_id": "full-g-su-007",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Got stung by a wasp an hour ago, my hand has ballooned and now my eyelids look puffy and I feel strange.",
+          "answer": "This is an emergency. You should seek immediate medical care.\n\nYour symptoms, particularly the puffy eyelids and feeling strange in addition to the swelling, could indicate a severe allergic reaction, also known as anaphylaxis, which requires urgent medical attention.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 7939.746554999942,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

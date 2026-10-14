@@ -78,6 +78,8 @@ from pathlib import Path
 import yaml
 
 from consilium.config import ABLATION_PRESETS, PRESETS, Settings, get_preset
+from consilium.llm.base import LLMProvider
+from consilium.llm.factory import make_provider
 from consilium.log import configure_logging, get_logger
 from consilium.retrieval.corpus import Document
 from consilium.runtime import Runtime, build_runtime
@@ -163,6 +165,25 @@ def load_pricing(path: Path = PRICING_PATH) -> dict[str, dict[str, float]]:
         return {}
     rates = raw.get("rates") or {}
     return {str(key): {str(k): float(v) for k, v in value.items()} for key, value in rates.items()}
+
+
+def judge_provider(settings: Settings, runtime: Runtime) -> LLMProvider:
+    """The provider the judge grades with.
+
+    Defaults to the one the agents ran on, which is the right answer for a single run: one key,
+    one model, nothing to configure.  ``CONSILIUM_JUDGE_PROVIDER`` overrides it, and a comparison
+    across agent models has to set it -- otherwise each arm is graded by its own agent model and
+    the faithfulness column compares two instruments rather than two systems.  The judge model is
+    recorded in ``summary.json`` either way, so which instrument produced a number is always on
+    the record.
+    """
+    if settings.judge_provider is None:
+        return runtime.provider
+    return make_provider(
+        settings.model_copy(
+            update={"provider": settings.judge_provider, "model": settings.judge_model}
+        )
+    )
 
 
 def git_commit() -> str:
@@ -923,7 +944,7 @@ async def main(argv: Sequence[str] | None = None) -> int:
         documents = dict(runtime.documents)
         _warn_route_document_mismatches(runtime, items)
         if judge is None and not args.no_judge:
-            judge = Judge(runtime.provider)
+            judge = Judge(judge_provider(settings, runtime))
 
         print(f"running {name} over {len(items)} items", file=sys.stderr)
         runs = await sweep(runtime, items, prefix=name, runs_dir=runs_dir, meter=meter)

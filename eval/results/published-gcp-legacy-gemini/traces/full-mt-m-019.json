@@ -1,0 +1,698 @@
+{
+  "session_id": "full-mt-m-019",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:39:22.585291Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 529,
+          "completion_tokens": 90,
+          "latency_ms": 1221.755731000485,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:39:22.799424Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the symptom of wheezing at night in a child, including potential causes and urgency assessment.",
+              "why": "This is a symptom description requiring interpretation and urgency assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1436.1722029998418
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:39:22.799623Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:39:22.799743Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:39:23.915298Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 679,
+          "completion_tokens": 101,
+          "latency_ms": 1113.1222049998541,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:39:23.951996Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "wheezing at night in a child",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.031024531024531024
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 1,
+              "rrf_score": 0.030090497737556562
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.02967032967032967
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 3,
+              "rrf_score": 0.029116045245077504
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 1,
+              "rrf_score": 0.02694394213381555
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.02581612258494337
+            },
+            {
+              "doc_id": "lifestyle-insomnia-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 35.68481499951304
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:39:23.952410Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "wheezing at night in a child"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 36.4547240005777,
+          "source_doc_ids": [
+            "red-flag-severe-breathing-difficulty",
+            "condition-asthma",
+            "red-flag-sepsis",
+            "guideline-asthma-diagnosis-and-stepwise-therapy",
+            "coding-icd10-chapter-10-respiratory"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:39:28.815077Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2141,
+          "completion_tokens": 301,
+          "latency_ms": 4861.6512669996155,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:39:28.847411Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "wheezing at night in a child",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.029411764705882353
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.028665028665028666
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.013157894736842105
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 31.43400200042379
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:39:28.847979Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "wheezing at night in a child"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 32.35229199981404,
+          "source_doc_ids": [
+            "condition-asthma",
+            "condition-migraine",
+            "condition-insomnia",
+            "condition-gerd",
+            "condition-heart-failure"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:40:06.133633Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3592,
+          "completion_tokens": 298,
+          "latency_ms": 37284.844986999815,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:40:06.134003Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:40:06.134597Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:40:06.135247Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:40:06.136149Z",
+          "trace_id": "e4ea2d9fd2484cee93a109e7b940b512",
+          "session_id": "full-mt-m-019",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "My son has been wheezing at night.",
+          "answer": "Wheezing at night primarily involves the **respiratory system**.\n\nA common condition where wheezing is often worse at night or in the early morning is **asthma** (condition-asthma). Asthma is a chronic inflammatory condition of the airways where the airway lining is inflamed, and the surrounding muscle can constrict (condition-asthma). This can lead to symptoms like wheezing, breathlessness, chest tightness, and cough (condition-asthma).\n\nIt is important to discuss these symptoms with a clinician, as they can assess your son's specific situation and determine the appropriate steps.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 44771.02644899969,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:40:12.067145Z",
+          "trace_id": "ea94b492086d441dbcab68247861232f",
+          "session_id": "full-mt-m-019",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 524,
+          "completion_tokens": 364,
+          "latency_ms": 5857.707630999357,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:40:12.108371Z",
+          "trace_id": "ea94b492086d441dbcab68247861232f",
+          "session_id": "full-mt-m-019",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Ask for more information to understand the user's health question, as 'He is four' is insufficient to provide guidance.",
+              "why": "The input is not a question and lacks context, so the consultation agent acts as a fallback to gather more details."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 5899.107455000376
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:40:12.108581Z",
+          "trace_id": "ea94b492086d441dbcab68247861232f",
+          "session_id": "full-mt-m-019",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:40:12.108714Z",
+          "trace_id": "ea94b492086d441dbcab68247861232f",
+          "session_id": "full-mt-m-019",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:41:40.899103Z",
+          "trace_id": "ea94b492086d441dbcab68247861232f",
+          "session_id": "full-mt-m-019",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 860,
+          "completion_tokens": 1636,
+          "latency_ms": 88787.79124399989,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:41:40.899476Z",
+          "trace_id": "ea94b492086d441dbcab68247861232f",
+          "session_id": "full-mt-m-019",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:41:40.901584Z",
+          "trace_id": "ea94b492086d441dbcab68247861232f",
+          "session_id": "full-mt-m-019",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "He is four.",
+          "answer": "Thank you for sharing that your son is four years old. Understanding more about the situation can help. Could you tell me more about what you've noticed regarding his wheezing? For example:\n\n*   How long has he been wheezing at night?\n*   Are there any other symptoms accompanying the wheezing, such as a cough, fever, or any signs of breathing difficulty?\n*   Does anything seem to trigger the wheezing, like certain activities or times of year, or anything make it better or worse?\n\nIt's important to discuss these observations with a clinician, as they can assess your son's specific situation and determine the appropriate steps.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 94690.44269700043,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:41:43.558271Z",
+          "trace_id": "63a4e196f6e84a53a6d279697f02ea8e",
+          "session_id": "full-mt-m-019",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 528,
+          "completion_tokens": 100,
+          "latency_ms": 2534.9637039998925,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:41:43.709096Z",
+          "trace_id": "63a4e196f6e84a53a6d279697f02ea8e",
+          "session_id": "full-mt-m-019",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain how age typically influences medical recommendations and care plans.",
+              "why": "This is a general health question about a factor influencing care."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2685.966453999754
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:41:43.709276Z",
+          "trace_id": "63a4e196f6e84a53a6d279697f02ea8e",
+          "session_id": "full-mt-m-019",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:41:43.709389Z",
+          "trace_id": "63a4e196f6e84a53a6d279697f02ea8e",
+          "session_id": "full-mt-m-019",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:41:50.317529Z",
+          "trace_id": "63a4e196f6e84a53a6d279697f02ea8e",
+          "session_id": "full-mt-m-019",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1020,
+          "completion_tokens": 170,
+          "latency_ms": 6605.592412999613,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:41:50.349570Z",
+          "trace_id": "63a4e196f6e84a53a6d279697f02ea8e",
+          "session_id": "full-mt-m-019",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "how age influences medical recommendations and care plans",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 1,
+              "rrf_score": 0.030330882352941176
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 3,
+              "rrf_score": 0.030090497737556562
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 1,
+              "rrf_score": 0.028169014084507043
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 3,
+              "rrf_score": 0.02651914295749912
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 3,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 0,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 31.421351000062714
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:41:50.350008Z",
+          "trace_id": "63a4e196f6e84a53a6d279697f02ea8e",
+          "session_id": "full-mt-m-019",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "how age influences medical recommendations and care plans"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 31.897410999590647,
+          "source_doc_ids": [
+            "condition-hypertension",
+            "condition-migraine",
+            "guideline-influenza-vaccination-and-antivirals",
+            "guideline-lipid-screening-and-statin-initiation",
+            "guideline-insomnia-cbt-first-line"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:42:05.939379Z",
+          "trace_id": "63a4e196f6e84a53a6d279697f02ea8e",
+          "session_id": "full-mt-m-019",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2411,
+          "completion_tokens": 973,
+          "latency_ms": 15588.3050249995,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:42:05.939826Z",
+          "trace_id": "63a4e196f6e84a53a6d279697f02ea8e",
+          "session_id": "full-mt-m-019",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:42:05.943103Z",
+          "trace_id": "63a4e196f6e84a53a6d279697f02ea8e",
+          "session_id": "full-mt-m-019",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "Does his age change what is recommended?",
+          "answer": "Yes, age can significantly influence medical recommendations and care plans. This is because:\n\n*   **Physiological Differences**: A child's body is still developing and may react differently to conditions and treatments compared to an adult. For instance, an older adult's arteries might stiffen with age, influencing blood pressure management (condition-hypertension).\n*   **Risk Profiles**: Certain age groups have different risk factors or are more susceptible to particular conditions or their complications. For example, children under 5 (and especially under 2) are identified as a group where the benefit of influenza vaccination is largest (guideline-influenza-vaccination-and-antivirals).\n*   **Treatment Approaches**: The type of treatment, its dosage, or how it is administered can vary based on age. For influenza vaccination, higher-dose or adjuvanted formulations are preferentially described for adults aged 65 and over because their immune response to standard doses can be weaker (guideline-influenza-vaccination-and-antivirals). Similarly, side effects of certain medications, like antihistamine-based sleep aids, can be particularly notable in older adults (guideline-insomnia-cbt-first-line).\n\nFor your four-year-old, his age is a crucial factor in how a clinician would assess his wheezing and recommend a care plan. This is why discussing his symptoms with a healthcare professional is important.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 24917.09101000015,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

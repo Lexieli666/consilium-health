@@ -1,0 +1,493 @@
+{
+  "session_id": "full-mt-m-001",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:08:36.394290Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 529,
+          "completion_tokens": 106,
+          "latency_ms": 3430.039934999513,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:08:36.592089Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what high blood pressure is, its common causes, and general lifestyle recommendations for managing it.",
+              "why": "This is a general health question about a diagnosed condition."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 3628.07033900026
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:08:36.592253Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:08:36.592349Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:04.225539Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 623,
+          "completion_tokens": 233,
+          "latency_ms": 27631.025185999533,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:04.259773Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "high blood pressure",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 1,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03131881575727918
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 3,
+              "rrf_score": 0.029571646010002173
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 1,
+              "rrf_score": 0.028790389395194696
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.028484848484848488
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 2,
+              "rrf_score": 0.026547116736990152
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 33.61505099928763
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:04.260257Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "high blood pressure"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 34.14479300045059,
+          "source_doc_ids": [
+            "condition-hypertension",
+            "lifestyle-heart-failure-diet",
+            "guideline-hypertension-diagnosis-and-bp-targets",
+            "guideline-coronary-artery-disease-secondary-prevention",
+            "lifestyle-hypertension-diet"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:08.109868Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2020,
+          "completion_tokens": 435,
+          "latency_ms": 3848.435454999162,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:08.110301Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:08.111287Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "dosing_instruction",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "matched /\\b\\d+(?:\\.\\d+)?\\s*(?:mg|mcg|g|ml|iu|units?)\\b/ in: Many guidelines suggest aiming for under 2,300 mg per day, with further benefits seen at 1,500 mg for many adults.",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:08.111454Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:08.112557Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "dosing_instruction",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "redacted: Many guidelines suggest aiming for under 2,300 mg per day, with further benefits seen at 1,500 mg for many adults.",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:08.112725Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:08.113957Z",
+          "trace_id": "7c55631cbe4b4671a113509c0a11e44a",
+          "session_id": "full-mt-m-001",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have been diagnosed with high blood pressure.",
+          "answer": "High blood pressure, also known as hypertension, is a condition where blood pressure is consistently too high. It often doesn't cause symptoms unless the pressure is very high, which is why screening is important (condition-hypertension).\n\nSeveral factors can contribute to high blood pressure. Most cases do not have a single cause but result from a combination of age, genetics, excess body weight, high sodium intake in the diet, low potassium intake, lack of physical activity, alcohol consumption, poor sleep (including untreated sleep apnea), and chronic stress (condition-hypertension).\n\nLifestyle recommendations for managing high blood pressure include:\n\n*   **Dietary sodium reduction**: Lowering sodium intake is a key dietary change. [removed: this system does not give doses or amounts.] It's important to remember that most dietary sodium comes from packaged and restaurant foods, not just from salt added at the table (lifestyle-hypertension-diet).\n*   **Increased potassium intake**: Increasing dietary potassium, often found in fruits and vegetables, can also help lower blood pressure and enhances the effect of sodium reduction (lifestyle-hypertension-diet).\n*   **Physical activity**: Regular physical activity is beneficial (condition-hypertension).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 35146.69591100028,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:09.335975Z",
+          "trace_id": "5ad8b1b702f348e9b99ce780ba8bafb5",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 524,
+          "completion_tokens": 94,
+          "latency_ms": 1154.6340029999556,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:09.367237Z",
+          "trace_id": "5ad8b1b702f348e9b99ce780ba8bafb5",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Provide general information about healthy diet principles and their importance.",
+              "why": "This is a general health and lifestyle question."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1186.0667060000196
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:09.367420Z",
+          "trace_id": "5ad8b1b702f348e9b99ce780ba8bafb5",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:09.367534Z",
+          "trace_id": "5ad8b1b702f348e9b99ce780ba8bafb5",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:24.755069Z",
+          "trace_id": "5ad8b1b702f348e9b99ce780ba8bafb5",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 948,
+          "completion_tokens": 421,
+          "latency_ms": 15385.374912999396,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:24.786764Z",
+          "trace_id": "5ad8b1b702f348e9b99ce780ba8bafb5",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "hypertension diet",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03125763125763126
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.030090497737556562
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 3,
+              "rrf_score": 0.012658227848101266
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 31.068999000126496
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:24.787209Z",
+          "trace_id": "5ad8b1b702f348e9b99ce780ba8bafb5",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "domain": "diet",
+            "condition": "hypertension"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 31.546928000352636,
+          "source_doc_ids": [
+            "lifestyle-hypertension-diet",
+            "lifestyle-heart-failure-diet",
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-gerd-diet",
+            "lifestyle-hypertension-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:44.169512Z",
+          "trace_id": "5ad8b1b702f348e9b99ce780ba8bafb5",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2181,
+          "completion_tokens": 500,
+          "latency_ms": 19381.11196600039,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:44.170056Z",
+          "trace_id": "5ad8b1b702f348e9b99ce780ba8bafb5",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:44.173200Z",
+          "trace_id": "5ad8b1b702f348e9b99ce780ba8bafb5",
+          "session_id": "full-mt-m-001",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "What about diet?",
+          "answer": "For managing high blood pressure and generally promoting health, a dietary pattern that emphasizes vegetables, fruits, whole grains, low-fat dairy, poultry, fish, beans, nuts, and vegetable oils is often recommended. This approach also suggests limiting saturated fat, full-fat dairy, fatty meat, sweets, and sugar-sweetened drinks (lifestyle-hypertension-diet).\n\nIt's important to understand that this is about an overall eating pattern rather than focusing on a single \"blood pressure food.\" Reducing dietary sodium is also a key component, and most of the sodium we consume comes from packaged and restaurant foods rather than from salt added at the table (lifestyle-hypertension-diet, lifestyle-heart-failure-diet).\n\nGeneral healthy eating patterns, such as those recommended for type 2 diabetes, also share common principles: more non-starchy vegetables, whole grains instead of refined grains, legumes, nuts, and minimally processed foods. They also suggest fewer refined grains, added sugars, sugar-sweetened drinks, and highly processed foods (lifestyle-type-2-diabetes-diet). The most effective diet is often one that a person can maintain long-term, adapted to their individual preferences, culture, budget, and cooking situation.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 35989.21793599948,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

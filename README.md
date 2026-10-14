@@ -295,15 +295,15 @@ on half the red-flag items (0.500 against 0.893 for a plain LLM). The mechanism 
   metadata only; `mcp-serve --transport http` binds to localhost by default. Not hardened.
 - **`POST /v1/chat` streams the banner early and the body late.** The body is assembled and then
   delivered incrementally, so time to first token is the turn's latency (`docs/DESIGN.md`, Phase 9).
-- **The ADK orchestrator is measured, and it is worse on the headline safety metric.** On the
-  150-item golden set, run as a Cloud Run Job on the deployed image, `ORCHESTRATOR=adk`
-  (`gemini-2.5-flash` on Vertex AI) scores red-flag recall **0.821 against the legacy router's
-  0.929** on `claude-haiku-5-5` — five false negatives against two, all in the hard-phrasing
-  stratum — at 2.1× the cost per turn and a p95 of 35.25 s against 20.92 s. Retrieval and routing
-  are within a point or two. The two arms differ in orchestrator *and* agent model at once, and
-  the traces point at the model, so this is not a verdict on ADK as an architecture.
-  `docs/gcp-migration-eval.md` has the table, the trace-level causes and what the run does not
-  license concluding.
+- **Red-flag recall falls 0.929 → 0.821 on `gemini-2.5-flash`, and the cause is the model, not the
+  orchestrator.** Three 150-item arms on the deployed Cloud Run image, one judge: the legacy router
+  on `claude-haiku-5-5` scores 0.929; changing **only the model** (legacy router on
+  `gemini-2.5-flash`) gives 0.821; changing **only the orchestrator** from there (ADK tree, same
+  model) gives 0.821 again — identical, down to 17 of 22 hard-stratum items on both. Every miss is
+  in the hard-phrasing stratum, where the literal red-flag table never matches and the model has to
+  escalate unaided; `model_escalated_unaided` is 0.893 on Haiku and 0.821 on Gemini under both
+  orchestrations. `docs/gcp-migration-eval.md` has the three-way table, the verbatim trace
+  evidence and what the runs do not license concluding.
 
 ## Guardrails
 
@@ -532,10 +532,11 @@ run before any number in this document is updated.
 - **Widen v2's fan-out where the classification says it matters:** `analyze_symptoms` for
   symptom questions and a second search for two-document questions are the two residual
   mechanisms; both change measured behaviour and need their own run.
-- **Separate the orchestrator from the model in the ADK comparison.** The measured run moved both
-  at once; a third arm — the legacy router on `gemini-2.5-flash`, or the ADK tree on
-  `claude-haiku-5-5` — is what would attribute the red-flag regression to one of them.
-  `docs/gcp-migration-eval.md` states why the current pair cannot.
+- **Test whether prompting closes the Gemini escalation gap.** The regression is attributed to the
+  agent model, but the traces show it deferring to the red-flag table's silence rather than
+  reasoning from the question's content — which is a prompt-shaped failure as much as a model one.
+  Telling the agent to escalate on content regardless of the tool's verdict is the obvious
+  experiment, and it changes measured behaviour, so it needs its own run.
 - **Databricks mirror** of the corpus, index and evaluation harness — not started.
 - **Banking corpus**: a second domain to test whether the orchestration, the policy mechanism and
   the harness transfer; the red-flag table and the output rules are domain-specific and would need
@@ -557,8 +558,8 @@ run before any number in this document is updated.
 `docs/DESIGN.md` (decisions and rejected alternatives), `docs/EVALUATION.md` (golden set,
 metrics, judge validation), `docs/SAFETY.md` (rule table, validator, repair, §7 on the red-flag
 regression), `docs/FAILURE_CASES.md` (four traced failures), `docs/LANGGRAPH_EVAL.md` (LangGraph
-evaluation status and runbook), `docs/gcp-migration-eval.md` (the legacy router against the ADK
-orchestrator on Vertex AI, measured), `docs/CORPUS.md`, `docs/gcp-migration-STATUS.md`,
+evaluation status and runbook), `docs/gcp-migration-eval.md` (three measured arms separating
+the orchestrator from the agent model), `docs/CORPUS.md`, `docs/gcp-migration-STATUS.md`,
 `eval/cortex/README.md` (the Cortex Search comparison), `CHANGELOG.md`.
 
 ## License

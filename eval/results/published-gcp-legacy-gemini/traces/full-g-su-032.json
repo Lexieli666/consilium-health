@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-su-032",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:18.749874Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 543,
+          "completion_tokens": 113,
+          "latency_ms": 1330.6123639999896,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:18.876308Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the described symptoms and assess their urgency.",
+              "why": "The question describes acute symptoms and implicitly asks for urgency assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1457.229802999791
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:18.876491Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:18.876680Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:37.824507Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 683,
+          "completion_tokens": 107,
+          "latency_ms": 18945.603819000098,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:37.863986Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "My husband's face is drooping on one side and he can't speak properly.",
+          "category_filter": "red_flag",
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 0,
+              "rrf_score": 0.029236022193768675
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 0,
+              "rrf_score": 0.028991596638655463
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.028370221327967807
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 2,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "red-flag-acute-abdominal-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.013333333333333334
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 38.40387899981579
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:37.864496Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "My husband's face is drooping on one side and he can't speak properly."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 39.472529000022405,
+          "source_doc_ids": [
+            "red-flag-stroke-symptoms",
+            "red-flag-severe-breathing-difficulty",
+            "red-flag-sudden-severe-headache",
+            "red-flag-anaphylaxis",
+            "red-flag-chest-pain"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:44.913050Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2161,
+          "completion_tokens": 134,
+          "latency_ms": 7047.572290000062,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:44.913459Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:44.914184Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:44.914340Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:01:44.914590Z",
+          "trace_id": "7eb48ca5ad6d42fe8b4e81430acd5683",
+          "session_id": "full-g-su-032",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "My husband's face is drooping on one side and he can't speak properly. Is this a stroke?",
+          "answer": "Call emergency services now. These can be signs of a stroke, and treatment is time-critical. Note the time symptoms started, or when the person was last known to be well.\n\nThe symptoms you describe—a drooping face on one side and difficulty speaking—are included in the \"Sudden neurological symptoms that may indicate a stroke\" guidelines as red flag symptoms requiring immediate emergency care (red-flag-stroke-symptoms).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "emergency",
+          "wall_ms": 27494.855043999905,
+          "red_flag_matched": true,
+          "red_flag_matched_raw": true,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -122,6 +122,29 @@ skills. Everything below is in `main` and none of it is a plan.
 
 ### Changed
 
+- **A third evaluation arm attributes the red-flag regression to the agent model.** The legacy
+  router on `gemini-2.5-flash` (`CONSILIUM_PROVIDER=vertexai`, new in this release) scores red-flag
+  recall 82.1% — identical to the ADK tree on the same model, against the legacy router's 92.9% on
+  `claude-haiku-5-5`. Changing only the model moves the metric 10.7 points; changing only the
+  orchestrator moves it zero. `docs/gcp-migration-eval.md`; raw data in
+  `eval/results/published-gcp-legacy-gemini/`. (this release)
+- **A Vertex AI Gemini provider for the legacy path** (`consilium/llm/vertex_provider.py`,
+  `CONSILIUM_PROVIDER=vertexai`). Before it, `CONSILIUM_PROVIDER` was `openai | anthropic | mock`
+  and Vertex was reachable only through the ADK tree, so "the same orchestrator on a different
+  model" was not a run anyone could make. Uses `google-genai`, already a `google-adk` dependency,
+  so it adds no package; authenticates with Application Default Credentials, so it holds no key;
+  labels its calls `vertexai` and counts thinking tokens as output, so one `eval/pricing.yaml` rate
+  prices it and the ADK path alike. (this release)
+- **The evaluation judge can be pinned away from the agent provider**
+  (`CONSILIUM_JUDGE_PROVIDER` / `CONSILIUM_JUDGE_MODEL`). Unset, the judge is whatever the agents
+  run on, which is right for one run and wrong for a comparison: the third arm moves
+  `CONSILIUM_PROVIDER` itself, and without the pin its judge would have silently become
+  `gemini-2.5-flash` and its faithfulness column would have compared two instruments rather than
+  two systems. (this release)
+- **`eval/gcp_compare.py` takes any number of runs**, one column each, with per-item deltas against
+  the first. Three columns is what the attribution needs, and a hand-assembled third column would
+  have been the one number in that document nobody could recompute. (this release)
+
 - **The ADK orchestrator has its first evaluation run.** Both arms over the 150-item golden set
   and the 29-conversation multi-turn set, as Cloud Run Jobs on the same deployed image, judged by
   `claude-haiku-5-5` on both sides: red-flag recall 92.9% (legacy, `claude-haiku-5-5`) against
@@ -187,6 +210,13 @@ skills. Everything below is in `main` and none of it is a plan.
   and gcloud read the leading dash as another flag (`argument --args: expected one argument`); it is
   now `--args=...`, and extra arguments are appended only when there are any, because
   `printf ',%s'` with nothing to format still emits the separator. (this release)
+- **The eval job's task timeout was 3 h, and the third arm finished 18 minutes inside it.** A Cloud
+  Run job that hits its timeout writes no `summary.json` at all, losing the whole arm rather than
+  its tail. `TASK_TIMEOUT` now defaults to 6 h — a runaway guard, not a schedule. (this release)
+- **`gcloud run jobs deploy --args` rejects a repeated value**, so `--max-cost 3 --limit 3` failed
+  to deploy with `argument --args: "3" cannot be specified multiple times`, naming neither flag.
+  The cap is now formatted to two decimals so its token cannot collide with a small `--limit`.
+  (this release)
 - **`--limit` did not bound the multi-turn set.** A 5-item smoke run still drove all 29
   conversations: on the Cloud Run job the golden items took under a minute and the conversations
   that followed took twenty. It now limits both, and the multi-turn report states its own n.

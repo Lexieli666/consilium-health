@@ -1,6 +1,6 @@
 # GCP migration — status and handoff (2026-10-14)
 
-Branch `gcp-migration`. **Phases 1, 2 and 3 are done and measured.** The results are in
+Branch `gcp-migration`. **Phases 1, 2 and 3 are done and measured, and the comparison is attributed.** The results are in
 `docs/gcp-migration-eval.md`; this file is the state of the migration itself.
 
 ## Done
@@ -24,11 +24,14 @@ design calls recorded in the previous revision of this file stand: delegation is
 the planner's parsed JSON rather than `transfer_to_agent`, and validator/repair run at the turn
 boundary in code on both paths.
 
-**Phase 3 — the comparison (run 2026-10-14).** Both arms as Cloud Run Jobs on the deployed image,
-sequentially, `--max-cost 3` each, judge `claude-haiku-5-5` on both.
-`eval/results/20261014T050334Z-{legacy,adk}`. Headline: red-flag recall 92.9% (legacy,
-`claude-haiku-5-5`) against 82.1% (ADK, `gemini-2.5-flash`), at 2.1× the cost per turn and a worse
-p95. Full table, trace-level causes and the limits of the claim: `docs/gcp-migration-eval.md`.
+**Phase 3 — the comparison (run 2026-10-14, three arms).** Cloud Run Jobs on the deployed image,
+`--max-cost 3` each, judge `claude-haiku-5-5` on all three. Red-flag recall: 92.9% legacy router on
+`claude-haiku-5-5`, 82.1% legacy router on `gemini-2.5-flash`, 82.1% ADK tree on
+`gemini-2.5-flash`. **Changing only the model moves the metric 10.7 points; changing only the
+orchestrator moves it zero** — the regression is the agent model, and ADK is not responsible for
+it. Full table, verbatim trace evidence and the limits of the claim:
+`docs/gcp-migration-eval.md`. Published raw data: `eval/results/published-gcp-{legacy-haiku,
+legacy-gemini,adk-gemini}/`.
 
 ## What the first real build and the first real deploy cost in fixes
 
@@ -57,8 +60,13 @@ None of this was known before the code ran on GCP; all of it is fixed on this br
 
 ## Known gaps
 
-- **The comparison moved two variables at once** (orchestrator and agent model), so it cannot
-  attribute the red-flag regression to either. A third arm would.
+- **Arm 3 ran on a later image** (`sha256:0dd7b34f`) than arms 1 and 2 (`sha256:d3f4aca2`), because
+  the Vertex provider it needs did not exist when they ran. The router, skills, retriever, corpus,
+  index, policy and turn boundary are identical between the builds; what differs is a provider the
+  other arms do not use. Stated in the eval document rather than smoothed over.
+- **The escalation gap may be prompt-shaped, not only model-shaped.** The Gemini arms defer to the
+  red-flag table's silence rather than reasoning from the question; nobody has tried a prompt that
+  tells the agent to escalate on content regardless of the tool's verdict.
 - **The `claude-haiku-5-5` judge has no measured kappa.** Faithfulness from these runs is
   comparable within the pair only. `eval/gcp_compare.py` prints that caveat itself.
 - **`summary.json` records `commit: unknown`** for anything run inside the image, because `.git`
@@ -70,6 +78,7 @@ None of this was known before the code ran on GCP; all of it is fixed on this br
 
 ## Cost
 
-Traced model spend for the measured pair: $0.366 (legacy) + $0.768 (ADK) = **$1.13**, against a $3
-cap per arm that neither approached. The judge's calls are not traced and are not in that figure.
-Cloud Build, Cloud Run and storage for the whole exercise are a few dollars more.
+Traced model spend for the three measured arms: $0.366 (legacy / Haiku) + $0.807 (legacy / Gemini)
++ $0.768 (ADK / Gemini) = **$1.94**, against a $3 cap per arm that none approached. The judge's
+calls are not traced and are not in that figure. Cloud Build, Cloud Run and storage for the whole
+exercise are a few dollars more. Wall clock for the three arms: 5 h 51 m.

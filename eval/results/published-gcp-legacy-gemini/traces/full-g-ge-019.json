@@ -1,0 +1,257 @@
+{
+  "session_id": "full-g-ge-019",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:48.486222Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 533,
+          "completion_tokens": 142,
+          "latency_ms": 3288.8083370003187,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:48.616521Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Identify the drug classes recommended by current guidelines for heart failure with reduced ejection fraction.",
+              "why": "This is a direct question about medical guidelines and recommended treatments."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 3419.2999560000317
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:48.616706Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:48.616817Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:49.731076Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 690,
+          "completion_tokens": 116,
+          "latency_ms": 1112.4045520000436,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:49.776277Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "heart failure with reduced ejection fraction first-line treatment",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.030303030303030304
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 1,
+              "rrf_score": 0.029206349206349208
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.028438886647841874
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-uti-uncomplicated-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 1,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 3,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 44.57798699968407
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:49.776673Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "heart failure with reduced ejection fraction",
+            "aspect": "first-line treatment"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 45.01604699999007,
+          "source_doc_ids": [
+            "guideline-heart-failure-reduced-ef-therapy",
+            "guideline-type-2-diabetes-first-line-therapy",
+            "guideline-hypertension-first-line-treatment",
+            "guideline-coronary-artery-disease-secondary-prevention",
+            "guideline-anxiety-screening-and-first-line-care"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:15:00.335229Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2412,
+          "completion_tokens": 359,
+          "latency_ms": 10557.414797000092,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:15:00.335906Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:15:00.336339Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:15:00.336764Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:15:00.337378Z",
+          "trace_id": "9d7b0ce5f50b4dc38a94552479b5ad68",
+          "session_id": "full-g-ge-019",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Which drug classes does heart failure guidance describe for reduced ejection fraction?",
+          "answer": "Guidance describes four foundational drug classes for heart failure with reduced ejection fraction, which should be started together or in rapid succession. The specific names of these drug classes are not detailed in the provided information from the \"Heart failure with reduced ejection fraction: the four foundational therapy classes\" guideline.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 15138.942066000254,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,332 @@
+{
+  "session_id": "full-g-md-026",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:22.293736Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 566,
+          "completion_tokens": 467,
+          "latency_ms": 6812.034388000029,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:22.412837Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "parallel",
+          "agents": [
+            "diagnostic",
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of the symptoms described, including tiredness, light-headedness, racing heart, and heavy periods.",
+              "why": "The symptoms require an urgency assessment first."
+            },
+            {
+              "subtask_id": "2-consultation",
+              "agent": "consultation",
+              "objective": "Explain the effects of iron deficiency on the blood and identify the ICD-10 chapter that covers anemia.",
+              "why": "These are questions about condition explanation and classification, not requiring symptom interpretation or guidelines."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 6931.31646699976
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:22.413057Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:22.413169Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "2-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:22.413339Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:22.418313Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "2-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:23.933350Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 662,
+          "completion_tokens": 245,
+          "latency_ms": 1513.0809590000354,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:23.934053Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "2-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:24.643331Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 720,
+          "completion_tokens": 138,
+          "latency_ms": 2228.0729449998944,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:24.684736Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "tiredness, light-headedness, racing heart, and heavy periods",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.03128054740957967
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.029709507042253523
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.02803921568627451
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 2,
+              "rrf_score": 0.027222222222222224
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 1,
+              "rrf_score": 0.015625
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 40.085783999984415
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:24.685308Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "tiredness, light-headedness, racing heart, and heavy periods"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 41.08676000032574,
+          "source_doc_ids": [
+            "condition-hypothyroidism",
+            "condition-copd",
+            "red-flag-meningitis-signs",
+            "condition-insomnia",
+            "condition-generalized-anxiety-disorder"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:33.366481Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2130,
+          "completion_tokens": 322,
+          "latency_ms": 8680.030765000083,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:33.367042Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:53.229480Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "synthesizer",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 582,
+          "completion_tokens": 3440,
+          "latency_ms": 19861.24210800017,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:53.235471Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": null,
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:53.236662Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": null,
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:35:53.237935Z",
+          "trace_id": "522c649b1aa64f1cb5e4ae8349d05e4f",
+          "session_id": "full-g-md-026",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have been tired and light-headed for months, my heart races on stairs, and my periods are heavy. Is that urgent, what could iron deficiency do to the blood, and which ICD-10 chapter covers anemia?",
+          "answer": "If symptoms are severe, worsening, or new and unexplained, you should seek medical advice [condition-hypothyroidism, condition-copd, red-flag-meningitis-signs, condition-insomnia, condition-generalized-anxiety-disorder]. The diagnostic specialist states that its system did not find an emergency pattern in its red-flag table for your symptom description. However, this is not a clearance, as the table covers a fixed list of presentations, and a symptom it does not list can still be serious [condition-hypothyroidism, condition-copd, red-flag-meningitis-signs, condition-insomnia, condition-generalized-anxiety-disorder]. In contrast, the consultation specialist advises seeking immediate medical attention.\n\nRegarding the effects of iron deficiency on the blood, the consultation specialist explains that iron deficiency can lead to iron deficiency anemia. This occurs when the body lacks sufficient iron to produce hemoglobin, the component of red blood cells responsible for carrying oxygen. With less hemoglobin, the blood transports less oxygen, which can result in symptoms like fatigue, dizziness, and shortness of breath.\n\nThe consultation specialist states that the ICD-10 chapter that covers anemia is \"Diseases of the Blood and Blood-forming Organs and Certain Disorders Involving the Immune Mechanism.\"\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 37753.27763699988,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

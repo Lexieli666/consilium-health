@@ -1,0 +1,285 @@
+{
+  "session_id": "full-g-ge-016",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:23.359764Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 537,
+          "completion_tokens": 148,
+          "latency_ms": 1492.6052079999863,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:23.508589Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Report what guidance says about initiating statin therapy, including the risk stratification bands used.",
+              "why": "This is a direct question about clinical guidelines and risk assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1641.6213620000235
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:23.508825Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:23.509003Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:25.460782Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 695,
+          "completion_tokens": 115,
+          "latency_ms": 1949.666132999937,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:25.509523Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "statin therapy initiation",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 1,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-insomnia-cbt-first-line",
+              "chunk_index": 2,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "guideline-influenza-vaccination-and-antivirals",
+              "chunk_index": 2,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 48.07579699991038
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:25.510036Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "statin therapy",
+            "aspect": "initiation"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 48.62505300025077,
+          "source_doc_ids": [
+            "guideline-lipid-screening-and-statin-initiation",
+            "guideline-coronary-artery-disease-secondary-prevention",
+            "guideline-heart-failure-reduced-ef-therapy",
+            "guideline-type-2-diabetes-first-line-therapy",
+            "guideline-copd-diagnosis-and-stepwise-management"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:27.801474Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2416,
+          "completion_tokens": 486,
+          "latency_ms": 2290.060209999865,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:27.802153Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:27.802839Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "dosing_instruction",
+          "scope": "output",
+          "agent": "research",
+          "detail": "matched /\\b\\d+(?:\\.\\d+)?\\s*(?:mg|mcg|g|ml|iu|units?)\\b/ in: *   **LDL cholesterol at or above 190 mg/dL:** High-intensity statin therapy is advised, regardless of calculated risk score.",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:27.803031Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:27.803845Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "dosing_instruction",
+          "scope": "output",
+          "agent": "research",
+          "detail": "redacted: *   **LDL cholesterol at or above 190 mg/dL:** High-intensity statin therapy is advised, regardless of calculated risk score.",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:27.804027Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:14:27.805057Z",
+          "trace_id": "24dded3b036e4caa842660870c8399a5",
+          "session_id": "full-g-ge-016",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What does guidance describe about starting a statin, and which risk bands are used?",
+          "answer": "Guidance from a major cardiology society outlines several groups for whom statin therapy is indicated, often based on risk stratification or specific conditions (guideline-lipid-screening-and-statin-initiation):\n\n*   **Established atherosclerotic cardiovascular disease:** High-intensity statin therapy is recommended as secondary prevention.\n[removed: this system does not give doses or amounts.]\n*   **Diabetes, aged 40 to 75:** At least moderate-intensity statin therapy is recommended.\n*   **Intermediate risk:** Moderate-intensity statin therapy is considered after a discussion about the risks and benefits.\n*   **Borderline risk:** Guidance suggests a discussion about risk rather than a default action. Therapy is favored if additional risk-enhancing features are present, and can be deferred if they are not.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5935.47002199989,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

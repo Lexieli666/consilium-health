@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-cc-023",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:12.187135Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 534,
+          "completion_tokens": 169,
+          "latency_ms": 1746.6838789998747,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:12.365324Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the conventions for submitting medical codes, specifically regarding the use of decimal characters in code roots.",
+              "why": "This is a question about medical classification and coding conventions."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1925.0167620000411
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:12.365499Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:12.365606Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:13.425568Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 628,
+          "completion_tokens": 111,
+          "latency_ms": 1058.03701800005,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:13.455745Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "ICD-10 coding conventions decimal characters",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 0,
+              "rrf_score": 0.03225806451612903
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 0,
+              "rrf_score": 0.029418126757516764
+            },
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 1,
+              "rrf_score": 0.028083267871170464
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 1,
+              "rrf_score": 0.014084507042253521
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 29.501459000130126
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:13.456420Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "ICD-10 coding conventions decimal characters"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 30.22336300000461,
+          "source_doc_ids": [
+            "coding-icd10-cm-code-structure-and-conventions",
+            "coding-icd10-cm-versus-who-icd10",
+            "coding-hypertension-i10",
+            "coding-type-2-diabetes-e11",
+            "coding-icd10-chapter-04-endocrine"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:21.579025Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3214,
+          "completion_tokens": 870,
+          "latency_ms": 8120.671772999913,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:21.579526Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:21.580440Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:21.581287Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:21.582321Z",
+          "trace_id": "d0cbe2fc54ab4115b592de0135c9ad31",
+          "session_id": "full-g-cc-023",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Is it ever correct to submit a code root without its decimal characters?",
+          "answer": "Yes, it can be correct to submit an ICD-10-CM code without a decimal character. An ICD-10-CM code is made up of three to seven characters. A decimal point is used after the first three characters only when there are more characters that follow, as described in the \"ICD-10-CM code structure and the conventions that govern selection\" document.\n\nFor example, I10 for essential hypertension is a complete code at three characters and does not use a decimal, according to the \"Coding hypertension: I10 and the hypertensive disease family\" document.\n\nHowever, many three-character codes, like E11 for type 2 diabetes, are categories that require additional characters and a decimal to provide more specific detail before they can be submitted. For instance, E11.9 is used for type 2 diabetes without complications, as detailed in the \"Coding type 2 diabetes: E11 and its complication subcategories\" document.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 11139.639934999877,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

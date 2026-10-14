@@ -1,0 +1,242 @@
+{
+  "session_id": "full-g-gh-019",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:36.327803Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 531,
+          "completion_tokens": 104,
+          "latency_ms": 7015.606698999932,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:36.437668Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Identify common eating habits and dietary factors that are known to exacerbate acid reflux symptoms.",
+              "why": "This is a general health question about factors influencing a condition."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 7125.660767999989
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:36.437864Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:36.437991Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:40.017356Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 622,
+          "completion_tokens": 108,
+          "latency_ms": 3577.28710899994,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:40.044400Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "acid reflux diet",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.030309988518943745
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.0293236301369863
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 3,
+              "rrf_score": 0.013513513513513514
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.0125
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 26.435918000061065
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:40.044755Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "acid reflux",
+            "domain": "diet"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 26.843968999969547,
+          "source_doc_ids": [
+            "lifestyle-gerd-diet",
+            "lifestyle-hypertension-diet",
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-heart-failure-diet",
+            "lifestyle-type-2-diabetes-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:43.493243Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1868,
+          "completion_tokens": 337,
+          "latency_ms": 3447.4873599999682,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:43.493644Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:43.494354Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:43.495488Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:43.496527Z",
+          "trace_id": "58567c4bdc124b0f83e1d882274ccea0",
+          "session_id": "full-g-gh-019",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "Are there eating habits that tend to make reflux worse?",
+          "answer": "Eating habits that may make reflux worse include large meals, eating close to bedtime, and consuming certain foods.\n\nFoods commonly listed as triggers include coffee, chocolate, alcohol, citrus, tomato, mint, fatty and fried foods, spicy foods, and carbonated drinks. However, the evidence for a blanket avoidance of all these foods is weak, and it's generally recommended to identify individual triggers rather than eliminating everything at once (Source: Eating with reflux: meal size, timing, and finding individual triggers).\n\nFor those whose symptoms are mainly at night, meal timing can be particularly important (Source: Eating with reflux: meal size, timing, and finding individual triggers).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 14181.998982999972,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

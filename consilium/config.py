@@ -21,7 +21,7 @@ from typing import Literal
 from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
-ProviderName = Literal["openai", "anthropic", "mock"]
+ProviderName = Literal["openai", "anthropic", "vertexai", "mock"]
 RouterMode = Literal["planner", "single", "none"]
 #: Which orchestrator runs a turn.  ``legacy`` is the in-repo planner/worker/synthesizer router;
 #: ``adk`` is the same architecture expressed as Google ADK agents on Vertex AI Gemini
@@ -66,6 +66,22 @@ class Settings(BaseModel):
     model: str | None = None
     openai_api_key: SecretStr | None = None
     anthropic_api_key: SecretStr | None = None
+    #: ``CONSILIUM_JUDGE_PROVIDER`` / ``CONSILIUM_JUDGE_MODEL``: the evaluation judge, pinned
+    #: independently of the agent provider.  Unset, the judge is whatever the agents run on, which
+    #: is right for a single run and wrong for a comparison: two arms on different agent models
+    #: would be graded by two different instruments, and the faithfulness difference between them
+    #: would be unreadable.  The ADK-against-legacy comparison in ``docs/gcp-migration-eval.md``
+    #: got this by accident -- ``CONSILIUM_PROVIDER`` stayed ``anthropic`` while only the agents
+    #: moved to Vertex -- and the third arm, which moves ``CONSILIUM_PROVIDER`` itself, needs it on
+    #: purpose.
+    judge_provider: ProviderName | None = None
+    judge_model: str | None = None
+    #: ``CONSILIUM_PROVIDER=vertexai`` reaches Gemini through Application Default Credentials, so
+    #: it has no key: it needs the project and location instead.  Both are read from the variables
+    #: the Google GenAI SDK itself reads, so one deployment configures the legacy router on Gemini
+    #: and the ADK tree identically.
+    google_cloud_project: str | None = None
+    google_cloud_location: str = "us-west1"
     #: ``CONSILIUM_ANTHROPIC_MAX_TOKENS``: the Anthropic Messages API requires ``max_tokens`` and
     #: the provider's default (1500) is sized for an answer.  The evaluation judge replies with one
     #: JSON object per claim and is truncated at that size -- a truncated reply has no balanced
@@ -141,9 +157,10 @@ class Settings(BaseModel):
             return SecretStr(raw) if raw else None
 
         provider = os.environ.get("CONSILIUM_PROVIDER", "mock").strip().lower()
-        if provider not in ("openai", "anthropic", "mock"):
+        if provider not in ("openai", "anthropic", "vertexai", "mock"):
             raise ValueError(
-                f"CONSILIUM_PROVIDER must be one of openai, anthropic, mock; got {provider!r}"
+                "CONSILIUM_PROVIDER must be one of openai, anthropic, vertexai, mock; "
+                f"got {provider!r}"
             )
 
         model = os.environ.get("CONSILIUM_MODEL", "").strip() or None
@@ -154,6 +171,21 @@ class Settings(BaseModel):
             raise ValueError(
                 f"CONSILIUM_ANTHROPIC_MAX_TOKENS must be an integer; got {max_tokens_raw!r}"
             ) from None
+
+        judge_provider_raw = os.environ.get("CONSILIUM_JUDGE_PROVIDER", "").strip().lower()
+        if judge_provider_raw and judge_provider_raw not in (
+            "openai",
+            "anthropic",
+            "vertexai",
+            "mock",
+        ):
+            raise ValueError(
+                "CONSILIUM_JUDGE_PROVIDER must be one of openai, anthropic, vertexai, mock; "
+                f"got {judge_provider_raw!r}"
+            )
+        judge_provider: ProviderName | None = (
+            judge_provider_raw if judge_provider_raw else None  # type: ignore[assignment]
+        )
 
         orchestrator = os.environ.get("ORCHESTRATOR", "legacy").strip().lower()
         if orchestrator not in ("legacy", "adk", "langgraph"):
@@ -183,6 +215,10 @@ class Settings(BaseModel):
             model=model,
             openai_api_key=_secret("OPENAI_API_KEY"),
             anthropic_api_key=_secret("ANTHROPIC_API_KEY"),
+            judge_provider=judge_provider,
+            judge_model=os.environ.get("CONSILIUM_JUDGE_MODEL", "").strip() or None,
+            google_cloud_project=os.environ.get("GOOGLE_CLOUD_PROJECT", "").strip() or None,
+            google_cloud_location=os.environ.get("GOOGLE_CLOUD_LOCATION", "").strip() or "us-west1",
             anthropic_max_tokens=anthropic_max_tokens,
             root_dir=root,
             runs_dir=_path("CONSILIUM_RUNS_DIR", DEFAULT_RUNS_DIR),

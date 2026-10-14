@@ -1,0 +1,257 @@
+{
+  "session_id": "full-g-gh-018",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:06.116013Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 535,
+          "completion_tokens": 105,
+          "latency_ms": 1385.2325060000794,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:06.301471Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Describe the recommended types and intensity of physical activity for people with type 2 diabetes, citing relevant guidelines or evidence.",
+              "why": "This asks for specific recommendations based on guidelines for a condition."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1570.8523330000617
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:06.301655Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:06.301784Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:25.290406Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 699,
+          "completion_tokens": 100,
+          "latency_ms": 18986.015175000033,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:25.318246Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "type 2 diabetes physical activity",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 0,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 0,
+              "rrf_score": 0.030090497737556562
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 2,
+              "rrf_score": 0.029138513513513514
+            },
+            {
+              "doc_id": "guideline-osteoarthritis-management",
+              "chunk_index": 0,
+              "rrf_score": 0.027242401779095628
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.027071520029266508
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 27.22114900007
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:25.318689Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "type 2 diabetes",
+            "aspect": "physical activity"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 27.720459000079245,
+          "source_doc_ids": [
+            "guideline-hypertension-first-line-treatment",
+            "guideline-type-2-diabetes-screening",
+            "guideline-type-2-diabetes-glycemic-targets",
+            "guideline-coronary-artery-disease-secondary-prevention",
+            "guideline-osteoarthritis-management"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:29.233291Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2366,
+          "completion_tokens": 507,
+          "latency_ms": 3913.560871999948,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:29.233900Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:29.234411Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:29.234972Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:49:29.235700Z",
+          "trace_id": "323770080fa14343832be50e4b744356",
+          "session_id": "full-g-gh-018",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What kind of physical activity is described for people with type 2 diabetes?",
+          "answer": "Major cardiology society consensus guidance recommends regular aerobic activity most days of the week as a key lifestyle measure for conditions like hypertension, which often co-occurs with type 2 diabetes. This recommendation is part of a broader set of non-drug measures that include dietary changes, weight reduction, and limiting alcohol. These measures are suggested by major health bodies, whether or not medication is also used (\"Hypertension: when treatment starts and which options are first-line\").\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 24503.536834999977,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

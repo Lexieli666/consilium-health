@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-gh-003",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:14.772250Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 533,
+          "completion_tokens": 165,
+          "latency_ms": 1925.1768820000166,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:14.888505Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the physiological changes that occur in the airways during an asthma flare-up.",
+              "why": "This is a question about condition explanation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2041.8320990000325
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:14.888763Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:14.888928Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:16.230421Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 624,
+          "completion_tokens": 93,
+          "latency_ms": 1339.2465100000095,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:16.300775Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "asthma flare-up airways physiological changes",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 1,
+              "rrf_score": 0.03125
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 0,
+              "rrf_score": 0.029551337359792925
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.029411764705882353
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 2,
+              "rrf_score": 0.027313266443701224
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.025158227848101268
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 69.62575800002924
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:16.301242Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "asthma flare-up airways physiological changes"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 70.13370899994698,
+          "source_doc_ids": [
+            "condition-asthma",
+            "red-flag-severe-breathing-difficulty",
+            "condition-copd",
+            "lifestyle-copd-activity",
+            "coding-asthma-j45"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:25.279258Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1958,
+          "completion_tokens": 218,
+          "latency_ms": 8948.266776999957,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:25.279989Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:25.280839Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:25.281424Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:25.282365Z",
+          "trace_id": "f6881055d5c24c6aa8e47d0f6400d407",
+          "session_id": "full-g-gh-003",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What actually happens in the airways during an asthma flare-up?",
+          "answer": "During an asthma flare-up, the lining of the airways becomes inflamed, and the muscles surrounding the airways tighten or constrict. This combination of inflammation and muscle constriction narrows the airways, leading to obstruction of airflow. The wheezing sound often heard during a flare-up is caused by air moving through these narrowed airways.\n\nThis information comes from the \"Asthma\" general clinical reference and the \"Severe difficulty breathing\" emergency medicine guidance.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 12433.765032999985,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

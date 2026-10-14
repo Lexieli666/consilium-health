@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-cc-027",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:53.372423Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 541,
+          "completion_tokens": 108,
+          "latency_ms": 1296.6841830000249,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:53.498775Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain which chapter a raised blood pressure reading without a hypertension diagnosis belongs in, according to classification systems.",
+              "why": "This is a question about how a medical finding is classified."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1423.2191500000226
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:53.498935Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:53.499043Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:55.019128Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 636,
+          "completion_tokens": 149,
+          "latency_ms": 1517.9539260000183,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:55.052765Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "raised blood pressure reading without a hypertension diagnosis",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 1,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 3,
+              "rrf_score": 0.030798389007344232
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 3,
+              "rrf_score": 0.02946912242686891
+            },
+            {
+              "doc_id": "coding-icd10-chapter-03-blood",
+              "chunk_index": 3,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 3,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 2,
+              "rrf_score": 0.027598020555767037
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 1,
+              "rrf_score": 0.0136986301369863
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 3,
+              "rrf_score": 0.012987012987012988
+            },
+            {
+              "doc_id": "coding-icd10-chapter-14-genitourinary",
+              "chunk_index": 3,
+              "rrf_score": 0.012658227848101266
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 32.96982699998807
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:55.053404Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "raised blood pressure reading without a hypertension diagnosis"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 33.65284200003771,
+          "source_doc_ids": [
+            "coding-hypertension-i10",
+            "coding-icd10-chapter-18-symptoms",
+            "coding-icd10-chapter-09-circulatory",
+            "coding-icd10-chapter-04-endocrine",
+            "coding-icd10-chapter-03-blood"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:57.105160Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3336,
+          "completion_tokens": 266,
+          "latency_ms": 2050.620717999891,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:57.105581Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:57.106366Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:57.106988Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:09:57.107873Z",
+          "trace_id": "60900bb7ff5c4d71ae4cda05c2e24acf",
+          "session_id": "full-g-cc-027",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "If someone has a raised blood pressure reading but no diagnosis of hypertension, which chapter does that belong in?",
+          "answer": "According to ICD-10 classification systems, a raised blood pressure reading in someone who has not been diagnosed with hypertension belongs in Chapter 18, which covers \"symptoms, signs and abnormal findings\" (R00-R99). This is because it is considered a finding rather than a disease until a formal diagnosis of hypertension is made. The codes R00 to R09 are relevant for symptoms and signs involving the circulatory system, including an elevated blood pressure reading without a hypertension diagnosis. (Sources: `coding-hypertension-i10`, `coding-icd10-chapter-18-symptoms`)\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5030.5036499999005,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,712 @@
+{
+  "session_id": "full-mt-m-002",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:45.313426Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 530,
+          "completion_tokens": 83,
+          "latency_ms": 1051.5191080003206,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:45.529205Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what type 2 diabetes is in general terms.",
+              "why": "This is a classification and general health question."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1267.502114999843
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:45.529399Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:09:45.529527Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:01.504234Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 616,
+          "completion_tokens": 77,
+          "latency_ms": 15972.537153000303,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:01.533773Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "type 2 diabetes",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "coding-icd10-chapter-04-endocrine",
+              "chunk_index": 1,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.030303030303030304
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 0,
+              "rrf_score": 0.026013513513513515
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-first-line-therapy",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-diabetic-emergency",
+              "chunk_index": 1,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 2,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 28.95536699998047
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:01.534164Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "type 2 diabetes"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 29.388422000010905,
+          "source_doc_ids": [
+            "coding-type-2-diabetes-e11",
+            "condition-type-2-diabetes",
+            "coding-icd10-chapter-04-endocrine",
+            "lifestyle-type-2-diabetes-diet",
+            "guideline-type-2-diabetes-glycemic-targets"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:19.142392Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2100,
+          "completion_tokens": 249,
+          "latency_ms": 17607.197941999402,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:19.142867Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:19.143816Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:19.144731Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:19.146789Z",
+          "trace_id": "40b0c44017f54d6e9d4e1b429a8fb1b6",
+          "session_id": "full-mt-m-002",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "My doctor says I have type 2 diabetes.",
+          "answer": "Type 2 diabetes is a condition where your body's tissues do not respond well to insulin, a hormone that regulates blood sugar. This is called insulin resistance. Because of this resistance, your pancreas has to work harder to produce more insulin. Eventually, it cannot produce enough to keep your blood glucose (sugar) levels in the normal range. The result is that your blood glucose levels stay elevated.\n\nThis condition develops gradually over several years. There's often a period before diagnosis called prediabetes, where blood glucose levels are raised but not yet in the diabetic range. Intensive lifestyle changes during this prediabetes stage can have a significant effect.\n\nThis information comes from a general clinical reference educational summary titled \"Type 2 diabetes mellitus.\"\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 34881.66620599986,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:20.479629Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 527,
+          "completion_tokens": 162,
+          "latency_ms": 1232.430346000001,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:20.551700Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-research",
+              "agent": "research",
+              "objective": "Summarize guideline recommendations for the frequency of blood pressure checks.",
+              "why": "This is a question about screening frequency, which is covered by clinical guidelines."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1304.6936609998738
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:20.551960Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:20.552277Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:22.644305Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 929,
+          "completion_tokens": 86,
+          "latency_ms": 2089.2461450002884,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:22.701760Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "find_guideline",
+          "query": "blood pressure monitoring interval",
+          "category_filter": "guideline",
+          "fused_topk": [
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 3,
+              "rrf_score": 0.03177805800756621
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 1,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "guideline-hypertension-first-line-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.030309988518943745
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-screening",
+              "chunk_index": 0,
+              "rrf_score": 0.029910714285714284
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.029236022193768675
+            },
+            {
+              "doc_id": "guideline-heart-failure-reduced-ef-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.027205882352941177
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 2,
+              "rrf_score": 0.02684684684684685
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 3,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 3,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 56.62797800050612
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:22.702355Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "find_guideline",
+          "args": {
+            "topic": "blood pressure",
+            "aspect": "monitoring interval"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 57.27783699967404,
+          "source_doc_ids": [
+            "guideline-hypertension-diagnosis-and-bp-targets",
+            "guideline-type-2-diabetes-glycemic-targets",
+            "guideline-hypertension-first-line-treatment",
+            "guideline-type-2-diabetes-screening",
+            "guideline-lipid-screening-and-statin-initiation"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:25.237155Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2718,
+          "completion_tokens": 269,
+          "latency_ms": 2533.507281999846,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:25.237740Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:25.238316Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:25.238888Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "research",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:25.239608Z",
+          "trace_id": "2eb79994168940fba004bc3e984306a7",
+          "session_id": "full-mt-m-002",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "How often should it be checked?",
+          "answer": "After treatment for high blood pressure starts or changes, your blood pressure should be reassessed about once a month until it reaches the target level. Once your blood pressure readings are stable, reviews are recommended every three to six months. This information comes from the \"Hypertension: diagnostic thresholds and blood-pressure targets\" and \"Hypertension: when treatment starts and which options are first-line\" guidelines.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 5991.031789000772,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:26.280590Z",
+          "trace_id": "8aa0cea2358b42b0b62780664b450687",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 527,
+          "completion_tokens": 80,
+          "latency_ms": 935.3172850005649,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:26.310047Z",
+          "trace_id": "8aa0cea2358b42b0b62780664b450687",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Provide general advice on healthy eating.",
+              "why": "This is a general health and lifestyle guidance question."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 965.1285679992725
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:26.310264Z",
+          "trace_id": "8aa0cea2358b42b0b62780664b450687",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:26.310391Z",
+          "trace_id": "8aa0cea2358b42b0b62780664b450687",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:27.387735Z",
+          "trace_id": "8aa0cea2358b42b0b62780664b450687",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1040,
+          "completion_tokens": 115,
+          "latency_ms": 1075.09314500021,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:27.419103Z",
+          "trace_id": "8aa0cea2358b42b0b62780664b450687",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "type 2 diabetes diet",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-hypertension-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.02964426877470356
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.02900988017658188
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.028850145288501453
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.028125
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 30.686856000102125
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:27.419527Z",
+          "trace_id": "8aa0cea2358b42b0b62780664b450687",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "domain": "diet",
+            "condition": "type 2 diabetes"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 31.151925000813208,
+          "source_doc_ids": [
+            "lifestyle-type-2-diabetes-diet",
+            "lifestyle-hypertension-diet",
+            "lifestyle-type-2-diabetes-adherence",
+            "lifestyle-type-2-diabetes-activity",
+            "lifestyle-gerd-diet"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:31.825143Z",
+          "trace_id": "8aa0cea2358b42b0b62780664b450687",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2339,
+          "completion_tokens": 620,
+          "latency_ms": 4404.456180000125,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:31.825688Z",
+          "trace_id": "8aa0cea2358b42b0b62780664b450687",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:31.829090Z",
+          "trace_id": "8aa0cea2358b42b0b62780664b450687",
+          "session_id": "full-mt-m-002",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "And what should I be eating?",
+          "answer": "For type 2 diabetes, a healthy eating pattern is crucial. A dietary approach that emphasizes vegetables, fruit, whole grains, low-fat dairy, poultry, fish, beans, nuts, and vegetable oils is often recommended. It's also advised to limit saturated fat, full-fat dairy, fatty meat, sweets, and sugar-sweetened drinks. This comprehensive pattern is more effective than focusing on single foods.\n\nIf your body weight is above a healthy range, reducing it can improve glucose control, blood pressure, and lipid levels. Even a sustained reduction of five percent can show measurable benefits. It's important to remember that \"sugar-free\" does not mean \"carbohydrate-free,\" as starches can also raise blood glucose. Whole fruit is generally considered part of a recommended eating pattern.\n\nThis information comes from the \"Diet for type 2 diabetes\" and \"Diet for high blood pressure\" educational summaries.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: lifestyle-type-2-diabetes-diet, lifestyle-hypertension-diet]",
+          "risk_level": "routine",
+          "wall_ms": 6481.12182100067,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

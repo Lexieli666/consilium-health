@@ -17,6 +17,8 @@ from consilium.llm.base import LLMProvider
 from consilium.llm.mock import MockProvider, ScriptedResponse
 from consilium.llm.openai_provider import DEFAULT_MODEL as OPENAI_DEFAULT_MODEL
 from consilium.llm.openai_provider import OpenAIProvider
+from consilium.llm.vertex_provider import DEFAULT_MODEL as VERTEX_DEFAULT_MODEL
+from consilium.llm.vertex_provider import VertexProvider
 
 #: What an unscripted ``MockProvider`` answers.  It exists so that ``consilium ask`` runs offline
 #: with no key, and it is deliberately unmistakable for a real answer: a mock reply that reads like
@@ -54,6 +56,22 @@ def make_provider(settings: Settings, *, script: Path | None = None) -> LLMProvi
         return OpenAIProvider(
             api_key=settings.openai_api_key.get_secret_value(),
             model=settings.model or OPENAI_DEFAULT_MODEL,
+        )
+
+    if settings.provider == "vertexai":
+        # No key to check.  What can be missing here is the project, and Application Default
+        # Credentials, which the SDK resolves itself and reports in its own words; the project is
+        # checked because an unset one produces a 403 that reads like a permissions problem.
+        if settings.google_cloud_project is None:
+            raise ProviderError(
+                "CONSILIUM_PROVIDER=vertexai but GOOGLE_CLOUD_PROJECT is not set. Vertex AI "
+                "authenticates with Application Default Credentials, so there is no key to set; "
+                "set the project (and GOOGLE_CLOUD_LOCATION, default us-west1) instead."
+            )
+        return VertexProvider(
+            project=settings.google_cloud_project,
+            location=settings.google_cloud_location,
+            model=settings.model or VERTEX_DEFAULT_MODEL,
         )
 
     if settings.anthropic_api_key is None:

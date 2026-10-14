@@ -174,70 +174,148 @@ def fmt(value: Any, kind: str = "num") -> str:
     return str(value)
 
 
-def compare(legacy_dir: Path, adk_dir: Path, *, config: str, golden: Path) -> tuple[str, list[str]]:
+def _label_for(row: dict[str, Any], views: dict[str, ItemView]) -> str:
+    """A column heading that names what actually ran, not what was asked for.
+
+    The orchestrator is not in ``summary.json`` -- it is a deployment setting, not a result -- so
+    the heading is built from the two facts that are: the provider the run was configured with and
+    the agent model its own ``llm_call`` events name.  That is what distinguishes the third arm
+    (legacy router, Gemini agents) from the second (ADK tree, Gemini agents), which would otherwise
+    print identical headings.
+    """
+    return f"{row['run']}<br/>`{row['provider']}` · {models(views)}"
+
+
+def compare(run_dirs: Sequence[Path], *, config: str, golden: Path) -> tuple[str, list[str]]:
+    """A column per run, and per-item deltas of every later run against the first.
+
+    Two runs was the original shape and is still the common one; three is what
+    ``docs/gcp-migration-eval.md`` needs to separate the orchestrator from the agent model, and a
+    hand-assembled third column would be the one number in that document nobody could recompute.
+    The first directory is the baseline every delta is measured against.
+    """
+    if len(run_dirs) < 2:
+        raise ValueError("compare needs at least two runs")
+
     items = load_golden(golden)
-    a, b = summary_row(legacy_dir, config), summary_row(adk_dir, config)
-    va, vb = read_run(legacy_dir, config, items), read_run(adk_dir, config, items)
+    rows = [summary_row(d, config) for d in run_dirs]
+    views = [read_run(d, config, items) for d in run_dirs]
+    n = len(rows)
+
+    def cells(render: Any) -> str:
+        return " | ".join(render(row, view) for row, view in zip(rows, views, strict=True))
 
     lines = [
-        "| metric | legacy (`ORCHESTRATOR=legacy`) | ADK (`ORCHESTRATOR=adk`) |",
-        "|---|---|---|",
-        f"| agent model (from `llm_call` events) | {models(va)} | {models(vb)} |",
-        f"| judge model | {a['judge_model']} | {b['judge_model']} |",
-        f"| items with a `turn` event | {sum(v.present for v in va.values())}/{a['n_items']} | {sum(v.present for v in vb.values())}/{b['n_items']} |",
-        f"| recall@5 (union, n labelled) | {fmt(a['recall_at_5'], 'pct')} | {fmt(b['recall_at_5'], 'pct')} |",
-        f"| faithfulness, retrieved sources (judge mean, n={a['n_judged']}/{b['n_judged']}) | {fmt(a['faithfulness_retrieved'], 'pct')} | {fmt(b['faithfulness_retrieved'], 'pct')} |",
-        f"| faithfulness, oracle sources | {fmt(a['faithfulness_oracle'], 'pct')} | {fmt(b['faithfulness_oracle'], 'pct')} |",
-        f"| red-flag recall (post-repair) | {fmt(a['red_flag_recall'], 'pct')} | {fmt(b['red_flag_recall'], 'pct')} |",
-        f"| red-flag false negatives | {', '.join(a['red_flag_fn']) or 'none'} | {', '.join(b['red_flag_fn']) or 'none'} |",
-        f"| routing accuracy / fallback rate | {fmt(a['routing_accuracy'], 'pct')} / {fmt(a['fallback_rate'], 'pct')} | {fmt(b['routing_accuracy'], 'pct')} / {fmt(b['fallback_rate'], 'pct')} |",
-        f"| latency p50 / p90 / **p95** | {fmt(a['p50_ms'], 'ms')} / {fmt(a['p90_ms'], 'ms')} / **{fmt(p95(va), 'ms')}** | {fmt(b['p50_ms'], 'ms')} / {fmt(b['p90_ms'], 'ms')} / **{fmt(p95(vb), 'ms')}** |",
-        f"| cost per request (traced `llm_call`s, pricing.yaml) | {fmt(a['cost_per_turn_usd'], 'usd')} | {fmt(b['cost_per_turn_usd'], 'usd')} |",
-        f"| tokens / LLM calls / tool calls per turn | {a['tokens_per_turn']:.0f} / {a['llm_calls_per_turn']:.2f} / {a['tool_calls_per_turn']:.2f} | {b['tokens_per_turn']:.0f} / {b['llm_calls_per_turn']:.2f} / {b['tool_calls_per_turn']:.2f} |",
-        f"| run (results dir, commit, started) | `{a['run']}`, `{a['commit']}`, {a['started_at']} | `{b['run']}`, `{b['commit']}`, {b['started_at']} |",
+        "| metric | "
+        + " | ".join(_label_for(r, v) for r, v in zip(rows, views, strict=True))
+        + " |",
+        "|---" * (n + 1) + "|",
+        "| agent model (from `llm_call` events) | " + cells(lambda _r, v: models(v)) + " |",
+        "| judge model | " + cells(lambda r, _v: str(r["judge_model"])) + " |",
+        "| items with a `turn` event | "
+        + cells(lambda r, v: f"{sum(x.present for x in v.values())}/{r['n_items']}")
+        + " |",
+        "| recall@5 (union, n labelled) | "
+        + cells(lambda r, _v: fmt(r["recall_at_5"], "pct"))
+        + " |",
+        "| faithfulness, retrieved sources (judge mean) | "
+        + cells(lambda r, _v: f"{fmt(r['faithfulness_retrieved'], 'pct')} (n={r['n_judged']})")
+        + " |",
+        "| faithfulness, oracle sources | "
+        + cells(lambda r, _v: fmt(r["faithfulness_oracle"], "pct"))
+        + " |",
+        "| **red-flag recall (post-repair)** | "
+        + cells(lambda r, _v: f"**{fmt(r['red_flag_recall'], 'pct')}**")
+        + " |",
+        "| red-flag false negatives | "
+        + cells(lambda r, _v: ", ".join(r["red_flag_fn"]) or "none")
+        + " |",
+        "| routing accuracy / fallback rate | "
+        + cells(
+            lambda r, _v: f"{fmt(r['routing_accuracy'], 'pct')} / {fmt(r['fallback_rate'], 'pct')}"
+        )
+        + " |",
+        "| latency p50 / p90 / **p95** | "
+        + cells(
+            lambda r, v: (
+                f"{fmt(r['p50_ms'], 'ms')} / {fmt(r['p90_ms'], 'ms')} / **{fmt(p95(v), 'ms')}**"
+            )
+        )
+        + " |",
+        "| cost per request (traced `llm_call`s, pricing.yaml) | "
+        + cells(lambda r, _v: fmt(r["cost_per_turn_usd"], "usd"))
+        + " |",
+        "| tokens / LLM calls / tool calls per turn | "
+        + cells(
+            lambda r, _v: (
+                f"{r['tokens_per_turn']:.0f} / {r['llm_calls_per_turn']:.2f} / "
+                f"{r['tool_calls_per_turn']:.2f}"
+            )
+        )
+        + " |",
+        "| run (commit, started) | "
+        + cells(lambda r, _v: f"`{r['commit']}`, {r['started_at']}")
+        + " |",
     ]
-    if a["unpriced_models"] or b["unpriced_models"]:
+    if any(r["unpriced_models"] for r in rows):
         lines.append(
-            f"| unpriced models (cost is `not measured`) | {a['unpriced_models']} | {b['unpriced_models']} |"
+            "| unpriced models (cost is `not measured`) | "
+            + cells(lambda r, _v: str(r["unpriced_models"]) or "none")
+            + " |"
         )
 
+    base_row, base_view = rows[0], views[0]
     deltas: list[str] = []
-    for item in items:
-        x, y = va[item.id], vb[item.id]
-        notes: list[str] = []
-        if x.present != y.present:
-            notes.append(f"turn present legacy={x.present} adk={y.present}")
-        if (
-            x.recall_at_5 is not None
-            and y.recall_at_5 is not None
-            and x.recall_at_5 != y.recall_at_5
-        ):
-            notes.append(f"recall@5 {x.recall_at_5:.2f} -> {y.recall_at_5:.2f}")
-        if item.red_flag and x.escalated != y.escalated:
-            notes.append(f"red-flag escalated {x.escalated} -> {y.escalated}")
-        if x.route_agents != y.route_agents:
-            notes.append(f"route {list(x.route_agents)} -> {list(y.route_agents)}")
-        if x.route_fallback != y.route_fallback:
-            notes.append(f"planner fallback {x.route_fallback} -> {y.route_fallback}")
-        if notes:
-            deltas.append(
-                f"- `{item.id}`: " + "; ".join(notes) + f"  (`{x.trace_path}` vs `{y.trace_path}`)"
-            )
-    lines += judge_caveat(a["judge_model"], b["judge_model"])
+    for other_row, other_view in zip(rows[1:], views[1:], strict=True):
+        header = f"\n### `{base_row['run']}` → `{other_row['run']}`\n"
+        block: list[str] = []
+        for item in items:
+            x, y = base_view[item.id], other_view[item.id]
+            notes: list[str] = []
+            if x.present != y.present:
+                notes.append(f"turn present {x.present} -> {y.present}")
+            if (
+                x.recall_at_5 is not None
+                and y.recall_at_5 is not None
+                and x.recall_at_5 != y.recall_at_5
+            ):
+                notes.append(f"recall@5 {x.recall_at_5:.2f} -> {y.recall_at_5:.2f}")
+            if item.red_flag and x.escalated != y.escalated:
+                notes.append(f"red-flag escalated {x.escalated} -> {y.escalated}")
+            if x.route_agents != y.route_agents:
+                notes.append(f"route {list(x.route_agents)} -> {list(y.route_agents)}")
+            if x.route_fallback != y.route_fallback:
+                notes.append(f"planner fallback {x.route_fallback} -> {y.route_fallback}")
+            if notes:
+                block.append(
+                    f"- `{item.id}`: "
+                    + "; ".join(notes)
+                    + f"  (`{x.trace_path}` vs `{y.trace_path}`)"
+                )
+        deltas.append(header + f"{len(block)} item(s) differ")
+        deltas.extend(block)
+
+    lines += judge_caveat(*(str(r["judge_model"]) if r["judge_model"] else None for r in rows))
     return "\n".join(lines), deltas
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("legacy", type=Path)
-    parser.add_argument("adk", type=Path)
+    parser.add_argument(
+        "runs",
+        type=Path,
+        nargs="+",
+        help="two or more eval/results/<run> directories; the first is the baseline",
+    )
     parser.add_argument("--config", default="full")
     parser.add_argument("--golden", type=Path, default=DEFAULT_GOLDEN)
     args = parser.parse_args(argv)
-    table, deltas = compare(args.legacy, args.adk, config=args.config, golden=args.golden)
+    if len(args.runs) < 2:
+        parser.error("give at least two run directories")
+    table, deltas = compare(args.runs, config=args.config, golden=args.golden)
     print(table)
     print()
-    print(f"per-item differences: {len(deltas)}")
+    print("## Per-item differences against the baseline")
     for line in deltas:
         print(line)
     return 0

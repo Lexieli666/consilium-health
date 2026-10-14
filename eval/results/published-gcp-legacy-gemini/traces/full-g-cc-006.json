@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-cc-006",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:46.757157Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 537,
+          "completion_tokens": 234,
+          "latency_ms": 2372.22840000004,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:46.883732Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what a combination code is in medical classification.",
+              "why": "This is a question about classification conventions."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2498.99147799988
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:46.883894Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:46.884112Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:47.891690Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 622,
+          "completion_tokens": 99,
+          "latency_ms": 1005.3658839999571,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:47.922291Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "lookup_disease_code",
+          "query": "combination code",
+          "category_filter": "coding",
+          "fused_topk": [
+            {
+              "doc_id": "coding-icd10-cm-code-structure-and-conventions",
+              "chunk_index": 2,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "coding-type-2-diabetes-e11",
+              "chunk_index": 2,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "coding-heart-failure-i50",
+              "chunk_index": 2,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "coding-hypertension-i10",
+              "chunk_index": 2,
+              "rrf_score": 0.03125763125763126
+            },
+            {
+              "doc_id": "coding-icd10-cm-versus-who-icd10",
+              "chunk_index": 1,
+              "rrf_score": 0.029236022193768675
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 0,
+              "rrf_score": 0.027912386121341344
+            },
+            {
+              "doc_id": "coding-icd10-chapter-09-circulatory",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-icd10-chapter-18-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 3,
+              "rrf_score": 0.013513513513513514
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 29.91445499992551
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:47.922867Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "lookup_disease_code",
+          "args": {
+            "condition": "combination code"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 30.53359399996225,
+          "source_doc_ids": [
+            "coding-icd10-cm-code-structure-and-conventions",
+            "coding-type-2-diabetes-e11",
+            "coding-heart-failure-i50",
+            "coding-hypertension-i10",
+            "coding-icd10-cm-versus-who-icd10"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:51.118801Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2857,
+          "completion_tokens": 532,
+          "latency_ms": 3194.882944000028,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:51.119239Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:51.124612Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:51.125983Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:06:51.127242Z",
+          "trace_id": "3d9398e993be459d82af2088404b0517",
+          "session_id": "full-g-cc-006",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "What is a combination code, and which conditions in this reference are coded with one?",
+          "answer": "A combination code in medical classification is a single code that represents two conditions, or a condition and its complication. When a combination code exists, it is used instead of coding each condition separately (from \"ICD-10-CM code structure and the conventions that govern selection\" document).\n\nConditions in this reference that are coded with a combination code include:\n\n*   **Hypertension with organ involvement**: When hypertension affects an organ, a combination code is used. For example, hypertensive heart disease (I11), hypertension with chronic kidney disease (I12), or both together (I13). Secondary hypertension (I15) is also coded together with its underlying cause (from \"Coding hypertension: I10 and the hypertensive disease family\" document).\n*   **Diabetes with complications**: Combination codes are used for diabetes with associated conditions, such as diabetic kidney disease (from \"Coding type 2 diabetes: E11 and its complication subcategories\" document).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 6738.764586999878,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

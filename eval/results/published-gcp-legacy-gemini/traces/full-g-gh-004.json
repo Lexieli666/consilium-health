@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-gh-004",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:26.385807Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 527,
+          "completion_tokens": 116,
+          "latency_ms": 1027.2882810000397,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:26.518397Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the differences between COPD and asthma, including their causes, typical onset, reversibility, and prognosis.",
+              "why": "This is a request for condition explanation and comparison, which falls under general health questions."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1160.3777980000132
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:26.518617Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:26.518817Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:27.691616Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 623,
+          "completion_tokens": 92,
+          "latency_ms": 1170.479864000015,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:27.844362Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "differences between COPD and asthma causes onset reversibility prognosis",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 2,
+              "rrf_score": 0.0304147465437788
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 2,
+              "rrf_score": 0.030090497737556562
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.02964426877470356
+            },
+            {
+              "doc_id": "coding-copd-j44",
+              "chunk_index": 2,
+              "rrf_score": 0.027799227799227798
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.027650648360030512
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 2,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "coding-icd10-chapter-05-mental",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 2,
+              "rrf_score": 0.015151515151515152
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 151.90551399996366
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:27.844878Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "differences between COPD and asthma causes onset reversibility prognosis"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 152.47123800003237,
+          "source_doc_ids": [
+            "guideline-asthma-diagnosis-and-stepwise-therapy",
+            "red-flag-severe-breathing-difficulty",
+            "coding-asthma-j45",
+            "condition-copd",
+            "coding-copd-j44"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:32.013639Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2021,
+          "completion_tokens": 599,
+          "latency_ms": 4167.645821000007,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:32.014067Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:32.016506Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:32.019148Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:47:32.021602Z",
+          "trace_id": "cf47fefd4857475ab745dcee970b80ed",
+          "session_id": "full-g-gh-004",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "How is COPD different from asthma?",
+          "answer": "Asthma and Chronic Obstructive Pulmonary Disease (COPD) are both conditions that affect breathing, but they have key differences:\n\n**Causes:**\n*   **Asthma:** Often triggered by factors like exercise, allergens, cold air, or viral infections (guideline-asthma-diagnosis-and-stepwise-therapy).\n*   **COPD:** Primarily caused by tobacco smoking in high-income countries. Other contributors include biomass fuel smoke, occupational dusts and fumes, air pollution, childhood respiratory infections, impaired lung growth, and alpha-1 antitrypsin deficiency (condition-copd).\n\n**Typical Onset and Progression:**\n*   **Asthma:** Characterized by a variable pattern of symptoms such as wheezing, breathlessness, chest tightness, and cough, which are often worse at night or in the early morning (guideline-asthma-diagnosis-and-stepwise-therapy).\n*   **COPD:** Develops gradually over many years, often presenting with symptoms like breathlessness on exertion, chronic cough, and sputum production. People may attribute early symptoms to aging or being out of shape, which can mask the progression, leading to a later diagnosis, sometimes during an exacerbation (condition-copd).\n\n**Reversibility:**\n*   **Asthma:** The airflow limitation in asthma is variable and often reversible, a feature that helps in its diagnosis (guideline-asthma-diagnosis-and-stepwise-therapy).\n*   **COPD:** While not explicitly stated as \"irreversible\" in the provided text, the description of its gradual, progressive nature over years suggests a less reversible course than asthma (condition-copd).\n\n**Prognosis/Coexistence:**\n*   The provided information primarily focuses on diagnosis and causes rather than long-term prognosis.\n*   It is possible to have both conditions. When both asthma and COPD are documented, the coding guidelines state that both conditions should be reported. Specifically, the COPD category includes an instruction to add a code for the type of asthma present (coding-asthma-j45, coding-copd-j44).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 6656.625667000015,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

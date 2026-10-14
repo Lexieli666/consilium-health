@@ -1,0 +1,361 @@
+{
+  "session_id": "full-g-su-004",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:26.089764Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 542,
+          "completion_tokens": 125,
+          "latency_ms": 1547.51175399997,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:26.208992Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the described symptoms, assess their urgency, and frame potential differential diagnoses.",
+              "why": "These are acute neurological symptoms requiring immediate urgency assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1667.0299659999728
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:26.209201Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:26.209331Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:27.121899Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 688,
+          "completion_tokens": 102,
+          "latency_ms": 910.7030679999752,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:27.172024Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "The right corner of my mouth has stopped moving and the arm on that side feels heavy since I woke up.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-stroke-symptoms",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.02658450704225352
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-hypertension-diagnosis-and-bp-targets",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 48.916188000021066
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:27.172424Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "The right corner of my mouth has stopped moving and the arm on that side feels heavy since I woke up."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 49.92696299996169,
+          "source_doc_ids": [
+            "red-flag-stroke-symptoms",
+            "lifestyle-heart-failure-diet",
+            "condition-hypertension",
+            "condition-insomnia",
+            "lifestyle-asthma-adherence"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:34.723464Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2173,
+          "completion_tokens": 1231,
+          "latency_ms": 7550.0583440000355,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:34.763293Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "analyze_symptoms",
+          "query": "The right corner of my mouth has stopped moving and the arm on that side feels heavy since I woke up.",
+          "category_filter": "condition",
+          "fused_topk": [
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 1,
+              "rrf_score": 0.030536130536130537
+            },
+            {
+              "doc_id": "condition-osteoarthritis",
+              "chunk_index": 1,
+              "rrf_score": 0.02964426877470356
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 2,
+              "rrf_score": 0.02928692699490662
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.0288981288981289
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 1,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.027984344422700584
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.02632034632034632
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 3,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 38.35292200005824
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:34.763828Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "analyze_symptoms",
+          "args": {
+            "symptoms": "The right corner of my mouth has stopped moving and the arm on that side feels heavy since I woke up."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 39.391683999951965,
+          "source_doc_ids": [
+            "condition-coronary-artery-disease",
+            "condition-osteoarthritis",
+            "condition-migraine",
+            "condition-hypothyroidism",
+            "condition-generalized-anxiety-disorder"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:38.663791Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3512,
+          "completion_tokens": 345,
+          "latency_ms": 3899.062527000069,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:38.664204Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:38.664617Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:38.664826Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:52:38.665230Z",
+          "trace_id": "5a57574a4bad4a3b9edc33fc5525875e",
+          "session_id": "full-g-su-004",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "The right corner of my mouth has stopped moving and the arm on that side feels heavy since I woke up.",
+          "answer": "The symptoms you've described—involving your face and arm on one side of your body—affect your neurological system. This pattern impacts multiple body parts at the same time.\n\nYou should **call emergency services immediately**.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 14122.509178999962,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

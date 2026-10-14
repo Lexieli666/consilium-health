@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-md-024",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:44.898413Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 560,
+          "completion_tokens": 148,
+          "latency_ms": 2658.934875000341,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:45.083665Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Assess the urgency of the described symptoms (fever and non-blanching rash) and provide immediate advice.",
+              "why": "The presence of a non-blanching rash requires urgent diagnostic assessment and immediate guidance."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2844.3794140002865
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:45.083833Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:45.083951Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:46.546436Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 714,
+          "completion_tokens": 177,
+          "latency_ms": 1460.6816209998215,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:46.589716Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "My child has a temperature of 39.5 and a rash that does not go pale when I press a glass on it.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 0,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 1,
+              "rrf_score": 0.03149801587301587
+            },
+            {
+              "doc_id": "red-flag-anaphylaxis",
+              "chunk_index": 1,
+              "rrf_score": 0.02919863597612958
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.02666666666666667
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 0,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-iron-deficiency-anemia",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 0,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 42.08508700003222
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:46.590177Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "My child has a temperature of 39.5 and a rash that does not go pale when I press a glass on it."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 43.11065499996403,
+          "source_doc_ids": [
+            "red-flag-meningitis-signs",
+            "red-flag-sepsis",
+            "red-flag-anaphylaxis",
+            "lifestyle-heart-failure-diet",
+            "condition-upper-respiratory-infection"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:51.181784Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2203,
+          "completion_tokens": 545,
+          "latency_ms": 4590.639745000317,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:51.182167Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:51.183015Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:51.183334Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:34:51.183756Z",
+          "trace_id": "9e033f1a49a74794855042b47b948af8",
+          "session_id": "full-g-md-024",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "My child has a temperature of 39.5 and a rash that does not go pale when I press a glass on it. How urgent is this, and what should I do right now?",
+          "answer": "This is an emergency. You should seek immediate medical attention for your child.\n\nA rash of small red or purple spots or bruises that does not fade when pressed, especially when accompanied by a fever, is a sign that requires immediate medical assessment (Infectious diseases and emergency medicine society guidance). This can be tested by rolling a clear glass over the rash; if it does not fade, it is a non-blanching rash. It is important to note that a rash that does not fade can be a sign of serious conditions like meningitis or sepsis (Infectious diseases and emergency medicine society guidance; Critical care and emergency medicine society guidance).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 8943.344013000115,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": true,
+          "escalation_present_post_repair": true,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

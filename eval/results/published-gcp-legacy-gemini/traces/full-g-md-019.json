@@ -1,0 +1,712 @@
+{
+  "session_id": "full-g-md-019",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:38.436879Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 551,
+          "completion_tokens": 269,
+          "latency_ms": 2587.1631830000297,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:38.557463Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "parallel",
+          "agents": [
+            "diagnostic",
+            "research"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Explain which of asthma or reflux is more likely to be driving a nocturnal cough, given the presenting conditions.",
+              "why": "This is a question about interpreting symptoms in the context of known conditions."
+            },
+            {
+              "subtask_id": "2-research",
+              "agent": "research",
+              "objective": "Summarize what guidelines say about nocturnal cough in the context of asthma and reflux, including treatment approaches.",
+              "why": "The user is explicitly asking for guidance on both conditions."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2707.927197999652
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:38.557659Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:38.557786Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "2-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:38.557969Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:38.562598Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "2-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:40.279093Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 703,
+          "completion_tokens": 219,
+          "latency_ms": 1719.2011070001172,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:40.306925Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "nocturnal cough",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 1,
+              "rrf_score": 0.03125763125763126
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.03125
+            },
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 1,
+              "rrf_score": 0.029236022193768675
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.027583600982429624
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.026856524873828405
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 27.004662999843276
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:40.307411Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "nocturnal cough"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 27.755308999985573,
+          "source_doc_ids": [
+            "condition-asthma",
+            "condition-upper-respiratory-infection",
+            "condition-influenza",
+            "guideline-uri-antibiotic-stewardship",
+            "condition-gerd"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:43.526386Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 712,
+          "completion_tokens": 375,
+          "latency_ms": 4961.394550000023,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:43.570124Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "What do clinical guidelines say about nocturnal cough in the context of asthma and reflux, including which condition is more likely to be driving it and recommended treatment approaches for each?",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 3,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.029857397504456328
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.028949545078577336
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.027783137179239824
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-diet",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 43.049211999914405
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:43.661030Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "What do guidelines say about nocturnal cough as a symptom of asthma?",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 3,
+              "rrf_score": 0.03036576949620428
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.02817460317460317
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.027031963470319637
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 2,
+              "rrf_score": 0.025974025974025976
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 3,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.0136986301369863
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 90.508993000185
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:43.751130Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "What do guidelines say about nocturnal cough as a symptom of gastroesophageal reflux disease (GERD)?",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 0,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 3,
+              "rrf_score": 0.03125
+            },
+            {
+              "doc_id": "guideline-gerd-initial-management-and-alarm-features",
+              "chunk_index": 0,
+              "rrf_score": 0.03007688828584351
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.029386529386529386
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 3,
+              "rrf_score": 0.027212143650499815
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.025833333333333333
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.02532051282051282
+            },
+            {
+              "doc_id": "coding-icd10-chapter-11-digestive",
+              "chunk_index": 0,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.014084507042253521
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 89.77568599993901
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:43.844073Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "How do guidelines differentiate between asthma-related nocturnal cough and reflux-related nocturnal cough?",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 3,
+              "rrf_score": 0.03200204813108039
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 0,
+              "rrf_score": 0.03055037313432836
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 3,
+              "rrf_score": 0.029877369007803793
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 1,
+              "rrf_score": 0.029411764705882353
+            },
+            {
+              "doc_id": "lifestyle-gerd-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "red-flag-chest-pain",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 92.32579199988322
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:43.873169Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "deep_research",
+          "query": "What are the recommended treatment approaches for nocturnal cough caused by asthma?",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.030776515151515152
+            },
+            {
+              "doc_id": "guideline-asthma-diagnosis-and-stepwise-therapy",
+              "chunk_index": 1,
+              "rrf_score": 0.02967032967032967
+            },
+            {
+              "doc_id": "coding-asthma-j45",
+              "chunk_index": 3,
+              "rrf_score": 0.02804284323271665
+            },
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 0,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 0,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-generalized-anxiety-disorder",
+              "chunk_index": 3,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "coding-gerd-k21",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 3,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 28.695792999769765
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:43.873757Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "research",
+          "skill": "deep_research",
+          "args": {
+            "sub_queries": [
+              "What do guidelines say about nocturnal cough as a symptom of asthma?",
+              "What do guidelines say about nocturnal cough as a symptom of gastroesophageal reflux disease (GERD)?",
+              "How do guidelines differentiate between asthma-related nocturnal cough and reflux-related nocturnal cough?",
+              "What are the recommended treatment approaches for nocturnal cough caused by asthma?",
+              "What are the recommended treatment approaches for nocturnal cough caused by reflux?"
+            ],
+            "question": "What do clinical guidelines say about nocturnal cough in the context of asthma and reflux, including which condition is more likely to be driving it and recommended treatment approaches for each?"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 346.7308110002705,
+          "source_doc_ids": [
+            "coding-gerd-k21",
+            "condition-asthma",
+            "lifestyle-gerd-diet",
+            "condition-gerd",
+            "coding-asthma-j45",
+            "guideline-asthma-diagnosis-and-stepwise-therapy",
+            "condition-influenza",
+            "condition-copd",
+            "guideline-gerd-initial-management-and-alarm-features"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:44.592918Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2148,
+          "completion_tokens": 591,
+          "latency_ms": 4284.300784000152,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:44.593443Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:52.660320Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:research",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 7467,
+          "completion_tokens": 1535,
+          "latency_ms": 8785.426833000201,
+          "tools_offered": [
+            "find_guideline",
+            "deep_research",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:29:52.660771Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "2-research",
+          "agent": "research"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:30:03.002517Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "synthesizer",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1310,
+          "completion_tokens": 1998,
+          "latency_ms": 10341.366621999896,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:30:03.004491Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": null,
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:30:03.007694Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": null,
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T15:30:03.010787Z",
+          "trace_id": "769800b8b1ca4c9db6b3690da853533f",
+          "session_id": "full-g-md-019",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I have both asthma and reflux and my cough is worse at night. Which is more likely to be driving it, and what does guidance describe for each?",
+          "answer": "If your symptoms are severe, worsening, or new and unexplained, seek medical advice.\n\nA nocturnal cough can be a symptom of both asthma and gastroesophageal reflux disease (GERD). Given that cough alone, especially at night, is a recognized way asthma can present, and it is a less specific symptom for GERD, it may be helpful to discuss these possibilities with a clinician to determine the most likely cause in your specific situation (condition-asthma, condition-gerd). When both asthma and reflux are present, the two conditions are considered distinct (coding-gerd-k21).\n\nFor asthma, a characteristic pattern includes wheezing, breathlessness, chest tightness, and a cough that varies in intensity, often worse at night or in the early morning and triggered by certain factors (condition-asthma). Current guidance states that every adult and adolescent with asthma should receive therapy containing an inhaled corticosteroid, as using only a short-acting bronchodilator leaves underlying inflammation untreated and can be linked to severe flare-ups (guideline-asthma-diagnosis-and-stepwise-therapy). Treatment plans are generally stepwise, adjusted based on current symptom control and history of exacerbations (guideline-asthma-diagnosis-and-stepwise-therapy). There is a divergence in guidance regarding the preferred reliever for mild asthma: global strategy guidance suggests an inhaled-corticosteroid-and-formoterol combination as the preferred reliever across all steps, while some national guidance indicates that a short-acting bronchodilator reliever alongside a regular controller can still be appropriate for mild disease (guideline-asthma-diagnosis-and-stepwise-therapy).\n\nFor GERD, typical symptoms are heartburn and regurgitation, often worse after meals, when bending forward, and when lying down (condition-gerd). Less typical presentations of GERD include chronic cough, hoarseness, throat clearing, a sensation of a lump in the throat, dental erosion, and non-cardiac chest pain (condition-gerd). However, these less typical symptoms are not as specific to GERD, and attributing them solely to reflux without considering alternatives can be unreliable, as many people with them may have other explanations and may not respond as predictably to acid-reducing treatments (condition-gerd). For typical reflux symptoms without concerning \"alarm features,\" an initial approach often involves an eight-week trial of a proton pump inhibitor medication taken before a meal (guideline-gerd-initial-management-and-alarm-features). Lifestyle measures are also recommended, with strong supporting evidence for weight reduction for those above a healthy range (guideline-gerd-initial-management-and-alarm-features, lifestyle-gerd-diet). For individuals with mainly nocturnal symptoms, avoiding food for a few hours before bedtime tends to be more effective than broad dietary changes; the usual approach is to identify individual triggers instead of avoiding a long list of foods (guideline-gerd-initial-management-and-alarm-features, lifestyle-gerd-diet).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 27153.46000799991,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

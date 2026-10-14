@@ -1,0 +1,256 @@
+{
+  "session_id": "full-g-gh-011",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:21.072835Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 529,
+          "completion_tokens": 133,
+          "latency_ms": 1580.8484919999728,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:21.191969Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain the typical duration of a common cold.",
+              "why": "This is a general health question about the typical course of a condition."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1700.255023000011
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:21.192215Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:21.192339Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:22.332211Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 613,
+          "completion_tokens": 79,
+          "latency_ms": 1137.5951580000105,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:22.364942Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "common cold duration",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-uri-antibiotic-stewardship",
+              "chunk_index": 1,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-upper-respiratory-infection",
+              "chunk_index": 2,
+              "rrf_score": 0.03125763125763126
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 1,
+              "rrf_score": 0.028991596638655463
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 0,
+              "rrf_score": 0.028371628371628373
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 0,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "condition-hypothyroidism",
+              "chunk_index": 1,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "red-flag-sepsis",
+              "chunk_index": 1,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 0,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "red-flag-meningitis-signs",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 32.054213999970216
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:22.365404Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "common cold duration"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 32.56171199996061,
+          "source_doc_ids": [
+            "guideline-uri-antibiotic-stewardship",
+            "condition-upper-respiratory-infection",
+            "condition-asthma",
+            "condition-influenza",
+            "guideline-coronary-artery-disease-secondary-prevention"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:23.191341Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2014,
+          "completion_tokens": 60,
+          "latency_ms": 824.7456749999742,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:23.191869Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:23.192876Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:23.193614Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T14:48:23.194711Z",
+          "trace_id": "4654babb77ee48d48ed57198b5f2b18c",
+          "session_id": "full-g-gh-011",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "How long does a common cold usually last?",
+          "answer": "A common cold typically lasts for seven to ten days. A cough can persist for two to three weeks after the other symptoms have resolved. This information comes from the \"Upper respiratory infection: antibiotic stewardship and when antibiotics are indicated\" guideline and the \"Upper respiratory infection (common cold)\" general clinical reference.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 3700.7351889999995,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}

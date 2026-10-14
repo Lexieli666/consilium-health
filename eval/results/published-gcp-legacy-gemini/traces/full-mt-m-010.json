@@ -1,0 +1,669 @@
+{
+  "session_id": "full-mt-m-010",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:03.534909Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 530,
+          "completion_tokens": 245,
+          "latency_ms": 1904.039250999631,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:03.654707Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain COPD, its relationship to smoking, and offer general lifestyle guidance regarding smoking cessation.",
+              "why": "The user is providing personal health context related to a chronic condition and a lifestyle factor, which falls under general health and lifestyle guidance."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2024.0183559999423
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:03.654897Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:03.655062Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:04.655173Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 622,
+          "completion_tokens": 96,
+          "latency_ms": 997.902375999729,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:04.686092Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "COPD and smoking",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 1,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.03036576949620428
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.029631255487269532
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 3,
+              "rrf_score": 0.029631255487269532
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 2,
+              "rrf_score": 0.028309409888357256
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.02758751902587519
+            },
+            {
+              "doc_id": "condition-type-2-diabetes",
+              "chunk_index": 2,
+              "rrf_score": 0.026013513513513515
+            },
+            {
+              "doc_id": "condition-influenza",
+              "chunk_index": 2,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "coding-icd10-chapter-10-respiratory",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 30.228610999984085
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:04.686511Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "COPD and smoking"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 30.693067999891355,
+          "source_doc_ids": [
+            "condition-copd",
+            "lifestyle-copd-activity",
+            "condition-asthma",
+            "guideline-copd-diagnosis-and-stepwise-management",
+            "red-flag-severe-breathing-difficulty"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:04.733096Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "recommend_lifestyle",
+          "query": "COPD adherence",
+          "category_filter": "lifestyle",
+          "fused_topk": [
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.03278688524590164
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.031754032258064516
+            },
+            {
+              "doc_id": "lifestyle-asthma-adherence",
+              "chunk_index": 0,
+              "rrf_score": 0.031024531024531024
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "lifestyle-heart-failure-diet",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "lifestyle-osteoarthritis-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 45.935362999443896
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:04.733660Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "recommend_lifestyle",
+          "args": {
+            "condition": "COPD",
+            "domain": "adherence"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 46.537564000573184,
+          "source_doc_ids": [
+            "lifestyle-copd-activity",
+            "lifestyle-type-2-diabetes-adherence",
+            "lifestyle-asthma-adherence",
+            "lifestyle-hypertension-activity",
+            "lifestyle-generalized-anxiety-disorder-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:10.017107Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "forced_answer",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 3026,
+          "completion_tokens": 642,
+          "latency_ms": 5282.607162000204,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:10.017520Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:10.018297Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:10.019297Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:10.020721Z",
+          "trace_id": "4a0cb5bb4e264d30beea4259a79b6b40",
+          "session_id": "full-mt-m-010",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I smoke and I have been diagnosed with COPD.",
+          "answer": "Chronic Obstructive Pulmonary Disease (COPD) is a lung condition that develops over many years, often causing a chronic cough and sputum production. People sometimes mistake early symptoms for normal aging or being out of shape, which can hide the condition's progression (condition-copd). A diagnosis of COPD requires a breathing test called spirometry and is not based on symptoms alone (condition-copd).\n\nTobacco smoking is the main cause of COPD in many countries (condition-copd). Other factors can also contribute, such as exposure to biomass fuel smoke, occupational dusts, fumes, air pollution, and childhood respiratory infections (condition-copd).\n\nStopping smoking is the only intervention that has been shown to slow down the rate at which lung function declines in people with COPD (guideline-copd-diagnosis-and-stepwise-management).\n\nGiven your diagnosis, discussing smoking cessation strategies with your clinician is an important step. They can help you explore methods and support to quit smoking.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 8387.116771000365,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:12.378856Z",
+          "trace_id": "e0ba1ee6d4e5442d92f48741eab07ba0",
+          "session_id": "full-mt-m-010",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 529,
+          "completion_tokens": 195,
+          "latency_ms": 2274.6719329998086,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:12.414671Z",
+          "trace_id": "e0ba1ee6d4e5442d92f48741eab07ba0",
+          "session_id": "full-mt-m-010",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain that the question is too vague to answer without more context.",
+              "why": "The question is highly unspecific and cannot be answered by any specialist without more information."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2310.7407540001077
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:12.414875Z",
+          "trace_id": "e0ba1ee6d4e5442d92f48741eab07ba0",
+          "session_id": "full-mt-m-010",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:12.415014Z",
+          "trace_id": "e0ba1ee6d4e5442d92f48741eab07ba0",
+          "session_id": "full-mt-m-010",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:14.126522Z",
+          "trace_id": "e0ba1ee6d4e5442d92f48741eab07ba0",
+          "session_id": "full-mt-m-010",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 943,
+          "completion_tokens": 182,
+          "latency_ms": 1709.473025999614,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:14.126936Z",
+          "trace_id": "e0ba1ee6d4e5442d92f48741eab07ba0",
+          "session_id": "full-mt-m-010",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:14.128303Z",
+          "trace_id": "e0ba1ee6d4e5442d92f48741eab07ba0",
+          "session_id": "full-mt-m-010",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "Does stopping actually change anything at this stage?",
+          "answer": "Yes, stopping smoking can make a significant difference. For individuals with Chronic Obstructive Pulmonary Disease (COPD), stopping smoking is the only intervention that has been shown to slow the rate at which lung function declines (guideline-copd-diagnosis-and-stepwise-management).\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: guideline-copd-diagnosis-and-stepwise-management]",
+          "risk_level": "routine",
+          "wall_ms": 4023.281965000024,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:15.839992Z",
+          "trace_id": "39ba05c73ac944beb3290d07e48147a5",
+          "session_id": "full-mt-m-010",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 532,
+          "completion_tokens": 140,
+          "latency_ms": 1621.6099100001884,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:15.876010Z",
+          "trace_id": "39ba05c73ac944beb3290d07e48147a5",
+          "session_id": "full-mt-m-010",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the user's statement about breathlessness and determine what factors might be influencing its severity or frequency.",
+              "why": "The user is asking for an interpretation of how breathlessness impacts them, which falls under symptom interpretation."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1657.8137839996998
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:15.876301Z",
+          "trace_id": "39ba05c73ac944beb3290d07e48147a5",
+          "session_id": "full-mt-m-010",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:15.876416Z",
+          "trace_id": "39ba05c73ac944beb3290d07e48147a5",
+          "session_id": "full-mt-m-010",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:18.540326Z",
+          "trace_id": "39ba05c73ac944beb3290d07e48147a5",
+          "session_id": "full-mt-m-010",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1125,
+          "completion_tokens": 292,
+          "latency_ms": 2661.433635999856,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:18.576535Z",
+          "trace_id": "39ba05c73ac944beb3290d07e48147a5",
+          "session_id": "full-mt-m-010",
+          "turn_index": 2,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "smoking cessation impact on breathlessness in COPD",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "condition-copd",
+              "chunk_index": 2,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "guideline-copd-diagnosis-and-stepwise-management",
+              "chunk_index": 3,
+              "rrf_score": 0.03252247488101534
+            },
+            {
+              "doc_id": "lifestyle-copd-activity",
+              "chunk_index": 0,
+              "rrf_score": 0.03076923076923077
+            },
+            {
+              "doc_id": "red-flag-severe-breathing-difficulty",
+              "chunk_index": 2,
+              "rrf_score": 0.028577260665441927
+            },
+            {
+              "doc_id": "condition-asthma",
+              "chunk_index": 0,
+              "rrf_score": 0.027783137179239824
+            },
+            {
+              "doc_id": "lifestyle-hypertension-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.027272727272727275
+            },
+            {
+              "doc_id": "condition-gerd",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "guideline-type-2-diabetes-glycemic-targets",
+              "chunk_index": 3,
+              "rrf_score": 0.015151515151515152
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 2,
+              "rrf_score": 0.014705882352941176
+            },
+            {
+              "doc_id": "condition-heart-failure",
+              "chunk_index": 1,
+              "rrf_score": 0.013888888888888888
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 35.362622999855375
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:18.576958Z",
+          "trace_id": "39ba05c73ac944beb3290d07e48147a5",
+          "session_id": "full-mt-m-010",
+          "turn_index": 2,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "smoking cessation impact on breathlessness in COPD"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 35.84595000029367,
+          "source_doc_ids": [
+            "condition-copd",
+            "guideline-copd-diagnosis-and-stepwise-management",
+            "lifestyle-copd-activity",
+            "red-flag-severe-breathing-difficulty",
+            "condition-asthma"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:22.566536Z",
+          "trace_id": "39ba05c73ac944beb3290d07e48147a5",
+          "session_id": "full-mt-m-010",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2461,
+          "completion_tokens": 456,
+          "latency_ms": 3988.4835149996434,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:22.567124Z",
+          "trace_id": "39ba05c73ac944beb3290d07e48147a5",
+          "session_id": "full-mt-m-010",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:23:22.570831Z",
+          "trace_id": "39ba05c73ac944beb3290d07e48147a5",
+          "session_id": "full-mt-m-010",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "How much difference does it make to how breathless I get?",
+          "answer": "Stopping smoking can significantly impact your breathlessness. While it's the only intervention shown to slow the decline of lung function in people with COPD, directly addressing breathlessness also involves other approaches (guideline-copd-diagnosis-and-stepwise-management).\n\nBreathlessness during activity can lead to a cycle where you avoid activity, your muscles decondition, and then you experience breathlessness even sooner with less effort. Much of the improvement in chronic obstructive pulmonary disease comes from breaking this cycle through exercise and activity (lifestyle-copd-activity). Pulmonary rehabilitation, for example, is more effective at improving breathlessness and exercise capacity than inhalers alone (guideline-copd-diagnosis-and-stepwise-management).\n\nTherefore, stopping smoking helps to preserve your lung function over time, and engaging in activity and rehabilitation can directly improve how breathless you feel and your capacity for exercise.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: guideline-copd-diagnosis-and-stepwise-management, lifestyle-copd-activity]",
+          "risk_level": "routine",
+          "wall_ms": 8349.562372000037,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    }
+  ]
+}

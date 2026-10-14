@@ -1,0 +1,621 @@
+{
+  "session_id": "full-mt-m-003",
+  "turns": [
+    {
+      "turn_index": 0,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:34.442193Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 529,
+          "completion_tokens": 92,
+          "latency_ms": 2544.6323420001136,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:34.589847Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "diagnostic"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-diagnostic",
+              "agent": "diagnostic",
+              "objective": "Interpret the symptom description of migraines occurring six times a month, considering potential frequency and severity implications.",
+              "why": "The user is describing a symptom and its frequency, which requires symptom interpretation and potential urgency assessment."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2692.472278999958
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:34.590074Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:34.590203Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:50.276241Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 679,
+          "completion_tokens": 70,
+          "latency_ms": 15683.943296000507,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:50.309914Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "retrieval",
+          "skill": "assess_risk",
+          "query": "I get migraines maybe six times a month.",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 3,
+              "rrf_score": 0.032266458495966696
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 0,
+              "rrf_score": 0.030834914611005692
+            },
+            {
+              "doc_id": "guideline-anxiety-screening-and-first-line-care",
+              "chunk_index": 2,
+              "rrf_score": 0.01639344262295082
+            },
+            {
+              "doc_id": "guideline-hypothyroidism-testing-and-monitoring",
+              "chunk_index": 2,
+              "rrf_score": 0.016129032258064516
+            },
+            {
+              "doc_id": "lifestyle-generalized-anxiety-disorder-activity",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.015625
+            },
+            {
+              "doc_id": "red-flag-suicidal-ideation",
+              "chunk_index": 0,
+              "rrf_score": 0.015384615384615385
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 2,
+              "rrf_score": 0.014925373134328358
+            },
+            {
+              "doc_id": "condition-insomnia",
+              "chunk_index": 0,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "lifestyle-type-2-diabetes-adherence",
+              "chunk_index": 1,
+              "rrf_score": 0.014285714285714285
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 32.78906800005643
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:10:50.310301Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "tool_call",
+          "agent": "diagnostic",
+          "skill": "assess_risk",
+          "args": {
+            "symptoms": "I get migraines maybe six times a month."
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 33.5268980006731,
+          "source_doc_ids": [
+            "guideline-migraine-acute-and-preventive-treatment",
+            "condition-migraine",
+            "guideline-anxiety-screening-and-first-line-care",
+            "guideline-hypothyroidism-testing-and-monitoring",
+            "lifestyle-generalized-anxiety-disorder-activity"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:20.396768Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "llm_call",
+          "caller": "agent:diagnostic",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2155,
+          "completion_tokens": 712,
+          "latency_ms": 30085.415737999938,
+          "tools_offered": [
+            "assess_risk",
+            "analyze_symptoms",
+            "search_knowledge"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:20.397208Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-diagnostic",
+          "agent": "diagnostic"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:20.398359Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:20.399568Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "diagnostic",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:20.401169Z",
+          "trace_id": "94664e59dc704ecbbf168fbb975c8f11",
+          "session_id": "full-mt-m-003",
+          "turn_index": 0,
+          "type": "turn",
+          "question": "I get migraines maybe six times a month.",
+          "answer": "Based on your description of migraines occurring six times a month, the system assesses this as a **routine** concern. There is no emergency pattern that matches this description. However, this does not mean the symptom is not serious. If your symptoms are severe, worsening, or new and unexplained, you should still seek medical advice.\n\nMigraine is a recurrent neurological disorder, often involving headache, sensory sensitivity, and nausea. Chronic migraine is defined as experiencing headaches on fifteen or more days per month, with at least eight of those having migraine features, for more than three months, as noted in the \"Migraine\" document. Your described frequency of six times a month falls below this definition of chronic migraine.\n\nHowever, it is important to consider that frequent use of acute migraine medication can sometimes lead to a \"medication-overuse headache,\" which can convert an episodic pattern into a chronic one. Guidelines suggest that using certain acute medications (like triptans, ergots, opioids, and combination analgesics) fewer than ten days per month helps prevent this (from the \"Migraine: acute treatment, when prevention starts, and medication-overuse limits\" guideline). Your frequency of six migraines a month is within a range where discussing medication use with a clinician would be helpful to ensure you are not at risk for medication-overuse headache.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 48500.326041000335,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    },
+    {
+      "turn_index": 1,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:22.364556Z",
+          "trace_id": "9d3f4fc0b69747ee84d52f65fded457e",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 528,
+          "completion_tokens": 127,
+          "latency_ms": 1883.3812049997505,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:22.473245Z",
+          "trace_id": "9d3f4fc0b69747ee84d52f65fded457e",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain what factors would necessitate preventive measures for the unstated condition, focusing on general health and lifestyle guidance.",
+              "why": "This is a general health question about prevention, with no explicit symptoms, urgency, or guideline components."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 1992.237137000302
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:22.473499Z",
+          "trace_id": "9d3f4fc0b69747ee84d52f65fded457e",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:22.473627Z",
+          "trace_id": "9d3f4fc0b69747ee84d52f65fded457e",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:24.502580Z",
+          "trace_id": "9d3f4fc0b69747ee84d52f65fded457e",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 994,
+          "completion_tokens": 321,
+          "latency_ms": 2026.5937499998472,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "tool_calls"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:24.535087Z",
+          "trace_id": "9d3f4fc0b69747ee84d52f65fded457e",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "retrieval",
+          "skill": "search_knowledge",
+          "query": "factors necessitating migraine prevention",
+          "category_filter": null,
+          "fused_topk": [
+            {
+              "doc_id": "guideline-migraine-acute-and-preventive-treatment",
+              "chunk_index": 1,
+              "rrf_score": 0.031544957774465976
+            },
+            {
+              "doc_id": "condition-migraine",
+              "chunk_index": 3,
+              "rrf_score": 0.03131881575727918
+            },
+            {
+              "doc_id": "lifestyle-migraine-sleep",
+              "chunk_index": 3,
+              "rrf_score": 0.030309988518943745
+            },
+            {
+              "doc_id": "condition-coronary-artery-disease",
+              "chunk_index": 2,
+              "rrf_score": 0.0293236301369863
+            },
+            {
+              "doc_id": "red-flag-sudden-severe-headache",
+              "chunk_index": 3,
+              "rrf_score": 0.029273504273504274
+            },
+            {
+              "doc_id": "guideline-coronary-artery-disease-secondary-prevention",
+              "chunk_index": 0,
+              "rrf_score": 0.015873015873015872
+            },
+            {
+              "doc_id": "condition-urinary-tract-infection",
+              "chunk_index": 3,
+              "rrf_score": 0.014492753623188406
+            },
+            {
+              "doc_id": "guideline-lipid-screening-and-statin-initiation",
+              "chunk_index": 2,
+              "rrf_score": 0.014285714285714285
+            },
+            {
+              "doc_id": "coding-insomnia-g47",
+              "chunk_index": 3,
+              "rrf_score": 0.014084507042253521
+            },
+            {
+              "doc_id": "condition-hypertension",
+              "chunk_index": 1,
+              "rrf_score": 0.014084507042253521
+            }
+          ],
+          "returned_k": 5,
+          "latency_ms": 31.70723299990641
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:24.535551Z",
+          "trace_id": "9d3f4fc0b69747ee84d52f65fded457e",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "tool_call",
+          "agent": "consultation",
+          "skill": "search_knowledge",
+          "args": {
+            "query": "factors necessitating migraine prevention"
+          },
+          "ok": true,
+          "error": null,
+          "latency_ms": 32.21684699929028,
+          "source_doc_ids": [
+            "guideline-migraine-acute-and-preventive-treatment",
+            "condition-migraine",
+            "lifestyle-migraine-sleep",
+            "condition-coronary-artery-disease",
+            "red-flag-sudden-severe-headache"
+          ],
+          "transport": "internal"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:26.069463Z",
+          "trace_id": "9d3f4fc0b69747ee84d52f65fded457e",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 2269,
+          "completion_tokens": 211,
+          "latency_ms": 1532.7227620000485,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:26.069944Z",
+          "trace_id": "9d3f4fc0b69747ee84d52f65fded457e",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:26.072856Z",
+          "trace_id": "9d3f4fc0b69747ee84d52f65fded457e",
+          "session_id": "full-mt-m-003",
+          "turn_index": 1,
+          "type": "turn",
+          "question": "Is that enough to need something preventive?",
+          "answer": "Preventive treatment for migraine is generally offered when attacks are frequent or disabling enough that acute treatment alone is not sufficient. The guidance suggests considering prevention when there are four or more migraine days per month with some disability. It can also be considered with fewer attacks if the disability is severe, if acute treatment is ineffective or contraindicated, or if the individual prefers it. The goal of preventive treatment is to reduce the frequency and severity of migraines, with a 50% reduction in migraine days being a common definition of a successful treatment response.\n\nGeneral health and lifestyle factors that are often addressed in migraine management include maintaining regular sleep patterns, ensuring meal regularity, and avoiding overuse of acute migraine medication. These factors contribute to overall health and can influence migraine frequency and severity.\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.\n[sources: guideline-migraine-acute-and-preventive-treatment, condition-migraine, lifestyle-migraine-sleep]",
+          "risk_level": "routine",
+          "wall_ms": 5589.377850000346,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": false
+        }
+      ]
+    },
+    {
+      "turn_index": 2,
+      "events": [
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:28.753974Z",
+          "trace_id": "c6dccdaa5ae54699a46eef8847bb9aeb",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "planner",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 527,
+          "completion_tokens": 150,
+          "latency_ms": 2608.6128989991266,
+          "tools_offered": [],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:28.783745Z",
+          "trace_id": "c6dccdaa5ae54699a46eef8847bb9aeb",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "route",
+          "mode": "single",
+          "agents": [
+            "consultation"
+          ],
+          "subtasks": [
+            {
+              "subtask_id": "1-consultation",
+              "agent": "consultation",
+              "objective": "Explain that the question is too vague and requires more context to provide meaningful options. Ask the user to clarify what 'that' refers to.",
+              "why": "The question lacks context and cannot be answered by any specialist as stated."
+            }
+          ],
+          "fallback": false,
+          "latency_ms": 2638.5583229994154
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:28.783959Z",
+          "trace_id": "c6dccdaa5ae54699a46eef8847bb9aeb",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "assigned",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:11:28.784112Z",
+          "trace_id": "c6dccdaa5ae54699a46eef8847bb9aeb",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "started",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:12:34.881498Z",
+          "trace_id": "c6dccdaa5ae54699a46eef8847bb9aeb",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "llm_call",
+          "caller": "agent:consultation",
+          "provider": "vertexai",
+          "model": "gemini-2.5-flash",
+          "prompt_tokens": 1272,
+          "completion_tokens": 109,
+          "latency_ms": 66095.32854700046,
+          "tools_offered": [
+            "search_knowledge",
+            "recommend_lifestyle",
+            "lookup_disease_code"
+          ],
+          "stop_reason": "stop"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:12:34.882040Z",
+          "trace_id": "c6dccdaa5ae54699a46eef8847bb9aeb",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "blackboard",
+          "event": "completed",
+          "subtask_id": "1-consultation",
+          "agent": "consultation"
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:12:34.882452Z",
+          "trace_id": "c6dccdaa5ae54699a46eef8847bb9aeb",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "safety",
+          "event": "violation",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "the answer does not carry the required disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:12:34.882755Z",
+          "trace_id": "c6dccdaa5ae54699a46eef8847bb9aeb",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "safety",
+          "event": "repair",
+          "rule": "disclaimer",
+          "scope": "output",
+          "agent": "consultation",
+          "detail": "appended the disclaimer",
+          "post_stream": false
+        },
+        {
+          "schema_version": 2,
+          "ts": "2026-10-14T16:12:34.883165Z",
+          "trace_id": "c6dccdaa5ae54699a46eef8847bb9aeb",
+          "session_id": "full-mt-m-003",
+          "turn_index": 2,
+          "type": "turn",
+          "question": "What are the options for that?",
+          "answer": "To provide meaningful options, please clarify what \"that\" refers to. Are you asking about options for preventing migraines, options for acute treatment, or something else?\n\nNot medical advice. This is an educational software project. It does not diagnose or treat, and it must not be used for real medical decisions.",
+          "risk_level": "routine",
+          "wall_ms": 68737.15636999987,
+          "red_flag_matched": false,
+          "red_flag_matched_raw": false,
+          "red_flag_negation_suppressed": false,
+          "escalation_present_pre_repair": false,
+          "escalation_present_post_repair": false,
+          "repair_applied": true
+        }
+      ]
+    }
+  ]
+}
